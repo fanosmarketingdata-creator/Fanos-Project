@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Fanos ERP — Fase 1 (Fondasi)
 
 Migrasi dari Google Apps Script ke **Next.js + Supabase + Vercel**.
@@ -107,3 +108,6 @@ ini.
 
 Lanjutkan ke fase berikutnya kapan saja — beri tahu modul mana yang mau
 dikerjakan duluan.
+=======
+# Fanos-Project
+>>>>>>> d9f10b21b8e53aae78909731bc8525f37c59bb64
