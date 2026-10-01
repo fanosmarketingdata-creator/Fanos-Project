@@ -1,21 +1,27 @@
-<<<<<<< HEAD
-# Fanos ERP — Fase 1 (Fondasi)
+# Fanos ERP — Fase 1 & 2
 
 Migrasi dari Google Apps Script ke **Next.js + Supabase + Vercel**.
 
-Fase 1 ini berisi: struktur project, skema database lengkap (Supabase),
-sistem login (Supabase Auth), dan shell dashboard (sidebar + topbar).
-Modul-modul bisnis (Clients, Products, BOQ, Quotation, Sales Order, dst)
-akan menyusul di fase berikutnya — file/folder-nya sudah disiapkan di
-sidebar, tapi halamannya belum dibuat.
+- **Fase 1**: struktur project, skema database lengkap, login (Supabase
+  Auth), shell dashboard (sidebar + topbar).
+- **Fase 2** *(baru)*: modul **Clients**, **Vendors**, **Products** —
+  masing-masing sudah full CRUD (tambah/edit/hapus/cari), termasuk upload
+  foto produk (drag & drop, kriteria sama seperti sistem lama: JPG/PNG/WebP
+  maks 2MB) lewat Supabase Storage.
+
+Modul lain (BOQ, Quotation, Sales Order, Invoice, dst) menyusul di fase
+berikutnya — sudah ada di menu sidebar tapi halamannya belum dibuat.
 
 ## 1. Setup Supabase
 
 1. Buat akun & project baru di https://supabase.com (gratis untuk mulai).
-2. Buka **SQL Editor** di dashboard Supabase, jalankan isi file
-   `supabase/migrations/0001_init.sql` (klik Run).
-3. Jalankan juga `supabase/migrations/0002_rls.sql` setelah yang pertama
-   selesai.
+2. Buka **SQL Editor** di dashboard Supabase, jalankan file-file di
+   `supabase/migrations/` **berurutan sesuai nomornya** (0001, lalu 0002,
+   lalu 0003) — masing-masing klik Run satu per satu, tunggu sukses
+   sebelum lanjut ke berikutnya.
+   - `0001_init.sql` — semua tabel
+   - `0002_rls.sql` — keamanan akses data
+   - `0003_storage.sql` — bucket penyimpanan foto produk
 4. Buka **Authentication > Providers**, pastikan **Email** provider aktif.
 5. Buka **Authentication > Users**, klik **Add user** untuk membuat akun
    pertama (misal buat akun Superuser kamu sendiri dulu). Setelah dibuat,
@@ -98,7 +104,7 @@ ini.
 
 ## Rencana fase berikutnya
 
-- Fase 2: Clients, Vendors, Products (CRUD dasar)
+- ~~Fase 2: Clients, Vendors, Products (CRUD dasar)~~ ✅ selesai
 - Fase 3: BOQ Project + BOQ Akumulasi
 - Fase 4: Quotations, Sales Orders, Delivery Orders
 - Fase 5: Invoices, Payments, Retur, Credit Notes
@@ -108,6 +114,3 @@ ini.
 
 Lanjutkan ke fase berikutnya kapan saja — beri tahu modul mana yang mau
 dikerjakan duluan.
-=======
-# Fanos-Project
->>>>>>> d9f10b21b8e53aae78909731bc8525f37c59bb64
