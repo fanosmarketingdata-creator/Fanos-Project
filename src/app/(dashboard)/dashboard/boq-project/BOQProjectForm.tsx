@@ -35,7 +35,9 @@ export default function BOQProjectForm({
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
   const [boqDate, setBoqDate] = useState(initial?.boq_date ?? new Date().toISOString().split('T')[0]);
   const [status, setStatus] = useState<'DRAFT' | 'APPROVED'>((initial?.status as 'DRAFT' | 'APPROVED') ?? 'DRAFT');
-  const [progress, setProgress] = useState(initial?.progress ?? 'Pending');
+  const [progress, setProgress] = useState<'Pending' | 'InProgress' | 'Completed'>(
+    (initial?.progress as 'Pending' | 'InProgress' | 'Completed') ?? 'Pending'
+  );
   const [routeType, setRouteType] = useState(initial?.route_type ?? 'quotation');
   const [areas, setAreas] = useState<BOQAreaInput[]>(initial?.areas?.length ? initial.areas : [emptyArea()]);
 
@@ -176,7 +178,7 @@ export default function BOQProjectForm({
             <label className="mb-1 block text-xs font-semibold text-slate-500">Progress</label>
             <select
               value={progress}
-              onChange={(e) => setProgress(e.target.value)}
+              onChange={(e) => setProgress(e.target.value as 'Pending' | 'InProgress' | 'Completed')}
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
             >
               <option value="Pending">Pending</option>
