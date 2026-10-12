@@ -69,7 +69,8 @@ export default function DashboardShell({
   const supabase = createClient();
   const isSuperuser = profile.role === 'Superuser';
 
-  const visibleGroups = NAV_GROUPS.filter((g) => (g.superuserOnly ? isSuperuser : true));
+  // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
+  const visibleGroups = NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly));
 
   async function handleLogout() {
     await supabase.auth.signOut();

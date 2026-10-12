@@ -4,13 +4,49 @@ Migrasi dari Google Apps Script ke **Next.js + Supabase + Vercel**.
 
 - **Fase 1**: struktur project, skema database lengkap, login (Supabase
   Auth), shell dashboard (sidebar + topbar).
-- **Fase 2** *(baru)*: modul **Clients**, **Vendors**, **Products** —
-  masing-masing sudah full CRUD (tambah/edit/hapus/cari), termasuk upload
-  foto produk (drag & drop, kriteria sama seperti sistem lama: JPG/PNG/WebP
-  maks 2MB) lewat Supabase Storage.
+- **Fase 2**: modul **Clients**, **Vendors**, **Products** — masing-masing
+  sudah full CRUD (tambah/edit/hapus/cari), termasuk upload foto produk
+  (drag & drop, kriteria sama seperti sistem lama: JPG/PNG/WebP maks 2MB)
+  lewat Supabase Storage.
+- **Fase 3**: modul **BOQ Project** (form Area → Sub-area → Item
+  berjenjang, bisa tambah/hapus di setiap level, pilih produk lewat
+  pencarian SKU) dan **BOQ Akumulasi** (rekap otomatis total qty per SKU
+  dari BOQ Project, bisa di-refresh atau disesuaikan manual).
+- **Fase 4** *(baru)*: modul **Quotations** (dari BOQ Project atau manual,
+  dengan editor diskon & biaya tambahan, tombol "Accept → SO" yang
+  otomatis membuat Sales Order), **Sales Orders** (manual / langsung dari
+  BOQ, tombol "Ship Items" untuk kirim sebagian/seluruh qty dan otomatis
+  bikin Delivery Order, status SO naik otomatis jadi ONGOING/COMPLETED),
+  dan **Delivery Orders** (riwayat pengiriman, read-only karena dibuat
+  otomatis dari Ship Items).
 
-Modul lain (BOQ, Quotation, Sales Order, Invoice, dst) menyusul di fase
-berikutnya — sudah ada di menu sidebar tapi halamannya belum dibuat.
+- **Fase 5** *(baru)*: modul **Invoices** (dibuat dari Sales Order, item &
+  harga & diskon ditarik otomatis, satu SO hanya bisa punya satu invoice),
+  **Payments** (catat pembayaran cicilan/termin langsung dari halaman detail
+  invoice, status UNPAID → PARTIAL → PAID otomatis), **Outstanding**
+  (daftar piutang + umur invoice), **Retur Penjualan** (qty yang bisa
+  diretur dihitung otomatis = qty invoice dikurangi retur sebelumnya, dicek
+  ulang di server) dan **Credit Notes** (terbit otomatis dari retur &
+  langsung mengurangi sisa tagihan invoice).
+
+- **Fase 6** *(baru)*: **Purchase Order** (form item per vendor, status
+  DRAFT → ORDERED → RECEIVED maju satu langkah, hanya DRAFT yang bisa
+  diedit), **Defect List** (catat barang cacat, filter Open/Resolved,
+  tombol Selesaikan/Buka Lagi) dan **Reminders** (daftar tugas dengan
+  checkbox selesai, penanda Terlambat / Hari ini).
+
+- **Fase 7** *(baru)*: grup **Superuser** — **Role Group** (CRUD label
+  role; role "Superuser" dilindungi, role yang masih dipakai tidak bisa
+  dihapus, rename ikut memperbarui akun), **Master Team Member** (CRUD
+  data anggota tim, menampilkan foto dari akun yang tertaut) dan
+  **Master Akun** (buat/edit/hapus akun login, reset password, status
+  Active/Inactive, tautkan 1 team member = 1 akun, upload foto profil
+  JPG/PNG/WebP maks 2MB). Superuser hanya melihat menu Superuser; role lain
+  tidak melihatnya dan tidak bisa membuka halamannya lewat URL. Akun
+  Inactive diblokir login di Supabase Auth dan langsung dikunci di dalam
+  aplikasi.
+
+Semua modul bisnis & Superuser sudah ada. Yang tersisa ada di Fase 8.
 
 ## 1. Setup Supabase
 
@@ -22,6 +58,9 @@ berikutnya — sudah ada di menu sidebar tapi halamannya belum dibuat.
    - `0001_init.sql` — semua tabel
    - `0002_rls.sql` — keamanan akses data
    - `0003_storage.sql` — bucket penyimpanan foto produk
+   - `0004_superuser.sql` — Role Group, Team Member, foto profil, dan
+     pengetatan keamanan tabel `profiles` (**wajib dijalankan** — tanpa ini
+     user biasa secara teknis bisa mengubah role-nya sendiri jadi Superuser)
 4. Buka **Authentication > Providers**, pastikan **Email** provider aktif.
 5. Buka **Authentication > Users**, klik **Add user** untuk membuat akun
    pertama (misal buat akun Superuser kamu sendiri dulu). Setelah dibuat,
@@ -30,6 +69,7 @@ berikutnya — sudah ada di menu sidebar tapi halamannya belum dibuat.
 6. Buka **Project Settings > API**, salin:
    - `Project URL`
    - `anon public` key
+   - `service_role` key (**rahasia** — hanya untuk server, lihat catatan di bawah)
 
 ## 2. Setup project di VS Code
 
@@ -45,7 +85,17 @@ Isi `.env.local` dengan `Project URL` dan `anon public key` dari langkah
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxxxxxxxxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ```
+
+> **Catatan keamanan `service_role` key:** key ini melewati semua aturan
+> akses database dan bisa membuat/menghapus akun login. Dipakai HANYA oleh
+> halaman Master Akun (di server). Jangan pernah memberi awalan
+> `NEXT_PUBLIC_`, jangan di-commit ke GitHub, dan jangan dibagikan. Kalau
+> sempat bocor, segera buat ulang lewat Supabase Dashboard > Project
+> Settings > API. Kode sudah dijaga: file `src/lib/supabase/admin.ts`
+> memakai `server-only`, jadi build akan gagal kalau ada yang tidak sengaja
+> meng-importnya dari komponen browser.
 
 Jalankan lokal:
 
@@ -78,6 +128,7 @@ kredensial Supabase tidak bocor ke repo publik.)
    `.env.local`:
    - `NEXT_PUBLIC_SUPABASE_URL`
    - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
+   - `SUPABASE_SERVICE_ROLE_KEY`
 3. Klik **Deploy**. Selesai — setiap kali push ke branch `main`, Vercel
    otomatis build & deploy ulang.
 
@@ -85,7 +136,8 @@ kredensial Supabase tidak bocor ke repo publik.)
 
 ```
 supabase/migrations/     -> skema database (SQL), jalankan manual di Supabase SQL Editor
-src/lib/supabase/        -> koneksi Supabase (client.ts untuk browser, server.ts untuk server)
+src/lib/supabase/        -> koneksi Supabase (client.ts browser, server.ts server, admin.ts server-only service role)
+src/lib/auth.ts          -> cek profil & Superuser (halaman dan Server Action)
 src/middleware.ts         -> proteksi halaman (redirect ke /login kalau belum login)
 src/app/login/            -> halaman login
 src/app/(dashboard)/      -> semua halaman setelah login (sidebar sama untuk semua halaman di sini)
@@ -105,12 +157,15 @@ ini.
 ## Rencana fase berikutnya
 
 - ~~Fase 2: Clients, Vendors, Products (CRUD dasar)~~ ✅ selesai
-- Fase 3: BOQ Project + BOQ Akumulasi
-- Fase 4: Quotations, Sales Orders, Delivery Orders
-- Fase 5: Invoices, Payments, Retur, Credit Notes
-- Fase 6: Purchase Order, Defect List, Reminders
-- Fase 7: Master Team Member, Master Akun, Role Group (Superuser)
-- Fase 8: cetak PDF (Invoice/PO/SO/dll) & polish UI
+- ~~Fase 3: BOQ Project + BOQ Akumulasi~~ ✅ selesai
+- ~~Fase 4: Quotations, Sales Orders, Delivery Orders~~ ✅ selesai
+- ~~Fase 5: Invoices, Payments, Retur, Credit Notes~~ ✅ selesai
+- ~~Fase 6: Purchase Order, Defect List, Reminders~~ ✅ selesai
+- ~~Fase 7: Master Team Member, Master Akun, Role Group (Superuser)~~ ✅ selesai
+- Fase 8: cetak PDF (Invoice/PO/SO/Quotation/DO), dashboard Overview
+  (KPI & grafik), serta fitur dari sistem lama yang belum dipindah: auto
+  logout setelah 12 jam tidak aktif dan indikator "siapa yang sedang aktif"
+  (avatar bertumpuk)
 
 Lanjutkan ke fase berikutnya kapan saja — beri tahu modul mana yang mau
 dikerjakan duluan.
