@@ -5,11 +5,12 @@ export default async function InvoicesPage() {
   const supabase = createClient();
   const { data: invoices } = await supabase
     .from('invoices')
-    .select('id, inv_date, status, grand_total, total_paid, remaining, clients(project_name)')
+    .select('id, doc_no, inv_date, status, grand_total, total_paid, remaining, clients(project_name)')
     .order('inv_date', { ascending: false });
 
   const rows = (invoices ?? []).map((inv) => ({
     id: inv.id,
+    doc_no: inv.doc_no,
     inv_date: inv.inv_date,
     status: inv.status,
     grand_total: Number(inv.grand_total),

@@ -3,6 +3,8 @@
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import IdleLogout from '@/components/IdleLogout';
+import PresenceWidget from '@/components/PresenceWidget';
 
 type Profile = {
   id: string;
@@ -79,8 +81,9 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen">
-      <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white">
+    <div className="flex min-h-screen print:block">
+      <IdleLogout />
+      <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white print:hidden">
         <div className="border-b border-slate-100 px-5 py-5">
           <span className="text-lg font-extrabold tracking-tight text-brand-900">FANÓS</span>
         </div>
@@ -112,8 +115,9 @@ export default function DashboardShell({
         </nav>
       </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col">
-        <header className="flex items-center justify-end gap-3 border-b border-slate-200 bg-white px-6 py-3">
+      <div className="flex min-w-0 flex-1 flex-col print:block">
+        <header className="flex items-center justify-end gap-3 border-b border-slate-200 bg-white px-6 py-3 print:hidden">
+          {!isSuperuser && <PresenceWidget meId={profile.id} />}
           <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3.5">
             <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-brand-600">
               {profile.photo_url ? (
@@ -137,7 +141,7 @@ export default function DashboardShell({
           </div>
         </header>
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6">{children}</main>
+        <main className="flex-1 overflow-y-auto bg-slate-50 p-6 print:overflow-visible print:bg-white print:p-0">{children}</main>
       </div>
     </div>
   );

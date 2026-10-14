@@ -26,6 +26,12 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       <Link href="/dashboard/invoices" className="mb-3 inline-block text-sm font-medium text-slate-500 hover:text-slate-700">
         ← Kembali ke daftar
       </Link>
+      <Link
+        href={`/dashboard/invoices/${invoice.id}/print`}
+        className="mb-3 ml-4 inline-block text-sm font-semibold text-brand-600 hover:text-brand-700"
+      >
+        🖨️ Cetak Invoice
+      </Link>
 
       <div className="mb-5 flex items-start justify-between">
         <div>

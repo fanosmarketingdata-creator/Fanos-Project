@@ -4,8 +4,9 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
-import { DiscountEditor, ChargeEditor, sumDiscountPercent, sumChargeAmount } from '@/components/DiscountChargeEditor';
-import type { DiscountLine, ChargeLine } from '@/components/DiscountChargeEditor';
+import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
+import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
+import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import { saveSalesOrder, getBOQItemsForSO, type SalesOrderInput, type SOItemInput } from './actions';
 
 export type ClientOption = { id: string; project_name: string };

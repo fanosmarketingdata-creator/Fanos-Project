@@ -8,6 +8,7 @@ import { deleteInvoice } from './actions';
 
 export type InvoiceRow = {
   id: string;
+  doc_no: string | null;
   inv_date: string;
   status: string;
   grand_total: number;
@@ -90,7 +91,10 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
             )}
             {filtered.map((r) => (
               <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">
+                  {r.client_name}
+                  {r.doc_no && <div className="font-mono text-[10px] font-normal text-slate-400">{r.doc_no}</div>}
+                </td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.inv_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
@@ -104,6 +108,12 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1.5">
+                    <Link
+                      href={`/dashboard/invoices/${r.id}/print`}
+                      className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                    >
+                      Cetak
+                    </Link>
                     <Link
                       href={`/dashboard/invoices/${r.id}`}
                       className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"

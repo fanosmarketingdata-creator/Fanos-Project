@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
 
@@ -13,6 +13,13 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [info, setInfo] = useState('');
+
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('reason') === 'idle') {
+      setInfo('Sesi berakhir karena tidak ada aktivitas selama 12 jam. Silakan masuk kembali.');
+    }
+  }, []);
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
@@ -68,6 +75,7 @@ export default function LoginPage() {
           className="rounded-[20px] border border-white/30 bg-white/90 p-8 shadow-[0_8px_30px_rgba(0,0,0,0.08)] backdrop-blur-xl"
         >
           <h1 className="mb-5 text-center text-xl font-bold text-brand-900">Masuk</h1>
+          {info && <p className="mb-4 rounded-lg bg-amber-50 px-3 py-2 text-xs font-medium text-amber-700">{info}</p>}
 
           <div className="mb-5">
             <label className="mb-1.5 block text-xs font-semibold text-slate-500">Email</label>

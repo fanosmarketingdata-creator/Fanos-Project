@@ -2,8 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import type { DiscountLine, ChargeLine } from '@/components/DiscountChargeEditor';
-import { sumDiscountPercent, sumChargeAmount } from '@/components/DiscountChargeEditor';
+import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
 
 export type SOItemInput = {
   product_id: string | null;

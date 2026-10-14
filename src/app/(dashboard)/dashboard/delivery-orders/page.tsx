@@ -5,13 +5,14 @@ export default async function DeliveryOrdersPage() {
   const supabase = createClient();
   const { data: dos } = await supabase
     .from('delivery_orders')
-    .select('id, do_date, status, sales_orders(id, clients(project_name)), delivery_order_items(count)')
+    .select('id, doc_no, do_date, status, sales_orders(id, clients(project_name)), delivery_order_items(count)')
     .order('do_date', { ascending: false });
 
   const rows = (dos ?? []).map((d) => {
     const so = d.sales_orders as unknown as { id: string; clients: { project_name: string } | null } | null;
     return {
       id: d.id,
+      doc_no: d.doc_no,
       do_date: d.do_date,
       status: d.status,
       so_id: so?.id ?? '',
@@ -48,7 +49,10 @@ export default async function DeliveryOrdersPage() {
             )}
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">
+                  {r.client_name}
+                  {r.doc_no && <div className="font-mono text-[10px] font-normal text-slate-400">{r.doc_no}</div>}
+                </td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.do_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
@@ -64,6 +68,12 @@ export default async function DeliveryOrdersPage() {
                     className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
                   >
                     Lihat Detail
+                  </Link>
+                  <Link
+                    href={`/dashboard/delivery-orders/${r.id}/print`}
+                    className="ml-1.5 rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                  >
+                    Cetak
                   </Link>
                 </td>
               </tr>

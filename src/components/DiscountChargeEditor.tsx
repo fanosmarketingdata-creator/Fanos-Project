@@ -1,7 +1,6 @@
 'use client';
 
-export type DiscountLine = { label: string; percent: number };
-export type ChargeLine = { label: string; amount: number };
+import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 
 export function DiscountEditor({
   lines,
@@ -97,11 +96,4 @@ export function ChargeEditor({
       </button>
     </div>
   );
-}
-
-export function sumDiscountPercent(lines: DiscountLine[]) {
-  return lines.reduce((s, d) => s + (d.percent || 0), 0);
-}
-export function sumChargeAmount(lines: ChargeLine[]) {
-  return lines.reduce((s, c) => s + (c.amount || 0), 0);
 }

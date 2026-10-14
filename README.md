@@ -46,7 +46,31 @@ Migrasi dari Google Apps Script ke **Next.js + Supabase + Vercel**.
   Inactive diblokir login di Supabase Auth dan langsung dikunci di dalam
   aplikasi.
 
-Semua modul bisnis & Superuser sudah ada. Yang tersisa ada di Fase 8.
+- **Fase 8** *(baru)*:
+  - **Cetak dokumen** (Invoice, Quotation, Sales Order, Surat Jalan, PO):
+    tombol "Cetak" di daftar/detail membuka halaman siap cetak; klik
+    "Cetak / Simpan PDF" lalu pilih printer atau "Save as PDF" di dialog
+    browser. Ukuran kertas & margin mengikuti dialog print (`@page` hanya
+    `size: auto`), sama seperti keputusan di sistem lama. Kop & info
+    rekening ada di `src/lib/company.ts` — **isi dengan data asli**.
+  - **Nomor dokumen otomatis** (migration 0005), tampil di daftar & cetakan.
+  - **Dashboard Overview**: KPI (penjualan & pembayaran bulan ini, piutang,
+    SO berjalan, quotation draft, PO belum diterima, defect open), grafik
+    penjualan 6 bulan, dan reminder yang jatuh tempo.
+  - **Auto logout 12 jam tidak aktif** (dicek lewat waktu aktivitas
+    terakhir, bukan satu timer panjang; aktivitas di tab mana pun dihitung).
+  - **Indikator siapa yang sedang aktif** (avatar bertumpuk + daftar
+    Aktif/Tidak Aktif) lewat Supabase Realtime Presence; Superuser tidak
+    ikut ditampilkan dan tidak melihat widget ini.
+
+Semua modul dari sistem Apps Script sudah dipindahkan.
+
+### Hal yang belum ada / perlu kamu ketahui
+- Role Group masih berupa label (belum ada pengaturan akses per-halaman),
+  sama seperti rencana awal.
+- Kode belum pernah dijalankan end-to-end di lingkungan pembuatnya —
+  jalankan `npm run dev`, coba tiap alur sekali, dan kabari kalau ada error.
+- Tidak ada data lama yang dipindahkan (sesuai keputusan mulai dari kosong).
 
 ## 1. Setup Supabase
 
@@ -61,6 +85,11 @@ Semua modul bisnis & Superuser sudah ada. Yang tersisa ada di Fase 8.
    - `0004_superuser.sql` — Role Group, Team Member, foto profil, dan
      pengetatan keamanan tabel `profiles` (**wajib dijalankan** — tanpa ini
      user biasa secara teknis bisa mengubah role-nya sendiri jadi Superuser)
+   - `0005_doc_numbers.sql` — nomor dokumen otomatis (INV-20260910-0074,
+     dst) untuk BOQ, Quotation, SO, DO, Invoice, PO, Retur, Credit Note.
+     **Wajib dijalankan sebelum membuka aplikasi versi ini**: halaman daftar
+     dan halaman cetak membaca kolom `doc_no`; tanpa migration ini daftar
+     akan tampil kosong.
 4. Buka **Authentication > Providers**, pastikan **Email** provider aktif.
 5. Buka **Authentication > Users**, klik **Add user** untuk membuat akun
    pertama (misal buat akun Superuser kamu sendiri dulu). Setelah dibuat,
@@ -162,10 +191,7 @@ ini.
 - ~~Fase 5: Invoices, Payments, Retur, Credit Notes~~ ✅ selesai
 - ~~Fase 6: Purchase Order, Defect List, Reminders~~ ✅ selesai
 - ~~Fase 7: Master Team Member, Master Akun, Role Group (Superuser)~~ ✅ selesai
-- Fase 8: cetak PDF (Invoice/PO/SO/Quotation/DO), dashboard Overview
-  (KPI & grafik), serta fitur dari sistem lama yang belum dipindah: auto
-  logout setelah 12 jam tidak aktif dan indikator "siapa yang sedang aktif"
-  (avatar bertumpuk)
+- ~~Fase 8: cetak dokumen, dashboard Overview, auto logout, indikator aktif~~ ✅ selesai
 
 Lanjutkan ke fase berikutnya kapan saja — beri tahu modul mana yang mau
 dikerjakan duluan.

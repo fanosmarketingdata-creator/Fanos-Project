@@ -28,6 +28,12 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
       <Link href="/dashboard/delivery-orders" className="mb-3 inline-block text-sm font-medium text-slate-500 hover:text-slate-700">
         ← Kembali ke daftar
       </Link>
+      <Link
+        href={`/dashboard/delivery-orders/${deliveryOrder.id}/print`}
+        className="mb-3 ml-4 inline-block text-sm font-semibold text-brand-600 hover:text-brand-700"
+      >
+        🖨️ Cetak Surat Jalan
+      </Link>
       <h1 className="mb-1 text-xl font-bold text-slate-800">Delivery Order</h1>
       <p className="mb-6 text-sm text-slate-500">
         {so?.clients?.project_name ?? '-'} ·{' '}
