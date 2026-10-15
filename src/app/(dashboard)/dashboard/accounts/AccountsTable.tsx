@@ -127,27 +127,39 @@ export default function AccountsTable({
 
   async function handleSave() {
     setSaving(true);
-    const result = await saveAccount(form);
-    setSaving(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await saveAccount(form);
+      if (result.error) {
+        toast(result.error, 'error');
+        return;
+      }
+      toast(form.id ? 'Akun diperbarui' : 'Akun dibuat', 'success');
+      setModalOpen(false);
+    } catch (e) {
+      // Server Action yang melempar exception (mis. env belum diset, timeout)
+      // jangan sampai membuat tombol "Menyimpan..." menggantung selamanya.
+      toast('Gagal menyimpan akun: ' + (e instanceof Error ? e.message : 'terjadi kesalahan di server'), 'error');
+    } finally {
+      setSaving(false);
     }
-    toast(form.id ? 'Akun diperbarui' : 'Akun dibuat', 'success');
-    setModalOpen(false);
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteAccount(deleteTarget.id);
-    setDeleting(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await deleteAccount(deleteTarget.id);
+      if (result.error) {
+        toast(result.error, 'error');
+        return;
+      }
+      toast('Akun dihapus', 'success');
+      setDeleteTarget(null);
+    } catch (e) {
+      toast('Gagal menghapus akun: ' + (e instanceof Error ? e.message : 'terjadi kesalahan di server'), 'error');
+    } finally {
+      setDeleting(false);
     }
-    toast('Akun dihapus', 'success');
-    setDeleteTarget(null);
   }
 
   return (

@@ -10,7 +10,11 @@ import InactiveNotice from '@/components/InactiveNotice';
 // JS selesai load & sempat render HTML mentah dulu).
 export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
   const supabase = createClient();
-  const { data: { user } } = await supabase.auth.getUser();
+  // Middleware sudah memvalidasi token lewat getUser() pada request ini,
+  // jadi di sini cukup baca session dari cookie (tanpa round-trip ke
+  // Supabase Auth lagi) — menghemat ratusan ms di setiap navigasi.
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.user;
 
   if (!user) redirect('/login');
 

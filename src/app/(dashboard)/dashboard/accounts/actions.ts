@@ -19,7 +19,18 @@ export type AccountInput = {
 
 const MIN_PASSWORD = 8;
 
-export async function saveAccount(input: AccountInput) {
+export async function saveAccount(input: AccountInput): Promise<{ error?: string; success?: boolean }> {
+  try {
+    return await saveAccountInner(input);
+  } catch (e) {
+    // Next.js menyembunyikan pesan exception di production, jadi kita
+    // tangkap sendiri dan kembalikan pesan yang bisa dibaca di UI.
+    console.error('saveAccount failed', e);
+    return { error: e instanceof Error ? e.message : 'Terjadi kesalahan di server' };
+  }
+}
+
+async function saveAccountInner(input: AccountInput): Promise<{ error?: string; success?: boolean }> {
   // 1) Pemanggil HARUS Superuser — dicek di server karena Server Action
   //    bisa dipanggil langsung tanpa lewat UI.
   const me = await getSuperuserOrNull();
@@ -100,7 +111,16 @@ export async function saveAccount(input: AccountInput) {
   return { success: true };
 }
 
-export async function deleteAccount(id: string) {
+export async function deleteAccount(id: string): Promise<{ error?: string; success?: boolean }> {
+  try {
+    return await deleteAccountInner(id);
+  } catch (e) {
+    console.error('deleteAccount failed', e);
+    return { error: e instanceof Error ? e.message : 'Terjadi kesalahan di server' };
+  }
+}
+
+async function deleteAccountInner(id: string): Promise<{ error?: string; success?: boolean }> {
   const me = await getSuperuserOrNull();
   if (!me) return { error: NOT_SUPERUSER_ERROR };
   if (id === me.id) return { error: 'Anda tidak bisa menghapus akun Anda sendiri' };
