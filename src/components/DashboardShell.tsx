@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
 import PresenceWidget from '@/components/PresenceWidget';
+import ResponsiveTables from '@/components/ResponsiveTables';
 
 type Profile = {
   id: string;
@@ -174,6 +175,7 @@ export default function DashboardShell({
   return (
     <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
       <IdleLogout />
+      <ResponsiveTables />
 
       <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200/70 bg-white/90 px-3 py-2 backdrop-blur sm:gap-3 sm:px-4 print:hidden">
         <button

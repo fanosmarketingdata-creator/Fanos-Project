@@ -179,3 +179,94 @@
   .login-content { padding: 25px 20px; }
   .login-image img { width: 110px; }
 }
+
+/* ============================================================
+   TABEL -> KARTU di layar kecil (ditandai oleh ResponsiveTables)
+============================================================ */
+@media screen and (max-width: 767px) {
+  /* pembungkus tabel: kartu berdiri sendiri, bukan satu kotak besar */
+  .overflow-x-auto:has(> table.cardify) {
+    overflow: visible;
+    border: none !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border-radius: 0 !important;
+  }
+  table.cardify,
+  table.cardify tbody,
+  table.cardify tfoot {
+    display: block;
+    width: 100%;
+    min-width: 0 !important;
+  }
+  table.cardify thead {
+    display: none;
+  }
+  table.cardify tr {
+    display: block;
+    background: #fff;
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 14px;
+    margin-bottom: 10px;
+    padding: 4px 14px;
+    box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+  }
+  table.cardify td {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    width: auto !important;
+    padding: 8px 0 !important;
+    border: none !important;
+    border-bottom: 1px solid #f1f5f9 !important;
+    text-align: right !important;
+    word-break: break-word;
+  }
+  table.cardify td:last-child {
+    border-bottom: none !important;
+  }
+  table.cardify td[data-label]:not([data-label=''])::before {
+    content: attr(data-label);
+    flex-shrink: 0;
+    max-width: 42%;
+    text-align: left;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: #94a3b8;
+  }
+  /* sel pertama = judul kartu */
+  table.cardify td:first-child {
+    font-weight: 600;
+  }
+  /* kolom Aksi: tombol di bawah kartu, rata kanan, tanpa label */
+  table.cardify td.cardify-actions {
+    justify-content: flex-end;
+    padding-top: 10px !important;
+    border-top: 1px solid #f1f5f9 !important;
+  }
+  table.cardify td.cardify-actions > div {
+    justify-content: flex-end;
+  }
+  /* baris pesan kosong ("Belum ada data") */
+  table.cardify tr.cardify-empty {
+    padding: 0;
+  }
+  table.cardify tr.cardify-empty td {
+    display: block;
+    text-align: center !important;
+    padding: 28px 12px !important;
+  }
+  /* input/select di dalam sel (mis. qty retur, kirim barang) tetap muat */
+  table.cardify td input,
+  table.cardify td select {
+    max-width: 55%;
+  }
+}
+@media screen and (max-width: 767px) {
+  table.cardify td.cardify-actions[data-label]::before {
+    display: none !important;
+  }
+}

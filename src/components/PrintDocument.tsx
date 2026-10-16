@@ -22,7 +22,7 @@ const align = (a?: 'left' | 'right' | 'center') => (a === 'right' ? 'text-right'
 // mengikuti dialog print browser, sesuai keputusan di sistem lama.
 export default function PrintDocument({ title, meta, parties, columns, rows, totals, notes, signatures }: PrintDocumentProps) {
   return (
-    <div className="mx-auto w-full max-w-[210mm] bg-white p-6 text-[11px] leading-snug text-black shadow print:max-w-none print:p-0 print:shadow-none">
+    <div data-no-cards className="mx-auto w-full max-w-[210mm] bg-white p-6 text-[11px] leading-snug text-black shadow print:max-w-none print:p-0 print:shadow-none">
       <style>{`@page { size: auto; }`}</style>
 
       {/* Kop */}
