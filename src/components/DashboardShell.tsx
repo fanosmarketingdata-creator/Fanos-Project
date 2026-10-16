@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
 import PresenceWidget from '@/components/PresenceWidget';
@@ -14,50 +15,91 @@ type Profile = {
 };
 
 type NavItem = { href: string; label: string; icon: string };
-type NavGroup = { label: string; items: NavItem[]; superuserOnly?: boolean };
+// Grup dengan 1 item dan `direct: true` jadi tombol biasa (tanpa dropdown).
+type NavGroup = { id: string; label: string; icon: string; items: NavItem[]; direct?: boolean; superuserOnly?: boolean };
 
+// Struktur grup & ikon mengikuti index.html lama (Flaticon uicons).
 const NAV_GROUPS: NavGroup[] = [
   {
-    label: 'Master',
+    id: 'dashboard',
+    label: 'Dashboard',
+    icon: 'fi fi-rr-dashboard',
+    direct: true,
+    items: [{ href: '/dashboard', label: 'Overview', icon: 'fi fi-rr-apps' }],
+  },
+  {
+    id: 'master',
+    label: 'Master Data',
+    icon: 'fi fi-rr-database',
     items: [
-      { href: '/dashboard/clients', label: 'Clients', icon: '👥' },
-      { href: '/dashboard/vendors', label: 'Vendors', icon: '🚚' },
-      { href: '/dashboard/products', label: 'Products', icon: '📦' },
+      { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
+      { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },
+      { href: '/dashboard/products', label: 'Products', icon: 'fi fi-rr-boxes' },
     ],
   },
   {
-    label: 'Proyek & Dokumen',
+    id: 'boq',
+    label: 'BOQ',
+    icon: 'fi fi-rr-document-signed',
     items: [
-      { href: '/dashboard/boq-project', label: 'BOQ Project', icon: '🗂️' },
-      { href: '/dashboard/boq-akumulasi', label: 'BOQ Akumulasi', icon: '📋' },
-      { href: '/dashboard/purchase-orders', label: 'Purchase Order', icon: '🧾' },
-      { href: '/dashboard/quotations', label: 'Quotations', icon: '📄' },
-      { href: '/dashboard/sales-orders', label: 'Sales Orders', icon: '🛒' },
-      { href: '/dashboard/delivery-orders', label: 'Delivery Orders', icon: '🚛' },
-      { href: '/dashboard/invoices', label: 'Invoices', icon: '🧮' },
-      { href: '/dashboard/returns', label: 'Retur Penjualan', icon: '↩️' },
-      { href: '/dashboard/payments', label: 'Payments', icon: '💳' },
-      { href: '/dashboard/outstanding', label: 'Outstanding', icon: '⚠️' },
-      { href: '/dashboard/credit-notes', label: 'Credit Notes', icon: '🧾' },
+      { href: '/dashboard/boq-project', label: 'BOQ Project', icon: 'fa-solid fa-layer-group' },
+      { href: '/dashboard/boq-akumulasi', label: 'BOQ Akumulasi', icon: 'fi fi-rr-calculator' },
     ],
   },
   {
-    label: 'Produktivitas',
+    id: 'sales',
+    label: 'Project Pipeline',
+    icon: 'fi fi-rr-refresh',
     items: [
-      { href: '/dashboard/defects', label: 'Defect List', icon: '🛠️' },
-      { href: '/dashboard/reminders', label: 'Reminders', icon: '🔔' },
+      { href: '/dashboard/purchase-orders', label: 'Purchase Order', icon: 'fa-solid fa-truck-loading' },
+      { href: '/dashboard/quotations', label: 'Quotations', icon: 'fi fi-rr-file-invoice' },
+      { href: '/dashboard/sales-orders', label: 'Sales Orders', icon: 'fi fi-rr-shopping-cart' },
+      { href: '/dashboard/delivery-orders', label: 'Delivery Orders', icon: 'fi fi-rr-shipping-fast' },
+      { href: '/dashboard/invoices', label: 'Invoices', icon: 'fi fi-rr-receipt' },
+      { href: '/dashboard/returns', label: 'Retur Penjualan', icon: 'fi fi-rr-undo' },
     ],
   },
   {
+    id: 'financial',
+    label: 'Financial',
+    icon: 'fi fi-rr-credit-card',
+    items: [
+      { href: '/dashboard/payments', label: 'Payments', icon: 'fi fi-rr-money-bill-wave' },
+      { href: '/dashboard/outstanding', label: 'Outstanding', icon: 'fi fi-rr-triangle-warning' },
+      { href: '/dashboard/credit-notes', label: 'Credit Notes', icon: 'fi fi-rr-badge-percent' },
+    ],
+  },
+  {
+    id: 'field',
+    label: 'Field Operations',
+    icon: 'fi fi-rr-clipboard-list-check',
+    items: [{ href: '/dashboard/defects', label: 'Defect List', icon: 'fi fi-rr-clipboard-list-check' }],
+  },
+  {
+    id: 'productivity',
+    label: 'Productivity',
+    icon: 'fi fi-rr-bell',
+    items: [{ href: '/dashboard/reminders', label: 'Reminders', icon: 'fi fi-rr-bell' }],
+  },
+  {
+    id: 'superuser',
     label: 'Superuser',
+    icon: 'fi fi-rr-shield-check',
     superuserOnly: true,
     items: [
-      { href: '/dashboard/team-members', label: 'Master Team Member', icon: '👤' },
-      { href: '/dashboard/accounts', label: 'Master Akun', icon: '🔐' },
-      { href: '/dashboard/roles', label: 'Role Group', icon: '🛡️' },
+      { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-users-alt' },
+      { href: '/dashboard/accounts', label: 'Master Akun', icon: 'fi fi-rr-user-lock' },
+      { href: '/dashboard/roles', label: 'Role Group', icon: 'fi fi-rr-shield-check' },
     ],
   },
 ];
+
+const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads/main/LOGO.ico';
+
+function isActive(pathname: string | null, href: string) {
+  // '/dashboard' harus cocok persis, kalau tidak semua menu ikut aktif.
+  return href === '/dashboard' ? pathname === '/dashboard' : !!pathname?.startsWith(href);
+}
 
 export default function DashboardShell({
   profile,
@@ -74,6 +116,25 @@ export default function DashboardShell({
   // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
   const visibleGroups = NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly));
 
+  const [openId, setOpenId] = useState<string | null>(null);
+  const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Dropdown terbuka saat di-hover. Penutupan ditunda sebentar supaya
+  // kursor bisa berpindah dari tombol ke panel tanpa dropdown berkedip.
+  function openMenu(id: string) {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    setOpenId(id);
+  }
+  function scheduleClose() {
+    if (closeTimer.current) clearTimeout(closeTimer.current);
+    closeTimer.current = setTimeout(() => setOpenId(null), 120);
+  }
+
+  // Tutup dropdown setiap pindah halaman.
+  useEffect(() => {
+    setOpenId(null);
+  }, [pathname]);
+
   async function handleLogout() {
     await supabase.auth.signOut();
     router.replace('/login');
@@ -81,68 +142,111 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen print:block">
+    <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
       <IdleLogout />
-      <aside className="flex w-64 shrink-0 flex-col border-r border-slate-200 bg-white print:hidden">
-        <div className="border-b border-slate-100 px-5 py-5">
-          <span className="text-lg font-extrabold tracking-tight text-brand-900">FANÓS</span>
-        </div>
-        <nav className="flex-1 overflow-y-auto px-3 py-4">
-          {visibleGroups.map((group) => (
-            <div key={group.label} className="mb-5">
-              <div className="mb-1.5 px-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                {group.label}
-              </div>
-              {group.items.map((item) => {
-                const active = pathname?.startsWith(item.href);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`mb-0.5 flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium transition ${
-                      active
-                        ? 'bg-brand-50 text-brand-700'
-                        : 'text-slate-600 hover:bg-slate-50 hover:text-slate-900'
-                    }`}
+
+      <header className="sticky top-0 z-[500] flex items-center gap-3.5 border-b border-slate-200/70 bg-white/90 px-5 py-2.5 backdrop-blur print:hidden">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src={LOGO_URL} alt="Fanos" className="h-9 w-auto shrink-0 drop-shadow-sm" />
+
+        <nav className="flex flex-1 flex-wrap items-center gap-1">
+          {visibleGroups.map((group) => {
+            const groupActive = group.items.some((it) => isActive(pathname, it.href));
+            const btnClass = `inline-flex items-center gap-[7px] whitespace-nowrap rounded-[10px] px-[15px] py-2 text-[12.5px] font-bold transition ${
+              groupActive || openId === group.id
+                ? 'bg-brand-500/10 text-brand-900'
+                : 'text-slate-500 hover:bg-brand-500/[0.07] hover:text-brand-500'
+            }`;
+
+            if (group.direct) {
+              return (
+                <Link key={group.id} href={group.items[0].href} className={btnClass}>
+                  <i className={`${group.icon} text-[13px]`} />
+                  <span>{group.label}</span>
+                </Link>
+              );
+            }
+
+            const open = openId === group.id;
+            return (
+              <div
+                key={group.id}
+                className="relative"
+                onMouseEnter={() => openMenu(group.id)}
+                onMouseLeave={scheduleClose}
+              >
+                <button
+                  type="button"
+                  className={btnClass}
+                  aria-haspopup="menu"
+                  aria-expanded={open}
+                  // Klik tetap berfungsi untuk layar sentuh (tidak ada hover).
+                  onClick={() => (open ? setOpenId(null) : openMenu(group.id))}
+                  onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
+                >
+                  <i className={`${group.icon} text-[13px]`} />
+                  <span>{group.label}</span>
+                  <i className={`fi fi-rr-angle-small-down text-[13px] transition-transform ${open ? 'rotate-180' : ''}`} />
+                </button>
+
+                {open && (
+                  <div
+                    role="menu"
+                    className="absolute left-0 top-full z-[600] min-w-[210px] pt-1.5"
                   >
-                    <span className="text-base leading-none">{item.icon}</span>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          ))}
+                    <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+                      {group.items.map((item) => {
+                        const active = isActive(pathname, item.href);
+                        return (
+                          <Link
+                            key={item.href}
+                            href={item.href}
+                            role="menuitem"
+                            className={`flex items-center gap-2.5 rounded-[9px] px-3 py-2 text-[12.5px] font-medium transition ${
+                              active
+                                ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
+                                : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+                            }`}
+                          >
+                            <i className={`${item.icon} w-[18px] text-center text-[15px]`} />
+                            <span>{item.label}</span>
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
         </nav>
-      </aside>
 
-      <div className="flex min-w-0 flex-1 flex-col print:block">
-        <header className="flex items-center justify-end gap-3 border-b border-slate-200 bg-white px-6 py-3 print:hidden">
-          {!isSuperuser && <PresenceWidget meId={profile.id} />}
-          <div className="flex items-center gap-2.5 border-l border-slate-200 pl-3.5">
-            <div className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-full bg-brand-50 text-brand-600">
-              {profile.photo_url ? (
-                // eslint-disable-next-line @next/next/no-img-element
-                <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
-              ) : (
-                <span className="text-sm font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
-              )}
-            </div>
-            <div className="leading-tight">
-              <div className="text-[12.5px] font-semibold text-slate-800">{profile.full_name}</div>
-              <div className="text-[10px] text-slate-400">{profile.role}</div>
-            </div>
-            <button
-              onClick={handleLogout}
-              title="Logout"
-              className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-red-50 text-red-600 transition hover:bg-red-100"
-            >
-              ⏻
-            </button>
+        {!isSuperuser && <PresenceWidget meId={profile.id} />}
+
+        <div className="flex shrink-0 items-center gap-[9px] border-l border-slate-300/70 pl-3.5">
+          <div className="flex h-[34px] w-[34px] items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
+            {profile.photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-sm font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
+            )}
           </div>
-        </header>
+          <div className="leading-tight">
+            <div className="text-[12.5px] font-bold text-slate-800">{profile.full_name}</div>
+            <div className="text-[10px] text-slate-400">{profile.role}</div>
+          </div>
+          <button
+            onClick={handleLogout}
+            title="Logout"
+            className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-red-600/10 text-sm text-red-600 transition hover:bg-red-600/20"
+          >
+            <i className="fi fi-rr-sign-out-alt" />
+          </button>
+        </div>
+      </header>
 
-        <main className="flex-1 overflow-y-auto bg-slate-50 p-6 print:overflow-visible print:bg-white print:p-0">{children}</main>
-      </div>
+      <main className="flex-1 p-6 print:p-0">{children}</main>
     </div>
   );
 }
