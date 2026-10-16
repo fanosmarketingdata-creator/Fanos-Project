@@ -11,7 +11,7 @@ export default async function NewSalesOrderPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Tambah Sales Order</h1>
+      <h1 className="page-title"><i className="fi fi-rr-shopping-cart" />Tambah Sales Order</h1>
       <p className="mb-6 text-sm text-slate-500">Manual atau langsung dari BOQ Project.</p>
       <SalesOrderForm clients={clients ?? []} products={products ?? []} boqProjects={boqProjects ?? []} />
     </div>

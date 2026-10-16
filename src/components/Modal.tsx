@@ -1,5 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
+
+// Modal bersama untuk semua halaman, bergaya index.html (header biru).
+// Judul yang diawali "Hapus"/"Konfirmasi" otomatis memakai varian merah
+// (modal-delete) yang lebih kecil dan tidak full-screen di HP.
 export default function Modal({
   title,
   onClose,
@@ -11,26 +16,28 @@ export default function Modal({
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
+  useEffect(() => {
+    const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', h);
+    return () => document.removeEventListener('keydown', h);
+  }, [onClose]);
+
+  const danger = /^(hapus|konfirmasi|batalkan)/i.test(title.trim());
+
   return (
     <div
-      className="fixed inset-0 z-[1000] flex items-center justify-center bg-slate-900/50 p-4 backdrop-blur-sm"
-      onClick={onClose}
+      className={`modal-overlay${danger ? ' modal-delete' : ''}`}
+      onClick={(e) => e.target === e.currentTarget && onClose()}
     >
-      <div
-        className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-2xl bg-white shadow-2xl"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-          <h3 className="text-[15px] font-bold text-slate-800">{title}</h3>
-          <button
-            onClick={onClose}
-            className="flex h-7 w-7 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-          >
+      <div className="modal" style={danger ? { maxWidth: 480 } : undefined}>
+        <div className="modal-header">
+          <h3>{title}</h3>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Tutup">
             ✕
           </button>
         </div>
-        <div className="px-4 py-4 sm:px-5 sm:py-5">{children}</div>
-        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 px-4 py-3 sm:px-5 sm:py-4">{footer}</div>}
+        <div className="modal-body">{children}</div>
+        {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>
   );

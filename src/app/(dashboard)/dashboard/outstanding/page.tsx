@@ -27,7 +27,7 @@ export default async function OutstandingPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Outstanding</h1>
+      <h1 className="page-title"><i className="fi fi-rr-triangle-warning" />Outstanding</h1>
       <p className="mb-6 text-sm text-slate-500">Invoice yang belum lunas, diurutkan dari yang paling lama.</p>
 
       <div className="mb-5 w-fit rounded-xl border border-slate-200 bg-white p-4">

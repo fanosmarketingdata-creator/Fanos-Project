@@ -6,7 +6,7 @@ export default async function NewInvoicePage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Buat Invoice</h1>
+      <h1 className="page-title"><i className="fi fi-rr-receipt" />Buat Invoice</h1>
       <p className="mb-6 text-sm text-slate-500">Pilih Sales Order — item &amp; harga ditarik otomatis.</p>
       <NewInvoiceForm salesOrders={sos} />
     </div>

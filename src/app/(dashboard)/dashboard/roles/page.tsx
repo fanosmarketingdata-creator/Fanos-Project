@@ -23,7 +23,7 @@ export default async function RolesPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Role Group</h1>
+      <h1 className="page-title"><i className="fi fi-rr-shield-check" />Role Group</h1>
       <p className="mb-6 text-sm text-slate-500">
         Kelompok peran untuk akun login. Saat ini berupa label — pengaturan akses per-halaman menyusul.
       </p>

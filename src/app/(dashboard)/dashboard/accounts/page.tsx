@@ -33,7 +33,7 @@ export default async function AccountsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Master Akun</h1>
+      <h1 className="page-title"><i className="fi fi-rr-user-lock" />Master Akun</h1>
       <p className="mb-6 text-sm text-slate-500">
         Akun login pengguna. Satu team member hanya bisa punya satu akun. Akun Inactive tidak bisa login.
       </p>

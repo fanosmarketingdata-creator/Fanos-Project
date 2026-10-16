@@ -31,7 +31,7 @@ export default async function TeamMembersPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Master Team Member</h1>
+      <h1 className="page-title"><i className="fi fi-rr-users-alt" />Master Team Member</h1>
       <p className="mb-6 text-sm text-slate-500">
         Data anggota tim. Satu anggota bisa dihubungkan ke satu akun login lewat menu Master Akun.
       </p>

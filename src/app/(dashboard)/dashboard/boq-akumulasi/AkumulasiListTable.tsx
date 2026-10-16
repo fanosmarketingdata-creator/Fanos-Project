@@ -41,7 +41,7 @@ export default function AkumulasiListTable({ initialRows }: { initialRows: Akumu
     <div>
       <div className="mb-4 w-full max-w-xs">
         <div className="relative">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

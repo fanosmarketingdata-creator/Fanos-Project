@@ -19,7 +19,7 @@ export default async function QuotationsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Quotations</h1>
+      <h1 className="page-title"><i className="fi fi-rr-file-invoice" />Quotations</h1>
       <p className="mb-6 text-sm text-slate-500">Penawaran harga ke client.</p>
       <QuotationListTable initialRows={rows} />
     </div>

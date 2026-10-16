@@ -23,7 +23,7 @@ export default async function CreditNotesPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Credit Notes</h1>
+      <h1 className="page-title"><i className="fi fi-rr-badge-percent" />Credit Notes</h1>
       <p className="mb-6 text-sm text-slate-500">Nota kredit yang terbit otomatis dari Retur Penjualan.</p>
 
       <div className="mb-5 w-fit rounded-xl border border-slate-200 bg-white p-4">

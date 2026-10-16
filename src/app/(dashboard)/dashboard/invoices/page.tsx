@@ -21,7 +21,7 @@ export default async function InvoicesPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Invoices</h1>
+      <h1 className="page-title"><i className="fi fi-rr-receipt" />Invoices</h1>
       <p className="mb-6 text-sm text-slate-500">Tagihan ke client, dibuat dari Sales Order.</p>
       <InvoiceListTable initialRows={rows} />
     </div>

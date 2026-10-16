@@ -20,7 +20,7 @@ export default async function BOQProjectPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">BOQ Project</h1>
+      <h1 className="page-title"><i className="fa-solid fa-layer-group" />BOQ Project</h1>
       <p className="mb-6 text-sm text-slate-500">Bill of Quantity per proyek — Area → Sub-area → Item.</p>
       <BOQProjectListTable initialRows={rows} />
     </div>

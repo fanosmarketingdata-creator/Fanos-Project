@@ -18,7 +18,7 @@ export default async function BOQAkumulasiPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">BOQ Akumulasi</h1>
+      <h1 className="page-title"><i className="fi fi-rr-calculator" />BOQ Akumulasi</h1>
       <p className="mb-6 text-sm text-slate-500">
         Rekap total qty per SKU dari BOQ Project — dihitung otomatis, dipakai untuk kebutuhan pembelian.
       </p>

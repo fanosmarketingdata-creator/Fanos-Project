@@ -54,7 +54,7 @@ export default async function EditBOQProjectPage({ params }: { params: { id: str
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Edit BOQ Project</h1>
+      <h1 className="page-title"><i className="fa-solid fa-layer-group" />Edit BOQ Project</h1>
       <p className="mb-6 text-sm text-slate-500">{boq.project_name}</p>
       <BOQProjectForm clients={clients ?? []} products={products ?? []} initial={initial} />
     </div>

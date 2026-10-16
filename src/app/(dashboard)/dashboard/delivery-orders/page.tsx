@@ -23,7 +23,7 @@ export default async function DeliveryOrdersPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Delivery Orders</h1>
+      <h1 className="page-title"><i className="fi fi-rr-shipping-fast" />Delivery Orders</h1>
       <p className="mb-6 text-sm text-slate-500">
         Riwayat pengiriman (Surat Jalan) — dibuat otomatis lewat tombol &quot;Ship Items&quot; di Sales Order.
       </p>

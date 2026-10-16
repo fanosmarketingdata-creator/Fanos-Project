@@ -1,5 +1,6 @@
 import { redirect } from 'next/navigation';
 import '@/styles/registry.css';
+import '@/styles/theme.css';
 import { createClient } from '@/lib/supabase/server';
 import DashboardShell from '@/components/DashboardShell';
 import InactiveNotice from '@/components/InactiveNotice';

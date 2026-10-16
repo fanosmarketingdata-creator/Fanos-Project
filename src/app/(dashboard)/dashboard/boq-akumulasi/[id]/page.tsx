@@ -15,7 +15,7 @@ export default async function AkumulasiDetailPage({ params }: { params: { id: st
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">BOQ Akumulasi — {boq.project_name}</h1>
+      <h1 className="page-title"><i className="fi fi-rr-calculator" />BOQ Akumulasi — {boq.project_name}</h1>
       <p className="mb-6 text-sm text-slate-500">Client: {clientName}</p>
       <AkumulasiDetailTable boqProjectId={boq.id} initialRows={rows ?? []} />
     </div>

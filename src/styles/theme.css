@@ -1,0 +1,140 @@
+/* ============================================================
+   TEMA INDEX.HTML untuk SEMUA halaman dashboard.
+   Markup lama (Tailwind) tidak diubah satu per satu; di sini tampilannya
+   diseragamkan: judul halaman, kartu, tabel, tombol, input, dan Overview.
+   Semua selector di-scope ke <main> agar header/modal tidak ikut terpengaruh.
+============================================================ */
+
+/* ---- Judul halaman = card-header index.html ---- */
+main .page-title {
+  display: flex;
+  align-items: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #1a237e;
+  margin: 0 0 14px;
+  padding-bottom: 12px;
+  border-bottom: 1.5px solid #e2e5ea;
+}
+main .page-title i { color: #2563eb; font-size: 16px; margin-right: 8px; line-height: 1; }
+/* index.html tidak punya teks deskripsi di bawah judul */
+main .page-title + p { display: none; }
+
+/* ---- Kartu / panel ---- */
+main .bg-white.rounded-xl,
+main .bg-white.rounded-2xl {
+  background: rgba(255, 255, 255, 0.6);
+  border-color: #e5e7eb;
+  border-radius: 14px;
+}
+/* wrapper tabel tetap putih solid seperti .table-wrap */
+main .overflow-x-auto.bg-white,
+main .overflow-x-auto > table { background: #fff; }
+main .overflow-x-auto.bg-white { border-radius: 14px; }
+
+/* ---- Tabel (desktop/tablet; di HP jadi kartu, lihat globals.css) ---- */
+@media screen and (min-width: 768px) {
+  main table { border-collapse: separate; border-spacing: 0; font-size: 12.5px; }
+  main table thead tr,
+  main table thead th {
+    background: #f8fafc;
+    color: #374151;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    font-weight: 700;
+    white-space: nowrap;
+    padding: 12px 14px;
+    border-bottom: 1.5px solid #e5e7eb;
+  }
+  main table tbody td {
+    padding: 11px 14px;
+    color: #374151;
+    border-bottom: 1px solid #f0f1f3;
+    vertical-align: middle;
+  }
+  main table tbody tr:last-child td { border-bottom: none; }
+  main table tbody td:first-child { font-weight: 600; color: #1f2937; }
+  main table tbody tr:hover td { background: #f8fafc; }
+}
+
+/* ---- Tombol ---- */
+main button.bg-brand-500,
+main a.bg-brand-500 {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  box-shadow: none;
+  transition: all 0.2s ease;
+}
+main button.bg-brand-500:hover:not(:disabled),
+main a.bg-brand-500:hover {
+  background: linear-gradient(135deg, #2563eb, #1d4ed8);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35);
+}
+main button.bg-brand-500:disabled { opacity: 0.65; cursor: not-allowed; }
+/* tombol aksi kecil di baris tabel (Edit / Hapus / Detail ...) */
+main td button[class*='bg-'][class*='-50'],
+main td a[class*='bg-'][class*='-50'] {
+  border-radius: 8px;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+main td button[class*='bg-'][class*='-50']:hover,
+main td a[class*='bg-'][class*='-50']:hover { transform: translateY(-1px); box-shadow: 0 3px 10px rgba(0, 0, 0, 0.12); }
+/* tombol sekunder (border abu-abu) */
+main button.border-slate-200 { border-radius: 10px; font-weight: 600; }
+
+/* ---- Input / select / textarea ---- */
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+main select,
+main textarea {
+  border-width: 1.5px;
+  border-color: #e5e7eb;
+  border-radius: 10px;
+  background-color: #fafbfc;
+  transition: all 0.15s ease;
+}
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
+main select:focus,
+main textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  background-color: #fff;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+/* pencarian bulat seperti .search-box index.html */
+main input[placeholder^='Cari'] { border-radius: 20px; font-size: 12px; border-width: 1px; }
+main label.text-xs.font-semibold,
+main label.text-slate-500 { text-transform: uppercase; letter-spacing: 0.3px; font-size: 11px; font-weight: 700; color: #6b7280; }
+
+/* ---- Overview (dash-*) ---- */
+.dash-kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 6px; }
+.dash-kpi {
+  background: rgba(255, 255, 255, 0.6); border-radius: 16px; padding: 18px; border: 1px solid #e5e7eb;
+  display: flex; align-items: center; gap: 14px; transition: all 0.2s ease; height: 100%;
+}
+a:hover > .dash-kpi { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06); }
+.dash-kpi-icon { width: 50px; height: 50px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 21px; flex-shrink: 0; }
+.dash-kpi-val { font-size: 25px; font-weight: 800; line-height: 1.1; word-break: break-word; }
+.dash-kpi-lbl { font-size: 11px; color: #6b7280; font-weight: 600; margin-top: 2px; }
+.dash-section-title { font-size: 14px; font-weight: 800; color: #1a237e; margin: 24px 0 14px; display: flex; align-items: center; gap: 8px; }
+.dash-section-title i { color: #2563eb; }
+.dash-grid-2 { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-top: 18px; }
+@media (max-width: 900px) { .dash-grid-2 { grid-template-columns: 1fr; } }
+.dash-panel { background: rgba(255, 255, 255, 0.6); border: 1px solid #e5e7eb; border-radius: 16px; padding: 18px; min-width: 0; }
+.dash-panel-title { font-size: 13px; font-weight: 800; color: #1a237e; margin-bottom: 14px; display: flex; align-items: center; gap: 8px; }
+.dash-panel-title i { color: #2563eb; }
+.dash-activity-item { display: flex; gap: 10px; padding: 10px 0; border-bottom: 1px solid #f4f4f5; }
+.dash-activity-item:last-child { border-bottom: none; }
+.dash-activity-icon { width: 32px; height: 32px; border-radius: 9px; display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0; }
+@media (max-width: 480px) { .dash-kpi-row { grid-template-columns: 1fr 1fr; gap: 10px; } .dash-kpi { padding: 12px; gap: 10px; } .dash-kpi-icon { width: 38px; height: 38px; font-size: 16px; } .dash-kpi-val { font-size: 17px; } }
+
+/* ---- Toolbar pencarian: jangan meluber di layar kecil ---- */
+main select { max-width: 100%; }
+@media (max-width: 640px) {
+  main .relative.w-full.max-w-xs,
+  main .relative.w-full.sm\:w-64 { max-width: none; }
+}

@@ -10,7 +10,7 @@ export default async function NewPOPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Buat Purchase Order</h1>
+      <h1 className="page-title"><i className="fa-solid fa-truck-loading" />Buat Purchase Order</h1>
       <p className="mb-6 text-sm text-slate-500">Pesanan pembelian ke vendor.</p>
       <POForm vendors={vendors ?? []} products={products ?? []} />
     </div>

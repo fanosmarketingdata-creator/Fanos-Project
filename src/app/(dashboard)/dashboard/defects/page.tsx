@@ -30,7 +30,7 @@ export default async function DefectsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Defect List</h1>
+      <h1 className="page-title"><i className="fi fi-rr-clipboard-list-check" />Defect List</h1>
       <p className="mb-6 text-sm text-slate-500">Catatan barang cacat / bermasalah hasil pemeriksaan.</p>
       <DefectsTable initialRows={rows} soOptions={soOptions} products={products ?? []} />
     </div>

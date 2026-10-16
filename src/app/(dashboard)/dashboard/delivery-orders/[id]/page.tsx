@@ -34,7 +34,7 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
       >
         🖨️ Cetak Surat Jalan
       </Link>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Delivery Order</h1>
+      <h1 className="page-title"><i className="fi fi-rr-shipping-fast" />Delivery Order</h1>
       <p className="mb-6 text-sm text-slate-500">
         {so?.clients?.project_name ?? '-'} ·{' '}
         {new Date(deliveryOrder.do_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}

@@ -11,7 +11,7 @@ export default async function NewQuotationPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Tambah Quotation</h1>
+      <h1 className="page-title"><i className="fi fi-rr-file-invoice" />Tambah Quotation</h1>
       <p className="mb-6 text-sm text-slate-500">Dari BOQ Project atau input manual.</p>
       <QuotationForm clients={clients ?? []} products={products ?? []} boqProjects={boqProjects ?? []} />
     </div>

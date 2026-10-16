@@ -35,7 +35,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
 
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="mb-1 text-xl font-bold text-slate-800">{client?.project_name ?? '-'}</h1>
+          <h1 className="page-title"><i className="fi fi-rr-receipt" />{client?.project_name ?? '-'}</h1>
           <p className="text-sm text-slate-500">
             {new Date(invoice.inv_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
           </p>

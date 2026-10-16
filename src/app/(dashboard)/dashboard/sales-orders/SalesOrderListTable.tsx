@@ -58,7 +58,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
     <div>
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
+          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}

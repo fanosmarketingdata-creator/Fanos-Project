@@ -35,7 +35,7 @@ export default async function EditPOPage({ params }: { params: { id: string } })
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Edit Purchase Order</h1>
+      <h1 className="page-title"><i className="fa-solid fa-truck-loading" />Edit Purchase Order</h1>
       <p className="mb-6 text-sm text-slate-500">Status: DRAFT</p>
       <POForm vendors={vendors ?? []} products={products ?? []} initial={initial} />
     </div>

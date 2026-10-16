@@ -70,32 +70,45 @@ export default async function DashboardPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Overview</h1>
-      <p className="mb-6 text-sm text-slate-500">Selamat datang, {profile?.full_name ?? ''}.</p>
+      <h1 className="page-title"><i className="fi fi-rr-apps" />Overview</h1>
+      <p className="mb-4 text-xs text-slate-400">Selamat datang, {profile?.full_name ?? ''}.</p>
 
-      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
-        <Kpi label="Penjualan Bulan Ini" value={rupiah(salesThisMonth)} />
-        <Kpi label="Pembayaran Diterima (Bulan Ini)" value={rupiah(paidThisMonth)} tone="emerald" />
-        <Kpi label="Total Piutang" value={rupiah(totalOutstanding)} tone="red" href="/dashboard/outstanding" />
-        <Kpi label="Invoice Belum Lunas" value={String((unpaid ?? []).length)} href="/dashboard/outstanding" />
-        <Kpi label="Sales Order Berjalan" value={String(soRunning ?? 0)} href="/dashboard/sales-orders" />
-        <Kpi label="Quotation Draft" value={String(quoteDraft ?? 0)} href="/dashboard/quotations" />
-        <Kpi label="PO Belum Diterima" value={String(poOpen ?? 0)} href="/dashboard/purchase-orders" />
-        <Kpi label="Defect Open" value={String(defectOpen ?? 0)} tone={(defectOpen ?? 0) > 0 ? 'red' : undefined} href="/dashboard/defects" />
+      <div className="dash-kpi-row">
+        <Kpi icon="fi fi-rr-chart-histogram" color="#2563eb" label="Penjualan Bulan Ini" value={rupiah(salesThisMonth)} />
+        <Kpi icon="fi fi-rr-money-bill-wave" color="#16a34a" label="Pembayaran Diterima (Bulan Ini)" value={rupiah(paidThisMonth)} />
+        <Kpi icon="fi fi-rr-triangle-warning" color="#dc2626" label="Total Piutang" value={rupiah(totalOutstanding)} href="/dashboard/outstanding" />
+        <Kpi icon="fi fi-rr-receipt" color="#d97706" label="Invoice Belum Lunas" value={String((unpaid ?? []).length)} href="/dashboard/outstanding" />
       </div>
 
-      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
-        <div className="col-span-2 rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="mb-4 text-sm font-bold text-slate-700">Penjualan 6 Bulan Terakhir</h3>
-          <div className="flex h-44 items-end gap-3">
+      <div className="dash-section-title"><i className="fi fi-rr-refresh" /> Pipeline & Operasional</div>
+      <div className="dash-kpi-row">
+        <Kpi icon="fi fi-rr-shopping-cart" color="#2563eb" label="Sales Order Berjalan" value={String(soRunning ?? 0)} href="/dashboard/sales-orders" />
+        <Kpi icon="fi fi-rr-file-invoice" color="#7c3aed" label="Quotation Draft" value={String(quoteDraft ?? 0)} href="/dashboard/quotations" />
+        <Kpi icon="fi fi-rr-truck-loading" color="#0891b2" label="PO Belum Diterima" value={String(poOpen ?? 0)} href="/dashboard/purchase-orders" />
+        <Kpi
+          icon="fi fi-rr-clipboard-list-check"
+          color={(defectOpen ?? 0) > 0 ? '#dc2626' : '#16a34a'}
+          label="Defect Open"
+          value={String(defectOpen ?? 0)}
+          href="/dashboard/defects"
+        />
+      </div>
+
+      <div className="dash-grid-2" style={{ gridTemplateColumns: undefined }}>
+        <div className="dash-panel">
+          <div className="dash-panel-title"><i className="fi fi-rr-chart-histogram" /> Penjualan 6 Bulan Terakhir</div>
+          <div className="flex h-44 items-end gap-2 sm:gap-3">
             {buckets.map((b) => (
-              <div key={b.key} className="flex h-full flex-1 flex-col items-center justify-end gap-1.5">
+              <div key={b.key} className="flex h-full min-w-0 flex-1 flex-col items-center justify-end gap-1.5">
                 <div className="text-[10px] font-semibold text-slate-500">
                   {b.total > 0 ? (b.total / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt' : ''}
                 </div>
                 <div
-                  className="w-full rounded-t-md bg-brand-500"
-                  style={{ height: `${Math.max((b.total / maxTotal) * 80, b.total > 0 ? 3 : 0)}%` }}
+                  className="w-full rounded-t-md"
+                  style={{
+                    height: `${Math.max((b.total / maxTotal) * 80, b.total > 0 ? 3 : 0)}%`,
+                    background: 'linear-gradient(180deg,#3b82f6,#2563eb)',
+                  }}
                 />
                 <div className="text-[11px] text-slate-500">{b.label}</div>
               </div>
@@ -103,9 +116,9 @@ export default async function DashboardPage() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <div className="mb-3 flex items-center justify-between">
-            <h3 className="text-sm font-bold text-slate-700">Perlu Perhatian</h3>
+        <div className="dash-panel">
+          <div className="dash-panel-title" style={{ justifyContent: 'space-between' }}>
+            <span style={{ display: 'flex', alignItems: 'center', gap: 8 }}><i className="fi fi-rr-bell" /> Perlu Perhatian</span>
             <Link href="/dashboard/reminders" className="text-xs font-semibold text-brand-600 hover:text-brand-700">
               Semua
             </Link>
@@ -113,13 +126,21 @@ export default async function DashboardPage() {
           {(reminders ?? []).length === 0 ? (
             <p className="py-6 text-center text-xs text-slate-400">Tidak ada reminder yang jatuh tempo 🎉</p>
           ) : (
-            <div className="space-y-2">
+            <div>
               {(reminders ?? []).map((r) => (
-                <div key={r.id} className="rounded-lg bg-slate-50 px-3 py-2">
-                  <div className="text-[13px] font-medium text-slate-800">{r.title}</div>
-                  <div className={`text-[11px] ${r.due_date < today ? 'text-red-600' : 'text-amber-600'}`}>
-                    {r.due_date < today ? 'Terlambat · ' : 'Hari ini · '}
-                    {dateShort(r.due_date)}
+                <div key={r.id} className="dash-activity-item">
+                  <div
+                    className="dash-activity-icon"
+                    style={{ background: r.due_date < today ? '#fee2e2' : '#fef3c7', color: r.due_date < today ? '#dc2626' : '#d97706' }}
+                  >
+                    <i className="fi fi-rr-bell" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[13px] font-semibold text-slate-800">{r.title}</div>
+                    <div className={`text-[11px] ${r.due_date < today ? 'text-red-600' : 'text-amber-600'}`}>
+                      {r.due_date < today ? 'Terlambat · ' : 'Hari ini · '}
+                      {dateShort(r.due_date)}
+                    </div>
                   </div>
                 </div>
               ))}
@@ -131,13 +152,17 @@ export default async function DashboardPage() {
   );
 }
 
-function Kpi({ label, value, tone, href }: { label: string; value: string; tone?: 'emerald' | 'red'; href?: string }) {
-  const toneClass = tone === 'emerald' ? 'text-emerald-600' : tone === 'red' ? 'text-red-600' : 'text-slate-800';
+function Kpi({ icon, color, label, value, href }: { icon: string; color: string; label: string; value: string; href?: string }) {
   const card = (
-    <div className="h-full rounded-xl border border-slate-200 bg-white p-4 transition hover:border-brand-200">
-      <div className="text-[11px] font-semibold text-slate-400">{label}</div>
-      <div className={`mt-1 text-lg font-bold ${toneClass}`}>{value}</div>
+    <div className="dash-kpi">
+      <div className="dash-kpi-icon" style={{ background: `${color}1a`, color }}>
+        <i className={icon} />
+      </div>
+      <div className="min-w-0">
+        <div className="dash-kpi-val" style={{ color, fontSize: value.length > 12 ? 18 : undefined }}>{value}</div>
+        <div className="dash-kpi-lbl">{label}</div>
+      </div>
     </div>
   );
-  return href ? <Link href={href}>{card}</Link> : card;
+  return href ? <Link href={href} className="block">{card}</Link> : card;
 }
