@@ -164,7 +164,7 @@ export default function AccountsTable({
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-xs">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
           <input
@@ -276,7 +276,7 @@ export default function AccountsTable({
             </>
           }
         >
-          <div className="flex gap-5">
+          <div className="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
             <div className="shrink-0">
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -305,7 +305,7 @@ export default function AccountsTable({
               </p>
             </div>
 
-            <div className="min-w-0 flex-1 space-y-3">
+            <div className="w-full min-w-0 flex-1 space-y-3">
               <Field label="Nama Lengkap *" value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
               <Field
                 label="Email (untuk login) *"
@@ -322,7 +322,7 @@ export default function AccountsTable({
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Role Group *</label>
               <select

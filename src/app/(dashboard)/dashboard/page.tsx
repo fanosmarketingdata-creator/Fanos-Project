@@ -73,7 +73,7 @@ export default async function DashboardPage() {
       <h1 className="mb-1 text-xl font-bold text-slate-800">Overview</h1>
       <p className="mb-6 text-sm text-slate-500">Selamat datang, {profile?.full_name ?? ''}.</p>
 
-      <div className="mb-6 grid grid-cols-4 gap-4">
+      <div className="mb-6 grid grid-cols-2 gap-3 sm:gap-4 lg:grid-cols-4">
         <Kpi label="Penjualan Bulan Ini" value={rupiah(salesThisMonth)} />
         <Kpi label="Pembayaran Diterima (Bulan Ini)" value={rupiah(paidThisMonth)} tone="emerald" />
         <Kpi label="Total Piutang" value={rupiah(totalOutstanding)} tone="red" href="/dashboard/outstanding" />
@@ -84,7 +84,7 @@ export default async function DashboardPage() {
         <Kpi label="Defect Open" value={String(defectOpen ?? 0)} tone={(defectOpen ?? 0) > 0 ? 'red' : undefined} href="/dashboard/defects" />
       </div>
 
-      <div className="grid grid-cols-3 gap-5">
+      <div className="grid grid-cols-1 gap-5 lg:grid-cols-3">
         <div className="col-span-2 rounded-xl border border-slate-200 bg-white p-5">
           <h3 className="mb-4 text-sm font-bold text-slate-700">Penjualan 6 Bulan Terakhir</h3>
           <div className="flex h-44 items-end gap-3">

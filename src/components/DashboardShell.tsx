@@ -117,10 +117,17 @@ export default function DashboardShell({
   const visibleGroups = NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly));
 
   const [openId, setOpenId] = useState<string | null>(null);
+  // Layar < lg: menu jadi panel hamburger dengan akordeon (tidak ada hover di HP/tablet).
+  const [mobileOpen, setMobileOpen] = useState(false);
+  const [mobileGroup, setMobileGroup] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Dropdown terbuka saat di-hover. Penutupan ditunda sebentar supaya
   // kursor bisa berpindah dari tombol ke panel tanpa dropdown berkedip.
+  // Hover hanya dipakai di perangkat yang punya pointer hover (mouse/trackpad).
+  // Di layar sentuh (HP, iPad) mouseenter palsu bentrok dengan tap, jadi diabaikan.
+  const canHover = () => typeof window !== 'undefined' && window.matchMedia('(hover: hover)').matches;
+
   function openMenu(id: string) {
     if (closeTimer.current) clearTimeout(closeTimer.current);
     setOpenId(id);
@@ -133,7 +140,30 @@ export default function DashboardShell({
   // Tutup dropdown setiap pindah halaman.
   useEffect(() => {
     setOpenId(null);
+    setMobileOpen(false);
   }, [pathname]);
+
+  // Tap di luar header menutup dropdown / panel mobile.
+  const headerRef = useRef<HTMLElement>(null);
+  useEffect(() => {
+    if (!openId && !mobileOpen) return;
+    const onDown = (e: PointerEvent) => {
+      if (headerRef.current && !headerRef.current.contains(e.target as Node)) {
+        setOpenId(null);
+        setMobileOpen(false);
+      }
+    };
+    document.addEventListener('pointerdown', onDown);
+    return () => document.removeEventListener('pointerdown', onDown);
+  }, [openId, mobileOpen]);
+
+  // Buka grup yang sedang aktif saat panel mobile dibuka.
+  useEffect(() => {
+    if (!mobileOpen) return;
+    const current = visibleGroups.find((g) => !g.direct && g.items.some((it) => isActive(pathname, it.href)));
+    setMobileGroup(current?.id ?? null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mobileOpen]);
 
   async function handleLogout() {
     await supabase.auth.signOut();
@@ -145,11 +175,25 @@ export default function DashboardShell({
     <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
       <IdleLogout />
 
-      <header className="sticky top-0 z-[500] flex items-center gap-3 border-b border-slate-200/70 bg-white/90 px-4 py-2 backdrop-blur print:hidden">
+      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200/70 bg-white/90 px-3 py-2 backdrop-blur sm:gap-3 sm:px-4 print:hidden">
+        <button
+          type="button"
+          onClick={() => setMobileOpen((v) => !v)}
+          aria-label="Menu"
+          aria-expanded={mobileOpen}
+          className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg text-slate-600 transition hover:bg-brand-500/10 lg:hidden"
+        >
+          {/* SVG inline: tetap tampil walaupun CDN ikon gagal dimuat */}
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+            {mobileOpen ? <path d="M6 6l12 12M18 6L6 18" /> : <path d="M4 7h16M4 12h16M4 17h16" />}
+          </svg>
+        </button>
+
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={LOGO_URL} alt="Fanos" className="h-6 w-auto shrink-0 drop-shadow-sm" />
 
-        <nav className="flex min-w-0 flex-1 flex-nowrap items-center gap-0.5">
+        <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
+
           {visibleGroups.map((group) => {
             const groupActive = group.items.some((it) => isActive(pathname, it.href));
             const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-bold transition ${
@@ -172,16 +216,16 @@ export default function DashboardShell({
               <div
                 key={group.id}
                 className="relative shrink-0"
-                onMouseEnter={() => openMenu(group.id)}
-                onMouseLeave={scheduleClose}
+                onMouseEnter={() => canHover() && openMenu(group.id)}
+                onMouseLeave={() => canHover() && scheduleClose()}
               >
                 <button
                   type="button"
                   className={btnClass}
                   aria-haspopup="menu"
                   aria-expanded={open}
-                  // Klik tetap berfungsi untuk layar sentuh (tidak ada hover).
-                  onClick={() => (open ? setOpenId(null) : openMenu(group.id))}
+                  // Layar sentuh: tap membuka/menutup. Mouse: sudah terbuka oleh hover.
+                  onClick={() => (canHover() ? openMenu(group.id) : open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
                   <i className={`${group.icon} text-[11px] leading-none`} />
@@ -221,7 +265,13 @@ export default function DashboardShell({
           })}
         </nav>
 
-        {!isSuperuser && <PresenceWidget meId={profile.id} />}
+        <div className="flex-1 lg:hidden" />
+
+        {!isSuperuser && (
+          <div className="hidden sm:block">
+            <PresenceWidget meId={profile.id} />
+          </div>
+        )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-300/70 pl-3">
           <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
@@ -232,7 +282,7 @@ export default function DashboardShell({
               <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
             )}
           </div>
-          <div className="hidden leading-tight lg:block">
+          <div className="hidden leading-tight xl:block">
             <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
             <div className="text-[9.5px] text-slate-400">{profile.role}</div>
           </div>
@@ -244,9 +294,60 @@ export default function DashboardShell({
             <i className="fi fi-rr-sign-out-alt" />
           </button>
         </div>
+
+        {mobileOpen && (
+          <div className="absolute inset-x-0 top-full max-h-[calc(100vh-3rem)] overflow-y-auto border-b border-slate-200 bg-white p-2 shadow-lg lg:hidden">
+            <div className="mb-1 flex items-center gap-2 border-b border-slate-100 px-3 pb-2 pt-1 xl:hidden">
+              <div className="text-[13px] font-bold text-slate-800">{profile.full_name}</div>
+              <div className="text-[10px] text-slate-400">{profile.role}</div>
+            </div>
+            {visibleGroups.map((group) => {
+              const groupActive = group.items.some((it) => isActive(pathname, it.href));
+              const rowClass = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[13px] font-bold ${
+                groupActive ? 'bg-brand-500/10 text-brand-900' : 'text-slate-600'
+              }`;
+              if (group.direct) {
+                return (
+                  <Link key={group.id} href={group.items[0].href} className={rowClass}>
+                    <i className={`${group.icon} w-4 text-center text-[13px] leading-none`} />
+                    <span>{group.label}</span>
+                  </Link>
+                );
+              }
+              const open = mobileGroup === group.id;
+              return (
+                <div key={group.id}>
+                  <button type="button" className={rowClass} onClick={() => setMobileGroup(open ? null : group.id)}>
+                    <i className={`${group.icon} w-4 text-center text-[13px] leading-none`} />
+                    <span className="flex-1">{group.label}</span>
+                    <i className={`fi fi-rr-angle-small-down text-[12px] leading-none transition-transform ${open ? 'rotate-180' : ''}`} />
+                  </button>
+                  {open && (
+                    <div className="mb-1 ml-5 border-l border-slate-100 pl-2">
+                      {group.items.map((item) => (
+                        <Link
+                          key={item.href}
+                          href={item.href}
+                          className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium ${
+                            isActive(pathname, item.href)
+                              ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white'
+                              : 'text-slate-600 active:bg-brand-50'
+                          }`}
+                        >
+                          <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
+                          <span>{item.label}</span>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </header>
 
-      <main className="flex-1 p-6 print:p-0">{children}</main>
+      <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0">{children}</main>
     </div>
   );
 }

@@ -41,7 +41,7 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
       </p>
 
       <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-2 gap-4 text-sm">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
           <div>
             <div className="text-xs font-semibold text-slate-400">Alamat Pengiriman</div>
             <div className="text-slate-700">
@@ -60,8 +60,8 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">SKU</th>

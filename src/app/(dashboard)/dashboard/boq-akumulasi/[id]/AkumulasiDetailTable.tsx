@@ -44,7 +44,7 @@ export default function AkumulasiDetailTable({
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <Link href="/dashboard/boq-akumulasi" className="text-sm font-medium text-slate-500 hover:text-slate-700">
           ← Kembali ke daftar
         </Link>
@@ -57,8 +57,8 @@ export default function AkumulasiDetailTable({
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">SKU</th>

@@ -58,7 +58,7 @@ export default function POForm({
   return (
     <div className="pb-10">
       <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-500">Vendor *</label>
             <select
@@ -96,8 +96,8 @@ export default function POForm({
 
       <div className="rounded-xl border border-slate-200 bg-white p-5">
         <h3 className="mb-3 text-sm font-bold text-slate-700">Item</h3>
-        <div className="space-y-2">
-          <div className="grid grid-cols-[2fr_60px_60px_1fr_1fr_auto] gap-2 px-1 text-[10px] font-semibold uppercase text-slate-400">
+        <div className="space-y-2 overflow-x-auto pb-1">
+          <div className="grid min-w-[680px] grid-cols-[2fr_60px_60px_1fr_1fr_auto] gap-2 px-1 text-[10px] font-semibold uppercase text-slate-400">
             <span>SKU</span>
             <span>Qty</span>
             <span>UOM</span>
@@ -106,7 +106,7 @@ export default function POForm({
             <span></span>
           </div>
           {items.map((it, i) => (
-            <div key={i} className="grid grid-cols-[2fr_60px_60px_1fr_1fr_auto] items-center gap-2">
+            <div key={i} className="grid min-w-[680px] grid-cols-[2fr_60px_60px_1fr_1fr_auto] items-center gap-2">
               <ProductPicker
                 products={products}
                 value={it.sku}

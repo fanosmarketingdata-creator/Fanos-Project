@@ -29,8 +29,8 @@ export default function Modal({
             ✕
           </button>
         </div>
-        <div className="px-5 py-5">{children}</div>
-        {footer && <div className="flex justify-end gap-2 border-t border-slate-100 px-5 py-4">{footer}</div>}
+        <div className="px-4 py-4 sm:px-5 sm:py-5">{children}</div>
+        {footer && <div className="flex flex-wrap justify-end gap-2 border-t border-slate-100 px-4 py-3 sm:px-5 sm:py-4">{footer}</div>}
       </div>
     </div>
   );

@@ -121,7 +121,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between gap-3">
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="relative w-full max-w-xs">
           <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
           <input
@@ -139,8 +139,8 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
         </button>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">Foto</th>
@@ -221,7 +221,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
             </>
           }
         >
-          <div className="flex gap-4">
+          <div className="flex flex-col gap-4 sm:flex-row">
             <div className="shrink-0">
               <div
                 onClick={() => fileInputRef.current?.click()}
@@ -251,14 +251,14 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
             <div className="flex-1 space-y-3">
               <Field label="SKU *" value={form.sku} onChange={(v) => setForm({ ...form, sku: v })} />
               <Field label="Nama Produk *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-              <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <Field label="Brand" value={form.brand || ''} onChange={(v) => setForm({ ...form, brand: v })} />
                 <Field label="UOM" value={form.uom} onChange={(v) => setForm({ ...form, uom: v })} />
               </div>
             </div>
           </div>
 
-          <div className="mt-3 grid grid-cols-2 gap-3">
+          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Harga</label>
               <input

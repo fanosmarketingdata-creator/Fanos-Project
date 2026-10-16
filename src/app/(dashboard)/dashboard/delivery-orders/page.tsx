@@ -28,8 +28,8 @@ export default async function DeliveryOrdersPage() {
         Riwayat pengiriman (Surat Jalan) — dibuat otomatis lewat tombol &quot;Ship Items&quot; di Sales Order.
       </p>
 
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <table className="w-full text-left text-sm">
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">Client</th>

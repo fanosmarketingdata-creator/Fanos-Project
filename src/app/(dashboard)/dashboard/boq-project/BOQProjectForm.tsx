@@ -128,7 +128,7 @@ export default function BOQProjectForm({
     <div className="pb-10">
       {/* Header */}
       <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
             <label className="mb-1 block text-xs font-semibold text-slate-500">Project Name *</label>
             <input
@@ -239,9 +239,9 @@ export default function BOQProjectForm({
                     )}
                   </div>
 
-                  <div className="space-y-2">
+                  <div className="space-y-2 overflow-x-auto pb-1">
                     {sub.items.map((item, ii) => (
-                      <div key={ii} className="grid grid-cols-[2fr_70px_60px_1fr_auto] items-center gap-2">
+                      <div key={ii} className="grid min-w-[560px] grid-cols-[2fr_70px_60px_1fr_auto] items-center gap-2">
                         <ProductPicker
                           products={products}
                           value={item.sku}

@@ -60,7 +60,7 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
   return (
     <div className="max-w-3xl">
       <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="col-span-2">
             <label className="mb-1 block text-xs font-semibold text-slate-500">Invoice *</label>
             <select

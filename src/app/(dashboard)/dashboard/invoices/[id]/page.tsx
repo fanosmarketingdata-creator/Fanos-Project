@@ -33,7 +33,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         🖨️ Cetak Invoice
       </Link>
 
-      <div className="mb-5 flex items-start justify-between">
+      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="mb-1 text-xl font-bold text-slate-800">{client?.project_name ?? '-'}</h1>
           <p className="text-sm text-slate-500">
@@ -45,7 +45,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         </span>
       </div>
 
-      <div className="mb-5 grid grid-cols-3 gap-4">
+      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
         <SummaryCard label="Grand Total" value={Number(invoice.grand_total)} />
         <SummaryCard label="Terbayar" value={Number(invoice.total_paid)} tone="emerald" />
         <SummaryCard label="Sisa Tagihan" value={Number(invoice.remaining)} tone={Number(invoice.remaining) > 0 ? 'red' : 'emerald'} />
@@ -55,7 +55,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
         <div className="border-b border-slate-100 px-5 py-3">
           <h3 className="text-sm font-bold text-slate-700">Item</h3>
         </div>
-        <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-2.5 font-semibold">SKU</th>
@@ -76,7 +76,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
 
       <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
@@ -84,7 +84,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
           <h3 className="text-sm font-bold text-slate-700">Riwayat Pembayaran</h3>
           {invoice.status !== 'PAID' && <RecordPaymentButton invoiceId={invoice.id} />}
         </div>
-        <table className="w-full text-left text-sm">
+        <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-2.5 font-semibold">Tanggal</th>
@@ -114,7 +114,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
               </tr>
             ))}
           </tbody>
-        </table>
+        </table></div>
       </div>
     </div>
   );
