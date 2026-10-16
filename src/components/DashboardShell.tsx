@@ -145,14 +145,14 @@ export default function DashboardShell({
     <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
       <IdleLogout />
 
-      <header className="sticky top-0 z-[500] flex items-center gap-3.5 border-b border-slate-200/70 bg-white/90 px-5 py-2.5 backdrop-blur print:hidden">
+      <header className="sticky top-0 z-[500] flex items-center gap-3 border-b border-slate-200/70 bg-white/90 px-4 py-2 backdrop-blur print:hidden">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className="h-9 w-auto shrink-0 drop-shadow-sm" />
+        <img src={LOGO_URL} alt="Fanos" className="h-6 w-auto shrink-0 drop-shadow-sm" />
 
-        <nav className="flex flex-1 flex-wrap items-center gap-1">
+        <nav className="flex min-w-0 flex-1 flex-nowrap items-center gap-0.5">
           {visibleGroups.map((group) => {
             const groupActive = group.items.some((it) => isActive(pathname, it.href));
-            const btnClass = `inline-flex items-center gap-[7px] whitespace-nowrap rounded-[10px] px-[15px] py-2 text-[12.5px] font-bold transition ${
+            const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-bold transition ${
               groupActive || openId === group.id
                 ? 'bg-brand-500/10 text-brand-900'
                 : 'text-slate-500 hover:bg-brand-500/[0.07] hover:text-brand-500'
@@ -161,7 +161,7 @@ export default function DashboardShell({
             if (group.direct) {
               return (
                 <Link key={group.id} href={group.items[0].href} className={btnClass}>
-                  <i className={`${group.icon} text-[13px]`} />
+                  <i className={`${group.icon} text-[11px] leading-none`} />
                   <span>{group.label}</span>
                 </Link>
               );
@@ -171,7 +171,7 @@ export default function DashboardShell({
             return (
               <div
                 key={group.id}
-                className="relative"
+                className="relative shrink-0"
                 onMouseEnter={() => openMenu(group.id)}
                 onMouseLeave={scheduleClose}
               >
@@ -184,15 +184,15 @@ export default function DashboardShell({
                   onClick={() => (open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
-                  <i className={`${group.icon} text-[13px]`} />
+                  <i className={`${group.icon} text-[11px] leading-none`} />
                   <span>{group.label}</span>
-                  <i className={`fi fi-rr-angle-small-down text-[13px] transition-transform ${open ? 'rotate-180' : ''}`} />
+                  <i className={`fi fi-rr-angle-small-down text-[10px] leading-none transition-transform ${open ? 'rotate-180' : ''}`} />
                 </button>
 
                 {open && (
                   <div
                     role="menu"
-                    className="absolute left-0 top-full z-[600] min-w-[210px] pt-1.5"
+                    className="absolute left-0 top-full z-[600] min-w-[190px] pt-1.5"
                   >
                     <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                       {group.items.map((item) => {
@@ -202,13 +202,13 @@ export default function DashboardShell({
                             key={item.href}
                             href={item.href}
                             role="menuitem"
-                            className={`flex items-center gap-2.5 rounded-[9px] px-3 py-2 text-[12.5px] font-medium transition ${
+                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
                               active
                                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                                 : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
                             }`}
                           >
-                            <i className={`${item.icon} w-[18px] text-center text-[15px]`} />
+                            <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
                             <span>{item.label}</span>
                           </Link>
                         );
@@ -223,23 +223,23 @@ export default function DashboardShell({
 
         {!isSuperuser && <PresenceWidget meId={profile.id} />}
 
-        <div className="flex shrink-0 items-center gap-[9px] border-l border-slate-300/70 pl-3.5">
-          <div className="flex h-[34px] w-[34px] items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
+        <div className="flex shrink-0 items-center gap-2 border-l border-slate-300/70 pl-3">
+          <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
             {profile.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
             ) : (
-              <span className="text-sm font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
+              <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
             )}
           </div>
-          <div className="leading-tight">
-            <div className="text-[12.5px] font-bold text-slate-800">{profile.full_name}</div>
-            <div className="text-[10px] text-slate-400">{profile.role}</div>
+          <div className="hidden leading-tight lg:block">
+            <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
+            <div className="text-[9.5px] text-slate-400">{profile.role}</div>
           </div>
           <button
             onClick={handleLogout}
             title="Logout"
-            className="ml-1 flex h-8 w-8 items-center justify-center rounded-full bg-red-600/10 text-sm text-red-600 transition hover:bg-red-600/20"
+            className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-600/10 text-xs text-red-600 transition hover:bg-red-600/20"
           >
             <i className="fi fi-rr-sign-out-alt" />
           </button>
