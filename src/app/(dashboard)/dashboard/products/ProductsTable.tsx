@@ -1,9 +1,11 @@
 'use client';
 
 import { useMemo, useRef, useState } from 'react';
-import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
 import { createClient } from '@/lib/supabase/client';
+import RegistryCard from '@/components/registry/RegistryCard';
+import Pagination, { usePaged } from '@/components/registry/Pagination';
+import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
 
 export type ProductRow = {
@@ -20,6 +22,7 @@ export type ProductRow = {
 const emptyForm: ProductInput = { sku: '', name: '', brand: '', uom: 'Pcs', price: 0, image_url: '', category: '' };
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB — kriteria sama seperti sistem lama
+const rupiah = (n: number) => 'Rp ' + (n || 0).toLocaleString('id-ID');
 
 export default function ProductsTable({ initialProducts }: { initialProducts: ProductRow[] }) {
   const toast = useToast();
@@ -31,16 +34,22 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
   const [form, setForm] = useState<ProductInput>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [detail, setDetail] = useState<ProductRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProductRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
+  // Urut brand lalu SKU, seperti renderProducts() di index.html.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    if (!q) return initialProducts;
-    return initialProducts.filter(
-      (p) => p.sku.toLowerCase().includes(q) || p.name.toLowerCase().includes(q) || (p.brand || '').toLowerCase().includes(q)
-    );
+    const rows = q
+      ? initialProducts.filter((p) =>
+          [p.sku, p.name, p.brand, p.category, p.uom].some((v) => (v || '').toLowerCase().includes(q))
+        )
+      : initialProducts;
+    return rows.slice().sort((a, b) => (a.brand || '').localeCompare(b.brand || '') || a.sku.localeCompare(b.sku));
   }, [initialProducts, search]);
+
+  const paged = usePaged(filtered, search, 24);
 
   function openAdd() {
     setForm(emptyForm);
@@ -72,20 +81,20 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     }
 
     setUploading(true);
-    const ext = file.name.split('.').pop();
-    const path = `${crypto.randomUUID()}.${ext}`;
-
-    const { error: uploadError } = await supabase.storage.from('product-images').upload(path, file);
-    setUploading(false);
-
-    if (uploadError) {
-      toast('Upload gagal: ' + uploadError.message, 'error');
-      return;
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: uploadError } = await supabase.storage.from('product-images').upload(path, file);
+      if (uploadError) {
+        toast('Upload gagal: ' + uploadError.message, 'error');
+        return;
+      }
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+      setForm((f) => ({ ...f, image_url: data.publicUrl }));
+      toast('Foto berhasil diunggah', 'success');
+    } finally {
+      setUploading(false);
     }
-
-    const { data } = supabase.storage.from('product-images').getPublicUrl(path);
-    setForm((f) => ({ ...f, image_url: data.publicUrl }));
-    toast('Foto berhasil diunggah', 'success');
   }
 
   function onDrop(e: React.DragEvent) {
@@ -96,231 +105,205 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
 
   async function handleSave() {
     setSaving(true);
-    const result = await saveProduct(form);
-    setSaving(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await saveProduct(form);
+      if (result.error) return toast(result.error, 'error');
+      toast(form.id ? 'Produk diperbarui' : 'Produk ditambahkan', 'success');
+      setModalOpen(false);
+    } catch (e) {
+      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setSaving(false);
     }
-    toast(form.id ? 'Produk diperbarui' : 'Produk ditambahkan', 'success');
-    setModalOpen(false);
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteProduct(deleteTarget.id);
-    setDeleting(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await deleteProduct(deleteTarget.id);
+      if (result.error) return toast(result.error, 'error');
+      toast('Produk dihapus', 'success');
+      setDeleteTarget(null);
+    } catch (e) {
+      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setDeleting(false);
     }
-    toast('Produk dihapus', 'success');
-    setDeleteTarget(null);
   }
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari SKU / nama produk..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-          />
+    <RegistryCard
+      title="Product Catalog"
+      icon="fa-solid fa-boxes-stacked"
+      search={search}
+      onSearch={setSearch}
+      info={search.trim() ? `${filtered.length} hasil` : undefined}
+      addLabel="New Product"
+      addIcon="fa-solid fa-box-open"
+      onAdd={openAdd}
+      footer={
+        <Pagination
+          total={paged.total}
+          page={paged.page}
+          totalPages={paged.totalPages}
+          rowsPerPage={paged.rowsPerPage}
+          onPage={paged.setPage}
+          onRows={paged.setRowsPerPage}
+        />
+      }
+    >
+      <div className="product-grid-wrap">
+        <div className="product-grid">
+          {paged.pageItems.length === 0 && <div className="no-data-grid">No products</div>}
+          {paged.pageItems.map((p) => (
+            <div key={p.id} className="product-card">
+              <div className="product-card-image" onClick={() => setDetail(p)}>
+                {p.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.image_url} alt={p.sku} loading="lazy" />
+                ) : (
+                  <i className="fa-solid fa-image no-image" />
+                )}
+              </div>
+              <div className="product-card-body" onClick={() => setDetail(p)}>
+                <span className="product-card-sku">{p.sku}</span>
+                <div className="product-card-brand">{p.brand || p.name}</div>
+                <div className="product-card-type">{p.brand ? p.name : p.category || '-'}</div>
+                <div className="product-card-spec">{p.brand && p.category ? p.category : ' '}</div>
+                <div className="product-card-price">
+                  <span className="selling">{rupiah(p.price)}</span>
+                  <span className="uom">{p.uom || 'Pcs'}</span>
+                </div>
+              </div>
+              <div className="product-card-actions">
+                <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(p)} title="Edit">
+                  <i className="fi fi-rr-pencil" />
+                </button>
+                <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(p)} title="Hapus">
+                  <i className="fi fi-rr-trash" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <button
-          onClick={openAdd}
-          className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
-        >
-          + Tambah Produk
-        </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-3 font-semibold">Foto</th>
-              <th className="px-4 py-3 font-semibold">SKU</th>
-              <th className="px-4 py-3 font-semibold">Nama Produk</th>
-              <th className="px-4 py-3 font-semibold">Brand</th>
-              <th className="px-4 py-3 font-semibold">UOM</th>
-              <th className="px-4 py-3 font-semibold">Harga</th>
-              <th className="px-4 py-3 text-right font-semibold">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada data produk
-                </td>
-              </tr>
-            )}
-            {filtered.map((p) => (
-              <tr key={p.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3">
-                  <div className="h-10 w-10 overflow-hidden rounded-lg bg-slate-100">
-                    {p.image_url ? (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={p.image_url} alt="" className="h-full w-full object-cover" />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-slate-300">📦</div>
-                    )}
-                  </div>
-                </td>
-                <td className="px-4 py-3 font-mono text-xs text-slate-600">{p.sku}</td>
-                <td className="px-4 py-3 font-medium text-slate-800">{p.name}</td>
-                <td className="px-4 py-3 text-slate-600">{p.brand || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{p.uom}</td>
-                <td className="px-4 py-3 text-slate-600">Rp {p.price.toLocaleString('id-ID')}</td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <button
-                      onClick={() => openEdit(p)}
-                      className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(p)}
-                      className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {detail && (
+        <DetailModal title="Product Detail" onClose={() => setDetail(null)}>
+          <div className="dv2">
+            <div className="dv2-product-layout">
+              <div className="dv2-product-info">
+                <div className="dv2-topbar-id">{detail.sku}</div>
+                <div className="dv2-topbar-title" style={{ marginBottom: 10 }}>{detail.brand || detail.name}</div>
+                <div className="dv2-grid" style={{ gridTemplateColumns: '1fr' }}>
+                  <DvCard icon="fi fi-rr-tag" label="Nama Produk" value={detail.name} />
+                  <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
+                </div>
+              </div>
+              <div className="dv2-product-image-box">
+                {detail.image_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={detail.image_url} alt={detail.sku} />
+                ) : (
+                  <i className="fa-solid fa-image no-image" />
+                )}
+              </div>
+            </div>
+            <div className="dv2-grid">
+              <DvCard icon="fi fi-rr-apps" label="Kategori" value={detail.category || '-'} />
+              <DvCard icon="fi fi-rr-money-bill" label="Selling Price" value={rupiah(detail.price)} color="#16a34a" />
+            </div>
+          </div>
+        </DetailModal>
+      )}
 
       {modalOpen && (
-        <Modal
-          title={form.id ? 'Edit Produk' : 'Tambah Produk'}
+        <FormModal
+          title={form.id ? 'Edit Product' : 'New Product'}
+          icon={form.id ? 'fa-solid fa-pencil' : 'fa-solid fa-box-open'}
           onClose={() => setModalOpen(false)}
           footer={
             <>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
+              <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving || uploading}>
+                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Save'}
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving || uploading}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-              >
-                {saving ? 'Menyimpan...' : 'Simpan'}
+              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
+                Cancel
               </button>
             </>
           }
         >
-          <div className="flex flex-col gap-4 sm:flex-row">
-            <div className="shrink-0">
-              <div
-                onClick={() => fileInputRef.current?.click()}
-                onDragOver={(e) => e.preventDefault()}
-                onDrop={onDrop}
-                className="flex h-28 w-28 cursor-pointer flex-col items-center justify-center overflow-hidden rounded-xl border-2 border-dashed border-slate-300 bg-slate-50 text-center hover:border-brand-500 hover:bg-brand-50"
-              >
-                {uploading ? (
-                  <span className="text-xs text-slate-400">Mengunggah...</span>
-                ) : form.image_url ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={form.image_url} alt="" className="h-full w-full object-cover" />
-                ) : (
-                  <span className="px-2 text-[11px] text-slate-400">Klik / drag foto</span>
-                )}
-              </div>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept="image/png,image/jpeg,image/webp"
-                className="hidden"
-                onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
-              />
-              <p className="mt-1.5 w-28 text-[10px] text-slate-400">JPG/PNG/WebP, maks 2MB</p>
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-picture" /> Foto Produk</div>
+            <div
+              className="fv2-upload-box"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={onDrop}
+            >
+              {uploading ? (
+                <div className="txt">Mengunggah...</div>
+              ) : form.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={form.image_url} alt="" />
+              ) : (
+                <>
+                  <div className="icon"><i className="fi fi-rr-cloud-upload" /></div>
+                  <div className="txt">Klik / drag foto ke sini</div>
+                </>
+              )}
             </div>
-
-            <div className="flex-1 space-y-3">
-              <Field label="SKU *" value={form.sku} onChange={(v) => setForm({ ...form, sku: v })} />
-              <Field label="Nama Produk *" value={form.name} onChange={(v) => setForm({ ...form, name: v })} />
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <Field label="Brand" value={form.brand || ''} onChange={(v) => setForm({ ...form, brand: v })} />
-                <Field label="UOM" value={form.uom} onChange={(v) => setForm({ ...form, uom: v })} />
-              </div>
-            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              style={{ display: 'none' }}
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
+            />
+            <div className="fv2-hint">JPG / PNG / WebP, maks 2MB.</div>
           </div>
 
-          <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">Harga</label>
-              <input
-                type="number"
-                value={form.price}
-                onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-              />
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
+            <div className="fv2-grid">
+              <FvField label="SKU" required>
+                <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="Kode SKU" />
+              </FvField>
+              <FvField label="Nama Produk" required>
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama produk" />
+              </FvField>
+              <FvField label="Brand">
+                <input value={form.brand || ''} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Brand" />
+              </FvField>
+              <FvField label="Kategori">
+                <input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Kategori" />
+              </FvField>
+              <FvField label="UOM">
+                <input value={form.uom} onChange={(e) => setForm({ ...form, uom: e.target.value })} placeholder="Pcs" />
+              </FvField>
+              <FvField label="Selling Price (Rp)">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={form.price}
+                  onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
+                />
+              </FvField>
             </div>
-            <Field label="Kategori" value={form.category || ''} onChange={(v) => setForm({ ...form, category: v })} />
           </div>
-        </Modal>
+        </FormModal>
       )}
 
       {deleteTarget && (
-        <Modal
-          title="Hapus Produk"
+        <DeleteModal
+          title="Konfirmasi Hapus"
+          itemName={`${deleteTarget.sku} — ${deleteTarget.name}`}
+          busy={deleting}
+          onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}
-          footer={
-            <>
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                {deleting ? 'Menghapus...' : 'Ya, Hapus'}
-              </button>
-            </>
-          }
-        >
-          <p className="text-sm text-slate-600">
-            Yakin ingin menghapus produk <strong>{deleteTarget.name}</strong>? Tindakan ini tidak bisa dibatalkan.
-          </p>
-        </Modal>
+        />
       )}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-1 block text-xs font-semibold text-slate-500">{label}</label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-      />
-    </div>
+    </RegistryCard>
   );
 }

@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
+import RegistryCard from '@/components/registry/RegistryCard';
+import Pagination, { usePaged } from '@/components/registry/Pagination';
+import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import { saveClient, deleteClient, type ClientInput } from './actions';
 
 export type ClientRow = {
@@ -16,15 +18,9 @@ export type ClientRow = {
   city: string | null;
 };
 
-const emptyForm: ClientInput = {
-  project_name: '',
-  company: '',
-  contact_name: '',
-  phone: '',
-  email: '',
-  address: '',
-  city: '',
-};
+const emptyForm: ClientInput = { project_name: '', company: '', contact_name: '', phone: '', email: '', address: '', city: '' };
+
+const displayName = (c: ClientRow) => c.company || c.project_name;
 
 export default function ClientsTable({ initialClients }: { initialClients: ClientRow[] }) {
   const toast = useToast();
@@ -32,25 +28,24 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<ClientInput>(emptyForm);
   const [saving, setSaving] = useState(false);
+  const [detail, setDetail] = useState<ClientRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ClientRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return initialClients;
-    return initialClients.filter(
-      (c) =>
-        c.project_name.toLowerCase().includes(q) ||
-        (c.company || '').toLowerCase().includes(q) ||
-        (c.contact_name || '').toLowerCase().includes(q)
+    return initialClients.filter((c) =>
+      [c.project_name, c.company, c.contact_name, c.email, c.address, c.city].some((v) => (v || '').toLowerCase().includes(q))
     );
   }, [initialClients, search]);
+
+  const paged = usePaged(filtered, search);
 
   function openAdd() {
     setForm(emptyForm);
     setModalOpen(true);
   }
-
   function openEdit(c: ClientRow) {
     setForm({
       id: c.id,
@@ -67,182 +62,171 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
 
   async function handleSave() {
     setSaving(true);
-    const result = await saveClient(form);
-    setSaving(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await saveClient(form);
+      if (result.error) return toast(result.error, 'error');
+      toast(form.id ? 'Client diperbarui' : 'Client ditambahkan', 'success');
+      setModalOpen(false);
+    } catch (e) {
+      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setSaving(false);
     }
-    toast(form.id ? 'Client diperbarui' : 'Client ditambahkan', 'success');
-    setModalOpen(false);
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteClient(deleteTarget.id);
-    setDeleting(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await deleteClient(deleteTarget.id);
+      if (result.error) return toast(result.error, 'error');
+      toast('Client dihapus', 'success');
+      setDeleteTarget(null);
+    } catch (e) {
+      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setDeleting(false);
     }
-    toast('Client dihapus', 'success');
-    setDeleteTarget(null);
   }
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari client..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-          />
+    <RegistryCard
+      title="Client Registry"
+      icon="fa-solid fa-users"
+      search={search}
+      onSearch={setSearch}
+      info={search.trim() ? `${filtered.length} hasil` : undefined}
+      addLabel="New Client"
+      addIcon="fa-solid fa-user-plus"
+      onAdd={openAdd}
+      footer={
+        <Pagination
+          total={paged.total}
+          page={paged.page}
+          totalPages={paged.totalPages}
+          rowsPerPage={paged.rowsPerPage}
+          onPage={paged.setPage}
+          onRows={paged.setRowsPerPage}
+        />
+      }
+    >
+      <div className="product-grid-wrap">
+        <div className="client-card-list">
+          {paged.pageItems.length === 0 && <div className="no-data-grid">No clients</div>}
+          {paged.pageItems.map((c) => (
+            <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
+              <div className="client-card-avatar">{displayName(c).trim().charAt(0).toUpperCase() || '?'}</div>
+              <div className="client-card-main">
+                <div className="name">{displayName(c)}</div>
+                <div className="sub">{c.company ? c.project_name : c.city || '-'}</div>
+              </div>
+              <div className="client-card-meta">
+                <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}</div></div>
+                <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>
+                <div className="item"><div className="lbl">Email</div><div className="val">{c.email || '-'}</div></div>
+                <div className="item"><div className="lbl">City</div><div className="val">{c.city || '-'}</div></div>
+              </div>
+              <div className="client-card-actions" onClick={(e) => e.stopPropagation()}>
+                <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(c)} title="Edit">
+                  <i className="fi fi-rr-pencil" />
+                </button>
+                <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(c)} title="Hapus">
+                  <i className="fi fi-rr-trash" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <button
-          onClick={openAdd}
-          className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
-        >
-          + Tambah Client
-        </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-3 font-semibold">Project Name</th>
-              <th className="px-4 py-3 font-semibold">Company</th>
-              <th className="px-4 py-3 font-semibold">Contact</th>
-              <th className="px-4 py-3 font-semibold">Phone</th>
-              <th className="px-4 py-3 font-semibold">City</th>
-              <th className="px-4 py-3 text-right font-semibold">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada data client
-                </td>
-              </tr>
-            )}
-            {filtered.map((c) => (
-              <tr key={c.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">{c.project_name}</td>
-                <td className="px-4 py-3 text-slate-600">{c.company || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{c.contact_name || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{c.phone || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{c.city || '-'}</td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <button
-                      onClick={() => openEdit(c)}
-                      className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(c)}
-                      className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {detail && (
+        <DetailModal title="Client Detail" onClose={() => setDetail(null)}>
+          <div className="dv2">
+            <div className="dv2-topbar">
+              <div>
+                <div className="dv2-topbar-id">Client</div>
+                <div className="dv2-topbar-title">{displayName(detail)}</div>
+              </div>
+            </div>
+            <div className="dv2-grid">
+              <DvCard icon="fi fi-rr-briefcase" label="Project Name" value={detail.project_name || '-'} />
+              <DvCard icon="fi fi-rr-user" label="Contact Person" value={detail.contact_name || '-'} />
+              <DvCard icon="fi fi-rr-envelope" label="Email" value={detail.email || '-'} />
+              <DvCard icon="fi fi-rr-phone-call" label="Phone" value={detail.phone || '-'} />
+              <DvCard icon="fi fi-rr-building" label="City" value={detail.city || '-'} />
+            </div>
+            <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Alamat</div>
+            <div className="dv2-card">
+              <div className="dv2-card-icon"><i className="fi fi-rr-home" /></div>
+              <div><div className="dv2-card-value" style={{ fontWeight: 500 }}>{detail.address || '-'}</div></div>
+            </div>
+          </div>
+        </DetailModal>
+      )}
 
       {modalOpen && (
-        <Modal
-          title={form.id ? 'Edit Client' : 'Tambah Client'}
+        <FormModal
+          title={form.id ? 'Edit Client' : 'New Client'}
+          icon={form.id ? 'fa-solid fa-pencil' : 'fa-solid fa-user-plus'}
           onClose={() => setModalOpen(false)}
           footer={
             <>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
+              <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Save'}
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-              >
-                {saving ? 'Menyimpan...' : 'Simpan'}
+              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
+                Cancel
               </button>
             </>
           }
         >
-          <div className="space-y-3">
-            <Field label="Project Name *" value={form.project_name} onChange={(v) => setForm({ ...form, project_name: v })} />
-            <Field label="Company" value={form.company || ''} onChange={(v) => setForm({ ...form, company: v })} />
-            <Field label="Contact Name" value={form.contact_name || ''} onChange={(v) => setForm({ ...form, contact_name: v })} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
-              <Field label="Email" value={form.email || ''} onChange={(v) => setForm({ ...form, email: v })} />
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-building" /> Informasi Perusahaan</div>
+            <div className="fv2-grid">
+              <FvField label="Company Name">
+                <input value={form.company || ''} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="PT Contoh Sejahtera" />
+              </FvField>
+              <FvField label="Project Name" required>
+                <input value={form.project_name} onChange={(e) => setForm({ ...form, project_name: e.target.value })} placeholder="Nama proyek" />
+              </FvField>
             </div>
-            <Field label="Address" value={form.address || ''} onChange={(v) => setForm({ ...form, address: v })} />
-            <Field label="City" value={form.city || ''} onChange={(v) => setForm({ ...form, city: v })} />
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Address">
+                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap" />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="City">
+                <input value={form.city || ''} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Kota" />
+              </FvField>
+            </div>
           </div>
-        </Modal>
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-user" /> Kontak</div>
+            <div className="fv2-grid">
+              <FvField label="Contact Person">
+                <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama PIC" />
+              </FvField>
+              <FvField label="Phone">
+                <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
+              </FvField>
+              <FvField label="Email">
+                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nama@email.com" />
+              </FvField>
+            </div>
+          </div>
+        </FormModal>
       )}
 
       {deleteTarget && (
-        <Modal
-          title="Hapus Client"
+        <DeleteModal
+          title="Konfirmasi Hapus"
+          itemName={displayName(deleteTarget)}
+          busy={deleting}
+          onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}
-          footer={
-            <>
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                {deleting ? 'Menghapus...' : 'Ya, Hapus'}
-              </button>
-            </>
-          }
-        >
-          <p className="text-sm text-slate-600">
-            Yakin ingin menghapus client <strong>{deleteTarget.project_name}</strong>? Tindakan ini tidak bisa dibatalkan.
-          </p>
-        </Modal>
+        />
       )}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-1 block text-xs font-semibold text-slate-500">{label}</label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-      />
-    </div>
+    </RegistryCard>
   );
 }

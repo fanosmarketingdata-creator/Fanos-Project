@@ -10,8 +10,6 @@ export default async function ClientsPage() {
 
   return (
     <div>
-      <h1 className="mb-1 text-xl font-bold text-slate-800">Clients</h1>
-      <p className="mb-6 text-sm text-slate-500">Daftar klien/proyek.</p>
       <ClientsTable initialClients={clients ?? []} />
     </div>
   );

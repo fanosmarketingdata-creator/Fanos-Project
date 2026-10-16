@@ -1,8 +1,10 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
+import RegistryCard from '@/components/registry/RegistryCard';
+import Pagination, { usePaged } from '@/components/registry/Pagination';
+import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
 import { saveVendor, deleteVendor, type VendorInput } from './actions';
 
 export type VendorRow = {
@@ -28,16 +30,17 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return initialVendors;
-    return initialVendors.filter(
-      (v) => v.company.toLowerCase().includes(q) || (v.contact_name || '').toLowerCase().includes(q)
+    return initialVendors.filter((v) =>
+      [v.company, v.contact_name, v.email, v.address].some((x) => (x || '').toLowerCase().includes(q))
     );
   }, [initialVendors, search]);
+
+  const paged = usePaged(filtered, search);
 
   function openAdd() {
     setForm(emptyForm);
     setModalOpen(true);
   }
-
   function openEdit(v: VendorRow) {
     setForm({
       id: v.id,
@@ -52,178 +55,132 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
 
   async function handleSave() {
     setSaving(true);
-    const result = await saveVendor(form);
-    setSaving(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await saveVendor(form);
+      if (result.error) return toast(result.error, 'error');
+      toast(form.id ? 'Vendor diperbarui' : 'Vendor ditambahkan', 'success');
+      setModalOpen(false);
+    } catch (e) {
+      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setSaving(false);
     }
-    toast(form.id ? 'Vendor diperbarui' : 'Vendor ditambahkan', 'success');
-    setModalOpen(false);
   }
 
   async function handleDelete() {
     if (!deleteTarget) return;
     setDeleting(true);
-    const result = await deleteVendor(deleteTarget.id);
-    setDeleting(false);
-    if (result.error) {
-      toast(result.error, 'error');
-      return;
+    try {
+      const result = await deleteVendor(deleteTarget.id);
+      if (result.error) return toast(result.error, 'error');
+      toast('Vendor dihapus', 'success');
+      setDeleteTarget(null);
+    } catch (e) {
+      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+    } finally {
+      setDeleting(false);
     }
-    toast('Vendor dihapus', 'success');
-    setDeleteTarget(null);
   }
 
   return (
-    <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400">🔍</span>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Cari vendor..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-          />
+    <RegistryCard
+      title="Vendor Registry"
+      icon="fa-solid fa-truck"
+      search={search}
+      onSearch={setSearch}
+      addLabel="New Vendor"
+      addIcon="fa-solid fa-user-plus"
+      onAdd={openAdd}
+      footer={
+        <Pagination
+          total={paged.total}
+          page={paged.page}
+          totalPages={paged.totalPages}
+          rowsPerPage={paged.rowsPerPage}
+          onPage={paged.setPage}
+          onRows={paged.setRowsPerPage}
+        />
+      }
+    >
+      <div className="product-grid-wrap">
+        <div className="client-card-list">
+          {paged.pageItems.length === 0 && <div className="no-data-grid">No vendors</div>}
+          {paged.pageItems.map((v) => (
+            <div key={v.id} className="client-card" onClick={() => openEdit(v)}>
+              <div className="client-card-avatar">{v.company.trim().charAt(0).toUpperCase() || '?'}</div>
+              <div className="client-card-main">
+                <div className="name">{v.company}</div>
+                <div className="sub">{v.address || '-'}</div>
+              </div>
+              <div className="client-card-meta">
+                <div className="item"><div className="lbl">Contact</div><div className="val">{v.contact_name || '-'}</div></div>
+                <div className="item"><div className="lbl">Phone</div><div className="val">{v.phone || '-'}</div></div>
+                <div className="item"><div className="lbl">Email</div><div className="val">{v.email || '-'}</div></div>
+              </div>
+              <div className="client-card-actions" onClick={(e) => e.stopPropagation()}>
+                <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(v)} title="Edit">
+                  <i className="fi fi-rr-pencil" />
+                </button>
+                <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(v)} title="Hapus">
+                  <i className="fi fi-rr-trash" />
+                </button>
+              </div>
+            </div>
+          ))}
         </div>
-        <button
-          onClick={openAdd}
-          className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
-        >
-          + Tambah Vendor
-        </button>
-      </div>
-
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-3 font-semibold">Company</th>
-              <th className="px-4 py-3 font-semibold">Contact</th>
-              <th className="px-4 py-3 font-semibold">Phone</th>
-              <th className="px-4 py-3 font-semibold">Email</th>
-              <th className="px-4 py-3 text-right font-semibold">Aksi</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.length === 0 && (
-              <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada data vendor
-                </td>
-              </tr>
-            )}
-            {filtered.map((v) => (
-              <tr key={v.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">{v.company}</td>
-                <td className="px-4 py-3 text-slate-600">{v.contact_name || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{v.phone || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{v.email || '-'}</td>
-                <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <button
-                      onClick={() => openEdit(v)}
-                      className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      onClick={() => setDeleteTarget(v)}
-                      className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Hapus
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
       </div>
 
       {modalOpen && (
-        <Modal
-          title={form.id ? 'Edit Vendor' : 'Tambah Vendor'}
+        <FormModal
+          title={form.id ? 'Edit Vendor' : 'New Vendor'}
+          icon={form.id ? 'fi fi-rr-pencil' : 'fa-solid fa-truck'}
           onClose={() => setModalOpen(false)}
           footer={
             <>
-              <button
-                onClick={() => setModalOpen(false)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
+              <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
+                <i className="fi fi-rr-disk" /> {saving ? 'Menyimpan...' : 'Save'}
               </button>
-              <button
-                onClick={handleSave}
-                disabled={saving}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-              >
-                {saving ? 'Menyimpan...' : 'Simpan'}
+              <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
+                Cancel
               </button>
             </>
           }
         >
-          <div className="space-y-3">
-            <Field label="Nama Perusahaan *" value={form.company} onChange={(v) => setForm({ ...form, company: v })} />
-            <Field label="Contact Name" value={form.contact_name || ''} onChange={(v) => setForm({ ...form, contact_name: v })} />
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
-              <Field label="Email" value={form.email || ''} onChange={(v) => setForm({ ...form, email: v })} />
+          <div className="fv2-section">
+            <div className="fv2-grid">
+              <FvField label="Company Name" required>
+                <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
+              </FvField>
+              <FvField label="Contact Person">
+                <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} />
+              </FvField>
             </div>
-            <Field label="Address" value={form.address || ''} onChange={(v) => setForm({ ...form, address: v })} />
+            <div className="fv2-grid" style={{ marginTop: 14 }}>
+              <FvField label="Email">
+                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              </FvField>
+              <FvField label="Phone">
+                <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Address">
+                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              </FvField>
+            </div>
           </div>
-        </Modal>
+        </FormModal>
       )}
 
       {deleteTarget && (
-        <Modal
-          title="Hapus Vendor"
+        <DeleteModal
+          title="Konfirmasi Hapus"
+          itemName={deleteTarget.company}
+          busy={deleting}
+          onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}
-          footer={
-            <>
-              <button
-                onClick={() => setDeleteTarget(null)}
-                className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-              >
-                Batal
-              </button>
-              <button
-                onClick={handleDelete}
-                disabled={deleting}
-                className="rounded-lg bg-red-600 px-4 py-2 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60"
-              >
-                {deleting ? 'Menghapus...' : 'Ya, Hapus'}
-              </button>
-            </>
-          }
-        >
-          <p className="text-sm text-slate-600">
-            Yakin ingin menghapus vendor <strong>{deleteTarget.company}</strong>? Tindakan ini tidak bisa dibatalkan.
-          </p>
-        </Modal>
+        />
       )}
-    </div>
-  );
-}
-
-function Field({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: string;
-  onChange: (v: string) => void;
-}) {
-  return (
-    <div>
-      <label className="mb-1 block text-xs font-semibold text-slate-500">{label}</label>
-      <input
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-      />
-    </div>
+    </RegistryCard>
   );
 }
