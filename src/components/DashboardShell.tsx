@@ -167,14 +167,30 @@ export default function DashboardShell({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mobileOpen]);
 
+  const [loggingOut, setLoggingOut] = useState(false);
+
   async function handleLogout() {
-    await supabase.auth.signOut();
-    router.replace('/login');
-    router.refresh();
+    if (loggingOut) return;
+    setLoggingOut(true);
+    try {
+      await supabase.auth.signOut();
+      // Overlay tetap tampil sampai halaman login terbuka.
+      router.replace('/login');
+      router.refresh();
+    } catch {
+      setLoggingOut(false);
+    }
   }
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
+      {loggingOut && (
+        <div className="login-overlay print:hidden" role="status" aria-live="polite">
+          <div className="spinner" />
+          <p>Keluar...</p>
+          <span className="sub-text">Mohon menunggu</span>
+        </div>
+      )}
       <IdleLogout />
       <ResponsiveTables />
 

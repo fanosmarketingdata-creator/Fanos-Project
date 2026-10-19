@@ -60,8 +60,8 @@ export default function LoginPage() {
       {loading && (
         <div className="login-overlay">
           <div className="spinner" />
-          <p>Sedang Memverifikasi Akun</p>
-          <span className="sub-text">Mohon menunggu, sistem sedang memeriksa kredensial Anda.</span>
+          <p>Memverifikasi...</p>
+          <span className="sub-text">Mohon menunggu</span>
         </div>
       )}
 
