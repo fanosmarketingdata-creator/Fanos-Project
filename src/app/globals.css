@@ -295,7 +295,7 @@
 }
 
 /* ============================================================
-   FIGMA CURSOR — overlay tambahan, kursor sistem tidak disembunyikan
+   FIGMA CURSOR — menggantikan kursor sistem (hanya saat efek aktif)
 ============================================================ */
 .fc {
   position: fixed; left: 0; top: 0; z-index: 2147483647;
@@ -312,3 +312,6 @@
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 @media print { .fc { display: none !important; } }
+/* Kelas dipasang oleh FigmaCursor hanya saat efek aktif; tanpa efek kursor sistem tetap normal. */
+html.fc-hide-native, html.fc-hide-native * { cursor: none !important; }
+html.fc-hide-native :is(input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']):not([type='file']):not([type='range']):not([type='color']), textarea, [contenteditable='true'], [contenteditable='']) { cursor: text !important; }

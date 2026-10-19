@@ -2,15 +2,19 @@
 
 import { useEffect, useRef } from 'react';
 
-// Kursor pendamping bergaya multiplayer (panah + tag nama). Bersifat tambahan:
-// kursor sistem tetap tampil, overlay tidak menangkap klik/hover/fokus, dan efek
-// tidak dipasang bila pengguna memilih gerak dikurangi atau perangkat tanpa pointer halus.
+// Kursor bergaya multiplayer (panah + tag nama) yang MENGGANTIKAN kursor sistem.
+// - Ujung panah tepat di titik pointer (tanpa jeda), hanya tag nama yang menyusul dengan halus.
+// - Kursor sistem hanya disembunyikan saat efek aktif; di kolom isian teks kursor sistem (I-beam)
+//   dipakai kembali agar posisi ketik jelas.
+// - Tidak dipasang bila pengguna memilih gerak dikurangi atau perangkat tanpa pointer halus;
+//   pada kondisi itu kursor sistem tetap tampil seperti biasa.
 
 const SIZE = 22;
 const RADIUS = 1.75;
 const FOLLOW = 0.34;
-const DX = 14;
-const DY = 18;
+const DX = 0;
+const DY = 0;
+const NATIVE_TEXT = 'input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]):not([type=range]):not([type=color]), textarea, [contenteditable=""], [contenteditable=true]';
 const COLOUR = '#5B9BF6';
 const INTERACTIVE = 'a, button, input';
 const SVGNS = 'http://www.w3.org/2000/svg';
@@ -84,16 +88,19 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
 
       const st = { x: 0, y: 0, tx: 0, ty: 0, seen: false, raf: 0, last: 0 };
 
+      const placeTag = () => {
+        tag.style.transform = `translate3d(${(st.x - st.tx).toFixed(2)}px,${(st.y - st.ty).toFixed(2)}px,0)`;
+      };
       const frame = (now: number) => {
         const dt = st.last ? Math.min(now - st.last, 64) : 16.7;
         st.last = now;
         const k = 1 - Math.pow(1 - FOLLOW, dt / 16.667);
         st.x += (st.tx - st.x) * k;
         st.y += (st.ty - st.y) * k;
-        root.style.transform = `translate3d(${st.x.toFixed(2)}px,${st.y.toFixed(2)}px,0)`;
+        placeTag();
         if (Math.abs(st.tx - st.x) < 0.05 && Math.abs(st.ty - st.y) < 0.05) {
           st.x = st.tx; st.y = st.ty; st.raf = 0; st.last = 0; // diam sampai pointer bergerak lagi
-          root.style.transform = `translate3d(${st.x}px,${st.y}px,0)`;
+          placeTag();
           return;
         }
         st.raf = requestAnimationFrame(frame);
@@ -104,10 +111,17 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
         if (e.pointerType && e.pointerType !== 'mouse' && e.pointerType !== 'pen') return;
         st.tx = e.clientX + DX;
         st.ty = e.clientY + DY;
-        if (!st.seen) { st.seen = true; st.x = st.tx; st.y = st.ty; }
-        root.setAttribute('data-live', 'true');
-        const el = e.target instanceof Element ? e.target.closest(INTERACTIVE) : null;
-        root.setAttribute('data-hot', el ? 'true' : 'false');
+        // Panah selalu tepat di pointer; hanya tag yang menyusul.
+        root.style.transform = `translate3d(${st.tx}px,${st.ty}px,0)`;
+        if (!st.seen) {
+          st.seen = true; st.x = st.tx; st.y = st.ty;
+          document.documentElement.classList.add('fc-hide-native'); // sembunyikan kursor sistem setelah overlay terlihat
+        }
+        const target = e.target instanceof Element ? e.target : null;
+        // Di kolom isian teks, kursor sistem (I-beam) dipakai lagi dan overlay disembunyikan.
+        const typing = !!target?.closest(NATIVE_TEXT);
+        root.setAttribute('data-live', typing ? 'false' : 'true');
+        root.setAttribute('data-hot', target?.closest(INTERACTIVE) ? 'true' : 'false');
         wake();
       };
       const onHide = () => root.setAttribute('data-live', 'false');
@@ -126,6 +140,7 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
         document.documentElement.removeEventListener('pointerleave', onHide);
         document.removeEventListener('mouseout', onOut);
         window.removeEventListener('blur', onHide);
+        document.documentElement.classList.remove('fc-hide-native');
         root.remove();
         tagRef.current = null;
       };
