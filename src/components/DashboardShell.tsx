@@ -14,6 +14,7 @@ type Profile = {
   full_name: string;
   role: string;
   photo_url: string | null;
+  cursor_color?: string;
 };
 
 type NavItem = { href: string; label: string; icon: string };
@@ -192,7 +193,7 @@ export default function DashboardShell({
           <span className="sub-text">Mohon menunggu</span>
         </div>
       )}
-      <FigmaCursor name={profile.full_name || 'you'} />
+      <FigmaCursor name={profile.full_name || 'you'} colour={profile.cursor_color} />
       <IdleLogout />
       <ResponsiveTables />
 

@@ -311,7 +311,9 @@
   padding: 5px 9px 6px; border-radius: 999px; letter-spacing: 0.005em;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
+/* Transisi warna saat Superuser mengubah warna kursor. */
+.fc svg path { transition: fill 0.12s ease-out; }
+.fc-tag { transition: background-color 0.12s ease-out; }
 @media print { .fc { display: none !important; } }
 /* Kelas dipasang oleh FigmaCursor hanya saat efek aktif; tanpa efek kursor sistem tetap normal. */
 html.fc-hide-native, html.fc-hide-native * { cursor: none !important; }
-html.fc-hide-native :is(input:not([type='checkbox']):not([type='radio']):not([type='button']):not([type='submit']):not([type='file']):not([type='range']):not([type='color']), textarea, [contenteditable='true'], [contenteditable='']) { cursor: text !important; }

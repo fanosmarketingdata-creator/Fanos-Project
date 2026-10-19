@@ -14,6 +14,7 @@ export type AccountRow = {
   status: 'Active' | 'Inactive';
   phone: string | null;
   photo_url: string | null;
+  cursor_color: string;
   team_member_id: string | null;
   team_member_name: string | null;
 };
@@ -21,6 +22,8 @@ export type AccountRow = {
 // Kriteria foto profil (sama seperti sistem lama): JPG/PNG/WebP, maks 2MB.
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024;
+
+const CURSOR_COLOURS = ['#5B9BF6', '#F2667A', '#F5A524', '#4FD18B', '#B38CF7', '#2DD4BF'];
 
 const emptyForm = (): AccountInput => ({
   email: '',
@@ -31,6 +34,7 @@ const emptyForm = (): AccountInput => ({
   team_member_id: '',
   phone: '',
   photo_url: '',
+  cursor_color: '#5B9BF6',
 });
 
 export default function AccountsTable({
@@ -90,6 +94,7 @@ export default function AccountsTable({
       team_member_id: r.team_member_id || '',
       phone: r.phone || '',
       photo_url: r.photo_url || '',
+      cursor_color: r.cursor_color || '#5B9BF6',
     });
     setModalOpen(true);
   }
@@ -189,6 +194,7 @@ export default function AccountsTable({
               <th className="px-4 py-3 font-semibold">Akun</th>
               <th className="px-4 py-3 font-semibold">Team Member</th>
               <th className="px-4 py-3 font-semibold">Role</th>
+              <th className="px-4 py-3 font-semibold">Warna Kursor</th>
               <th className="px-4 py-3 font-semibold">Status</th>
               <th className="px-4 py-3 text-right font-semibold">Aksi</th>
             </tr>
@@ -196,7 +202,7 @@ export default function AccountsTable({
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data akun
                 </td>
               </tr>
@@ -224,6 +230,12 @@ export default function AccountsTable({
                 </td>
                 <td className="px-4 py-3 text-slate-600">{r.team_member_name || '-'}</td>
                 <td className="px-4 py-3 text-slate-600">{r.role}</td>
+                <td className="px-4 py-3">
+                  <span className="inline-flex items-center gap-2 text-xs text-slate-500">
+                    <span className="h-4 w-4 rounded-full border border-black/10" style={{ background: r.cursor_color }} />
+                    {r.cursor_color.toUpperCase()}
+                  </span>
+                </td>
                 <td className="px-4 py-3">
                   <span
                     className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${
@@ -367,6 +379,31 @@ export default function AccountsTable({
               </select>
             </div>
             <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
+            <div className="sm:col-span-2">
+              <label className="mb-1 block text-xs font-semibold text-slate-500">Warna Kursor</label>
+              <div className="flex flex-wrap items-center gap-2">
+                {CURSOR_COLOURS.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    aria-label={`Warna kursor ${c}`}
+                    aria-pressed={(form.cursor_color || '').toLowerCase() === c.toLowerCase()}
+                    onClick={() => setForm({ ...form, cursor_color: c })}
+                    className="h-7 w-7 rounded-full border-2 border-transparent shadow-inner aria-pressed:border-slate-800"
+                    style={{ background: c }}
+                  />
+                ))}
+                <input
+                  type="color"
+                  aria-label="Pilih warna kursor lain"
+                  value={form.cursor_color || '#5B9BF6'}
+                  onChange={(e) => setForm({ ...form, cursor_color: e.target.value.toUpperCase() })}
+                  className="h-7 w-9 cursor-pointer rounded border border-slate-200 bg-white p-0.5"
+                />
+                <span className="text-xs text-slate-400">{(form.cursor_color || '#5B9BF6').toUpperCase()}</span>
+              </div>
+              <p className="mt-1 text-[11px] text-slate-400">Warna panah dan tag nama untuk akun ini. Hanya Superuser yang dapat mengubahnya.</p>
+            </div>
           </div>
           {editingSelf && (
             <p className="mt-3 text-[11px] text-slate-400">

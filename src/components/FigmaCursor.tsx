@@ -4,8 +4,9 @@ import { useEffect, useRef } from 'react';
 
 // Kursor bergaya multiplayer (panah + tag nama) yang MENGGANTIKAN kursor sistem.
 // - Ujung panah tepat di titik pointer (tanpa jeda), hanya tag nama yang menyusul dengan halus.
-// - Kursor sistem hanya disembunyikan saat efek aktif; di kolom isian teks kursor sistem (I-beam)
-//   dipakai kembali agar posisi ketik jelas.
+// - Kursor sistem hanya disembunyikan saat efek aktif. Di atas tombol, tautan, isian, dan kartu
+//   yang bisa diklik, panah membesar sedikit (warna tetap).
+// - Warna ditentukan Superuser per akun (Master Akun).
 // - Tidak dipasang bila pengguna memilih gerak dikurangi atau perangkat tanpa pointer halus;
 //   pada kondisi itu kursor sistem tetap tampil seperti biasa.
 
@@ -14,9 +15,9 @@ const RADIUS = 1.75;
 const FOLLOW = 0.34;
 const DX = 0;
 const DY = 0;
-const NATIVE_TEXT = 'input:not([type=checkbox]):not([type=radio]):not([type=button]):not([type=submit]):not([type=file]):not([type=range]):not([type=color]), textarea, [contenteditable=""], [contenteditable=true]';
 const COLOUR = '#5B9BF6';
-const INTERACTIVE = 'a, button, input';
+// Elemen yang memicu pembesaran panah saat di-hover: tautan, tombol, isian, dan kartu yang bisa diklik.
+const INTERACTIVE = 'a, button, input, textarea, select, label, summary, [role=button], [role=menuitem], .cursor-pointer, .client-card, .product-card-image, .product-card-body, .modal-close';
 const SVGNS = 'http://www.w3.org/2000/svg';
 const ARROW: [number, number][] = [[1, 1], [1, 16.6], [5.2, 12.9], [8.2, 19.8], [11.3, 18.5], [8.4, 11.7], [13.8, 11.7]];
 
@@ -35,10 +36,35 @@ function roundedPath(pts: [number, number][], r: number) {
   return d + 'Z';
 }
 
-export default function FigmaCursor({ name = 'you' }: { name?: string }) {
+const HEX = /^#[0-9a-fA-F]{6}$/;
+
+// Teks tag hitam atau putih, mana yang kontrasnya lebih tinggi terhadap warna latar.
+function inkFor(hex: string) {
+  const v = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
+  });
+  const L = 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+  return (L + 0.05) / 0.054 >= 1.05 / (L + 0.05) ? '#0d0d0d' : '#ffffff';
+}
+
+export default function FigmaCursor({ name = 'you', colour = COLOUR }: { name?: string; colour?: string }) {
+  const safeColour = HEX.test(colour) ? colour : COLOUR;
   const nameRef = useRef(name);
   nameRef.current = name;
+  const colourRef = useRef(safeColour);
+  colourRef.current = safeColour;
   const tagRef = useRef<HTMLDivElement | null>(null);
+  const pathRef = useRef<SVGPathElement | null>(null);
+
+  // Warna bisa berubah tanpa memasang ulang efek.
+  useEffect(() => {
+    pathRef.current?.setAttribute('fill', safeColour);
+    if (tagRef.current) {
+      tagRef.current.style.background = safeColour;
+      tagRef.current.style.color = inkFor(safeColour);
+    }
+  }, [safeColour]);
 
   // Nama bisa berubah tanpa memasang ulang efek.
   useEffect(() => {
@@ -66,7 +92,8 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
       svg.style.top = `${-1 * s}px`;
       const path = document.createElementNS(SVGNS, 'path');
       path.setAttribute('d', roundedPath(ARROW, RADIUS));
-      path.setAttribute('fill', COLOUR);
+      path.setAttribute('fill', colourRef.current);
+      pathRef.current = path;
       path.setAttribute('stroke', '#ffffff');
       path.setAttribute('stroke-width', '1.25');
       path.setAttribute('stroke-linejoin', 'round');
@@ -75,8 +102,8 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
       const tag = document.createElement('div');
       tag.className = 'fc-tag';
       tag.textContent = nameRef.current || 'you';
-      tag.style.background = COLOUR;
-      tag.style.color = '#0d0d0d';
+      tag.style.background = colourRef.current;
+      tag.style.color = inkFor(colourRef.current);
       tag.style.left = `${9.6 * s + 5}px`;
       tag.style.top = `${18.6 * s + 1}px`;
       tagRef.current = tag;
@@ -118,9 +145,7 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
           document.documentElement.classList.add('fc-hide-native'); // sembunyikan kursor sistem setelah overlay terlihat
         }
         const target = e.target instanceof Element ? e.target : null;
-        // Di kolom isian teks, kursor sistem (I-beam) dipakai lagi dan overlay disembunyikan.
-        const typing = !!target?.closest(NATIVE_TEXT);
-        root.setAttribute('data-live', typing ? 'false' : 'true');
+        root.setAttribute('data-live', 'true');
         root.setAttribute('data-hot', target?.closest(INTERACTIVE) ? 'true' : 'false');
         wake();
       };
@@ -143,6 +168,7 @@ export default function FigmaCursor({ name = 'you' }: { name?: string }) {
         document.documentElement.classList.remove('fc-hide-native');
         root.remove();
         tagRef.current = null;
+        pathRef.current = null;
       };
     }
 

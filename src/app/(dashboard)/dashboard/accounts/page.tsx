@@ -9,7 +9,7 @@ export default async function AccountsPage() {
   const [{ data: profiles }, { data: roles }, { data: members }] = await Promise.all([
     supabase
       .from('profiles')
-      .select('id, full_name, email, role, status, phone, photo_url, team_member_id, team_members(name)')
+      .select('id, full_name, email, role, status, phone, photo_url, cursor_color, team_member_id, team_members(name)')
       .order('full_name'),
     supabase.from('roles').select('name').order('name'),
     supabase.from('team_members').select('id, name').order('name'),
@@ -26,6 +26,7 @@ export default async function AccountsPage() {
       status: p.status as 'Active' | 'Inactive',
       phone: p.phone,
       photo_url: p.photo_url,
+      cursor_color: p.cursor_color ?? '#5B9BF6',
       team_member_id: p.team_member_id,
       team_member_name: memberName ?? null,
     };

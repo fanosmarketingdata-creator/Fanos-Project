@@ -15,6 +15,7 @@ export type AccountInput = {
   team_member_id?: string;
   phone?: string;
   photo_url?: string;
+  cursor_color?: string; // warna Figma Cursor akun ini, hex #RRGGBB
 };
 
 const MIN_PASSWORD = 8;
@@ -46,6 +47,10 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
     }
   } else if (input.password && input.password.length < MIN_PASSWORD) {
     return { error: `Kata sandi baru minimal ${MIN_PASSWORD} karakter` };
+  }
+
+  if (input.cursor_color && !/^#[0-9a-fA-F]{6}$/.test(input.cursor_color)) {
+    return { error: 'Warna kursor harus berformat hex, contoh #5B9BF6.' };
   }
 
   // 3) Jangan sampai Superuser mengunci dirinya sendiri
@@ -96,6 +101,7 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
       team_member_id: input.team_member_id || null,
       phone: input.phone || null,
       photo_url: input.photo_url || null,
+      cursor_color: input.cursor_color || '#5B9BF6',
     })
     .eq('id', userId!);
 

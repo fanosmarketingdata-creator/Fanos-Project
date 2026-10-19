@@ -22,7 +22,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
 
   const { data: profile } = await supabase
     .from('profiles')
-    .select('id, full_name, role, status, photo_url')
+    .select('id, full_name, role, status, photo_url, cursor_color')
     .eq('id', user.id)
     .single();
 
@@ -31,7 +31,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
   if (profile?.status === 'Inactive') return <InactiveNotice />;
 
   return (
-    <DashboardShell profile={profile ?? { id: user.id, full_name: user.email ?? '-', role: 'Staff', photo_url: null }}>
+    <DashboardShell profile={profile ?? { id: user.id, full_name: user.email ?? '-', role: 'Staff', photo_url: null, cursor_color: '#5B9BF6' }}>
       {children}
     </DashboardShell>
   );
