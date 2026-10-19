@@ -97,7 +97,7 @@ export default function QuotationForm({
       toast(result.error, 'error');
       return;
     }
-    toast(initial?.id ? 'Quotation diperbarui' : 'Quotation ditambahkan', 'success');
+    toast(initial?.id ? 'Data Quotation berhasil diperbarui' : 'Data Quotation berhasil ditambahkan', 'success');
     router.push('/dashboard/quotations');
   }
 

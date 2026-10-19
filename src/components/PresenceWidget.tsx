@@ -61,7 +61,7 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen((v) => !v)} className="flex items-center pl-2" title="Lihat siapa yang aktif">
+      <button onClick={() => setOpen((v) => !v)} className="flex items-center pl-2" title="Lihat pengguna yang sedang aktif">
         {shown.map((p, i) => (
           <Avatar
             key={p.id}

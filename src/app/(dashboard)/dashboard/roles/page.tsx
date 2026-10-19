@@ -25,7 +25,7 @@ export default async function RolesPage() {
     <div>
       <h1 className="page-title"><i className="fi fi-rr-shield-check" />Role Group</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Kelompok peran untuk akun login. Saat ini berupa label — pengaturan akses per-halaman menyusul.
+        Kelompok peran untuk akun login. Saat ini berfungsi sebagai label; pengaturan hak akses per halaman akan tersedia pada pembaruan berikutnya.
       </p>
       <RolesTable initialRows={rows} />
     </div>

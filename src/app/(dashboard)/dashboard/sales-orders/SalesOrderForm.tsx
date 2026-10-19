@@ -85,7 +85,7 @@ export default function SalesOrderForm({
       toast(result.error, 'error');
       return;
     }
-    toast(initial?.id ? 'Sales Order diperbarui' : 'Sales Order ditambahkan', 'success');
+    toast(initial?.id ? 'Data Sales Order berhasil diperbarui' : 'Data Sales Order berhasil ditambahkan', 'success');
     router.push('/dashboard/sales-orders');
   }
 

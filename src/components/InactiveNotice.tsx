@@ -20,7 +20,7 @@ export default function InactiveNotice() {
         </div>
         <h1 className="mb-2 text-base font-bold text-slate-800">Akun Dinonaktifkan</h1>
         <p className="mb-6 text-sm leading-relaxed text-slate-500">
-          Akun Anda sudah dinonaktifkan oleh administrator. Hubungi Superuser jika ini keliru.
+          Akun Anda telah dinonaktifkan oleh administrator. Silakan hubungi Superuser apabila terdapat ketidaksesuaian.
         </p>
         <button
           onClick={handleLogout}

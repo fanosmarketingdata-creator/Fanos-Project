@@ -25,12 +25,12 @@ export type BOQProjectInput = {
 };
 
 export async function saveBOQProject(input: BOQProjectInput) {
-  if (!input.project_name?.trim()) return { error: 'Project Name wajib diisi' };
-  if (!input.client_id) return { error: 'Client wajib dipilih' };
-  if (!input.boq_date) return { error: 'Tanggal BOQ wajib diisi' };
+  if (!input.project_name?.trim()) return { error: 'Kolom Project Name wajib diisi.' };
+  if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
+  if (!input.boq_date) return { error: 'Kolom Tanggal BOQ wajib diisi.' };
 
   const hasAnyItem = input.areas.some((a) => a.subAreas.some((s) => s.items.length > 0));
-  if (!hasAnyItem) return { error: 'Minimal 1 item harus ditambahkan' };
+  if (!hasAnyItem) return { error: 'Minimal satu item harus ditambahkan.' };
 
   const supabase = createClient();
 

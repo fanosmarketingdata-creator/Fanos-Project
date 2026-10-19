@@ -51,7 +51,7 @@ export default function POForm({
       toast(result.error, 'error');
       return;
     }
-    toast(initial?.id ? 'PO diperbarui' : 'PO ditambahkan', 'success');
+    toast(initial?.id ? 'Data PO berhasil diperbarui' : 'Data PO berhasil ditambahkan', 'success');
     router.push('/dashboard/purchase-orders');
   }
 

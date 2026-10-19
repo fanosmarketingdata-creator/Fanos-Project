@@ -16,7 +16,7 @@ export type VendorInput = {
 
 export async function saveVendor(input: VendorInput) {
   if (!input.company?.trim()) {
-    return { error: 'Nama perusahaan wajib diisi' };
+    return { error: 'Kolom Nama perusahaan wajib diisi.' };
   }
 
   const supabase = createClient();

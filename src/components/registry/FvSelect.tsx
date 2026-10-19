@@ -6,7 +6,7 @@ export default function FvSelect({
   value,
   onChange,
   options,
-  placeholder = '— Pilih —',
+  placeholder = '— Pilih salah satu —',
   disabled,
 }: {
   value: string;

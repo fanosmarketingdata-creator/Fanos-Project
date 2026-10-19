@@ -98,7 +98,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
             {(!payments || payments.length === 0) && (
               <tr>
                 <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
-                  Belum ada pembayaran
+                  Belum terdapat data pembayaran
                 </td>
               </tr>
             )}

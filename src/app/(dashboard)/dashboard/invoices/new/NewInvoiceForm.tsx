@@ -16,7 +16,7 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
 
   async function handleSave() {
     if (!soId) {
-      toast('Pilih Sales Order terlebih dahulu', 'error');
+      toast('Mohon pilih Sales Order terlebih dahulu.', 'error');
       return;
     }
     setSaving(true);
@@ -27,7 +27,7 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
       toast(result.error, 'error');
       return;
     }
-    toast('Invoice berhasil dibuat', 'success');
+    toast('Data Invoice berhasil dibuat', 'success');
     router.push(`/dashboard/invoices/${result.id}`);
   }
 
@@ -48,7 +48,7 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
           ))}
         </select>
         {salesOrders.length === 0 && (
-          <p className="mt-1.5 text-[11px] text-slate-400">Semua Sales Order sudah punya invoice, atau belum ada SO berjalan.</p>
+          <p className="mt-1.5 text-[11px] text-slate-400">Seluruh Sales Order telah memiliki invoice, atau belum terdapat Sales Order yang sedang berjalan.</p>
         )}
       </div>
 

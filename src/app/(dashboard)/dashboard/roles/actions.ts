@@ -12,7 +12,7 @@ export async function saveRole(input: RoleInput) {
   if (!(await getSuperuserOrNull())) return { error: NOT_SUPERUSER_ERROR };
 
   const name = input.name?.trim();
-  if (!name) return { error: 'Nama role wajib diisi' };
+  if (!name) return { error: 'Kolom Nama role wajib diisi.' };
 
   const supabase = createClient();
 
@@ -28,7 +28,7 @@ export async function saveRole(input: RoleInput) {
       .update({ name, description: input.description || null })
       .eq('id', input.id);
     if (error) {
-      if (error.code === '23505') return { error: 'Nama role sudah dipakai' };
+      if (error.code === '23505') return { error: 'Nama role telah digunakan.' };
       return { error: error.message };
     }
 
@@ -41,7 +41,7 @@ export async function saveRole(input: RoleInput) {
   } else {
     const { error } = await supabase.from('roles').insert({ name, description: input.description || null });
     if (error) {
-      if (error.code === '23505') return { error: 'Nama role sudah dipakai' };
+      if (error.code === '23505') return { error: 'Nama role telah digunakan.' };
       return { error: error.message };
     }
   }
@@ -60,7 +60,7 @@ export async function deleteRole(id: string) {
   if (role.name === PROTECTED_ROLE) return { error: 'Role Superuser tidak boleh dihapus' };
 
   const { count } = await supabase.from('profiles').select('id', { count: 'exact', head: true }).eq('role', role.name);
-  if ((count ?? 0) > 0) return { error: 'Role ini masih dipakai oleh akun, tidak bisa dihapus' };
+  if ((count ?? 0) > 0) return { error: 'Role ini masih digunakan oleh akun sehingga tidak dapat dihapus.' };
 
   const { error } = await supabase.from('roles').delete().eq('id', id);
   if (error) return { error: error.message };

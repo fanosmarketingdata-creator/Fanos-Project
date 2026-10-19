@@ -18,7 +18,7 @@ export function DiscountEditor({
             <input
               value={d.label}
               onChange={(e) => onChange(lines.map((l, j) => (j === i ? { ...l, label: e.target.value } : l)))}
-              placeholder="Label (mis. Diskon Proyek)"
+              placeholder="Keterangan (contoh: Diskon Proyek)"
               className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-brand-500"
             />
             <div className="relative w-24">
@@ -67,7 +67,7 @@ export function ChargeEditor({
             <input
               value={c.label}
               onChange={(e) => onChange(lines.map((l, j) => (j === i ? { ...l, label: e.target.value } : l)))}
-              placeholder="Label (mis. Biaya Kirim)"
+              placeholder="Keterangan (contoh: Biaya Kirim)"
               className="flex-1 rounded-lg border border-slate-200 px-3 py-1.5 text-sm outline-none focus:border-brand-500"
             />
             <input

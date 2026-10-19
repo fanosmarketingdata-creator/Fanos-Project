@@ -53,7 +53,7 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
       toast(result.error, 'error');
       return;
     }
-    toast(`Retur tersimpan. Credit Note Rp ${(result.creditAmount ?? 0).toLocaleString('id-ID')} diterbitkan`, 'success');
+    toast(`Retur berhasil disimpan. Credit Note sebesar Rp ${(result.creditAmount ?? 0).toLocaleString('id-ID')} telah diterbitkan`, 'success');
     router.push('/dashboard/returns');
   }
 
@@ -90,7 +90,7 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
             <input
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="mis. Barang rusak / tidak sesuai"
+              placeholder="Contoh: Barang rusak atau tidak sesuai spesifikasi"
               className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
             />
           </div>

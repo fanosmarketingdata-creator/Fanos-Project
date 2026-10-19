@@ -36,7 +36,7 @@ export default function RegistryCard({
             <span className="search-icon">
               <i className="fa-solid fa-search" />
             </span>
-            <input type="text" placeholder="Search..." value={search} onChange={(e) => onSearch(e.target.value)} />
+            <input type="text" placeholder="Cari..." value={search} onChange={(e) => onSearch(e.target.value)} />
           </div>
           {info && <span className="search-info">{info}</span>}
           <button type="button" className="btn btn-primary" onClick={onAdd}>

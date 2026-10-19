@@ -14,7 +14,7 @@ export type TeamMemberInput = {
 
 export async function saveTeamMember(input: TeamMemberInput) {
   if (!(await getSuperuserOrNull())) return { error: NOT_SUPERUSER_ERROR };
-  if (!input.name?.trim()) return { error: 'Nama wajib diisi' };
+  if (!input.name?.trim()) return { error: 'Kolom Nama wajib diisi.' };
 
   const supabase = createClient();
   const payload = {

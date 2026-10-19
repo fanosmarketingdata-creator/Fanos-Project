@@ -39,8 +39,8 @@ export type InvoiceInput = {
 };
 
 export async function createInvoiceFromSO(input: InvoiceInput) {
-  if (!input.so_id) return { error: 'Sales Order wajib dipilih' };
-  if (!input.inv_date) return { error: 'Tanggal Invoice wajib diisi' };
+  if (!input.so_id) return { error: 'Mohon pilih Sales Order terlebih dahulu.' };
+  if (!input.inv_date) return { error: 'Kolom Tanggal Invoice wajib diisi.' };
 
   const supabase = createClient();
   const so = await getSOForInvoice(input.so_id);
@@ -48,7 +48,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
 
   type SOItem = { product_id: string | null; sku: string; qty: number; unit_price: number };
   const items = (so.sales_order_items as SOItem[]) ?? [];
-  if (items.length === 0) return { error: 'Sales Order ini tidak punya item' };
+  if (items.length === 0) return { error: 'Sales Order ini tidak memiliki item.' };
 
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(so.discounts as DiscountLine[]);
@@ -101,7 +101,7 @@ export async function deleteInvoice(id: string) {
 // PAYMENTS — tercatat per invoice, total_paid & remaining dihitung ulang.
 // ------------------------------------------------------------
 export async function recordPayment(invoiceId: string, payDate: string, amount: number, method: string, referenceNo?: string, notes?: string) {
-  if (amount <= 0) return { error: 'Jumlah pembayaran harus lebih dari 0' };
+  if (amount <= 0) return { error: 'Jumlah pembayaran harus lebih dari 0.' };
 
   const supabase = createClient();
   const { data: invoice } = await supabase.from('invoices').select('grand_total, total_paid').eq('id', invoiceId).single();

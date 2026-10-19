@@ -47,7 +47,7 @@ export default async function ReturnsPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada retur
+                  Belum terdapat data retur
                 </td>
               </tr>
             )}

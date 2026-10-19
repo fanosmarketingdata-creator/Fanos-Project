@@ -20,10 +20,10 @@ export type PurchaseOrderInput = {
 };
 
 export async function savePurchaseOrder(input: PurchaseOrderInput) {
-  if (!input.vendor_id) return { error: 'Vendor wajib dipilih' };
-  if (!input.po_date) return { error: 'Tanggal PO wajib diisi' };
+  if (!input.vendor_id) return { error: 'Mohon pilih Vendor terlebih dahulu.' };
+  if (!input.po_date) return { error: 'Kolom Tanggal PO wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
-  if (validItems.length === 0) return { error: 'Minimal 1 item harus ditambahkan' };
+  if (validItems.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
 
   const supabase = createClient();
   const header = { po_date: input.po_date, vendor_id: input.vendor_id, notes: input.notes || null };
@@ -32,7 +32,7 @@ export async function savePurchaseOrder(input: PurchaseOrderInput) {
   if (poId) {
     // Hanya PO berstatus DRAFT yang boleh diubah
     const { data: existing } = await supabase.from('purchase_orders').select('status').eq('id', poId).single();
-    if (existing && existing.status !== 'DRAFT') return { error: 'PO yang sudah di-order tidak bisa diedit' };
+    if (existing && existing.status !== 'DRAFT') return { error: 'PO yang telah di-order tidak dapat diubah.' };
 
     const { error } = await supabase.from('purchase_orders').update(header).eq('id', poId);
     if (error) return { error: error.message };
@@ -67,7 +67,7 @@ export async function savePurchaseOrder(input: PurchaseOrderInput) {
 export async function deletePurchaseOrder(id: string) {
   const supabase = createClient();
   const { data: po } = await supabase.from('purchase_orders').select('status').eq('id', id).single();
-  if (po && po.status === 'RECEIVED') return { error: 'PO yang sudah diterima tidak bisa dihapus' };
+  if (po && po.status === 'RECEIVED') return { error: 'PO yang telah diterima tidak dapat dihapus.' };
 
   const { error } = await supabase.from('purchase_orders').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -83,7 +83,7 @@ export async function advancePOStatus(id: string) {
   if (!po) return { error: 'PO tidak ditemukan' };
 
   const next = po.status === 'DRAFT' ? 'ORDERED' : po.status === 'ORDERED' ? 'RECEIVED' : null;
-  if (!next) return { error: 'Status PO sudah final' };
+  if (!next) return { error: 'Status PO telah final.' };
 
   const { error } = await supabase.from('purchase_orders').update({ status: next }).eq('id', id);
   if (error) return { error: error.message };

@@ -35,7 +35,7 @@ export default async function AccountsPage() {
     <div>
       <h1 className="page-title"><i className="fi fi-rr-user-lock" />Master Akun</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Akun login pengguna. Satu team member hanya bisa punya satu akun. Akun Inactive tidak bisa login.
+        Akun login pengguna. Setiap team member hanya dapat memiliki satu akun, dan akun berstatus Inactive tidak dapat masuk ke sistem.
       </p>
       <AccountsTable
         currentUserId={me.id}

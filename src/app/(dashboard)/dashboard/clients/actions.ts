@@ -16,7 +16,7 @@ export type ClientInput = {
 
 export async function saveClient(input: ClientInput) {
   if (!input.company?.trim()) {
-    return { error: 'Company Name wajib diisi' };
+    return { error: 'Kolom Company Name wajib diisi.' };
   }
 
   const supabase = createClient();

@@ -14,9 +14,9 @@ export type DefectInput = {
 };
 
 export async function saveDefect(input: DefectInput) {
-  if (!input.sku?.trim()) return { error: 'SKU wajib diisi' };
-  if (!input.inspection_date) return { error: 'Tanggal pemeriksaan wajib diisi' };
-  if (!(input.qty > 0)) return { error: 'Qty harus lebih dari 0' };
+  if (!input.sku?.trim()) return { error: 'Kolom SKU wajib diisi.' };
+  if (!input.inspection_date) return { error: 'Kolom Tanggal pemeriksaan wajib diisi.' };
+  if (!(input.qty > 0)) return { error: 'Kuantitas harus lebih dari 0.' };
 
   const supabase = createClient();
   const payload = {

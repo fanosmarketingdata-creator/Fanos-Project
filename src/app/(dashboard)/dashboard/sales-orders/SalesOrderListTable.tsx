@@ -45,7 +45,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
       toast(result.error, 'error');
       return;
     }
-    toast('Sales Order dihapus', 'success');
+    toast('Data Sales Order berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -89,7 +89,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada Sales Order
+                  Belum terdapat data Sales Order
                 </td>
               </tr>
             )}
@@ -171,8 +171,8 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus Sales Order untuk <strong>{deleteTarget.client_name}</strong>? Delivery Order
-            terkait akan ikut terhapus.
+            Apakah Anda yakin ingin menghapus Sales Order untuk <strong>{deleteTarget.client_name}</strong>? Delivery Order
+            terkait akan turut terhapus.
           </p>
         </Modal>
       )}

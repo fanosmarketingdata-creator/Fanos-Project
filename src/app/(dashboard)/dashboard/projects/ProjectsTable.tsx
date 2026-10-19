@@ -82,10 +82,10 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
     try {
       const result = await saveProject(form);
       if (result.error) return toast(result.error, 'error');
-      toast(form.id ? 'Project diperbarui' : 'Project ditambahkan', 'success');
+      toast(form.id ? 'Data Project berhasil diperbarui' : 'Data Project berhasil ditambahkan', 'success');
       setModalOpen(false);
     } catch (e) {
-      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setSaving(false);
     }
@@ -97,10 +97,10 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
     try {
       const result = await deleteProject(deleteTarget.id);
       if (result.error) return toast(result.error, 'error');
-      toast('Project dihapus', 'success');
+      toast('Data Project berhasil dihapus', 'success');
       setDeleteTarget(null);
     } catch (e) {
-      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal dihapus: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -129,7 +129,7 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
     >
       <div className="product-grid-wrap">
         <div className="client-card-list">
-          {paged.pageItems.length === 0 && <div className="no-data-grid">No projects</div>}
+          {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data project</div>}
           {paged.pageItems.map((p) => (
             <div key={p.id} className="client-card" onClick={() => setDetail(p)}>
               <div className="client-card-avatar">{p.name.trim().charAt(0).toUpperCase() || '?'}</div>
@@ -188,10 +188,10 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
           footer={
             <>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Save'}
+                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
-                Cancel
+                Batal
               </button>
             </>
           }
@@ -200,16 +200,16 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
             <div className="fv2-section-title"><i className="fi fi-rr-briefcase" /> Informasi Project</div>
             <div className="fv2-grid">
               <FvField label="Project No">
-                <input value={projectNo} placeholder="Otomatis saat disimpan" readOnly />
+                <input value={projectNo} placeholder="Dibuat otomatis oleh sistem" readOnly />
               </FvField>
               <FvField label="Project Name" required>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama proyek" />
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama proyek" />
               </FvField>
               <FvField label="Project Location">
-                <input value={form.location || ''} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Kota / lokasi proyek" />
+                <input value={form.location || ''} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Lokasi proyek (kota/wilayah)" />
               </FvField>
               <FvField label="Project Classification">
-                <input value={form.classification || ''} onChange={(e) => setForm({ ...form, classification: e.target.value })} placeholder="mis. Villa, Hotel, Kafe" />
+                <input value={form.classification || ''} onChange={(e) => setForm({ ...form, classification: e.target.value })} placeholder="Contoh: Villa, Hotel, Kafe" />
               </FvField>
               <FvField label="Project Type">
                 <FvSelect value={form.project_type || ''} onChange={(v) => setForm({ ...form, project_type: v })} options={toOptions(PROJECT_TYPE_OPTIONS)} />
@@ -229,7 +229,7 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
                 />
               </FvField>
               <FvField label="Client Name">
-                <input value={selectedClient?.contact_name || ''} placeholder="Otomatis dari Client Company" readOnly />
+                <input value={selectedClient?.contact_name || ''} placeholder="Terisi otomatis sesuai Client Company" readOnly />
               </FvField>
             </div>
           </div>
@@ -241,13 +241,13 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
                 <FvSelect value={form.trigger_source || ''} onChange={(v) => setForm({ ...form, trigger_source: v })} options={toOptions(PROJECT_TRIGGER_OPTIONS)} />
               </FvField>
               <FvField label="Triggered By">
-                <input value={form.triggered_by || ''} onChange={(e) => setForm({ ...form, triggered_by: e.target.value })} placeholder="Nama pemicu" />
+                <input value={form.triggered_by || ''} onChange={(e) => setForm({ ...form, triggered_by: e.target.value })} placeholder="Nama pihak pemicu proyek" />
               </FvField>
               <FvField label="Term of Payment">
                 <FvSelect value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} options={toOptions(TOP_OPTIONS)} />
               </FvField>
               <FvField label="Cashback">
-                <input value={form.cashback || ''} onChange={(e) => setForm({ ...form, cashback: e.target.value })} placeholder="mis. 5% atau Rp 2.000.000" />
+                <input value={form.cashback || ''} onChange={(e) => setForm({ ...form, cashback: e.target.value })} placeholder="Contoh: 5% atau Rp 2.000.000" />
               </FvField>
             </div>
           </div>

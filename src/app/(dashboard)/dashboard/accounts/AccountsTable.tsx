@@ -96,11 +96,11 @@ export default function AccountsTable({
 
   async function handleFile(file: File) {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast('Format tidak didukung. Gunakan JPG, PNG, atau WebP.', 'error');
+      toast('Format berkas tidak didukung. Gunakan format JPG, PNG, atau WebP.', 'error');
       return;
     }
     if (file.size > MAX_SIZE) {
-      toast('Ukuran file terlalu besar (maks 2MB).', 'error');
+      toast('Ukuran berkas melebihi batas maksimum 2 MB.', 'error');
       return;
     }
 
@@ -111,12 +111,12 @@ export default function AccountsTable({
     setUploading(false);
 
     if (error) {
-      toast('Upload gagal: ' + error.message, 'error');
+      toast('Unggah berkas gagal: ' + error.message, 'error');
       return;
     }
     const { data } = supabase.storage.from('profile-photos').getPublicUrl(path);
     setForm((f) => ({ ...f, photo_url: data.publicUrl }));
-    toast('Foto berhasil diunggah', 'success');
+    toast('Foto produk berhasil diunggah', 'success');
   }
 
   function onDrop(e: React.DragEvent) {
@@ -133,12 +133,12 @@ export default function AccountsTable({
         toast(result.error, 'error');
         return;
       }
-      toast(form.id ? 'Akun diperbarui' : 'Akun dibuat', 'success');
+      toast(form.id ? 'Akun berhasil diperbarui' : 'Akun berhasil dibuat', 'success');
       setModalOpen(false);
     } catch (e) {
       // Server Action yang melempar exception (mis. env belum diset, timeout)
       // jangan sampai membuat tombol "Menyimpan..." menggantung selamanya.
-      toast('Gagal menyimpan akun: ' + (e instanceof Error ? e.message : 'terjadi kesalahan di server'), 'error');
+      toast('Akun gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setSaving(false);
     }
@@ -153,10 +153,10 @@ export default function AccountsTable({
         toast(result.error, 'error');
         return;
       }
-      toast('Akun dihapus', 'success');
+      toast('Akun berhasil dihapus', 'success');
       setDeleteTarget(null);
     } catch (e) {
-      toast('Gagal menghapus akun: ' + (e instanceof Error ? e.message : 'terjadi kesalahan di server'), 'error');
+      toast('Akun gagal dihapus: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -197,7 +197,7 @@ export default function AccountsTable({
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada akun
+                  Belum terdapat data akun
                 </td>
               </tr>
             )}
@@ -285,12 +285,12 @@ export default function AccountsTable({
                 className="flex h-28 w-28 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-dashed border-slate-300 bg-slate-50 text-center hover:border-brand-500 hover:bg-brand-50"
               >
                 {uploading ? (
-                  <span className="text-xs text-slate-400">Mengunggah...</span>
+                  <span className="text-xs text-slate-400">Sedang mengunggah...</span>
                 ) : form.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={form.photo_url} alt="" className="h-full w-full object-cover" />
                 ) : (
-                  <span className="px-3 text-[11px] text-slate-400">Klik / drag foto</span>
+                  <span className="px-3 text-[11px] text-slate-400">Klik atau seret foto</span>
                 )}
               </div>
               <input
@@ -370,7 +370,7 @@ export default function AccountsTable({
           </div>
           {editingSelf && (
             <p className="mt-3 text-[11px] text-slate-400">
-              Role dan status akun Anda sendiri dikunci supaya Anda tidak bisa mengunci diri dari sistem.
+              Role dan status akun Anda dikunci agar Anda tidak kehilangan akses ke sistem.
             </p>
           )}
         </Modal>
@@ -396,8 +396,8 @@ export default function AccountsTable({
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus akun <strong>{deleteTarget.full_name}</strong> ({deleteTarget.email})? User ini tidak
-            akan bisa login lagi. Untuk sekadar menutup akses sementara, ubah statusnya jadi Inactive saja.
+            Apakah Anda yakin ingin menghapus akun <strong>{deleteTarget.full_name}</strong> ({deleteTarget.email})? Pengguna ini tidak
+            akan dapat masuk ke sistem lagi. Untuk menutup akses sementara, ubah statusnya menjadi Inactive.
           </p>
         </Modal>
       )}

@@ -51,7 +51,7 @@ export default async function OutstandingPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
-                  Tidak ada piutang berjalan 🎉
+                  Tidak terdapat piutang berjalan.
                 </td>
               </tr>
             )}

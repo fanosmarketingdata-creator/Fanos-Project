@@ -37,21 +37,21 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
   if (!me) return { error: NOT_SUPERUSER_ERROR };
 
   // 2) Validasi input
-  if (!input.full_name?.trim()) return { error: 'Nama lengkap wajib diisi' };
-  if (!input.role) return { error: 'Role wajib dipilih' };
+  if (!input.full_name?.trim()) return { error: 'Kolom Nama lengkap wajib diisi.' };
+  if (!input.role) return { error: 'Mohon pilih Role terlebih dahulu.' };
   if (!input.id) {
-    if (!input.email?.trim()) return { error: 'Email wajib diisi' };
+    if (!input.email?.trim()) return { error: 'Kolom Email wajib diisi.' };
     if (!input.password || input.password.length < MIN_PASSWORD) {
-      return { error: `Password minimal ${MIN_PASSWORD} karakter` };
+      return { error: `Kata sandi minimal ${MIN_PASSWORD} karakter` };
     }
   } else if (input.password && input.password.length < MIN_PASSWORD) {
-    return { error: `Password baru minimal ${MIN_PASSWORD} karakter` };
+    return { error: `Kata sandi baru minimal ${MIN_PASSWORD} karakter` };
   }
 
   // 3) Jangan sampai Superuser mengunci dirinya sendiri
   if (input.id && input.id === me.id) {
-    if (input.role !== 'Superuser') return { error: 'Anda tidak bisa mengubah role akun Anda sendiri' };
-    if (input.status !== 'Active') return { error: 'Anda tidak bisa menonaktifkan akun Anda sendiri' };
+    if (input.role !== 'Superuser') return { error: 'Anda tidak dapat mengubah role akun Anda sendiri.' };
+    if (input.status !== 'Active') return { error: 'Anda tidak dapat menonaktifkan akun Anda sendiri.' };
   }
 
   // 4) Role harus ada di daftar Role Group
@@ -102,7 +102,7 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
   if (profileError) {
     // Akun baru yang gagal dilengkapi dibatalkan supaya tidak ada akun "setengah jadi".
     if (isNew) await admin.auth.admin.deleteUser(userId!);
-    if (profileError.code === '23505') return { error: 'Team member ini sudah punya akun login lain' };
+    if (profileError.code === '23505') return { error: 'Team member ini telah memiliki akun login lain.' };
     return { error: profileError.message };
   }
 
@@ -123,7 +123,7 @@ export async function deleteAccount(id: string): Promise<{ error?: string; succe
 async function deleteAccountInner(id: string): Promise<{ error?: string; success?: boolean }> {
   const me = await getSuperuserOrNull();
   if (!me) return { error: NOT_SUPERUSER_ERROR };
-  if (id === me.id) return { error: 'Anda tidak bisa menghapus akun Anda sendiri' };
+  if (id === me.id) return { error: 'Anda tidak dapat menghapus akun Anda sendiri.' };
 
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(id); // baris profiles ikut terhapus (cascade)

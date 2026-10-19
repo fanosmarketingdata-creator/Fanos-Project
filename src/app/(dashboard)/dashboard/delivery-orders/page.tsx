@@ -25,7 +25,7 @@ export default async function DeliveryOrdersPage() {
     <div>
       <h1 className="page-title"><i className="fi fi-rr-shipping-fast" />Delivery Orders</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Riwayat pengiriman (Surat Jalan) — dibuat otomatis lewat tombol &quot;Ship Items&quot; di Sales Order.
+        Riwayat pengiriman (Surat Jalan) yang dibuat otomatis melalui tombol &quot;Ship Items&quot; pada Sales Order.
       </p>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
@@ -43,7 +43,7 @@ export default async function DeliveryOrdersPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada pengiriman
+                  Belum terdapat data pengiriman
                 </td>
               </tr>
             )}

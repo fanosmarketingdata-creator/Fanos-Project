@@ -124,7 +124,7 @@ export default async function DashboardPage() {
             </Link>
           </div>
           {(reminders ?? []).length === 0 ? (
-            <p className="py-6 text-center text-xs text-slate-400">Tidak ada reminder yang jatuh tempo 🎉</p>
+            <p className="py-6 text-center text-xs text-slate-400">Tidak terdapat reminder yang jatuh tempo.</p>
           ) : (
             <div>
               {(reminders ?? []).map((r) => (

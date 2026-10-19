@@ -46,7 +46,7 @@ export default async function CreditNotesPage() {
             {rows.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada credit note
+                  Belum terdapat data credit note
                 </td>
               </tr>
             )}

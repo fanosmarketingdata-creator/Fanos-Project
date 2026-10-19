@@ -42,7 +42,7 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
       toast(result.error, 'error');
       return;
     }
-    toast(result.status === 'ORDERED' ? 'PO ditandai sudah di-order' : 'PO ditandai sudah diterima', 'success');
+    toast(result.status === 'ORDERED' ? 'PO ditandai telah di-order' : 'PO ditandai telah diterima', 'success');
   }
 
   async function handleDelete() {
@@ -54,7 +54,7 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
       toast(result.error, 'error');
       return;
     }
-    toast('PO dihapus', 'success');
+    toast('Data PO berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -93,7 +93,7 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada Purchase Order
+                  Belum terdapat data Purchase Order
                 </td>
               </tr>
             )}
@@ -185,7 +185,7 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus PO ke <strong>{deleteTarget.vendor_name}</strong>?
+            Apakah Anda yakin ingin menghapus PO ke <strong>{deleteTarget.vendor_name}</strong>?
           </p>
         </Modal>
       )}

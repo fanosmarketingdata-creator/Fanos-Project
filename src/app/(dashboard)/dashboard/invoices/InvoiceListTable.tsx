@@ -44,7 +44,7 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
       toast(result.error, 'error');
       return;
     }
-    toast('Invoice dihapus', 'success');
+    toast('Data Invoice berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -85,7 +85,7 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada invoice
+                  Belum terdapat data invoice
                 </td>
               </tr>
             )}
@@ -159,7 +159,7 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus invoice untuk <strong>{deleteTarget.client_name}</strong>?
+            Apakah Anda yakin ingin menghapus invoice untuk <strong>{deleteTarget.client_name}</strong>?
           </p>
         </Modal>
       )}

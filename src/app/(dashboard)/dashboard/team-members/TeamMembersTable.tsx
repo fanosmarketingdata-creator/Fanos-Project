@@ -50,7 +50,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
       toast(result.error, 'error');
       return;
     }
-    toast(form.id ? 'Team member diperbarui' : 'Team member ditambahkan', 'success');
+    toast(form.id ? 'Data Team member berhasil diperbarui' : 'Data Team member berhasil ditambahkan', 'success');
     setModalOpen(false);
   }
 
@@ -63,7 +63,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
       toast(result.error, 'error');
       return;
     }
-    toast('Team member dihapus', 'success');
+    toast('Data Team member berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -102,7 +102,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada team member
+                  Belum terdapat data team member
                 </td>
               </tr>
             )}
@@ -206,7 +206,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus <strong>{deleteTarget.name}</strong>?
+            Apakah Anda yakin ingin menghapus <strong>{deleteTarget.name}</strong>?
             {deleteTarget.has_account && ' Akun login-nya tidak ikut terhapus, hanya tautan ke team member ini yang dilepas.'}
           </p>
         </Modal>

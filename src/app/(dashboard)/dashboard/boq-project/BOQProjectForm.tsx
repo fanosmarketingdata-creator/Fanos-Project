@@ -120,7 +120,7 @@ export default function BOQProjectForm({
       toast(result.error, 'error');
       return;
     }
-    toast(initial?.id ? 'BOQ Project diperbarui' : 'BOQ Project ditambahkan', 'success');
+    toast(initial?.id ? 'Data BOQ Project berhasil diperbarui' : 'Data BOQ Project berhasil ditambahkan', 'success');
     router.push('/dashboard/boq-project');
   }
 
@@ -206,7 +206,7 @@ export default function BOQProjectForm({
               <input
                 value={area.name}
                 onChange={(e) => updateArea(ai, { name: e.target.value })}
-                placeholder="Nama Area (mis. Lantai 1)"
+                placeholder="Nama area (contoh: Lantai 1)"
                 className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
               />
               {areas.length > 1 && (
@@ -226,7 +226,7 @@ export default function BOQProjectForm({
                     <input
                       value={sub.name}
                       onChange={(e) => updateSubArea(ai, si, { name: e.target.value })}
-                      placeholder="Nama Sub-area (mis. Ruang Tamu)"
+                      placeholder="Nama sub-area (contoh: Ruang Tamu)"
                       className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
                     />
                     {area.subAreas.length > 1 && (

@@ -51,11 +51,11 @@ export async function getReturnableItems(invoiceId: string) {
 export type ReturnItemInput = { sku: string; qty_returned: number; unit_price: number };
 
 export async function createReturn(invoiceId: string, returnDate: string, reason: string, items: ReturnItemInput[]) {
-  if (!invoiceId) return { error: 'Invoice wajib dipilih' };
-  if (!returnDate) return { error: 'Tanggal retur wajib diisi' };
+  if (!invoiceId) return { error: 'Mohon pilih Invoice terlebih dahulu.' };
+  if (!returnDate) return { error: 'Kolom Tanggal retur wajib diisi.' };
 
   const toReturn = items.filter((it) => it.qty_returned > 0);
-  if (toReturn.length === 0) return { error: 'Isi minimal 1 qty retur' };
+  if (toReturn.length === 0) return { error: 'Mohon isi minimal satu qty retur.' };
 
   const supabase = createClient();
 
@@ -65,7 +65,7 @@ export async function createReturn(invoiceId: string, returnDate: string, reason
     const match = returnable.find((r) => r.sku === it.sku);
     if (!match) return { error: `SKU ${it.sku} tidak ada di invoice ini` };
     if (it.qty_returned > match.returnable) {
-      return { error: `Qty retur ${it.sku} melebihi sisa yang bisa diretur (${match.returnable})` };
+      return { error: `Qty retur ${it.sku} melebihi sisa yang dapat diretur (${match.returnable})` };
     }
   }
 

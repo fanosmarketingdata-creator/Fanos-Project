@@ -44,7 +44,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
       toast(result.error, 'error');
       return;
     }
-    toast('BOQ Project dihapus', 'success');
+    toast('Data BOQ Project berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -85,7 +85,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada BOQ Project
+                  Belum terdapat data BOQ Project
                 </td>
               </tr>
             )}
@@ -148,8 +148,8 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus BOQ Project <strong>{deleteTarget.project_name}</strong>? Semua item &amp; BOQ Akumulasi
-            terkait akan ikut terhapus.
+            Apakah Anda yakin ingin menghapus BOQ Project <strong>{deleteTarget.project_name}</strong>? Seluruh item dan BOQ Akumulasi
+            terkait akan turut terhapus.
           </p>
         </Modal>
       )}

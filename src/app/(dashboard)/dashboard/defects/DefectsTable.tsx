@@ -79,14 +79,14 @@ export default function DefectsTable({
       toast(result.error, 'error');
       return;
     }
-    toast(form.id ? 'Defect diperbarui' : 'Defect ditambahkan', 'success');
+    toast(form.id ? 'Data Defect berhasil diperbarui' : 'Data Defect berhasil ditambahkan', 'success');
     setModalOpen(false);
   }
 
   async function handleToggle(r: DefectRow) {
     const result = await toggleDefectStatus(r.id, r.status);
     if (result.error) toast(result.error, 'error');
-    else toast(result.status === 'RESOLVED' ? 'Ditandai selesai' : 'Dibuka kembali', 'success');
+    else toast(result.status === 'RESOLVED' ? 'Ditandai sebagai selesai' : 'Dibuka kembali', 'success');
   }
 
   async function handleDelete() {
@@ -98,7 +98,7 @@ export default function DefectsTable({
       toast(result.error, 'error');
       return;
     }
-    toast('Defect dihapus', 'success');
+    toast('Data Defect berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -150,7 +150,7 @@ export default function DefectsTable({
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada data defect
+                  Belum terdapat data defect
                 </td>
               </tr>
             )}
@@ -305,7 +305,7 @@ export default function DefectsTable({
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus catatan defect <strong>{deleteTarget.sku}</strong>?
+            Apakah Anda yakin ingin menghapus catatan defect <strong>{deleteTarget.sku}</strong>?
           </p>
         </Modal>
       )}

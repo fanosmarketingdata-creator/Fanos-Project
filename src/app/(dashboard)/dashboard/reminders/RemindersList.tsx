@@ -43,7 +43,7 @@ export default function RemindersList({ initialRows }: { initialRows: ReminderRo
       toast(result.error, 'error');
       return;
     }
-    toast(form.id ? 'Reminder diperbarui' : 'Reminder ditambahkan', 'success');
+    toast(form.id ? 'Data Reminder berhasil diperbarui' : 'Data Reminder berhasil ditambahkan', 'success');
     setModalOpen(false);
   }
 
@@ -61,7 +61,7 @@ export default function RemindersList({ initialRows }: { initialRows: ReminderRo
       toast(result.error, 'error');
       return;
     }
-    toast('Reminder dihapus', 'success');
+    toast('Data Reminder berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -79,7 +79,7 @@ export default function RemindersList({ initialRows }: { initialRows: ReminderRo
       <div className="space-y-2">
         {initialRows.length === 0 && (
           <div className="rounded-xl border border-dashed border-slate-300 bg-white py-10 text-center text-sm text-slate-400">
-            Belum ada reminder
+            Belum terdapat data reminder
           </div>
         )}
         {initialRows.map((r) => {
@@ -205,7 +205,7 @@ export default function RemindersList({ initialRows }: { initialRows: ReminderRo
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus reminder <strong>{deleteTarget.title}</strong>?
+            Apakah Anda yakin ingin menghapus reminder <strong>{deleteTarget.title}</strong>?
           </p>
         </Modal>
       )}

@@ -45,7 +45,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
       toast(result.error, 'error');
       return;
     }
-    toast('Quotation dihapus', 'success');
+    toast('Data Quotation berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -57,7 +57,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
       toast(result.error, 'error');
       return;
     }
-    toast('Quotation diterima, Sales Order dibuat', 'success');
+    toast('Data Quotation diterima dan Sales Order berhasil dibuat', 'success');
     router.push(`/dashboard/sales-orders/${result.soId}`);
   }
 
@@ -96,7 +96,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada quotation
+                  Belum terdapat data quotation
                 </td>
               </tr>
             )}
@@ -177,7 +177,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus quotation untuk <strong>{deleteTarget.client_name}</strong>?
+            Apakah Anda yakin ingin menghapus quotation untuk <strong>{deleteTarget.client_name}</strong>?
           </p>
         </Modal>
       )}

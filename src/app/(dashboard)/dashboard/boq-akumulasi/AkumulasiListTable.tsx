@@ -34,7 +34,7 @@ export default function AkumulasiListTable({ initialRows }: { initialRows: Akumu
       toast(result.error, 'error');
       return;
     }
-    toast('Akumulasi berhasil dibuat/diperbarui', 'success');
+    toast('Akumulasi berhasil disimpan', 'success');
   }
 
   return (
@@ -66,7 +66,7 @@ export default function AkumulasiListTable({ initialRows }: { initialRows: Akumu
             {filtered.length === 0 && (
               <tr>
                 <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
-                  Belum ada BOQ Project
+                  Belum terdapat data BOQ Project
                 </td>
               </tr>
             )}

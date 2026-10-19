@@ -35,7 +35,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
       toast(result.error, 'error');
       return;
     }
-    toast(form.id ? 'Role diperbarui' : 'Role ditambahkan', 'success');
+    toast(form.id ? 'Data Role berhasil diperbarui' : 'Data Role berhasil ditambahkan', 'success');
     setModalOpen(false);
   }
 
@@ -48,7 +48,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
       toast(result.error, 'error');
       return;
     }
-    toast('Role dihapus', 'success');
+    toast('Data Role berhasil dihapus', 'success');
     setDeleteTarget(null);
   }
 
@@ -138,7 +138,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
                 value={form.name}
                 disabled={!!editingProtected}
                 onChange={(e) => setForm({ ...form, name: e.target.value })}
-                placeholder="mis. Admin, Sales, Warehouse"
+                placeholder="Contoh: Admin, Sales, Warehouse"
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
               />
             </div>
@@ -174,7 +174,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
           }
         >
           <p className="text-sm text-slate-600">
-            Yakin ingin menghapus role <strong>{deleteTarget.name}</strong>? Role yang masih dipakai akun tidak akan bisa dihapus.
+            Apakah Anda yakin ingin menghapus role <strong>{deleteTarget.name}</strong>? Role yang masih digunakan oleh akun tidak dapat dihapus.
           </p>
         </Modal>
       )}

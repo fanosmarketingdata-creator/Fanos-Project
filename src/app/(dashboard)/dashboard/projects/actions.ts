@@ -17,7 +17,7 @@ export type ProjectInput = {
 };
 
 export async function saveProject(input: ProjectInput) {
-  if (!input.name?.trim()) return { error: 'Project Name wajib diisi' };
+  if (!input.name?.trim()) return { error: 'Kolom Project Name wajib diisi.' };
 
   const supabase = createClient();
 

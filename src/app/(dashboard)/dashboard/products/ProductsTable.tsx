@@ -92,11 +92,11 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
 
   async function handleFile(file: File) {
     if (!ALLOWED_TYPES.includes(file.type)) {
-      toast('Format tidak didukung. Gunakan JPG, PNG, atau WebP.', 'error');
+      toast('Format berkas tidak didukung. Gunakan format JPG, PNG, atau WebP.', 'error');
       return;
     }
     if (file.size > MAX_SIZE) {
-      toast('Ukuran file terlalu besar (maks 2MB).', 'error');
+      toast('Ukuran berkas melebihi batas maksimum 2 MB.', 'error');
       return;
     }
 
@@ -106,12 +106,12 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
       const path = `${crypto.randomUUID()}.${ext}`;
       const { error: uploadError } = await supabase.storage.from('product-images').upload(path, file);
       if (uploadError) {
-        toast('Upload gagal: ' + uploadError.message, 'error');
+        toast('Unggah berkas gagal: ' + uploadError.message, 'error');
         return;
       }
       const { data } = supabase.storage.from('product-images').getPublicUrl(path);
       setForm((f) => ({ ...f, image_url: data.publicUrl }));
-      toast('Foto berhasil diunggah', 'success');
+      toast('Foto produk berhasil diunggah', 'success');
     } finally {
       setUploading(false);
     }
@@ -128,10 +128,10 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     try {
       const result = await saveProduct(form);
       if (result.error) return toast(result.error, 'error');
-      toast(form.id ? 'Produk diperbarui' : 'Produk ditambahkan', 'success');
+      toast(form.id ? 'Data Produk berhasil diperbarui' : 'Data Produk berhasil ditambahkan', 'success');
       setModalOpen(false);
     } catch (e) {
-      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setSaving(false);
     }
@@ -143,10 +143,10 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     try {
       const result = await deleteProduct(deleteTarget.id);
       if (result.error) return toast(result.error, 'error');
-      toast('Produk dihapus', 'success');
+      toast('Data Produk berhasil dihapus', 'success');
       setDeleteTarget(null);
     } catch (e) {
-      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal dihapus: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -175,7 +175,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     >
       <div className="product-grid-wrap">
         <div className="product-grid">
-          {paged.pageItems.length === 0 && <div className="no-data-grid">No products</div>}
+          {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data produk</div>}
           {paged.pageItems.map((p) => (
             <div key={p.id} className="product-card">
               <div className="product-card-image" onClick={() => setDetail(p)}>
@@ -268,10 +268,10 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
           footer={
             <>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving || uploading}>
-                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Save'}
+                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
-                Cancel
+                Batal
               </button>
             </>
           }
@@ -285,14 +285,14 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               onDrop={onDrop}
             >
               {uploading ? (
-                <div className="txt">Mengunggah...</div>
+                <div className="txt">Sedang mengunggah...</div>
               ) : form.image_url ? (
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={form.image_url} alt="" />
               ) : (
                 <>
                   <div className="icon"><i className="fi fi-rr-cloud-upload" /></div>
-                  <div className="txt">Klik / drag foto ke sini</div>
+                  <div className="txt">Klik atau seret foto ke area ini</div>
                 </>
               )}
             </div>
@@ -303,17 +303,17 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               style={{ display: 'none' }}
               onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
-            <div className="fv2-hint">JPG / PNG / WebP, maks 2MB.</div>
+            <div className="fv2-hint">Format JPG, PNG, atau WebP dengan ukuran maksimal 2 MB.</div>
           </div>
 
           <div className="fv2-section">
             <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
             <div className="fv2-grid">
               <FvField label="SKU No">
-                <input value={skuView} placeholder="Otomatis saat disimpan" readOnly />
+                <input value={skuView} placeholder="Dibuat otomatis oleh sistem" readOnly />
               </FvField>
               <FvField label="Product Name" required>
-                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama produk" />
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama produk" />
               </FvField>
               <FvField label="Main Category" required>
                 <FvSelect
@@ -327,7 +327,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
                   value={form.subcategory || ''}
                   onChange={(v) => setForm({ ...form, subcategory: v })}
                   options={toOptions((PRODUCT_CATEGORIES[form.category || ''] ?? []))}
-                  placeholder={form.category ? '— Pilih —' : 'Pilih Main Category dulu'}
+                  placeholder={form.category ? '— Pilih salah satu —' : 'Pilih Main Category terlebih dahulu'}
                   disabled={!form.category}
                 />
               </FvField>
@@ -388,7 +388,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
             </div>
             <div style={{ marginTop: 14 }}>
               <FvField label="Notes">
-                <textarea value={form.notes || ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Catatan tambahan" />
+                <textarea value={form.notes || ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Catatan tambahan (opsional)" />
               </FvField>
             </div>
           </div>

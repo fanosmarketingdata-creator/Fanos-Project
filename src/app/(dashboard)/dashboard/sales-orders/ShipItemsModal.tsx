@@ -29,7 +29,7 @@ export default function ShipItemsModal({ soId, onClose }: { soId: string; onClos
       .filter((r) => r.ship_qty > 0);
 
     if (payload.length === 0) {
-      toast('Isi minimal 1 Ship Qty', 'error');
+      toast('Mohon isi minimal satu Ship Qty.', 'error');
       return;
     }
 
@@ -41,7 +41,7 @@ export default function ShipItemsModal({ soId, onClose }: { soId: string; onClos
       toast(result.error, 'error');
       return;
     }
-    toast('Delivery Order berhasil dibuat', 'success');
+    toast('Data Delivery Order berhasil dibuat', 'success');
     onClose(true);
   }
 

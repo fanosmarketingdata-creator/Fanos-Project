@@ -16,7 +16,7 @@ export async function generateAkumulasi(boqProjectId: string) {
     .eq('boq_project_id', boqProjectId);
 
   if (itemsError) return { error: itemsError.message };
-  if (!items || items.length === 0) return { error: 'BOQ Project ini belum punya item' };
+  if (!items || items.length === 0) return { error: 'BOQ Project ini belum memiliki item.' };
 
   const totals = new Map<string, { qty: number; uom: string }>();
   items.forEach((it) => {

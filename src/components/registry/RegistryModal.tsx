@@ -112,7 +112,7 @@ export function DeleteModal({
             Batal
           </button>
           <button type="button" className="btn-danger" onClick={onConfirm} disabled={busy}>
-            <i className="fi fi-rr-trash" /> {busy ? 'Menghapus...' : 'Ya, Hapus!'}
+            <i className="fi fi-rr-trash" /> {busy ? 'Menghapus...' : 'Ya, Hapus'}
           </button>
         </div>
       </div>

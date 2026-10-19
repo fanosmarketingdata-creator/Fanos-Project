@@ -69,10 +69,10 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
     try {
       const result = await saveClient(form);
       if (result.error) return toast(result.error, 'error');
-      toast(form.id ? 'Client diperbarui' : 'Client ditambahkan', 'success');
+      toast(form.id ? 'Data Client berhasil diperbarui' : 'Data Client berhasil ditambahkan', 'success');
       setModalOpen(false);
     } catch (e) {
-      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setSaving(false);
     }
@@ -84,10 +84,10 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
     try {
       const result = await deleteClient(deleteTarget.id);
       if (result.error) return toast(result.error, 'error');
-      toast('Client dihapus', 'success');
+      toast('Data Client berhasil dihapus', 'success');
       setDeleteTarget(null);
     } catch (e) {
-      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal dihapus: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -116,7 +116,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
     >
       <div className="product-grid-wrap">
         <div className="client-card-list">
-          {paged.pageItems.length === 0 && <div className="no-data-grid">No clients</div>}
+          {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data client</div>}
           {paged.pageItems.map((c) => (
             <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
               <div className="client-card-avatar">{c.company.trim().charAt(0).toUpperCase() || '?'}</div>
@@ -176,10 +176,10 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
           footer={
             <>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Save'}
+                <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
-                Cancel
+                Batal
               </button>
             </>
           }
@@ -188,7 +188,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div className="fv2-section-title"><i className="fi fi-rr-building" /> Informasi Perusahaan</div>
             <div className="fv2-grid">
               <FvField label="Client No">
-                <input value={form.id ? initialClients.find((c) => c.id === form.id)?.client_no || '' : ''} placeholder="Otomatis saat disimpan" readOnly />
+                <input value={form.id ? initialClients.find((c) => c.id === form.id)?.client_no || '' : ''} placeholder="Dibuat otomatis oleh sistem" readOnly />
               </FvField>
               <FvField label="Company Name" required>
                 <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="PT Contoh Sejahtera" />
@@ -196,7 +196,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             </div>
             <div style={{ marginTop: 14 }}>
               <FvField label="Company Address">
-                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap" />
+                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap perusahaan" />
               </FvField>
             </div>
             <div style={{ marginTop: 14 }}>
@@ -213,16 +213,16 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div className="fv2-section-title"><i className="fi fi-rr-user" /> Kontak</div>
             <div className="fv2-grid">
               <FvField label="Contact Person">
-                <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama PIC" />
+                <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama penanggung jawab (PIC)" />
               </FvField>
               <FvField label="Position">
-                <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Jabatan" />
+                <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Jabatan penanggung jawab" />
               </FvField>
               <FvField label="Phone">
                 <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
               </FvField>
               <FvField label="Email">
-                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nama@email.com" />
+                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nama@perusahaan.com" />
               </FvField>
             </div>
           </div>

@@ -65,10 +65,10 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
     try {
       const result = await saveVendor(form);
       if (result.error) return toast(result.error, 'error');
-      toast(form.id ? 'Vendor diperbarui' : 'Vendor ditambahkan', 'success');
+      toast(form.id ? 'Data Vendor berhasil diperbarui' : 'Data Vendor berhasil ditambahkan', 'success');
       setModalOpen(false);
     } catch (e) {
-      toast('Gagal menyimpan: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setSaving(false);
     }
@@ -80,10 +80,10 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
     try {
       const result = await deleteVendor(deleteTarget.id);
       if (result.error) return toast(result.error, 'error');
-      toast('Vendor dihapus', 'success');
+      toast('Data Vendor berhasil dihapus', 'success');
       setDeleteTarget(null);
     } catch (e) {
-      toast('Gagal menghapus: ' + (e instanceof Error ? e.message : 'kesalahan server'), 'error');
+      toast('Data gagal dihapus: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
       setDeleting(false);
     }
@@ -111,7 +111,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
     >
       <div className="product-grid-wrap">
         <div className="client-card-list">
-          {paged.pageItems.length === 0 && <div className="no-data-grid">No vendors</div>}
+          {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data vendor</div>}
           {paged.pageItems.map((v) => (
             <div key={v.id} className="client-card" onClick={() => openEdit(v)}>
               <div className="client-card-avatar">{v.company.trim().charAt(0).toUpperCase() || '?'}</div>
@@ -146,10 +146,10 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
           footer={
             <>
               <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}>
-                <i className="fi fi-rr-disk" /> {saving ? 'Menyimpan...' : 'Save'}
+                <i className="fi fi-rr-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
               </button>
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>
-                Cancel
+                Batal
               </button>
             </>
           }
@@ -158,7 +158,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
             <div className="fv2-section-title"><i className="fa-solid fa-truck" /> Informasi Vendor</div>
             <div className="fv2-grid">
               <FvField label="Vendor ID">
-                <input value={form.id ? initialVendors.find((v) => v.id === form.id)?.vendor_no || '' : ''} placeholder="Otomatis saat disimpan" readOnly />
+                <input value={form.id ? initialVendors.find((v) => v.id === form.id)?.vendor_no || '' : ''} placeholder="Dibuat otomatis oleh sistem" readOnly />
               </FvField>
               <FvField label="Company Name" required>
                 <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />

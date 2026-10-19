@@ -26,10 +26,10 @@ export type SalesOrderInput = {
 };
 
 export async function saveSalesOrder(input: SalesOrderInput) {
-  if (!input.client_id) return { error: 'Client wajib dipilih' };
-  if (!input.so_date) return { error: 'Tanggal SO wajib diisi' };
+  if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
+  if (!input.so_date) return { error: 'Kolom Tanggal SO wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
-  if (validItems.length === 0) return { error: 'Minimal 1 item harus ditambahkan' };
+  if (validItems.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
 
   const supabase = createClient();
   const total = validItems.reduce((s, it) => s + it.qty * it.unit_price, 0);
@@ -125,7 +125,7 @@ export async function getSOShippingStatus(soId: string) {
 
 export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[]) {
   const toShip = shipItemsInput.filter((it) => it.ship_qty > 0);
-  if (toShip.length === 0) return { error: 'Isi minimal 1 Ship Qty' };
+  if (toShip.length === 0) return { error: 'Mohon isi minimal satu Ship Qty.' };
 
   const supabase = createClient();
 

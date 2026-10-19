@@ -35,10 +35,10 @@ function computeTotals(items: QuoteItemInput[], discounts: DiscountLine[], charg
 }
 
 export async function saveQuotation(input: QuotationInput) {
-  if (!input.client_id) return { error: 'Client wajib dipilih' };
-  if (!input.quote_date) return { error: 'Tanggal Quotation wajib diisi' };
+  if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
+  if (!input.quote_date) return { error: 'Kolom Tanggal Quotation wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
-  if (validItems.length === 0) return { error: 'Minimal 1 item harus ditambahkan' };
+  if (validItems.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
 
   const supabase = createClient();
   const { subtotal, total } = computeTotals(validItems, input.discounts, input.charges);
@@ -119,7 +119,7 @@ export async function acceptQuotationAndCreateSO(quotationId: string) {
     .eq('id', quotationId)
     .single();
   if (quoteError || !quote) return { error: quoteError?.message || 'Quotation tidak ditemukan' };
-  if (quote.status !== 'DRAFT') return { error: 'Hanya quotation berstatus DRAFT yang bisa di-accept' };
+  if (quote.status !== 'DRAFT') return { error: 'Hanya quotation berstatus DRAFT yang dapat diterima.' };
 
   const { error: statusErr } = await supabase.from('quotations').update({ status: 'ACCEPTED' }).eq('id', quotationId);
   if (statusErr) return { error: statusErr.message };

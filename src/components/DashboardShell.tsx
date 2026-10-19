@@ -291,7 +291,7 @@ export default function DashboardShell({
           </div>
           <button
             onClick={handleLogout}
-            title="Logout"
+            title="Keluar"
             className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-600/10 text-xs text-red-600 transition hover:bg-red-600/20"
           >
             <i className="fi fi-rr-sign-out-alt" />

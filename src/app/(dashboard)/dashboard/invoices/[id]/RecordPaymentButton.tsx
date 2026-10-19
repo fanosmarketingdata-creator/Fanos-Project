@@ -24,7 +24,7 @@ export default function RecordPaymentButton({ invoiceId }: { invoiceId: string }
       toast(result.error, 'error');
       return;
     }
-    toast('Pembayaran tercatat', 'success');
+    toast('Pembayaran berhasil dicatat', 'success');
     setOpen(false);
     window.location.reload();
   }

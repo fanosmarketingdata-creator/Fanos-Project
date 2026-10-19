@@ -11,8 +11,8 @@ export type ReminderInput = {
 };
 
 export async function saveReminder(input: ReminderInput) {
-  if (!input.title?.trim()) return { error: 'Judul wajib diisi' };
-  if (!input.due_date) return { error: 'Tanggal jatuh tempo wajib diisi' };
+  if (!input.title?.trim()) return { error: 'Kolom Judul wajib diisi.' };
+  if (!input.due_date) return { error: 'Kolom Tanggal jatuh tempo wajib diisi.' };
 
   const supabase = createClient();
   const payload = {

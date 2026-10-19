@@ -19,8 +19,8 @@ export type ProductInput = {
 } & Partial<Record<SpecKey, string>>;
 
 export async function saveProduct(input: ProductInput) {
-  if (!input.name?.trim()) return { error: 'Product Name wajib diisi' };
-  if (!input.category) return { error: 'Main Category wajib dipilih' };
+  if (!input.name?.trim()) return { error: 'Kolom Product Name wajib diisi.' };
+  if (!input.category) return { error: 'Mohon pilih Main Category terlebih dahulu.' };
 
   const supabase = createClient();
 
@@ -47,7 +47,7 @@ export async function saveProduct(input: ProductInput) {
 
   const { error } = await query;
   if (error) {
-    if (error.code === '23505') return { error: 'SKU sudah digunakan produk lain' };
+    if (error.code === '23505') return { error: 'SKU telah digunakan oleh produk lain.' };
     return { error: error.message };
   }
 

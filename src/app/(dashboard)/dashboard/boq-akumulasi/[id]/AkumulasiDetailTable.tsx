@@ -38,7 +38,7 @@ export default function AkumulasiDetailTable({
       toast(result.error, 'error');
       return;
     }
-    toast('Akumulasi di-refresh dari BOQ Project terbaru', 'success');
+    toast('Akumulasi berhasil diperbarui sesuai BOQ Project terbaru', 'success');
     window.location.reload();
   }
 
@@ -88,8 +88,8 @@ export default function AkumulasiDetailTable({
       </div>
 
       <p className="mt-3 text-xs text-slate-400">
-        Angka qty di atas boleh diubah manual (misal untuk menambah buffer stok). Klik &quot;Refresh dari BOQ
-        Project&quot; untuk menghitung ulang dari item BOQ Project terbaru (perubahan manual akan tertimpa).
+        Angka qty di atas dapat diubah secara manual (misalnya untuk menambah cadangan stok). Klik &quot;Refresh dari BOQ
+        Project&quot; untuk menghitung ulang berdasarkan item BOQ Project terbaru; perubahan manual akan tertimpa.
       </p>
     </div>
   );
