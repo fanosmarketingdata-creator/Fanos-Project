@@ -5,6 +5,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
+import FigmaCursor from '@/components/FigmaCursor';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
 
@@ -191,6 +192,7 @@ export default function DashboardShell({
           <span className="sub-text">Mohon menunggu</span>
         </div>
       )}
+      <FigmaCursor name={profile.full_name || 'you'} />
       <IdleLogout />
       <ResponsiveTables />
 

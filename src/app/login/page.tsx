@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import FigmaCursor from '@/components/FigmaCursor';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
@@ -51,6 +52,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
+      <FigmaCursor name="Tamu" />
       <div className="login-aurora" aria-hidden="true">
         <span className="a1" />
         <span className="a2" />

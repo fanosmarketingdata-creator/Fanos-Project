@@ -293,3 +293,22 @@
     display: none !important;
   }
 }
+
+/* ============================================================
+   FIGMA CURSOR — overlay tambahan, kursor sistem tidak disembunyikan
+============================================================ */
+.fc {
+  position: fixed; left: 0; top: 0; z-index: 2147483647;
+  pointer-events: none; will-change: transform;
+  opacity: 0; transition: opacity 0.15s linear;
+}
+.fc[data-live='true'] { opacity: 1; }
+.fc-inner { position: relative; transform-origin: 0 0; transition: transform 0.16s ease-out; }
+.fc[data-hot='true'] .fc-inner { transform: scale(1.12); }
+.fc svg { position: absolute; display: block; overflow: visible; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
+.fc-tag {
+  position: absolute; white-space: nowrap; font: 600 12px/1 inherit;
+  padding: 5px 9px 6px; border-radius: 999px; letter-spacing: 0.005em;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+@media print { .fc { display: none !important; } }
