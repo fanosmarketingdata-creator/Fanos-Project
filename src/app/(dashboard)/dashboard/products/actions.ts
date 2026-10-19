@@ -2,31 +2,43 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { SPEC_KEYS, type SpecKey } from './fields';
 
 export type ProductInput = {
   id?: string;
-  sku: string;
+  // SKU No = AUTOGENERATE; tidak dikirim dari form.
   name: string;
-  brand?: string;
-  uom: string;
-  price: number;
   image_url?: string | null;
-  category?: string;
-};
+  category?: string; // Main Category
+  subcategory?: string;
+  application?: string;
+  uom: string;
+  cost_price: number;
+  price: number; // Standard Selling Price
+  notes?: string;
+} & Partial<Record<SpecKey, string>>;
 
 export async function saveProduct(input: ProductInput) {
-  if (!input.sku?.trim()) return { error: 'SKU wajib diisi' };
-  if (!input.name?.trim()) return { error: 'Nama produk wajib diisi' };
+  if (!input.name?.trim()) return { error: 'Product Name wajib diisi' };
+  if (!input.category) return { error: 'Main Category wajib dipilih' };
 
   const supabase = createClient();
+
+  const specs: Record<string, string | null> = {};
+  for (const k of SPEC_KEYS) specs[k] = (input[k] ?? '').trim() || null;
+
+  // Brand = HIDDEN (otomatis FANOS oleh default database), SKU = AUTOGENERATE (trigger database).
   const payload = {
-    sku: input.sku.trim(),
     name: input.name.trim(),
-    brand: input.brand || null,
-    uom: input.uom || 'Pcs',
-    price: input.price || 0,
     image_url: input.image_url || null,
     category: input.category || null,
+    subcategory: input.subcategory || null,
+    application: input.application || null,
+    uom: input.uom || 'Pcs',
+    cost_price: input.cost_price || 0,
+    price: input.price || 0,
+    notes: input.notes?.trim() || null,
+    ...specs,
   };
 
   const query = input.id

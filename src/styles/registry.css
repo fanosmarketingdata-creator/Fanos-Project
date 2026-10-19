@@ -464,6 +464,7 @@
 .modal-close:hover { background: rgba(255, 255, 255, 0.35); transform: rotate(90deg); }
 
 .modal-body { padding: 20px 24px 12px; overflow-y: auto; flex: 1; }
+.modal-body-detail { max-height: 60vh; }
 
 .modal-footer {
   padding: 12px 24px 20px;
@@ -675,13 +676,18 @@
   .card-header { flex-direction: column; align-items: stretch; }
   .card-header .flex-wrap { width: 100%; }
   .card-header .search-box { max-width: none; }
-  .modal { max-width: 100%; max-height: 100vh; border-radius: 0; height: 100vh; }
+  /* Tinggi mengikuti overlay (fixed inset:0) = area yang benar-benar terlihat.
+     100vh di Chrome/Safari HP lebih tinggi dari layar saat bilah alamat tampil,
+     sehingga header modal terpotong dan footer terdorong ke bawah. */
+  .modal { max-width: 100%; max-height: 100%; border-radius: 0; height: 100%; }
+  .modal-body { min-height: 0; }
+  .modal-body-detail { max-height: none; }
   .modal-overlay { padding: 0; }
   .modal-header { border-radius: 0; padding: 14px 16px; }
   .modal-body { padding: 14px 16px 8px; }
-  .modal-footer { padding: 10px 16px 16px; }
+  .modal-footer { padding: 10px 16px calc(14px + env(safe-area-inset-bottom, 0px)); }
   .modal-delete.modal-overlay { padding: 20px; }
-  .modal-delete .modal { height: auto; border-radius: 20px; }
+  .modal-delete .modal { height: auto; max-height: 100%; border-radius: 20px; }
   .product-grid { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; }
   .product-card-image { height: 100px; }
 }

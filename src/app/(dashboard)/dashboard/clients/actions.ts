@@ -5,29 +5,30 @@ import { createClient } from '@/lib/supabase/server';
 
 export type ClientInput = {
   id?: string;
-  project_name: string;
-  company?: string;
+  company: string;
   contact_name?: string;
+  position?: string;
   phone?: string;
   email?: string;
   address?: string;
-  city?: string;
+  credit_limit?: number | null;
 };
 
 export async function saveClient(input: ClientInput) {
-  if (!input.project_name?.trim()) {
-    return { error: 'Project Name wajib diisi' };
+  if (!input.company?.trim()) {
+    return { error: 'Company Name wajib diisi' };
   }
 
   const supabase = createClient();
+  // Client No (AUTOGENERATE) dibuat oleh database; project_name disinkronkan dari company oleh trigger.
   const payload = {
-    project_name: input.project_name.trim(),
-    company: input.company || null,
+    company: input.company.trim(),
     contact_name: input.contact_name || null,
+    position: input.position || null,
     phone: input.phone || null,
     email: input.email || null,
     address: input.address || null,
-    city: input.city || null,
+    credit_limit: input.credit_limit ?? null,
   };
 
   const query = input.id

@@ -5,18 +5,23 @@ import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
+import FvSelect, { toOptions } from '@/components/registry/FvSelect';
+import { TOP_OPTIONS } from '@/lib/master-options';
 import { saveVendor, deleteVendor, type VendorInput } from './actions';
 
 export type VendorRow = {
   id: string;
+  vendor_no: string | null;
   company: string;
   contact_name: string | null;
+  position: string | null;
+  top: string | null;
   phone: string | null;
   email: string | null;
   address: string | null;
 };
 
-const emptyForm: VendorInput = { company: '', contact_name: '', phone: '', email: '', address: '' };
+const emptyForm: VendorInput = { company: '', contact_name: '', position: '', top: '', phone: '', email: '', address: '' };
 
 export default function VendorsTable({ initialVendors }: { initialVendors: VendorRow[] }) {
   const toast = useToast();
@@ -31,7 +36,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
     const q = search.trim().toLowerCase();
     if (!q) return initialVendors;
     return initialVendors.filter((v) =>
-      [v.company, v.contact_name, v.email, v.address].some((x) => (x || '').toLowerCase().includes(q))
+      [v.vendor_no, v.company, v.contact_name, v.position, v.email, v.address].some((x) => (x || '').toLowerCase().includes(q))
     );
   }, [initialVendors, search]);
 
@@ -46,6 +51,8 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
       id: v.id,
       company: v.company,
       contact_name: v.contact_name || '',
+      position: v.position || '',
+      top: v.top || '',
       phone: v.phone || '',
       email: v.email || '',
       address: v.address || '',
@@ -110,12 +117,13 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
               <div className="client-card-avatar">{v.company.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
                 <div className="name">{v.company}</div>
-                <div className="sub">{v.address || '-'}</div>
+                <div className="sub">{v.vendor_no || '-'}</div>
               </div>
               <div className="client-card-meta">
-                <div className="item"><div className="lbl">Contact</div><div className="val">{v.contact_name || '-'}</div></div>
+                <div className="item"><div className="lbl">Contact</div><div className="val">{v.contact_name || '-'}{v.position ? ` · ${v.position}` : ''}</div></div>
                 <div className="item"><div className="lbl">Phone</div><div className="val">{v.phone || '-'}</div></div>
                 <div className="item"><div className="lbl">Email</div><div className="val">{v.email || '-'}</div></div>
+                <div className="item"><div className="lbl">TOP</div><div className="val">{v.top || '-'}</div></div>
               </div>
               <div className="client-card-actions" onClick={(e) => e.stopPropagation()}>
                 <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(v)} title="Edit">
@@ -147,25 +155,40 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
           }
         >
           <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fa-solid fa-truck" /> Informasi Vendor</div>
             <div className="fv2-grid">
+              <FvField label="Vendor ID">
+                <input value={form.id ? initialVendors.find((v) => v.id === form.id)?.vendor_no || '' : ''} placeholder="Otomatis saat disimpan" readOnly />
+              </FvField>
               <FvField label="Company Name" required>
                 <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} />
               </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Company Address">
+                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="TOP (Term of Payment)">
+                <FvSelect value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} options={toOptions(TOP_OPTIONS)} />
+              </FvField>
+            </div>
+          </div>
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-user" /> Kontak</div>
+            <div className="fv2-grid">
               <FvField label="Contact Person">
                 <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} />
               </FvField>
-            </div>
-            <div className="fv2-grid" style={{ marginTop: 14 }}>
-              <FvField label="Email">
-                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} />
+              <FvField label="Position">
+                <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} />
               </FvField>
               <FvField label="Phone">
                 <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
               </FvField>
-            </div>
-            <div style={{ marginTop: 14 }}>
-              <FvField label="Address">
-                <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} />
+              <FvField label="Email">
+                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} />
               </FvField>
             </div>
           </div>

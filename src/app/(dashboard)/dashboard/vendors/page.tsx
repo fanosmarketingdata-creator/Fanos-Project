@@ -5,7 +5,7 @@ export default async function VendorsPage() {
   const supabase = createClient();
   const { data: vendors } = await supabase
     .from('vendors')
-    .select('id, company, contact_name, phone, email, address')
+    .select('id, vendor_no, company, contact_name, position, phone, email, address, top')
     .order('created_at', { ascending: false });
 
   return (

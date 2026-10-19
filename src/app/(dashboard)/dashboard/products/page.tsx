@@ -1,16 +1,18 @@
 import { createClient } from '@/lib/supabase/server';
 import ProductsTable from './ProductsTable';
+import { SPEC_KEYS } from './fields';
 
 export default async function ProductsPage() {
   const supabase = createClient();
-  const { data: products } = await supabase
-    .from('products')
-    .select('id, sku, name, brand, uom, price, image_url, category')
-    .order('created_at', { ascending: false });
+  const cols = [
+    'id', 'sku', 'name', 'brand', 'uom', 'price', 'cost_price', 'image_url',
+    'category', 'subcategory', 'application', 'notes', ...SPEC_KEYS,
+  ].join(', ');
+  const { data: products } = await supabase.from('products').select(cols).order('created_at', { ascending: false });
 
   return (
     <div>
-      <ProductsTable initialProducts={products ?? []} />
+      <ProductsTable initialProducts={(products ?? []) as unknown as import('./ProductsTable').ProductRow[]} />
     </div>
   );
 }

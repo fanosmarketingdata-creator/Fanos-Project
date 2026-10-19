@@ -36,6 +36,7 @@ const NAV_GROUPS: NavGroup[] = [
       { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
       { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },
       { href: '/dashboard/products', label: 'Products', icon: 'fi fi-rr-boxes' },
+      { href: '/dashboard/projects', label: 'Projects', icon: 'fi fi-rr-briefcase' },
     ],
   },
   {

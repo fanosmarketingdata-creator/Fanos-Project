@@ -7,6 +7,8 @@ export type VendorInput = {
   id?: string;
   company: string;
   contact_name?: string;
+  position?: string;
+  top?: string;
   phone?: string;
   email?: string;
   address?: string;
@@ -21,6 +23,8 @@ export async function saveVendor(input: VendorInput) {
   const payload = {
     company: input.company.trim(),
     contact_name: input.contact_name || null,
+    position: input.position || null,
+    top: input.top || null,
     phone: input.phone || null,
     email: input.email || null,
     address: input.address || null,

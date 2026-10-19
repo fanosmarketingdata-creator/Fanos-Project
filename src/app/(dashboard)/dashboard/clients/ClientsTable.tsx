@@ -5,22 +5,26 @@ import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
+import FvSelect from '@/components/registry/FvSelect';
+import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
 import { saveClient, deleteClient, type ClientInput } from './actions';
 
 export type ClientRow = {
   id: string;
-  project_name: string;
-  company: string | null;
+  client_no: string | null;
+  company: string;
   contact_name: string | null;
+  position: string | null;
   phone: string | null;
   email: string | null;
   address: string | null;
-  city: string | null;
+  credit_limit: number | null;
 };
 
-const emptyForm: ClientInput = { project_name: '', company: '', contact_name: '', phone: '', email: '', address: '', city: '' };
+const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null };
 
-const displayName = (c: ClientRow) => c.company || c.project_name;
+const creditLabel = (n: number | null) =>
+  n == null ? '-' : CREDIT_LIMIT_OPTIONS.find((o) => o.value === Number(n))?.label ?? 'Rp ' + Number(n).toLocaleString('id-ID');
 
 export default function ClientsTable({ initialClients }: { initialClients: ClientRow[] }) {
   const toast = useToast();
@@ -36,7 +40,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
     const q = search.trim().toLowerCase();
     if (!q) return initialClients;
     return initialClients.filter((c) =>
-      [c.project_name, c.company, c.contact_name, c.email, c.address, c.city].some((v) => (v || '').toLowerCase().includes(q))
+      [c.client_no, c.company, c.contact_name, c.position, c.email, c.address].some((v) => (v || '').toLowerCase().includes(q))
     );
   }, [initialClients, search]);
 
@@ -49,13 +53,13 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
   function openEdit(c: ClientRow) {
     setForm({
       id: c.id,
-      project_name: c.project_name,
-      company: c.company || '',
+      company: c.company,
       contact_name: c.contact_name || '',
+      position: c.position || '',
       phone: c.phone || '',
       email: c.email || '',
       address: c.address || '',
-      city: c.city || '',
+      credit_limit: c.credit_limit == null ? null : Number(c.credit_limit),
     });
     setModalOpen(true);
   }
@@ -115,16 +119,16 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
           {paged.pageItems.length === 0 && <div className="no-data-grid">No clients</div>}
           {paged.pageItems.map((c) => (
             <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
-              <div className="client-card-avatar">{displayName(c).trim().charAt(0).toUpperCase() || '?'}</div>
+              <div className="client-card-avatar">{c.company.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
-                <div className="name">{displayName(c)}</div>
-                <div className="sub">{c.company ? c.project_name : c.city || '-'}</div>
+                <div className="name">{c.company}</div>
+                <div className="sub">{c.client_no || '-'}</div>
               </div>
               <div className="client-card-meta">
-                <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}</div></div>
+                <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}</div></div>
                 <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>
                 <div className="item"><div className="lbl">Email</div><div className="val">{c.email || '-'}</div></div>
-                <div className="item"><div className="lbl">City</div><div className="val">{c.city || '-'}</div></div>
+                <div className="item"><div className="lbl">Credit Limit</div><div className="val">{creditLabel(c.credit_limit)}</div></div>
               </div>
               <div className="client-card-actions" onClick={(e) => e.stopPropagation()}>
                 <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(c)} title="Edit">
@@ -144,18 +148,18 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
           <div className="dv2">
             <div className="dv2-topbar">
               <div>
-                <div className="dv2-topbar-id">Client</div>
-                <div className="dv2-topbar-title">{displayName(detail)}</div>
+                <div className="dv2-topbar-id">{detail.client_no || 'Client'}</div>
+                <div className="dv2-topbar-title">{detail.company}</div>
               </div>
             </div>
             <div className="dv2-grid">
-              <DvCard icon="fi fi-rr-briefcase" label="Project Name" value={detail.project_name || '-'} />
               <DvCard icon="fi fi-rr-user" label="Contact Person" value={detail.contact_name || '-'} />
+              <DvCard icon="fi fi-rr-briefcase" label="Position" value={detail.position || '-'} />
               <DvCard icon="fi fi-rr-envelope" label="Email" value={detail.email || '-'} />
               <DvCard icon="fi fi-rr-phone-call" label="Phone" value={detail.phone || '-'} />
-              <DvCard icon="fi fi-rr-building" label="City" value={detail.city || '-'} />
+              <DvCard icon="fi fi-rr-credit-card" label="Credit Limit" value={creditLabel(detail.credit_limit)} color="#16a34a" />
             </div>
-            <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Alamat</div>
+            <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Company Address</div>
             <div className="dv2-card">
               <div className="dv2-card-icon"><i className="fi fi-rr-home" /></div>
               <div><div className="dv2-card-value" style={{ fontWeight: 500 }}>{detail.address || '-'}</div></div>
@@ -183,21 +187,25 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
           <div className="fv2-section">
             <div className="fv2-section-title"><i className="fi fi-rr-building" /> Informasi Perusahaan</div>
             <div className="fv2-grid">
-              <FvField label="Company Name">
-                <input value={form.company || ''} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="PT Contoh Sejahtera" />
+              <FvField label="Client No">
+                <input value={form.id ? initialClients.find((c) => c.id === form.id)?.client_no || '' : ''} placeholder="Otomatis saat disimpan" readOnly />
               </FvField>
-              <FvField label="Project Name" required>
-                <input value={form.project_name} onChange={(e) => setForm({ ...form, project_name: e.target.value })} placeholder="Nama proyek" />
+              <FvField label="Company Name" required>
+                <input value={form.company} onChange={(e) => setForm({ ...form, company: e.target.value })} placeholder="PT Contoh Sejahtera" />
               </FvField>
             </div>
             <div style={{ marginTop: 14 }}>
-              <FvField label="Address">
+              <FvField label="Company Address">
                 <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap" />
               </FvField>
             </div>
             <div style={{ marginTop: 14 }}>
-              <FvField label="City">
-                <input value={form.city || ''} onChange={(e) => setForm({ ...form, city: e.target.value })} placeholder="Kota" />
+              <FvField label="Credit Limit">
+                <FvSelect
+                  value={form.credit_limit == null ? '' : String(form.credit_limit)}
+                  onChange={(v) => setForm({ ...form, credit_limit: v === '' ? null : Number(v) })}
+                  options={CREDIT_LIMIT_OPTIONS.map((o) => ({ value: String(o.value), label: o.label }))}
+                />
               </FvField>
             </div>
           </div>
@@ -206,6 +214,9 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div className="fv2-grid">
               <FvField label="Contact Person">
                 <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama PIC" />
+              </FvField>
+              <FvField label="Position">
+                <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Jabatan" />
               </FvField>
               <FvField label="Phone">
                 <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
@@ -221,7 +232,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       {deleteTarget && (
         <DeleteModal
           title="Konfirmasi Hapus"
-          itemName={displayName(deleteTarget)}
+          itemName={deleteTarget.company}
           busy={deleting}
           onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}

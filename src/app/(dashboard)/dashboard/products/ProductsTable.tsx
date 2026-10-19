@@ -6,23 +6,34 @@ import { createClient } from '@/lib/supabase/client';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
+import FvSelect, { toOptions } from '@/components/registry/FvSelect';
+import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import { SPEC_GROUPS, SPEC_KEYS, type SpecKey } from './fields';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
 
 export type ProductRow = {
   id: string;
-  sku: string;
+  sku: string | null;
   name: string;
   brand: string | null;
   uom: string;
   price: number;
+  cost_price: number | null;
   image_url: string | null;
   category: string | null;
-};
+  subcategory: string | null;
+  application: string | null;
+  notes: string | null;
+} & Record<SpecKey, string | null>;
 
-const emptyForm: ProductInput = { sku: '', name: '', brand: '', uom: 'Pcs', price: 0, image_url: '', category: '' };
+const emptySpecs = Object.fromEntries(SPEC_KEYS.map((k) => [k, ''])) as Record<SpecKey, string>;
+const emptyForm: ProductInput = {
+  name: '', image_url: '', category: '', subcategory: '', application: '', uom: 'Pcs',
+  cost_price: 0, price: 0, notes: '', ...emptySpecs,
+};
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB — kriteria sama seperti sistem lama
-const rupiah = (n: number) => 'Rp ' + (n || 0).toLocaleString('id-ID');
+const rupiah = (n: number | null) => 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
 
 export default function ProductsTable({ initialProducts }: { initialProducts: ProductRow[] }) {
   const toast = useToast();
@@ -32,41 +43,50 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<ProductInput>(emptyForm);
+  const [skuView, setSkuView] = useState('');
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
   const [detail, setDetail] = useState<ProductRow | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<ProductRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
-  // Urut brand lalu SKU, seperti renderProducts() di index.html.
+  // Urut kategori lalu SKU.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     const rows = q
       ? initialProducts.filter((p) =>
-          [p.sku, p.name, p.brand, p.category, p.uom].some((v) => (v || '').toLowerCase().includes(q))
+          [p.sku, p.name, p.category, p.subcategory, p.application, p.wattage, p.cct, p.ip_rating].some((v) =>
+            (v || '').toLowerCase().includes(q)
+          )
         )
       : initialProducts;
-    return rows.slice().sort((a, b) => (a.brand || '').localeCompare(b.brand || '') || a.sku.localeCompare(b.sku));
+    return rows.slice().sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.sku || '').localeCompare(b.sku || ''));
   }, [initialProducts, search]);
 
   const paged = usePaged(filtered, search, 24);
 
   function openAdd() {
     setForm(emptyForm);
+    setSkuView('');
     setModalOpen(true);
   }
 
   function openEdit(p: ProductRow) {
+    const specs = Object.fromEntries(SPEC_KEYS.map((k) => [k, p[k] || ''])) as Record<SpecKey, string>;
     setForm({
       id: p.id,
-      sku: p.sku,
       name: p.name,
-      brand: p.brand || '',
-      uom: p.uom,
-      price: p.price,
       image_url: p.image_url || '',
       category: p.category || '',
+      subcategory: p.subcategory || '',
+      application: p.application || '',
+      uom: p.uom,
+      cost_price: Number(p.cost_price) || 0,
+      price: Number(p.price) || 0,
+      notes: p.notes || '',
+      ...specs,
     });
+    setSkuView(p.sku || '');
     setModalOpen(true);
   }
 
@@ -161,16 +181,18 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               <div className="product-card-image" onClick={() => setDetail(p)}>
                 {p.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.image_url} alt={p.sku} loading="lazy" />
+                  <img src={p.image_url} alt={p.sku ?? ""} loading="lazy" />
                 ) : (
                   <i className="fa-solid fa-image no-image" />
                 )}
               </div>
               <div className="product-card-body" onClick={() => setDetail(p)}>
                 <span className="product-card-sku">{p.sku}</span>
-                <div className="product-card-brand">{p.brand || p.name}</div>
-                <div className="product-card-type">{p.brand ? p.name : p.category || '-'}</div>
-                <div className="product-card-spec">{p.brand && p.category ? p.category : ' '}</div>
+                <div className="product-card-brand">{p.name}</div>
+                <div className="product-card-type">{[p.category, p.subcategory].filter(Boolean).join(' · ') || '-'}</div>
+                <div className="product-card-spec">
+                  {[p.wattage && `${p.wattage}W`, p.cct && `${p.cct}K`, p.ip_rating].filter(Boolean).join(' · ') || ' '}
+                </div>
                 <div className="product-card-price">
                   <span className="selling">{rupiah(p.price)}</span>
                   <span className="uom">{p.uom || 'Pcs'}</span>
@@ -195,25 +217,45 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
             <div className="dv2-product-layout">
               <div className="dv2-product-info">
                 <div className="dv2-topbar-id">{detail.sku}</div>
-                <div className="dv2-topbar-title" style={{ marginBottom: 10 }}>{detail.brand || detail.name}</div>
+                <div className="dv2-topbar-title" style={{ marginBottom: 10 }}>{detail.name}</div>
                 <div className="dv2-grid" style={{ gridTemplateColumns: '1fr' }}>
-                  <DvCard icon="fi fi-rr-tag" label="Nama Produk" value={detail.name} />
-                  <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
+                  <DvCard icon="fi fi-rr-apps" label="Main Category" value={detail.category || '-'} />
+                  <DvCard icon="fi fi-rr-apps-add" label="Subcategory" value={detail.subcategory || '-'} />
                 </div>
               </div>
               <div className="dv2-product-image-box">
                 {detail.image_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={detail.image_url} alt={detail.sku} />
+                  <img src={detail.image_url} alt={detail.sku || ''} />
                 ) : (
                   <i className="fa-solid fa-image no-image" />
                 )}
               </div>
             </div>
             <div className="dv2-grid">
-              <DvCard icon="fi fi-rr-apps" label="Kategori" value={detail.category || '-'} />
-              <DvCard icon="fi fi-rr-money-bill" label="Selling Price" value={rupiah(detail.price)} color="#16a34a" />
+              <DvCard icon="fi fi-rr-building" label="Application" value={detail.application || '-'} />
+              <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
+              <DvCard icon="fi fi-rr-money-bill" label="Cost Price" value={rupiah(detail.cost_price)} />
+              <DvCard icon="fi fi-rr-money-bill" label="Standard Selling Price" value={rupiah(detail.price)} color="#16a34a" />
             </div>
+            {SPEC_GROUPS.map((g) => (
+              <div key={g.title}>
+                <div className="dv2-section-title"><i className={g.icon} /> {g.title}</div>
+                <div className="dv2-grid">
+                  {g.fields.map((f) => (
+                    <DvCard key={f.key} icon={f.icon} label={f.label} value={detail[f.key] || '-'} />
+                  ))}
+                </div>
+              </div>
+            ))}
+            {detail.notes && (
+              <>
+                <div className="dv2-section-title"><i className="fi fi-rr-document" /> Notes</div>
+                <div className="dv2-card">
+                  <div><div className="dv2-card-value" style={{ fontWeight: 500 }}>{detail.notes}</div></div>
+                </div>
+              </>
+            )}
           </div>
         </DetailModal>
       )}
@@ -235,7 +277,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
           }
         >
           <div className="fv2-section">
-            <div className="fv2-section-title"><i className="fi fi-rr-picture" /> Foto Produk</div>
+            <div className="fv2-section-title"><i className="fi fi-rr-picture" /> Image Reference</div>
             <div
               className="fv2-upload-box"
               onClick={() => fileInputRef.current?.click()}
@@ -267,28 +309,86 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
           <div className="fv2-section">
             <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
             <div className="fv2-grid">
-              <FvField label="SKU" required>
-                <input value={form.sku} onChange={(e) => setForm({ ...form, sku: e.target.value })} placeholder="Kode SKU" />
+              <FvField label="SKU No">
+                <input value={skuView} placeholder="Otomatis saat disimpan" readOnly />
               </FvField>
-              <FvField label="Nama Produk" required>
+              <FvField label="Product Name" required>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama produk" />
               </FvField>
-              <FvField label="Brand">
-                <input value={form.brand || ''} onChange={(e) => setForm({ ...form, brand: e.target.value })} placeholder="Brand" />
+              <FvField label="Main Category" required>
+                <FvSelect
+                  value={form.category || ''}
+                  onChange={(v) => setForm({ ...form, category: v, subcategory: '' })}
+                  options={toOptions(Object.keys(PRODUCT_CATEGORIES))}
+                />
               </FvField>
-              <FvField label="Kategori">
-                <input value={form.category || ''} onChange={(e) => setForm({ ...form, category: e.target.value })} placeholder="Kategori" />
+              <FvField label="Subcategory">
+                <FvSelect
+                  value={form.subcategory || ''}
+                  onChange={(v) => setForm({ ...form, subcategory: v })}
+                  options={toOptions((PRODUCT_CATEGORIES[form.category || ''] ?? []))}
+                  placeholder={form.category ? '— Pilih —' : 'Pilih Main Category dulu'}
+                  disabled={!form.category}
+                />
+              </FvField>
+              <FvField label="Application">
+                <FvSelect
+                  value={form.application || ''}
+                  onChange={(v) => setForm({ ...form, application: v })}
+                  options={toOptions(PRODUCT_APPLICATION_OPTIONS)}
+                />
               </FvField>
               <FvField label="UOM">
-                <input value={form.uom} onChange={(e) => setForm({ ...form, uom: e.target.value })} placeholder="Pcs" />
+                <FvSelect
+                  value={form.uom}
+                  onChange={(v) => setForm({ ...form, uom: v || 'Pcs' })}
+                  options={toOptions(UOM_OPTIONS)}
+                  placeholder="Pcs"
+                />
               </FvField>
-              <FvField label="Selling Price (Rp)">
+            </div>
+          </div>
+
+          {SPEC_GROUPS.map((g) => (
+            <div className="fv2-section" key={g.title}>
+              <div className="fv2-section-title"><i className={g.icon} /> {g.title}</div>
+              <div className="fv2-grid">
+                {g.fields.map((f) => (
+                  <FvField key={f.key} label={f.label}>
+                    <input
+                      value={form[f.key] || ''}
+                      onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                      placeholder={f.placeholder}
+                    />
+                  </FvField>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-money-bill" /> Harga & Catatan</div>
+            <div className="fv2-grid">
+              <FvField label="Cost Price (Rp)">
+                <input
+                  type="number"
+                  inputMode="decimal"
+                  value={form.cost_price}
+                  onChange={(e) => setForm({ ...form, cost_price: parseFloat(e.target.value) || 0 })}
+                />
+              </FvField>
+              <FvField label="Standard Selling Price (Rp)">
                 <input
                   type="number"
                   inputMode="decimal"
                   value={form.price}
                   onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
                 />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Notes">
+                <textarea value={form.notes || ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Catatan tambahan" />
               </FvField>
             </div>
           </div>
@@ -298,7 +398,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
       {deleteTarget && (
         <DeleteModal
           title="Konfirmasi Hapus"
-          itemName={`${deleteTarget.sku} — ${deleteTarget.name}`}
+          itemName={`${deleteTarget.sku ?? ''} — ${deleteTarget.name}`}
           busy={deleting}
           onConfirm={handleDelete}
           onClose={() => setDeleteTarget(null)}

@@ -59,7 +59,7 @@ export function DetailModal({ title, onClose, children }: { title: string; onClo
             ✕
           </button>
         </div>
-        <div className="modal-body" style={{ maxHeight: '60vh', overflowY: 'auto' }}>
+        <div className="modal-body modal-body-detail">
           {children}
         </div>
         <div className="modal-footer">
