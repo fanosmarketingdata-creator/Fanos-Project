@@ -18,28 +18,51 @@
   overflow: hidden;
   background: #f4f7fb;
 }
-.login-page::before,
-.login-page::after {
-  content: '';
+/* Aurora gradient bergerak */
+.login-aurora {
   position: fixed;
-  width: 80%;
-  height: 80%;
+  inset: 0;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+  background: linear-gradient(160deg, #eef3ff 0%, #f4f7fb 45%, #eefbf8 100%);
 }
-.login-page::before {
-  top: -30%;
-  left: -20%;
-  background: linear-gradient(135deg, rgba(37, 99, 235, 0.3) 0%, rgba(59, 130, 246, 0.2) 40%, transparent 70%);
-  border-radius: 60% 40% 50% 50%;
-  filter: blur(100px);
+.login-aurora span {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.75;
+  will-change: transform;
 }
-.login-page::after {
-  bottom: -30%;
-  right: -20%;
-  background: linear-gradient(225deg, rgba(99, 102, 241, 0.25) 0%, rgba(139, 92, 246, 0.15) 50%, transparent 70%);
-  border-radius: 50% 50% 60% 40%;
-  filter: blur(110px);
+.login-aurora .a1 {
+  width: 62vmax; height: 62vmax; top: -22vmax; left: -18vmax;
+  background: radial-gradient(circle at 40% 40%, rgba(37, 99, 235, 0.55), rgba(37, 99, 235, 0) 65%);
+  animation: aurora-1 18s ease-in-out infinite alternate;
+}
+.login-aurora .a2 {
+  width: 56vmax; height: 56vmax; top: 10vmax; right: -20vmax;
+  background: radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.5), rgba(139, 92, 246, 0) 65%);
+  animation: aurora-2 22s ease-in-out infinite alternate;
+}
+.login-aurora .a3 {
+  width: 54vmax; height: 54vmax; bottom: -24vmax; left: 8vmax;
+  background: radial-gradient(circle at 50% 50%, rgba(20, 184, 166, 0.45), rgba(20, 184, 166, 0) 65%);
+  animation: aurora-3 26s ease-in-out infinite alternate;
+}
+.login-aurora .a4 {
+  width: 40vmax; height: 40vmax; top: 30%; left: 35%;
+  background: radial-gradient(circle at 50% 50%, rgba(56, 189, 248, 0.45), rgba(56, 189, 248, 0) 65%);
+  animation: aurora-4 20s ease-in-out infinite alternate;
+}
+@keyframes aurora-1 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(14vmax, 10vmax) scale(1.15); } 100% { transform: translate(4vmax, 22vmax) scale(0.95); } }
+@keyframes aurora-2 { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(-16vmax, 8vmax) scale(1.1); } 100% { transform: translate(-6vmax, -10vmax) scale(1.2); } }
+@keyframes aurora-3 { 0% { transform: translate(0, 0) scale(1.05); } 50% { transform: translate(20vmax, -12vmax) scale(0.9); } 100% { transform: translate(34vmax, -4vmax) scale(1.15); } }
+@keyframes aurora-4 { 0% { transform: translate(-10vmax, -6vmax) scale(0.9); } 50% { transform: translate(8vmax, 8vmax) scale(1.2); } 100% { transform: translate(-4vmax, 14vmax) scale(1); } }
+@media (prefers-reduced-motion: reduce) {
+  .login-aurora span { animation: none; }
+}
+@media (max-width: 640px) {
+  .login-aurora span { filter: blur(60px); }
 }
 .login-container {
   display: flex;

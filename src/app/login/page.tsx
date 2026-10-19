@@ -51,6 +51,12 @@ export default function LoginPage() {
 
   return (
     <div className="login-page">
+      <div className="login-aurora" aria-hidden="true">
+        <span className="a1" />
+        <span className="a2" />
+        <span className="a3" />
+        <span className="a4" />
+      </div>
       {loading && (
         <div className="login-overlay">
           <div className="spinner" />
