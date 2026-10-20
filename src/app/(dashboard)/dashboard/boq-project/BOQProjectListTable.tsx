@@ -150,8 +150,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
           }
         >
           <p className="text-sm text-slate-600">
-            Apakah Anda yakin ingin menghapus BOQ Project <strong>{deleteTarget.project_name}</strong>? Seluruh item dan BOQ Akumulasi
-            terkait akan turut terhapus.
+            Apakah Anda yakin ingin menghapus BOQ Project <strong>{deleteTarget.project_name}</strong>? Seluruh item terkait akan turut terhapus.
           </p>
         </Modal>
       )}

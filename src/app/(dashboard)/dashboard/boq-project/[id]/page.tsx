@@ -14,7 +14,7 @@ export default async function EditBOQProjectPage({ params }: { params: { id: str
       .eq('boq_project_id', params.id)
       .order('sort_order'),
     supabase.from('clients').select('id, project_name').order('project_name'),
-    supabase.from('products').select('id, sku, name, uom').eq('is_active', true).order('sku'),
+    supabase.from('products').select('id, sku, name, uom, image_url, brand, category').eq('is_active', true).order('sku'),
   ]);
 
   if (!boq) notFound();

@@ -6,7 +6,8 @@ import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
-import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
+import { type ProductOption } from '@/components/ProductPicker';
+import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import { saveBOQProject, type BOQAreaInput, type BOQProjectInput } from './actions';
 
 export type ClientOption = { id: string; project_name: string };
@@ -212,7 +213,7 @@ export default function BOQProjectForm({
                       {sub.items.map((item, ii) => (
                         <div key={ii} className="fv2-item-row">
                           <div style={{ flex: 2 }}>
-                            <ProductPicker products={products} value={item.sku} onSelect={(p) => updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })} />
+                            <ProductPickButton products={products} value={item.sku} onSelect={(p) => updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })} />
                           </div>
                           <input type="number" style={{ width: 80, flex: 'none' }} value={item.qty} onChange={(e) => updateItem(ai, si, ii, { qty: parseFloat(e.target.value) || 0 })} placeholder="Qty" />
                           <input style={{ width: 80, flex: 'none' }} value={item.uom} onChange={(e) => updateItem(ai, si, ii, { uom: e.target.value })} placeholder="UOM" />

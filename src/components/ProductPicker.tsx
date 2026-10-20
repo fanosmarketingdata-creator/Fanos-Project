@@ -2,7 +2,7 @@
 
 import { useMemo, useRef, useState } from 'react';
 
-export type ProductOption = { id: string; sku: string; name: string; uom: string };
+export type ProductOption = { id: string; sku: string; name: string; uom: string; image_url?: string | null; brand?: string | null; category?: string | null };
 
 export default function ProductPicker({
   products,

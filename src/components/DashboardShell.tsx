@@ -55,7 +55,6 @@ const NAV_GROUPS: NavGroup[] = [
     icon: 'fi fi-rr-document-signed',
     items: [
       { href: '/dashboard/boq-project', label: 'BOQ Project', icon: 'fa-solid fa-layer-group' },
-      { href: '/dashboard/boq-akumulasi', label: 'BOQ Akumulasi', icon: 'fi fi-rr-calculator' },
     ],
   },
   {

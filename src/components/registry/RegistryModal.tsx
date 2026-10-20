@@ -2,12 +2,17 @@
 
 import { useEffect } from 'react';
 
-function useEscape(onClose: () => void) {
+function useEscape(onClose: () => void, full = false) {
   useEffect(() => {
-    const h = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    const h = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      // Modal layar penuh tidak menutup bila ada pop up lain di atasnya (mis. pemilih produk).
+      if (full && document.querySelector('.modal-overlay:not(.modal-full-overlay)')) return;
+      onClose();
+    };
     document.addEventListener('keydown', h);
     return () => document.removeEventListener('keydown', h);
-  }, [onClose]);
+  }, [onClose, full]);
 }
 
 // Modal form biru (showModal() di index.html).
@@ -59,7 +64,7 @@ export function FullModal({
   footer?: React.ReactNode;
   children: React.ReactNode;
 }) {
-  useEscape(onClose);
+  useEscape(onClose, true);
   return (
     <div className="modal-overlay modal-full-overlay">
       <div className="modal modal-full" role="dialog" aria-modal="true" aria-label={title}>
