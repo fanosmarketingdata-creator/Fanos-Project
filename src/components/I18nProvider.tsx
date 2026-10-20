@@ -1,12 +1,13 @@
 'use client';
 
 import { createContext, useContext, useLayoutEffect } from 'react';
-import { translateText } from '@/lib/i18n/dict';
+import { translateText, translateTextId } from '@/lib/i18n/dict';
 import type { Lang } from '@/lib/i18n/lang';
 
 const LangContext = createContext<Lang>('en');
 export const useLang = () => useContext(LangContext);
 
+let tx: (s: string) => string = translateText;
 const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
 const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'NOSCRIPT']);
 
@@ -18,7 +19,7 @@ function translateNode(node: Node) {
   if (node.nodeType === Node.TEXT_NODE) {
     if (skipped(node.parentElement)) return;
     const v = node.nodeValue ?? '';
-    const t = translateText(v);
+    const t = tx(v);
     if (t !== v) node.nodeValue = t;
     return;
   }
@@ -28,7 +29,7 @@ function translateNode(node: Node) {
   for (const a of ATTRS) {
     const v = el.getAttribute(a);
     if (v) {
-      const t = translateText(v);
+      const t = tx(v);
       if (t !== v) el.setAttribute(a, t);
     }
   }
@@ -40,10 +41,7 @@ function translateNode(node: Node) {
 export default function I18nProvider({ lang, children }: { lang: Lang; children: React.ReactNode }) {
   useLayoutEffect(() => {
     const root = document.documentElement;
-    if (lang !== 'en') {
-      root.setAttribute('data-i18n', 'done');
-      return;
-    }
+    tx = lang === 'en' ? translateText : translateTextId;
     translateNode(document.body);
     root.setAttribute('data-i18n', 'done');
 

@@ -517,3 +517,58 @@ export function translateText(raw: string): string {
   cache.set(raw, result);
   return result;
 }
+
+// Kamus Inggris -> Indonesia: judul halaman & teks UI yang sumbernya berbahasa Inggris,
+// dipakai saat bahasa Indonesia dipilih.
+export const EN_ID: Record<string, string> = {
+  Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
+  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk',
+  'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek', 'BOQ Project': 'BOQ Proyek',
+  'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
+  'Purchase Orders': 'Pesanan Pembelian', 'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian',
+  'Purchase Payment': 'Pembayaran Pembelian', Sales: 'Penjualan', Quotation: 'Penawaran', Quotations: 'Penawaran',
+  'Sales Order': 'Pesanan Penjualan', 'Sales Orders': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
+  'Delivery Orders': 'Surat Jalan', Invoices: 'Faktur', Payments: 'Pembayaran', 'Customer Payment': 'Pembayaran Pelanggan',
+  'Sales Return': 'Retur Penjualan', Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
+  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Financial: 'Keuangan',
+  Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
+  'Master Team Member': 'Master Anggota Tim', 'Role Group': 'Grup Peran', Language: 'Bahasa', 'Log out': 'Keluar',
+  'Client Registry': 'Daftar Klien', 'Vendor Registry': 'Daftar Vendor', 'Product Catalog': 'Katalog Produk',
+  'Project Detail': 'Detail Proyek', 'Client Detail': 'Detail Klien', 'Product Detail': 'Detail Produk',
+  'New Client': 'Klien Baru', 'New Vendor': 'Vendor Baru', 'New Product': 'Produk Baru', 'New Project': 'Proyek Baru',
+  'New Classification': 'Klasifikasi Baru', 'New Invoice': 'Faktur Baru', 'New Quotation': 'Penawaran Baru',
+  'New Sales Order': 'Pesanan Penjualan Baru', 'New Purchase Order': 'Pesanan Pembelian Baru', 'New BOQ Project': 'BOQ Proyek Baru',
+  'New Retur Penjualan': 'Retur Penjualan Baru',
+  'Edit Client': 'Ubah Klien', 'Edit Vendor': 'Ubah Vendor', 'Edit Product': 'Ubah Produk', 'Edit Project': 'Ubah Proyek',
+  'Edit Classification': 'Ubah Klasifikasi', 'Edit Quotation': 'Ubah Penawaran', 'Edit Sales Order': 'Ubah Pesanan Penjualan',
+  'Edit Purchase Order': 'Ubah Pesanan Pembelian', 'Edit BOQ Project': 'Ubah BOQ Proyek', 'Edit Role': 'Ubah Peran',
+  'Edit Team Member': 'Ubah Anggota Tim', 'Edit Reminder': 'Ubah Pengingat',
+  'Detail BOQ Project': 'Detail BOQ Proyek', 'Detail Quotation': 'Detail Penawaran', 'Detail Sales Order': 'Detail Pesanan Penjualan',
+  'Detail Purchase Order': 'Detail Pesanan Pembelian', 'Detail Delivery Order': 'Detail Surat Jalan', 'Detail Invoice': 'Detail Faktur',
+  'Detail BOQ Akumulasi': 'Detail Akumulasi BOQ', 'Ship Items': 'Kirim Barang', 'Repositori': 'Repositori', Sintesis: 'Sintesis',
+  'Client Company': 'Perusahaan Klien', 'Client Name': 'Nama Klien', 'Client No': 'No. Klien', 'Company Name': 'Nama Perusahaan',
+  'Company Address': 'Alamat Perusahaan', 'Contact Person': 'Narahubung', Position: 'Jabatan', Phone: 'Telepon', Contact: 'Kontak',
+  'Credit Limit': 'Batas Kredit', 'Term of Payment': 'Termin Pembayaran', TOP: 'TOP', 'Vendor ID': 'ID Vendor',
+  'Project Name': 'Nama Proyek', 'Project No': 'No. Proyek', 'Project Location': 'Lokasi Proyek', 'Project Type': 'Tipe Proyek',
+  Classification: 'Klasifikasi', 'Classification Name': 'Nama Klasifikasi', Trigger: 'Pemicu', 'Triggered By': 'Dipicu Oleh',
+  Cashback: 'Cashback', 'Product Name': 'Nama Produk', 'SKU No': 'No. SKU', 'Main Category': 'Kategori Utama',
+  Subcategory: 'Subkategori', Application: 'Aplikasi', Brand: 'Merek', 'Cost Price': 'Harga Pokok',
+  'Standard Selling Price': 'Harga Jual Standar', 'Image Reference': 'Gambar Referensi', Warranty: 'Garansi',
+  Items: 'Item', Type: 'Tipe', Notes: 'Catatan', Progress: 'Progres', 'In Progress': 'Sedang Berjalan', Pending: 'Menunggu',
+  Completed: 'Selesai', Close: 'Tutup', Email: 'Email', Status: 'Status',
+};
+
+const cacheId = new Map<string, string>();
+// Terjemahan untuk bahasa Indonesia: teks sumber berbahasa Inggris -> Indonesia.
+export function translateTextId(raw: string): string {
+  if (!raw) return raw;
+  const hit = cacheId.get(raw);
+  if (hit !== undefined) return hit;
+  const core = raw.trim();
+  const lead = raw.match(/^\s*/)![0];
+  const trail = raw.match(/\s*$/)![0];
+  const out = core && Object.prototype.hasOwnProperty.call(EN_ID, core) ? lead + EN_ID[core] + trail : raw;
+  if (cacheId.size > 3000) cacheId.clear();
+  cacheId.set(raw, out);
+  return out;
+}

@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const lang = parseLang(cookies().get(LANG_COOKIE)?.value);
   return (
-    <html lang={lang} data-i18n={lang === 'en' ? 'pending' : 'done'} suppressHydrationWarning>
+    <html lang={lang} data-i18n="pending" suppressHydrationWarning>
       <head>
         {/* Cadangan: jangan biarkan halaman tersembunyi bila penerjemah gagal berjalan */}
         <script dangerouslySetInnerHTML={{ __html: "setTimeout(function(){document.documentElement.setAttribute('data-i18n','done')},2500)" }} />

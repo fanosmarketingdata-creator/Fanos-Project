@@ -87,7 +87,7 @@ const NAV_GROUPS: NavGroup[] = [
   },
   {
     id: 'stock',
-    label: 'Stock / Inventory',
+    label: 'Stock',
     icon: 'fi fi-rr-boxes',
     items: [
       { href: '/dashboard/current-stock', label: 'Current Stock', icon: 'fi fi-rr-boxes' },
@@ -127,12 +127,33 @@ const NAV_GROUPS: NavGroup[] = [
 
 const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads/main/LOGO.ico';
 
+const NAV_ID: Record<string, string> = {
+  Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
+  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk',
+  'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek',
+  'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
+  'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian', 'Purchase Payment': 'Pembayaran Pembelian',
+  Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
+  Invoices: 'Faktur', 'Customer Payment': 'Pembayaran Pelanggan', 'Sales Return': 'Retur Penjualan',
+  Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
+  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Financial: 'Keuangan',
+  Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
+  'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
+  Language: 'Bahasa', 'Log out': 'Keluar',
+};
+// Label menu bersumber Inggris; pada bahasa Indonesia diganti lewat kamus ini.
+function useNavLabel() {
+  const lang = useLang();
+  return (l: string) => (lang === 'id' ? NAV_ID[l] ?? l : l);
+}
+
 const flatItems = (items: NavItem[]): NavItem[] => items.flatMap((i) => (i.children ? i.children : [i]));
 // Untuk menu mobile: item bersub ditampilkan sebagai judul + sub item menjorok.
 const expandItems = (items: NavItem[]): NavItem[] =>
   items.flatMap((i) => (i.children ? [{ ...i, children: undefined, heading: true }, ...i.children.map((c) => ({ ...c, indent: true }))] : [i]));
 
 function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) {
+  const nl = useNavLabel();
   const [open, setOpen] = useState(false);
   const active = (item.children ?? []).some((c) => isActive(pathname, c.href));
   return (
@@ -147,7 +168,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
         }`}
       >
         <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
-        <span className="flex-1">{item.label}</span>
+        <span className="flex-1">{nl(item.label)}</span>
         <i className="fi fi-rr-angle-small-right text-[11px] leading-none" />
       </button>
       {open && (
@@ -165,7 +186,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
                   }`}
                 >
                   <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
-                  <span>{c.label}</span>
+                  <span>{nl(c.label)}</span>
                 </Link>
               );
             })}
@@ -184,6 +205,7 @@ function isActive(pathname: string | null, href: string) {
 
 function UserMenu({ profile }: { profile: { full_name: string; role: string; photo_url?: string | null } }) {
   const lang = useLang();
+  const nl = useNavLabel();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -237,7 +259,7 @@ function UserMenu({ profile }: { profile: { full_name: string; role: string; pho
             <div className="text-[10px] text-slate-400">{profile.role}</div>
           </div>
           <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-            <i className="fi fi-rr-globe mr-1.5" />Language
+            <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
           </div>
           {options.map((o) => (
             <button
@@ -272,6 +294,7 @@ export default function DashboardShell({
   const router = useRouter();
   const supabase = createClient();
   const isSuperuser = profile.role === 'Superuser';
+  const nl = useNavLabel();
 
   // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
   const visibleGroups = NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly));
@@ -374,7 +397,7 @@ export default function DashboardShell({
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-bold transition ${
+            const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-[12px] xl:px-2.5 font-bold transition ${
               groupActive || openId === group.id
                 ? 'bg-brand-500/10 text-brand-900'
                 : 'text-slate-500 hover:bg-brand-500/[0.07] hover:text-brand-500'
@@ -383,8 +406,8 @@ export default function DashboardShell({
             if (group.direct) {
               return (
                 <Link key={group.id} href={group.items[0].href} className={btnClass}>
-                  <i className={`${group.icon} text-[11px] leading-none`} />
-                  <span>{group.label}</span>
+                  <i className={`${group.icon} hidden text-[11px] leading-none xl:inline`} />
+                  <span>{nl(group.label)}</span>
                 </Link>
               );
             }
@@ -406,9 +429,9 @@ export default function DashboardShell({
                   onClick={() => (canHover() ? openMenu(group.id) : open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
-                  <i className={`${group.icon} text-[11px] leading-none`} />
-                  <span>{group.label}</span>
-                  <i className={`fi fi-rr-angle-small-down text-[10px] leading-none transition-transform ${open ? 'rotate-180' : ''}`} />
+                  <i className={`${group.icon} hidden text-[11px] leading-none xl:inline`} />
+                  <span>{nl(group.label)}</span>
+                  <i className={`fi fi-rr-angle-small-down hidden text-[10px] leading-none transition-transform xl:inline ${open ? 'rotate-180' : ''}`} />
                 </button>
 
                 {open && (
@@ -432,7 +455,7 @@ export default function DashboardShell({
                             }`}
                           >
                             <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
-                            <span>{item.label}</span>
+                            <span>{nl(item.label)}</span>
                           </Link>
                         );
                       })}
@@ -447,7 +470,7 @@ export default function DashboardShell({
         <div className="flex-1 lg:hidden" />
 
         {!isSuperuser && (
-          <div className="hidden sm:block">
+          <div className="hidden 2xl:block">
             <PresenceWidget meId={profile.id} />
           </div>
         )}
@@ -456,7 +479,7 @@ export default function DashboardShell({
           <UserMenu profile={profile} />
           <button
             onClick={handleLogout}
-            title="Log out"
+            title={nl('Log out')}
             className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-600/10 text-xs text-red-600 transition hover:bg-red-600/20"
           >
             <i className="fi fi-rr-sign-out-alt" />
@@ -478,7 +501,7 @@ export default function DashboardShell({
                 return (
                   <Link key={group.id} href={group.items[0].href} className={rowClass}>
                     <i className={`${group.icon} w-4 text-center text-[13px] leading-none`} />
-                    <span>{group.label}</span>
+                    <span>{nl(group.label)}</span>
                   </Link>
                 );
               }
@@ -487,7 +510,7 @@ export default function DashboardShell({
                 <div key={group.id}>
                   <button type="button" className={rowClass} onClick={() => setMobileGroup(open ? null : group.id)}>
                     <i className={`${group.icon} w-4 text-center text-[13px] leading-none`} />
-                    <span className="flex-1">{group.label}</span>
+                    <span className="flex-1">{nl(group.label)}</span>
                     <i className={`fi fi-rr-angle-small-down text-[12px] leading-none transition-transform ${open ? 'rotate-180' : ''}`} />
                   </button>
                   {open && (
@@ -495,7 +518,7 @@ export default function DashboardShell({
                       {expandItems(group.items).map((item) => item.heading ? (
                         <div key={item.href} className="flex items-center gap-2.5 px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                           <i className={`${item.icon} w-4 text-center text-[12px] leading-none`} />
-                          <span>{item.label}</span>
+                          <span>{nl(item.label)}</span>
                         </div>
                       ) : (
                         <Link
@@ -508,7 +531,7 @@ export default function DashboardShell({
                           }`}
                         >
                           <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
-                          <span>{item.label}</span>
+                          <span>{nl(item.label)}</span>
                         </Link>
                       ))}
                     </div>
