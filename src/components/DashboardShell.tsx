@@ -17,7 +17,7 @@ type Profile = {
   cursor_color?: string;
 };
 
-type NavItem = { href: string; label: string; icon: string; heading?: boolean; indent?: boolean };
+type NavItem = { href: string; label: string; icon: string; heading?: boolean; indent?: boolean; children?: NavItem[] };
 // Grup dengan 1 item dan `direct: true` jadi tombol biasa (tanpa dropdown).
 type NavGroup = { id: string; label: string; icon: string; items: NavItem[]; direct?: boolean; superuserOnly?: boolean };
 
@@ -36,9 +36,15 @@ const NAV_GROUPS: NavGroup[] = [
     icon: 'fi fi-rr-database',
     items: [
       { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
-      { href: '#project', label: 'Project', icon: 'fi fi-rr-briefcase', heading: true },
-      { href: '/dashboard/projects', label: 'Project Master', icon: 'fa-solid fa-diagram-project', indent: true },
-      { href: '/dashboard/project-classifications', label: 'Project Classification', icon: 'fi fi-rr-tags', indent: true },
+      {
+        href: '#project',
+        label: 'Project',
+        icon: 'fi fi-rr-briefcase',
+        children: [
+          { href: '/dashboard/projects', label: 'Project Master', icon: 'fa-solid fa-diagram-project' },
+          { href: '/dashboard/project-classifications', label: 'Project Classification', icon: 'fi fi-rr-tags' },
+        ],
+      },
       { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },
       { href: '/dashboard/products', label: 'Products', icon: 'fi fi-rr-boxes' },
     ],
@@ -101,6 +107,55 @@ const NAV_GROUPS: NavGroup[] = [
 ];
 
 const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads/main/LOGO.ico';
+
+const flatItems = (items: NavItem[]): NavItem[] => items.flatMap((i) => (i.children ? i.children : [i]));
+// Untuk menu mobile: item bersub ditampilkan sebagai judul + sub item menjorok.
+const expandItems = (items: NavItem[]): NavItem[] =>
+  items.flatMap((i) => (i.children ? [{ ...i, children: undefined, heading: true }, ...i.children.map((c) => ({ ...c, indent: true }))] : [i]));
+
+function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) {
+  const [open, setOpen] = useState(false);
+  const active = (item.children ?? []).some((c) => isActive(pathname, c.href));
+  return (
+    <div className="relative" onMouseEnter={() => setOpen(true)} onMouseLeave={() => setOpen(false)}>
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition ${
+          active || open ? 'bg-brand-50 text-brand-500' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+        }`}
+      >
+        <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
+        <span className="flex-1">{item.label}</span>
+        <i className="fi fi-rr-angle-small-right text-[11px] leading-none" />
+      </button>
+      {open && (
+        <div role="menu" className="absolute left-full top-0 z-[610] min-w-[200px] pl-1.5">
+          <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+            {(item.children ?? []).map((c) => {
+              const a = isActive(pathname, c.href);
+              return (
+                <Link
+                  key={c.href}
+                  href={c.href}
+                  role="menuitem"
+                  className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
+                    a ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+                  }`}
+                >
+                  <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
+                  <span>{c.label}</span>
+                </Link>
+              );
+            })}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
 
 function isActive(pathname: string | null, href: string) {
   // '/dashboard' harus cocok persis, kalau tidak semua menu ikut aktif.
@@ -220,7 +275,7 @@ export default function DashboardShell({
         <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
 
           {visibleGroups.map((group) => {
-            const groupActive = group.items.some((it) => isActive(pathname, it.href));
+            const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
             const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-bold transition ${
               groupActive || openId === group.id
                 ? 'bg-brand-500/10 text-brand-900'
@@ -265,21 +320,14 @@ export default function DashboardShell({
                   >
                     <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                       {group.items.map((item) => {
-                        if (item.heading) {
-                          return (
-                            <div key={item.href} className="flex items-center gap-2 px-2.5 pb-0.5 pt-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-                              <i className={`${item.icon} w-4 text-center text-[11px] leading-none`} />
-                              <span>{item.label}</span>
-                            </div>
-                          );
-                        }
+                        if (item.children) return <Flyout key={item.href} item={item} pathname={pathname} />;
                         const active = isActive(pathname, item.href);
                         return (
                           <Link
                             key={item.href}
                             href={item.href}
                             role="menuitem"
-                            className={`flex items-center gap-2 rounded-lg py-1.5 pr-2.5 text-[12px] font-medium transition ${item.indent ? 'pl-6' : 'pl-2.5'} ${
+                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
                               active
                                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                                 : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
@@ -335,7 +383,7 @@ export default function DashboardShell({
               <div className="text-[10px] text-slate-400">{profile.role}</div>
             </div>
             {visibleGroups.map((group) => {
-              const groupActive = group.items.some((it) => isActive(pathname, it.href));
+              const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
               const rowClass = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[13px] font-bold ${
                 groupActive ? 'bg-brand-500/10 text-brand-900' : 'text-slate-600'
               }`;
@@ -357,7 +405,7 @@ export default function DashboardShell({
                   </button>
                   {open && (
                     <div className="mb-1 ml-5 border-l border-slate-100 pl-2">
-                      {group.items.map((item) => item.heading ? (
+                      {expandItems(group.items).map((item) => item.heading ? (
                         <div key={item.href} className="flex items-center gap-2.5 px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
                           <i className={`${item.icon} w-4 text-center text-[12px] leading-none`} />
                           <span>{item.label}</span>
