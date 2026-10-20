@@ -3,10 +3,11 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import DocFormShell, { Sec, TotalsBox } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
-import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
+import { type ProductOption } from '@/components/ProductPicker';
 import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
 import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
@@ -157,7 +158,7 @@ export default function SalesOrderForm({
             {items.map((it, i) => (
               <div key={i} className="fv2-item-row">
                 <div style={{ flex: 2 }}>
-                  <ProductPicker products={products} value={it.sku} onSelect={(p) => updateItem(i, { product_id: p.id, sku: p.sku })} />
+                  <ProductPickButton products={products} value={it.sku} onSelect={(p) => updateItem(i, { product_id: p.id, sku: p.sku })} />
                 </div>
                 <input type="number" style={{ width: 70, flex: 'none' }} value={it.qty} onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })} />
                 <input type="number" style={{ flex: 1 }} value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })} />

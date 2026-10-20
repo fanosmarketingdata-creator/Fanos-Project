@@ -15,7 +15,7 @@ export default async function EditQuotationPage({ params }: { params: { id: stri
         .eq('quotation_id', params.id)
         .order('sort_order'),
       supabase.from('clients').select('id, project_name').order('project_name'),
-      supabase.from('products').select('id, sku, name, uom').eq('is_active', true).order('sku'),
+      supabase.from('products').select('id, sku, name, uom, image_url, brand, category').eq('is_active', true).order('sku'),
       supabase.from('boq_projects').select('id, project_name').order('boq_date', { ascending: false }),
     ]);
 

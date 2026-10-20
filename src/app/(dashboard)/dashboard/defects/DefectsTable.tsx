@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import Modal from '@/components/Modal';
-import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
+import { type ProductOption } from '@/components/ProductPicker';
+import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import { useToast } from '@/components/Toast';
 import { saveDefect, deleteDefect, toggleDefectStatus, type DefectInput } from './actions';
 
@@ -260,7 +261,7 @@ export default function DefectsTable({
             <div className="grid grid-cols-[2fr_1fr] gap-3">
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-500">SKU *</label>
-                <ProductPicker products={products} value={form.sku} onSelect={(p) => setForm({ ...form, sku: p.sku })} />
+                <ProductPickButton products={products} value={form.sku} onSelect={(p) => setForm({ ...form, sku: p.sku })} />
               </div>
               <div>
                 <label className="mb-1 block text-xs font-semibold text-slate-500">Qty *</label>

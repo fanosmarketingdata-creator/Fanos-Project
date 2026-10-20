@@ -13,7 +13,7 @@ export default async function EditPOPage({ params }: { params: { id: string } })
       .select('sku, description, qty, uom, unit_price')
       .eq('purchase_order_id', params.id),
     supabase.from('vendors').select('id, company').order('company'),
-    supabase.from('products').select('id, sku, name, uom').eq('is_active', true).order('sku'),
+    supabase.from('products').select('id, sku, name, uom, image_url, brand, category').eq('is_active', true).order('sku'),
   ]);
 
   if (!po) notFound();

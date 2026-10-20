@@ -9,7 +9,7 @@ export default async function DefectsPage() {
       .select('id, inspection_date, sales_order_id, sku, qty, description, status, sales_orders(clients(project_name))')
       .order('inspection_date', { ascending: false }),
     supabase.from('sales_orders').select('id, so_date, clients(project_name)').order('so_date', { ascending: false }),
-    supabase.from('products').select('id, sku, name, uom').eq('is_active', true).order('sku'),
+    supabase.from('products').select('id, sku, name, uom, image_url, brand, category').eq('is_active', true).order('sku'),
   ]);
 
   const rows = (defects ?? []).map((d) => ({
