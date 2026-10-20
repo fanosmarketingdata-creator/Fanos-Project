@@ -3,9 +3,12 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import FigmaCursor from '@/components/FigmaCursor';
+import { useLang } from '@/components/I18nProvider';
+import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
 
 export default function LoginPage() {
+  const lang = useLang();
   const router = useRouter();
   const supabase = createClient();
 
@@ -114,6 +117,11 @@ export default function LoginPage() {
               {loading ? 'Memverifikasi...' : 'Masuk'}
             </button>
           </form>
+          <div data-no-i18n style={{ marginTop: 14, textAlign: 'center', fontSize: 12 }}>
+            <button type="button" onClick={() => setLang('en')} style={{ fontWeight: lang === 'en' ? 700 : 400, opacity: lang === 'en' ? 1 : 0.7 }}>English</button>
+            {' | '}
+            <button type="button" onClick={() => setLang('id')} style={{ fontWeight: lang === 'id' ? 700 : 400, opacity: lang === 'id' ? 1 : 0.7 }}>Bahasa Indonesia</button>
+          </div>
         </div>
       </div>
     </div>

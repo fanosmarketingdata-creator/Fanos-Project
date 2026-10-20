@@ -31,7 +31,6 @@ export default async function DashboardPage() {
     { count: soRunning },
     { count: quoteDraft },
     { count: poOpen },
-    { count: defectOpen },
     { data: reminders },
   ] = await Promise.all([
     supabase.from('invoices').select('remaining').gt('remaining', 0),
@@ -40,7 +39,6 @@ export default async function DashboardPage() {
     supabase.from('sales_orders').select('id', head).in('status', ['DRAFT', 'ONGOING']),
     supabase.from('quotations').select('id', head).eq('status', 'DRAFT'),
     supabase.from('purchase_orders').select('id', head).in('status', ['DRAFT', 'ORDERED']),
-    supabase.from('defects').select('id', head).eq('status', 'OPEN'),
     supabase
       .from('reminders')
       .select('id, title, due_date')
@@ -85,13 +83,6 @@ export default async function DashboardPage() {
         <Kpi icon="fi fi-rr-shopping-cart" color="#2563eb" label="Sales Order Berjalan" value={String(soRunning ?? 0)} href="/dashboard/sales-orders" />
         <Kpi icon="fi fi-rr-file-invoice" color="#7c3aed" label="Quotation Draft" value={String(quoteDraft ?? 0)} href="/dashboard/quotations" />
         <Kpi icon="fi fi-rr-truck-loading" color="#0891b2" label="PO Belum Diterima" value={String(poOpen ?? 0)} href="/dashboard/purchase-orders" />
-        <Kpi
-          icon="fi fi-rr-clipboard-list-check"
-          color={(defectOpen ?? 0) > 0 ? '#dc2626' : '#16a34a'}
-          label="Defect Open"
-          value={String(defectOpen ?? 0)}
-          href="/dashboard/defects"
-        />
       </div>
 
       <div className="dash-grid-2" style={{ gridTemplateColumns: undefined }}>

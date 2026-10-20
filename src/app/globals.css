@@ -317,3 +317,6 @@
 @media print { .fc { display: none !important; } }
 /* Kelas dipasang oleh FigmaCursor hanya saat efek aktif; tanpa efek kursor sistem tetap normal. */
 html.fc-hide-native, html.fc-hide-native * { cursor: none !important; }
+
+/* Sembunyikan konten sampai terjemahan awal selesai (mencegah kilasan bahasa Indonesia). */
+html[data-i18n='pending'] body { visibility: hidden; }

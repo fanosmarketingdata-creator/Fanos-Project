@@ -5,6 +5,8 @@ import { usePathname, useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
+import { useLang } from '@/components/I18nProvider';
+import { setLang, type Lang } from '@/lib/i18n/lang';
 import FigmaCursor from '@/components/FigmaCursor';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
@@ -81,12 +83,6 @@ const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    id: 'field',
-    label: 'Field Operations',
-    icon: 'fi fi-rr-clipboard-list-check',
-    items: [{ href: '/dashboard/defects', label: 'Defect List', icon: 'fi fi-rr-clipboard-list-check' }],
-  },
-  {
     id: 'productivity',
     label: 'Productivity',
     icon: 'fi fi-rr-bell',
@@ -160,6 +156,85 @@ function isActive(pathname: string | null, href: string) {
   // '/dashboard' harus cocok persis, kalau tidak semua menu ikut aktif.
   if (href.startsWith('#')) return false;
   return href === '/dashboard' ? pathname === '/dashboard' : !!pathname?.startsWith(href);
+}
+
+function UserMenu({ profile }: { profile: { full_name: string; role: string; photo_url?: string | null } }) {
+  const lang = useLang();
+  const [open, setOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
+
+  const options: { code: Lang; label: string }[] = [
+    { code: 'en', label: 'English' },
+    { code: 'id', label: 'Bahasa Indonesia' },
+  ];
+
+  return (
+    <div className="relative" ref={ref}>
+      <button
+        type="button"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+        className="flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-1.5 transition hover:bg-slate-100"
+      >
+        <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
+          {profile.photo_url ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
+          ) : (
+            <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
+          )}
+        </span>
+        <span className="hidden text-left leading-tight xl:block">
+          <span className="block text-[12px] font-bold text-slate-800">{profile.full_name}</span>
+          <span className="block text-[9.5px] text-slate-400">{profile.role}</span>
+        </span>
+        <i className={`fi fi-rr-angle-small-down text-[10px] leading-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+
+      {open && (
+        <div role="menu" className="absolute right-0 top-full z-[700] mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+          <div className="border-b border-slate-100 px-2.5 pb-2 pt-1.5">
+            <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
+            <div className="text-[10px] text-slate-400">{profile.role}</div>
+          </div>
+          <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            <i className="fi fi-rr-globe mr-1.5" />Language
+          </div>
+          {options.map((o) => (
+            <button
+              key={o.code}
+              type="button"
+              role="menuitemradio"
+              aria-checked={lang === o.code}
+              data-no-i18n
+              onClick={() => (lang === o.code ? setOpen(false) : setLang(o.code))}
+              className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition ${
+                lang === o.code ? 'bg-brand-50 text-brand-500' : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <span className="flex-1">{o.label}</span>
+              {lang === o.code && <i className="fi fi-rr-check text-[11px]" />}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function DashboardShell({
@@ -354,21 +429,10 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-300/70 pl-3">
-          <div className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
-            {profile.photo_url ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
-            ) : (
-              <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
-            )}
-          </div>
-          <div className="hidden leading-tight xl:block">
-            <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
-            <div className="text-[9.5px] text-slate-400">{profile.role}</div>
-          </div>
+          <UserMenu profile={profile} />
           <button
             onClick={handleLogout}
-            title="Keluar"
+            title="Log out"
             className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-600/10 text-xs text-red-600 transition hover:bg-red-600/20"
           >
             <i className="fi fi-rr-sign-out-alt" />
