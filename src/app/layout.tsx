@@ -19,10 +19,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script dangerouslySetInnerHTML={{ __html: "setTimeout(function(){document.documentElement.setAttribute('data-i18n','done')},2500)" }} />
         {/* Ikon yang sama dengan sistem lama: Flaticon uicons + Font Awesome */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" />
         <link rel="stylesheet" href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
       </head>
-      <body className="bg-[#f4f7fb] font-['Segoe_UI',Arial,sans-serif] text-slate-800 antialiased">
+      <body className="bg-[#f4f7fb] text-slate-800 antialiased">
         <I18nProvider lang={lang}>
           <ToastProvider>{children}</ToastProvider>
         </I18nProvider>

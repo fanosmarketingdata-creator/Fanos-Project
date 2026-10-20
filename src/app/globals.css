@@ -320,3 +320,6 @@ html.fc-hide-native, html.fc-hide-native * { cursor: none !important; }
 
 /* Sembunyikan konten sampai terjemahan awal selesai (mencegah kilasan bahasa Indonesia). */
 html[data-i18n='pending'] body { visibility: hidden; }
+
+/* Font sistem: Outfit */
+body, button, input, select, textarea { font-family: 'Outfit', 'Segoe UI', Arial, sans-serif; }
