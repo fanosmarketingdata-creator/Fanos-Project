@@ -241,7 +241,12 @@ export default function ProjectsTable({ initialProjects, clients, classification
                 <FvSelect value={form.trigger_source || ''} onChange={(v) => setForm({ ...form, trigger_source: v })} options={toOptions(PROJECT_TRIGGER_OPTIONS)} />
               </FvField>
               <FvField label="Triggered By">
-                <input value={form.triggered_by || ''} onChange={(e) => setForm({ ...form, triggered_by: e.target.value })} placeholder="Nama pihak pemicu proyek" />
+                <FvSelect
+                  value={form.triggered_by || ''}
+                  onChange={(v) => setForm({ ...form, triggered_by: v })}
+                  options={clients.map((c) => ({ value: c.company, label: c.company }))}
+                  placeholder="— Pilih client —"
+                />
               </FvField>
               <FvField label="Term of Payment">
                 <FvSelect value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} options={toOptions(TOP_OPTIONS)} />
