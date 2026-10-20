@@ -67,15 +67,15 @@ const NAV_GROUPS: NavGroup[] = [
     icon: 'fi fi-rr-shopping-bag',
     items: [
       { href: '/dashboard/purchase-orders', label: 'Purchase Order', icon: 'fa-solid fa-truck-loading' },
-      { href: '/dashboard/purchase-delivery', label: 'Purchase Delivery', icon: 'fi fi-rr-truck-side' },
-      { href: '/dashboard/purchase-invoice', label: 'Purchase Invoice', icon: 'fi fi-rr-receipt' },
+      { href: '/dashboard/purchase-delivery', label: 'Purchase Delivery', icon: 'fa-solid fa-dolly' },
+      { href: '/dashboard/purchase-invoice', label: 'Purchase Invoice', icon: 'fi fi-rr-file-invoice-dollar' },
       { href: '/dashboard/purchase-payment', label: 'Purchase Payment', icon: 'fi fi-rr-wallet' },
     ],
   },
   {
     id: 'sales',
     label: 'Sales',
-    icon: 'fi fi-rr-refresh',
+    icon: 'fi fi-rr-chart-histogram',
     items: [
       { href: '/dashboard/quotations', label: 'Quotation', icon: 'fi fi-rr-file-invoice' },
       { href: '/dashboard/sales-orders', label: 'Sales Order', icon: 'fi fi-rr-shopping-cart' },
@@ -88,9 +88,9 @@ const NAV_GROUPS: NavGroup[] = [
   {
     id: 'stock',
     label: 'Stock',
-    icon: 'fi fi-rr-boxes',
+    icon: 'fa-solid fa-boxes-stacked',
     items: [
-      { href: '/dashboard/current-stock', label: 'Current Stock', icon: 'fi fi-rr-boxes' },
+      { href: '/dashboard/current-stock', label: 'Current Stock', icon: 'fa-solid fa-cubes' },
       { href: '/dashboard/stock-adjustment', label: 'Stock Adjustment', icon: 'fi fi-rr-edit' },
       { href: '/dashboard/stock-transfer', label: 'Stock Transfer', icon: 'fi fi-rr-exchange' },
       { href: '/dashboard/stock-movement', label: 'Stock Movement', icon: 'fi fi-rr-arrows-repeat' },
@@ -110,15 +110,15 @@ const NAV_GROUPS: NavGroup[] = [
     id: 'productivity',
     label: 'Productivity',
     icon: 'fi fi-rr-bell',
-    items: [{ href: '/dashboard/reminders', label: 'Reminders', icon: 'fi fi-rr-bell' }],
+    items: [{ href: '/dashboard/reminders', label: 'Reminders', icon: 'fi fi-rr-alarm-clock' }],
   },
   {
     id: 'superuser',
     label: 'Superuser',
-    icon: 'fi fi-rr-shield-check',
+    icon: 'fa-solid fa-user-shield',
     superuserOnly: true,
     items: [
-      { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-users-alt' },
+      { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-id-badge' },
       { href: '/dashboard/accounts', label: 'Master Akun', icon: 'fi fi-rr-user-lock' },
       { href: '/dashboard/roles', label: 'Role Group', icon: 'fi fi-rr-shield-check' },
     ],
@@ -391,7 +391,7 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className="h-6 w-auto shrink-0 drop-shadow-sm" />
+        <img src={LOGO_URL} alt="Fanos" className="h-[18px] w-auto shrink-0 drop-shadow-sm" />
 
         <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
 
