@@ -3,6 +3,8 @@
 export const ID_EN: Record<string, string> = {
   // --- umum ---
   'Aksi': 'Actions',
+  'Halaman ini sedang dalam pengembangan.': 'This page is under development.',
+  'Menu sudah tersedia; fitur akan ditambahkan pada pembaruan berikutnya.': 'The menu is available; the feature will be added in an upcoming update.',
   'Penerimaan Pembayaran bisa dalam bentuk Cek/Giro/Tunai Transfer ke :': 'Payments may be made by Check/Giro/Cash or Transfer to :',
   'BCA KCP ........': 'BCA Branch ........',
   'Akun Login': 'Login Account',
