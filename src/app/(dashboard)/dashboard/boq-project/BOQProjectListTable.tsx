@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
 import { deleteBOQProject } from './actions';
@@ -22,6 +23,7 @@ const statusBadge: Record<string, string> = {
 };
 
 export default function BOQProjectListTable({ initialRows }: { initialRows: BOQProjectRow[] }) {
+  const router = useRouter();
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<BOQProjectRow | null>(null);
@@ -90,7 +92,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
               </tr>
             )}
             {filtered.map((r) => (
-              <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+              <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/boq-project/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
                 <td className="px-4 py-3 font-medium text-slate-800">{r.project_name}</td>
                 <td className="px-4 py-3 text-slate-600">{r.client_name}</td>
                 <td className="px-4 py-3 text-slate-600">

@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
+import SearchSelect from '@/components/registry/SearchSelect';
+import { FvField } from '@/components/registry/RegistryModal';
 import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
 import { saveBOQProject, type BOQAreaInput, type BOQProjectInput } from './actions';
 
@@ -124,201 +127,118 @@ export default function BOQProjectForm({
     router.push('/dashboard/boq-project');
   }
 
+  const totalItems = areas.reduce((n, a) => n + a.subAreas.reduce((m, sb) => m + sb.items.filter((it) => it.sku).length, 0), 0);
+
   return (
-    <div className="pb-10">
-      {/* Header */}
-      <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Project Name *</label>
-            <input
-              value={projectName}
-              onChange={(e) => setProjectName(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Client *</label>
-            <select
+    <DocFormShell
+      title={initial?.id ? 'Edit BOQ Project' : 'New BOQ Project'}
+      icon="fa-solid fa-layer-group"
+      backHref="/dashboard/boq-project"
+      saving={saving}
+      saveLabel="Simpan"
+      onSave={handleSave}
+    >
+      <Sec title="Informasi Project" icon="fi fi-rr-info">
+        <div className="fv2-grid">
+          <FvField label="Nama Project" required>
+            <input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Nama project" />
+          </FvField>
+          <FvField label="Client" required>
+            <SearchSelect
               value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-            >
-              <option value="">-- Pilih Client --</option>
-              {clients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.project_name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Tanggal BOQ *</label>
-            <input
-              type="date"
-              value={boqDate}
-              onChange={(e) => setBoqDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+              onChange={(v) => setClientId(v)}
+              options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
+              placeholder="Cari client..."
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Status</label>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as 'DRAFT' | 'APPROVED')}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-            >
+          </FvField>
+          <FvField label="Tanggal BOQ" required>
+            <input type="date" value={boqDate} onChange={(e) => setBoqDate(e.target.value)} />
+          </FvField>
+          <FvField label="Status">
+            <select value={status} onChange={(e) => setStatus(e.target.value as 'DRAFT' | 'APPROVED')}>
               <option value="DRAFT">DRAFT</option>
               <option value="APPROVED">APPROVED</option>
             </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Progress</label>
-            <select
-              value={progress}
-              onChange={(e) => setProgress(e.target.value as BOQProjectInput['progress'])}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-            >
+          </FvField>
+          <FvField label="Progress">
+            <select value={progress} onChange={(e) => setProgress(e.target.value as BOQProjectInput['progress'])}>
               <option value="Pending">Pending</option>
               <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
             </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Route</label>
-            <select
-              value={routeType}
-              onChange={(e) => setRouteType(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-            >
+          </FvField>
+          <FvField label="Alur Dokumen">
+            <select value={routeType} onChange={(e) => setRouteType(e.target.value)}>
               <option value="quotation">Via Quotation</option>
-              <option value="so">Langsung ke SO (tanpa quotation)</option>
+              <option value="so">Langsung ke Sales Order</option>
             </select>
-          </div>
+          </FvField>
         </div>
-      </div>
+      </Sec>
 
-      {/* Areas */}
-      <div className="space-y-4">
+      <Sec title={`Area & Produk (${totalItems} item)`} icon="fi fi-rr-apps">
         {areas.map((area, ai) => (
-          <div key={ai} className="rounded-xl border border-slate-200 bg-white p-5">
-            <div className="mb-3 flex items-center gap-2">
-              <input
-                value={area.name}
-                onChange={(e) => updateArea(ai, { name: e.target.value })}
-                placeholder="Nama area (contoh: Lantai 1)"
-                className="flex-1 rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-              />
+          <div key={ai} className="fv2-area">
+            <div className="fv2-area-head">
+              <span className="ico"><i className="fi fi-rr-building" /></span>
+              <input value={area.name} onChange={(e) => updateArea(ai, { name: e.target.value })} placeholder="Nama area (contoh: Lantai 1)" />
               {areas.length > 1 && (
-                <button
-                  onClick={() => removeArea(ai)}
-                  className="shrink-0 rounded-lg bg-red-50 px-3 py-2 text-xs font-medium text-red-600 hover:bg-red-100"
-                >
-                  Hapus Area
+                <button type="button" className="fv2-del-btn" aria-label="Hapus area" onClick={() => removeArea(ai)}>
+                  <i className="fi fi-rr-trash" />
                 </button>
               )}
             </div>
-
-            <div className="ml-4 space-y-3 border-l-2 border-slate-100 pl-4">
+            <div className="fv2-area-body">
               {area.subAreas.map((sub, si) => (
-                <div key={si} className="rounded-lg bg-slate-50 p-3">
-                  <div className="mb-2 flex items-center gap-2">
-                    <input
-                      value={sub.name}
-                      onChange={(e) => updateSubArea(ai, si, { name: e.target.value })}
-                      placeholder="Nama sub-area (contoh: Ruang Tamu)"
-                      className="flex-1 rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
-                    />
+                <div key={si} className="fv2-sub">
+                  <div className="fv2-sub-head">
+                    <i className="fi fi-rr-layers" />
+                    <input value={sub.name} onChange={(e) => updateSubArea(ai, si, { name: e.target.value })} placeholder="Nama sub-area (contoh: Ruang Tamu)" />
                     {area.subAreas.length > 1 && (
-                      <button
-                        onClick={() => removeSubArea(ai, si)}
-                        className="shrink-0 rounded-lg bg-red-50 px-2.5 py-1.5 text-[11px] font-medium text-red-600 hover:bg-red-100"
-                      >
-                        Hapus
+                      <button type="button" className="fv2-del-btn" aria-label="Hapus sub-area" onClick={() => removeSubArea(ai, si)}>
+                        <i className="fi fi-rr-cross-small" />
                       </button>
                     )}
                   </div>
-
-                  <div className="space-y-2 overflow-x-auto pb-1">
-                    {sub.items.map((item, ii) => (
-                      <div key={ii} className="grid min-w-[560px] grid-cols-[2fr_70px_60px_1fr_auto] items-center gap-2">
-                        <ProductPicker
-                          products={products}
-                          value={item.sku}
-                          onSelect={(p) =>
-                            updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })
-                          }
-                        />
-                        <input
-                          type="number"
-                          value={item.qty}
-                          onChange={(e) => updateItem(ai, si, ii, { qty: parseFloat(e.target.value) || 0 })}
-                          placeholder="Qty"
-                          className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-                        />
-                        <input
-                          value={item.uom}
-                          onChange={(e) => updateItem(ai, si, ii, { uom: e.target.value })}
-                          placeholder="UOM"
-                          className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-                        />
-                        <input
-                          value={item.kode_gambar}
-                          onChange={(e) => updateItem(ai, si, ii, { kode_gambar: e.target.value })}
-                          placeholder="Kode Gambar"
-                          className="rounded-lg border border-slate-200 bg-white px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-                        />
-                        <button
-                          onClick={() => removeItem(ai, si, ii)}
-                          className="shrink-0 rounded-lg bg-red-50 px-2 py-1.5 text-xs text-red-600 hover:bg-red-100"
-                        >
-                          ✕
-                        </button>
+                  <div className="fv2-scroll-x">
+                    <div style={{ minWidth: 560 }}>
+                      <div className="fv2-item-head">
+                        <span style={{ flex: 2 }}>Produk (SKU)</span>
+                        <span style={{ width: 80 }}>Qty</span>
+                        <span style={{ width: 80 }}>UOM</span>
+                        <span style={{ flex: 1 }}>Kode Gambar</span>
+                        <span style={{ width: 30 }} />
                       </div>
-                    ))}
+                      {sub.items.map((item, ii) => (
+                        <div key={ii} className="fv2-item-row">
+                          <div style={{ flex: 2 }}>
+                            <ProductPicker products={products} value={item.sku} onSelect={(p) => updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })} />
+                          </div>
+                          <input type="number" style={{ width: 80, flex: 'none' }} value={item.qty} onChange={(e) => updateItem(ai, si, ii, { qty: parseFloat(e.target.value) || 0 })} placeholder="Qty" />
+                          <input style={{ width: 80, flex: 'none' }} value={item.uom} onChange={(e) => updateItem(ai, si, ii, { uom: e.target.value })} placeholder="UOM" />
+                          <input style={{ flex: 1 }} value={item.kode_gambar} onChange={(e) => updateItem(ai, si, ii, { kode_gambar: e.target.value })} placeholder="Kode Gambar" />
+                          <button type="button" className="fv2-del-btn" aria-label="Hapus item" onClick={() => removeItem(ai, si, ii)}>
+                            <i className="fi fi-rr-cross-small" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <button
-                    onClick={() => addItem(ai, si)}
-                    className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700"
-                  >
-                    + Tambah Item
+                  <button type="button" className="fv2-add-btn" onClick={() => addItem(ai, si)}>
+                    <i className="fi fi-rr-plus" /> Tambah Item
                   </button>
                 </div>
               ))}
-              <button
-                onClick={() => addSubArea(ai)}
-                className="text-xs font-semibold text-brand-600 hover:text-brand-700"
-              >
-                + Tambah Sub-area
+              <button type="button" className="fv2-add-btn green" onClick={() => addSubArea(ai)}>
+                <i className="fi fi-rr-plus" /> Tambah Sub-area
               </button>
             </div>
           </div>
         ))}
-
-        <button
-          onClick={addArea}
-          className="w-full rounded-xl border-2 border-dashed border-slate-300 py-3 text-sm font-semibold text-slate-500 hover:border-brand-400 hover:text-brand-600"
-        >
-          + Tambah Area
+        <button type="button" className="fv2-add-btn amber" onClick={addArea}>
+          <i className="fi fi-rr-plus" /> Tambah Area
         </button>
-      </div>
-
-      {/* Footer actions */}
-      <div className="sticky bottom-0 mt-6 flex justify-end gap-2 border-t border-slate-200 bg-slate-50/95 py-4 backdrop-blur">
-        <button
-          onClick={() => router.push('/dashboard/boq-project')}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-        >
-          Batal
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 disabled:opacity-60"
-        >
-          {saving ? 'Menyimpan...' : 'Simpan BOQ Project'}
-        </button>
-      </div>
-    </div>
+      </Sec>
+    </DocFormShell>
   );
 }

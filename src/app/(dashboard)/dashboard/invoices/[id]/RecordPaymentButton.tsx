@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import Modal from '@/components/Modal';
+import { FormModal, FvField } from '@/components/registry/RegistryModal';
 import { useToast } from '@/components/Toast';
 import { recordPayment } from '../actions';
 
@@ -31,83 +31,40 @@ export default function RecordPaymentButton({ invoiceId }: { invoiceId: string }
 
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="rounded-lg bg-brand-500 px-3 py-1.5 text-xs font-semibold text-white hover:bg-brand-600"
-      >
-        + Catat Pembayaran
+      <button type="button" className="fv2-add-btn" style={{ marginTop: 0 }} onClick={() => setOpen(true)}>
+        <i className="fi fi-rr-plus" /> Catat Pembayaran
       </button>
 
       {open && (
-        <Modal
+        <FormModal
           title="Catat Pembayaran"
+          icon="fi fi-rr-wallet"
           onClose={() => setOpen(false)}
           footer={
             <>
-              <button onClick={() => setOpen(false)} className="rounded-lg border border-slate-200 px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">
-                Batal
-              </button>
-              <button
-                onClick={handleSubmit}
-                disabled={saving}
-                className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-              >
-                {saving ? 'Menyimpan...' : 'Simpan'}
+              <button type="button" className="btn btn-secondary" onClick={() => setOpen(false)}>Batal</button>
+              <button type="button" className="btn btn-primary" onClick={handleSubmit} disabled={saving}>
+                <i className="fi fi-rr-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
               </button>
             </>
           }
         >
-          <div className="space-y-3">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-500">Tanggal</label>
-                <input
-                  type="date"
-                  value={payDate}
-                  onChange={(e) => setPayDate(e.target.value)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-                />
-              </div>
-              <div>
-                <label className="mb-1 block text-xs font-semibold text-slate-500">Jumlah *</label>
-                <input
-                  type="number"
-                  value={amount}
-                  onChange={(e) => setAmount(parseFloat(e.target.value) || 0)}
-                  className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-                />
-              </div>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">Metode</label>
-              <select
-                value={method}
-                onChange={(e) => setMethod(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              >
-                <option>Cash</option>
-                <option>Transfer</option>
-                <option>Cek/Giro</option>
-              </select>
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">No. Referensi</label>
-              <input
-                value={referenceNo}
-                onChange={(e) => setReferenceNo(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              />
-            </div>
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">Catatan</label>
-              <input
-                value={notes}
-                onChange={(e) => setNotes(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              />
+          <div className="fv2-section">
+            <div className="fv2-grid">
+              <FvField label="Tanggal"><input type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} /></FvField>
+              <FvField label="Jumlah" required><input type="number" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} /></FvField>
+              <FvField label="Metode">
+                <select value={method} onChange={(e) => setMethod(e.target.value)}>
+                  <option>Cash</option>
+                  <option>Transfer</option>
+                  <option>Cek/Giro</option>
+                </select>
+              </FvField>
+              <FvField label="No. Referensi"><input value={referenceNo} onChange={(e) => setReferenceNo(e.target.value)} /></FvField>
+              <FvField label="Catatan"><input value={notes} onChange={(e) => setNotes(e.target.value)} /></FvField>
             </div>
           </div>
-        </Modal>
+        </FormModal>
       )}
     </>
   );

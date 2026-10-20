@@ -42,10 +42,6 @@ export default async function EditQuotationPage({ params }: { params: { id: stri
   };
 
   return (
-    <div>
-      <h1 className="page-title"><i className="fi fi-rr-file-invoice" />Edit Quotation</h1>
-      <p className="mb-6 text-sm text-slate-500">Status: DRAFT</p>
-      <QuotationForm clients={clients ?? []} products={products ?? []} boqProjects={boqProjects ?? []} initial={initial} />
-    </div>
+    <QuotationForm clients={clients ?? []} products={products ?? []} boqProjects={boqProjects ?? []} initial={initial} />
   );
 }

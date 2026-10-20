@@ -28,7 +28,7 @@ export default function ProductPicker({
   }, [products, query]);
 
   return (
-    <div className="relative" ref={wrapRef}>
+    <div className="fv2-select-search" ref={wrapRef}>
       <input
         value={query}
         onChange={(e) => {
@@ -38,24 +38,25 @@ export default function ProductPicker({
         onFocus={() => setOpen(true)}
         onBlur={() => setTimeout(() => setOpen(false), 150)}
         placeholder={placeholder}
-        className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+        autoComplete="off"
       />
+      <i className="fi fi-rr-angle-down arrow" />
       {open && results.length > 0 && (
-        <div className="absolute z-20 mt-1 max-h-56 w-full overflow-y-auto rounded-lg border border-slate-200 bg-white shadow-lg">
+        <div className="fv2-select-dropdown">
           {results.map((p) => (
             <button
               type="button"
               key={p.id}
+              className="opt"
               onMouseDown={(e) => e.preventDefault()}
               onClick={() => {
                 onSelect(p);
                 setQuery(p.sku);
                 setOpen(false);
               }}
-              className="flex w-full flex-col items-start px-3 py-2 text-left text-xs hover:bg-slate-50"
             >
-              <span className="font-mono font-semibold text-slate-700">{p.sku}</span>
-              <span className="text-slate-500">{p.name}</span>
+              {p.sku}
+              <span className="sub">{p.name}</span>
             </button>
           ))}
         </div>

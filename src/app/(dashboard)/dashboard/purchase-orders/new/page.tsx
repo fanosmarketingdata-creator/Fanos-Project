@@ -9,10 +9,6 @@ export default async function NewPOPage() {
   ]);
 
   return (
-    <div>
-      <h1 className="page-title"><i className="fa-solid fa-truck-loading" />Buat Purchase Order</h1>
-      <p className="mb-6 text-sm text-slate-500">Pesanan pembelian ke vendor.</p>
-      <POForm vendors={vendors ?? []} products={products ?? []} />
-    </div>
+    <POForm vendors={vendors ?? []} products={products ?? []} />
   );
 }

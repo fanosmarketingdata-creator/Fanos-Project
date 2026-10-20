@@ -45,6 +45,41 @@ export function FormModal({
   );
 }
 
+// Modal layar penuh (showModalFull() di index.html) — dipakai form tambah/edit & detail dokumen.
+export function FullModal({
+  title,
+  icon,
+  onClose,
+  footer,
+  children,
+}: {
+  title: string;
+  icon: string;
+  onClose: () => void;
+  footer?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  useEscape(onClose);
+  return (
+    <div className="modal-overlay modal-full-overlay">
+      <div className="modal modal-full" role="dialog" aria-modal="true" aria-label={title}>
+        <div className="modal-header">
+          <h3>
+            <i className={icon} /> {title}
+          </h3>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Tutup">
+            ✕
+          </button>
+        </div>
+        <div className="modal-body">
+          <div className="modal-inner">{children}</div>
+        </div>
+        {footer && <div className="modal-footer">{footer}</div>}
+      </div>
+    </div>
+  );
+}
+
 // Modal detail (showModalDetail()).
 export function DetailModal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEscape(onClose);

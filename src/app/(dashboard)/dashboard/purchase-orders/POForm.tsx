@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
+import SearchSelect from '@/components/registry/SearchSelect';
+import { FvField } from '@/components/registry/RegistryModal';
 import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
 import { savePurchaseOrder, type PurchaseOrderInput, type POItemInput } from './actions';
 
@@ -56,116 +59,71 @@ export default function POForm({
   }
 
   return (
-    <div className="pb-10">
-      <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Vendor *</label>
-            <select
+    <DocFormShell
+      title={initial?.id ? 'Edit Purchase Order' : 'New Purchase Order'}
+      icon="fi fi-rr-document"
+      backHref="/dashboard/purchase-orders"
+      saving={saving}
+      saveLabel="Simpan"
+      onSave={handleSave}
+    >
+      <Sec title="Informasi Purchase Order" icon="fi fi-rr-info">
+        <div className="fv2-grid">
+          <FvField label="Vendor" required>
+            <SearchSelect
               value={vendorId}
-              onChange={(e) => setVendorId(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            >
-              <option value="">-- Pilih Vendor --</option>
-              {vendors.map((v) => (
-                <option key={v.id} value={v.id}>
-                  {v.company}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Tanggal PO *</label>
-            <input
-              type="date"
-              value={poDate}
-              onChange={(e) => setPoDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+              onChange={(v) => setVendorId(v)}
+              options={vendors.map((v) => ({ value: v.id, label: v.company }))}
+              placeholder="Cari vendor..."
             />
-          </div>
-          <div className="col-span-2">
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Catatan</label>
-            <input
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            />
-          </div>
+          </FvField>
+          <FvField label="Tanggal PO" required>
+            <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} />
+          </FvField>
+          <FvField label="Catatan">
+            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan pesanan" />
+          </FvField>
         </div>
-      </div>
+      </Sec>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <h3 className="mb-3 text-sm font-bold text-slate-700">Item</h3>
-        <div className="space-y-2 overflow-x-auto pb-1">
-          <div className="grid min-w-[680px] grid-cols-[2fr_60px_60px_1fr_1fr_auto] gap-2 px-1 text-[10px] font-semibold uppercase text-slate-400">
-            <span>SKU</span>
-            <span>Qty</span>
-            <span>UOM</span>
-            <span>Harga Beli</span>
-            <span>Subtotal</span>
-            <span></span>
-          </div>
-          {items.map((it, i) => (
-            <div key={i} className="grid min-w-[680px] grid-cols-[2fr_60px_60px_1fr_1fr_auto] items-center gap-2">
-              <ProductPicker
-                products={products}
-                value={it.sku}
-                onSelect={(p) => updateItem(i, { sku: p.sku, uom: p.uom, description: p.name })}
-              />
-              <input
-                type="number"
-                value={it.qty}
-                onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <input
-                value={it.uom}
-                onChange={(e) => updateItem(i, { uom: e.target.value })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <input
-                type="number"
-                value={it.unit_price}
-                onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <span className="px-2 text-sm text-slate-600">Rp {(it.qty * it.unit_price).toLocaleString('id-ID')}</span>
-              <button
-                onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}
-                className="shrink-0 rounded-lg bg-red-50 px-2 py-1.5 text-xs text-red-600 hover:bg-red-100"
-              >
-                ✕
-              </button>
+      <Sec title="Daftar Item" icon="fi fi-rr-list">
+        <div className="fv2-scroll-x">
+          <div style={{ minWidth: 700 }}>
+            <div className="fv2-item-head">
+              <span style={{ flex: 2 }}>Produk (SKU)</span>
+              <span style={{ width: 70 }}>Qty</span>
+              <span style={{ width: 70 }}>UOM</span>
+              <span style={{ flex: 1 }}>Harga Beli</span>
+              <span style={{ flex: 1 }}>Subtotal</span>
+              <span style={{ width: 30 }} />
             </div>
-          ))}
+            {items.map((it, i) => (
+              <div key={i} className="fv2-item-row">
+                <div style={{ flex: 2 }}>
+                  <ProductPicker products={products} value={it.sku} onSelect={(p) => updateItem(i, { sku: p.sku, uom: p.uom, description: p.name })} />
+                </div>
+                <input type="number" style={{ width: 70, flex: 'none' }} value={it.qty} onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })} />
+                <input style={{ width: 70, flex: 'none' }} value={it.uom} onChange={(e) => updateItem(i, { uom: e.target.value })} />
+                <input type="number" style={{ flex: 1 }} value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })} />
+                <input style={{ flex: 1 }} readOnly value={`Rp ${(it.qty * it.unit_price).toLocaleString('id-ID')}`} />
+                <button type="button" className="fv2-del-btn" aria-label="Hapus item" onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}>
+                  <i className="fi fi-rr-cross-small" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
-        <button
-          onClick={() => setItems((prev) => [...prev, emptyItem()])}
-          className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700"
-        >
-          + Tambah Item
+        <button type="button" className="fv2-add-btn" onClick={() => setItems((prev) => [...prev, emptyItem()])}>
+          <i className="fi fi-rr-plus" /> Tambah Item
         </button>
+      </Sec>
 
-        <div className="mt-4 flex justify-end border-t border-slate-100 pt-3 text-base font-bold text-slate-800">
-          Total: Rp {total.toLocaleString('id-ID')}
+      <div className="fv2-summary" style={{ maxWidth: 360, marginLeft: 'auto' }}>
+        <div className="dv2-summary-row" style={{ fontSize: 15, fontWeight: 800, color: '#1a237e' }}>
+          <span>Total</span>
+          <span>Rp {total.toLocaleString('id-ID')}</span>
         </div>
       </div>
-
-      <div className="sticky bottom-0 mt-6 flex justify-end gap-2 border-t border-slate-200 bg-slate-50/95 py-4 backdrop-blur">
-        <button
-          onClick={() => router.push('/dashboard/purchase-orders')}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-        >
-          Batal
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 disabled:opacity-60"
-        >
-          {saving ? 'Menyimpan...' : 'Simpan PO'}
-        </button>
-      </div>
-    </div>
+    </DocFormShell>
   );
 }

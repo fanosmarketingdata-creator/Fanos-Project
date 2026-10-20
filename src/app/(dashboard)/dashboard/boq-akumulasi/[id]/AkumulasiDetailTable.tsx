@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Link from 'next/link';
 import { useToast } from '@/components/Toast';
 import { generateAkumulasi, updateAkumulasiQty } from '../actions';
 
@@ -44,52 +43,48 @@ export default function AkumulasiDetailTable({
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <Link href="/dashboard/boq-akumulasi" className="text-sm font-medium text-slate-500 hover:text-slate-700">
-          ← Kembali ke daftar
-        </Link>
-        <button
-          onClick={handleRefresh}
-          disabled={refreshing}
-          className="rounded-lg bg-brand-50 px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-100 disabled:opacity-60"
-        >
-          {refreshing ? 'Memproses...' : '↻ Refresh dari BOQ Project'}
+      <div style={{ display: 'flex', justifyContent: 'flex-end', marginBottom: 12 }}>
+        <button type="button" className="fv2-add-btn" style={{ marginTop: 0 }} onClick={handleRefresh} disabled={refreshing}>
+          <i className="fi fi-rr-refresh" /> {refreshing ? 'Memproses...' : 'Refresh dari BOQ Project'}
         </button>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
+      <div className="dv2-table-wrap">
+        <table className="dv2-table">
           <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-3 font-semibold">SKU</th>
-              <th className="px-4 py-3 font-semibold">Total Qty</th>
-              <th className="px-4 py-3 font-semibold">UOM</th>
+            <tr>
+              <th className="tl">SKU</th>
+              <th>Total Qty</th>
+              <th>UOM</th>
             </tr>
           </thead>
           <tbody>
+            {rows.length === 0 && (
+              <tr><td colSpan={3}>Belum terdapat data</td></tr>
+            )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-b border-slate-50 last:border-0">
-                <td className="px-4 py-3 font-mono text-xs text-slate-700">{r.sku}</td>
-                <td className="px-4 py-3">
+              <tr key={r.id}>
+                <td className="tl" style={{ fontWeight: 700 }}>{r.sku}</td>
+                <td>
                   <input
                     type="number"
                     value={r.qty}
                     onChange={(e) => handleQtyChange(r.id, parseFloat(e.target.value) || 0)}
                     onBlur={(e) => handleQtyBlur(r.id, parseFloat(e.target.value) || 0)}
-                    className="w-28 rounded-lg border border-slate-200 px-2.5 py-1.5 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10"
+                    style={{ width: 110, border: '1.5px solid #e5e7eb', borderRadius: 8, padding: '6px 10px', textAlign: 'center', fontSize: 12.5 }}
                   />
-                  {savingId === r.id && <span className="ml-2 text-[11px] text-slate-400">menyimpan...</span>}
+                  {savingId === r.id && <span style={{ marginLeft: 8, fontSize: 11, color: '#9ca3af' }}>menyimpan...</span>}
                 </td>
-                <td className="px-4 py-3 text-slate-600">{r.uom || '-'}</td>
+                <td>{r.uom || '-'}</td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
 
-      <p className="mt-3 text-xs text-slate-400">
-        Angka qty di atas dapat diubah secara manual (misalnya untuk menambah cadangan stok). Klik &quot;Refresh dari BOQ
-        Project&quot; untuk menghitung ulang berdasarkan item BOQ Project terbaru; perubahan manual akan tertimpa.
+      <p style={{ marginTop: 12, fontSize: 11.5, color: '#9ca3af' }}>
+        Angka qty dapat diubah secara manual (misalnya untuk menambah cadangan stok). Pilih &quot;Refresh dari BOQ Project&quot;
+        untuk menghitung ulang berdasarkan item BOQ Project terbaru; perubahan manual akan tertimpa.
       </p>
     </div>
   );

@@ -1,5 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
+import DetailShell from '@/components/registry/DetailShell';
+import { DetailTop } from '@/components/registry/DocDetail';
 import AkumulasiDetailTable from './AkumulasiDetailTable';
 
 export default async function AkumulasiDetailPage({ params }: { params: { id: string } }) {
@@ -14,10 +16,9 @@ export default async function AkumulasiDetailPage({ params }: { params: { id: st
   const clientName = (boq.clients as unknown as { project_name: string } | null)?.project_name ?? '-';
 
   return (
-    <div>
-      <h1 className="page-title"><i className="fi fi-rr-calculator" />BOQ Akumulasi — {boq.project_name}</h1>
-      <p className="mb-6 text-sm text-slate-500">Client: {clientName}</p>
+    <DetailShell title="Detail BOQ Akumulasi" icon="fi fi-rr-calculator" backHref="/dashboard/boq-akumulasi">
+      <DetailTop id={`Client: ${clientName}`} title={boq.project_name} />
       <AkumulasiDetailTable boqProjectId={boq.id} initialRows={rows ?? []} />
-    </div>
+    </DetailShell>
   );
 }

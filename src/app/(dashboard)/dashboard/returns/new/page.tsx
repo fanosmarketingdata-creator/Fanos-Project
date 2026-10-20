@@ -5,10 +5,6 @@ export default async function NewReturnPage() {
   const invoices = await getInvoicesForReturn();
 
   return (
-    <div>
-      <h1 className="page-title"><i className="fi fi-rr-undo" />Buat Retur Penjualan</h1>
-      <p className="mb-6 text-sm text-slate-500">Pilih invoice, lalu isi qty barang yang dikembalikan.</p>
-      <NewReturnForm invoices={invoices} />
-    </div>
+    <NewReturnForm invoices={invoices} />
   );
 }

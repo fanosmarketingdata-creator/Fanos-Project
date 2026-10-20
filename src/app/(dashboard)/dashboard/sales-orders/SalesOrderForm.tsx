@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import DocFormShell, { Sec, TotalsBox } from '@/components/registry/DocFormShell';
+import SearchSelect from '@/components/registry/SearchSelect';
+import { FvField } from '@/components/registry/RegistryModal';
 import ProductPicker, { type ProductOption } from '@/components/ProductPicker';
 import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
 import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
@@ -89,171 +92,102 @@ export default function SalesOrderForm({
     router.push('/dashboard/sales-orders');
   }
 
+  const discountAmount = subtotal - afterDiscount;
+  const chargeAmount = sumChargeAmount(charges);
+
   return (
-    <div className="pb-10">
-      <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+    <DocFormShell
+      title={initial?.id ? 'Edit Sales Order' : 'New Sales Order'}
+      icon="fi fi-rr-shopping-cart"
+      backHref="/dashboard/sales-orders"
+      saving={saving}
+      saveLabel="Simpan"
+      onSave={handleSave}
+    >
+      <Sec title="Informasi Sales Order" icon="fi fi-rr-info">
+        <div className="fv2-grid">
           {!initial?.id && (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">Mode</label>
-              <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value as 'manual' | 'boq')}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              >
-                <option value="manual">Manual</option>
+            <FvField label="Sumber Data">
+              <select value={mode} onChange={(e) => setMode(e.target.value as 'manual' | 'boq')}>
+                <option value="manual">Input Manual</option>
                 <option value="boq">Dari BOQ Project (langsung, tanpa quotation)</option>
               </select>
-            </div>
+            </FvField>
           )}
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Tanggal SO *</label>
-            <input
-              type="date"
-              value={soDate}
-              onChange={(e) => setSoDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            />
-          </div>
-
+          <FvField label="Tanggal Sales Order" required>
+            <input type="date" value={soDate} onChange={(e) => setSoDate(e.target.value)} />
+          </FvField>
           {mode === 'boq' && !initial?.id ? (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">BOQ Project *</label>
-              <select
+            <FvField label="BOQ Project" required>
+              <SearchSelect
                 value={boqProjectId}
-                onChange={(e) => handlePickBOQ(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              >
-                <option value="">-- Pilih BOQ Project --</option>
-                {boqProjects.map((b) => (
-                  <option key={b.id} value={b.id}>
-                    {b.project_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                onChange={(v) => handlePickBOQ(v)}
+                options={boqProjects.map((b) => ({ value: b.id, label: b.project_name }))}
+                placeholder="Cari BOQ Project..."
+              />
+            </FvField>
           ) : (
-            <div>
-              <label className="mb-1 block text-xs font-semibold text-slate-500">Client *</label>
-              <select
+            <FvField label="Client" required>
+              <SearchSelect
                 value={clientId}
-                onChange={(e) => setClientId(e.target.value)}
-                className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-              >
-                <option value="">-- Pilih Client --</option>
-                {clients.map((c) => (
-                  <option key={c.id} value={c.id}>
-                    {c.project_name}
-                  </option>
-                ))}
-              </select>
-            </div>
+                onChange={(v) => setClientId(v)}
+                options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
+                placeholder="Cari client..."
+              />
+            </FvField>
           )}
-
-          <div className="col-span-2">
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Catatan Umum</label>
-            <input
-              value={globalNotes}
-              onChange={(e) => setGlobalNotes(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            />
-          </div>
+          <FvField label="Catatan Umum">
+            <input value={globalNotes} onChange={(e) => setGlobalNotes(e.target.value)} placeholder="Catatan untuk seluruh pesanan" />
+          </FvField>
         </div>
-      </div>
+      </Sec>
 
-      <div className="rounded-xl border border-slate-200 bg-white p-5">
-        <div className="mb-3 flex items-center justify-between">
-          <h3 className="text-sm font-bold text-slate-700">Item</h3>
-          {loadingBOQ && <span className="text-xs text-slate-400">Memuat item dari BOQ...</span>}
-        </div>
-
-        <div className="space-y-2 overflow-x-auto pb-1">
-          <div className="grid min-w-[680px] grid-cols-[2fr_60px_1fr_1fr_1fr_auto] gap-2 px-1 text-[10px] font-semibold uppercase text-slate-400">
-            <span>SKU</span>
-            <span>Qty</span>
-            <span>Harga Satuan</span>
-            <span>Subtotal</span>
-            <span>Notes</span>
-            <span></span>
-          </div>
-          {items.map((it, i) => (
-            <div key={i} className="grid min-w-[680px] grid-cols-[2fr_60px_1fr_1fr_1fr_auto] items-center gap-2">
-              <ProductPicker products={products} value={it.sku} onSelect={(p) => updateItem(i, { product_id: p.id, sku: p.sku })} />
-              <input
-                type="number"
-                value={it.qty}
-                onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <input
-                type="number"
-                value={it.unit_price}
-                onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <span className="px-2 text-sm text-slate-600">Rp {(it.qty * it.unit_price).toLocaleString('id-ID')}</span>
-              <input
-                value={it.notes}
-                onChange={(e) => updateItem(i, { notes: e.target.value })}
-                className="rounded-lg border border-slate-200 px-2 py-1.5 text-sm outline-none focus:border-brand-500"
-              />
-              <button onClick={() => removeItem(i)} className="shrink-0 rounded-lg bg-red-50 px-2 py-1.5 text-xs text-red-600 hover:bg-red-100">
-                ✕
-              </button>
+      <Sec title="Daftar Item" icon="fi fi-rr-list">
+        {loadingBOQ && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>Memuat item dari BOQ Project...</p>}
+        <div className="fv2-scroll-x">
+          <div style={{ minWidth: 700 }}>
+            <div className="fv2-item-head">
+              <span style={{ flex: 2 }}>Produk (SKU)</span>
+              <span style={{ width: 70 }}>Qty</span>
+              <span style={{ flex: 1 }}>Harga Satuan</span>
+              <span style={{ flex: 1 }}>Subtotal</span>
+              <span style={{ flex: 1 }}>Catatan</span>
+              <span style={{ width: 30 }} />
             </div>
-          ))}
+            {items.map((it, i) => (
+              <div key={i} className="fv2-item-row">
+                <div style={{ flex: 2 }}>
+                  <ProductPicker products={products} value={it.sku} onSelect={(p) => updateItem(i, { product_id: p.id, sku: p.sku })} />
+                </div>
+                <input type="number" style={{ width: 70, flex: 'none' }} value={it.qty} onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })} />
+                <input type="number" style={{ flex: 1 }} value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })} />
+                <input style={{ flex: 1 }} readOnly value={`Rp ${(it.qty * it.unit_price).toLocaleString('id-ID')}`} />
+                <input style={{ flex: 1 }} value={it.notes} onChange={(e) => updateItem(i, { notes: e.target.value })} />
+                <button type="button" className="fv2-del-btn" aria-label="Hapus item" onClick={() => removeItem(i)}>
+                  <i className="fi fi-rr-cross-small" />
+                </button>
+              </div>
+            ))}
+          </div>
         </div>
         {mode === 'manual' && (
-          <button onClick={addItem} className="mt-2 text-xs font-semibold text-brand-600 hover:text-brand-700">
-            + Tambah Item
+          <button type="button" className="fv2-add-btn" onClick={addItem}>
+            <i className="fi fi-rr-plus" /> Tambah Item
           </button>
         )}
-      </div>
+      </Sec>
 
-      <div className="mt-5 grid grid-cols-1 sm:grid-cols-2 gap-5">
-        <div className="space-y-4 rounded-xl border border-slate-200 bg-white p-5">
+      <div className="fv2-grid">
+        <div>
           <DiscountEditor lines={discounts} onChange={setDiscounts} />
+          <div style={{ height: 14 }} />
           <ChargeEditor lines={charges} onChange={setCharges} />
         </div>
-
-        <div className="rounded-xl border border-slate-200 bg-white p-5">
-          <h3 className="mb-3 text-sm font-bold text-slate-700">Ringkasan</h3>
-          <div className="space-y-1.5 text-sm">
-            <div className="flex justify-between text-slate-600">
-              <span>Subtotal</span>
-              <span>Rp {subtotal.toLocaleString('id-ID')}</span>
-            </div>
-            <div className="flex justify-between text-slate-600">
-              <span>Diskon ({discountPercent}%)</span>
-              <span>- Rp {(subtotal - afterDiscount).toLocaleString('id-ID')}</span>
-            </div>
-            <div className="flex justify-between text-slate-600">
-              <span>Biaya Tambahan</span>
-              <span>Rp {sumChargeAmount(charges).toLocaleString('id-ID')}</span>
-            </div>
-            <div className="mt-2 flex justify-between border-t border-slate-100 pt-2 text-base font-bold text-slate-800">
-              <span>Total</span>
-              <span>Rp {total.toLocaleString('id-ID')}</span>
-            </div>
-          </div>
+        <div>
+          <div className="fv2-section-title"><i className="fi fi-rr-calculator" /> Ringkasan</div>
+          <TotalsBox subtotal={subtotal} discountPercent={discountPercent} discountAmount={discountAmount} chargeAmount={chargeAmount} total={total} />
         </div>
       </div>
-
-      <div className="sticky bottom-0 mt-6 flex justify-end gap-2 border-t border-slate-200 bg-slate-50/95 py-4 backdrop-blur">
-        <button
-          onClick={() => router.push('/dashboard/sales-orders')}
-          className="rounded-lg border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium text-slate-600 hover:bg-slate-50"
-        >
-          Batal
-        </button>
-        <button
-          onClick={handleSave}
-          disabled={saving}
-          className="rounded-lg bg-brand-500 px-5 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600 disabled:opacity-60"
-        >
-          {saving ? 'Menyimpan...' : 'Simpan Sales Order'}
-        </button>
-      </div>
-    </div>
+    </DocFormShell>
   );
 }

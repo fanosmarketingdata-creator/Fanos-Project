@@ -3,6 +3,9 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
+import SearchSelect from '@/components/registry/SearchSelect';
+import { FvField } from '@/components/registry/RegistryModal';
 import { getReturnableItems, createReturn } from '../actions';
 
 type InvoiceOption = { id: string; inv_date: string; grand_total: number; client_name: string };
@@ -58,113 +61,88 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
   }
 
   return (
-    <div className="max-w-3xl">
-      <div className="mb-5 rounded-xl border border-slate-200 bg-white p-5">
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-          <div className="col-span-2">
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Invoice *</label>
-            <select
+    <DocFormShell
+      title="New Retur Penjualan"
+      icon="fi fi-rr-undo"
+      backHref="/dashboard/returns"
+      saving={saving || creditTotal <= 0}
+      saveLabel="Simpan Retur"
+      onSave={handleSave}
+    >
+      <Sec title="Informasi Retur" icon="fi fi-rr-info">
+        <div className="fv2-grid">
+          <FvField label="Invoice" required>
+            <SearchSelect
               value={invoiceId}
-              onChange={(e) => handlePickInvoice(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            >
-              <option value="">-- Pilih Invoice --</option>
-              {invoices.map((inv) => (
-                <option key={inv.id} value={inv.id}>
-                  {inv.client_name} — {new Date(inv.inv_date).toLocaleDateString('id-ID')} — Rp {inv.grand_total.toLocaleString('id-ID')}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Tanggal Retur *</label>
-            <input
-              type="date"
-              value={returnDate}
-              onChange={(e) => setReturnDate(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+              onChange={(v) => handlePickInvoice(v)}
+              options={invoices.map((inv) => ({
+                value: inv.id,
+                label: inv.client_name,
+                sub: `${new Date(inv.inv_date).toLocaleDateString('id-ID')} — Rp ${inv.grand_total.toLocaleString('id-ID')}`,
+              }))}
+              placeholder="Cari invoice..."
             />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-semibold text-slate-500">Alasan</label>
-            <input
-              value={reason}
-              onChange={(e) => setReason(e.target.value)}
-              placeholder="Contoh: Barang rusak atau tidak sesuai spesifikasi"
-              className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
-            />
-          </div>
+          </FvField>
+          <FvField label="Tanggal Retur" required>
+            <input type="date" value={returnDate} onChange={(e) => setReturnDate(e.target.value)} />
+          </FvField>
+          <FvField label="Alasan">
+            <input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Contoh: Barang rusak atau tidak sesuai spesifikasi" />
+          </FvField>
         </div>
-      </div>
+      </Sec>
 
-      {loading && <p className="py-6 text-center text-sm text-slate-400">Memuat item invoice...</p>}
+      {loading && <div className="dv2-loading"><div className="spinner" />Memuat item invoice...</div>}
 
       {items.length > 0 && (
-        <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-          <table className="w-full min-w-[560px] text-left text-sm">
-            <thead>
-              <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-                <th className="px-4 py-3 font-semibold">SKU</th>
-                <th className="px-4 py-3 text-center font-semibold">Di Invoice</th>
-                <th className="px-4 py-3 text-center font-semibold">Sudah Diretur</th>
-                <th className="px-4 py-3 text-center font-semibold text-emerald-600">Bisa Diretur</th>
-                <th className="px-4 py-3 text-center font-semibold">Qty Retur</th>
-                <th className="px-4 py-3 text-right font-semibold">Nilai</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((it) => (
-                <tr key={it.sku} className="border-b border-slate-50 last:border-0">
-                  <td className="px-4 py-3">
-                    <div className="font-mono text-xs font-semibold text-slate-700">{it.sku}</div>
-                    <div className="text-[11px] text-slate-400">{it.name}</div>
-                  </td>
-                  <td className="px-4 py-3 text-center text-slate-600">{it.invoiced}</td>
-                  <td className="px-4 py-3 text-center text-slate-600">{it.returned}</td>
-                  <td className="px-4 py-3 text-center font-semibold text-emerald-600">{it.returnable}</td>
-                  <td className="px-4 py-3 text-center">
-                    <input
-                      type="number"
-                      min={0}
-                      max={it.returnable}
-                      disabled={it.returnable <= 0}
-                      value={qty[it.sku] || 0}
-                      onChange={(e) => setQty((prev) => ({ ...prev, [it.sku]: parseFloat(e.target.value) || 0 }))}
-                      className="w-20 rounded-lg border border-slate-200 px-2 py-1 text-center text-sm outline-none focus:border-brand-500 disabled:bg-slate-50"
-                    />
-                  </td>
-                  <td className="px-4 py-3 text-right text-slate-600">
-                    Rp {((qty[it.sku] || 0) * it.unit_price).toLocaleString('id-ID')}
-                  </td>
+        <Sec title="Item yang Diretur" icon="fi fi-rr-list">
+          <div className="dv2-table-wrap">
+            <table className="dv2-table">
+              <thead>
+                <tr>
+                  <th className="tl">SKU</th>
+                  <th>Di Invoice</th>
+                  <th>Sudah Diretur</th>
+                  <th>Dapat Diretur</th>
+                  <th>Qty Retur</th>
+                  <th className="tr">Nilai</th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
-
-      {items.length > 0 && (
-        <div className="mt-4 flex items-center justify-between">
-          <div className="text-sm text-slate-600">
-            Credit Note yang akan terbit: <strong className="text-slate-800">Rp {creditTotal.toLocaleString('id-ID')}</strong>
+              </thead>
+              <tbody>
+                {items.map((it) => (
+                  <tr key={it.sku}>
+                    <td className="tl">
+                      <div style={{ fontWeight: 700 }}>{it.sku}</div>
+                      <div style={{ fontSize: 11, color: '#9ca3af' }}>{it.name}</div>
+                    </td>
+                    <td>{it.invoiced}</td>
+                    <td>{it.returned}</td>
+                    <td style={{ fontWeight: 700, color: '#16a34a' }}>{it.returnable}</td>
+                    <td>
+                      <input
+                        type="number"
+                        min={0}
+                        max={it.returnable}
+                        disabled={it.returnable <= 0}
+                        value={qty[it.sku] || 0}
+                        onChange={(e) => setQty((prev) => ({ ...prev, [it.sku]: parseFloat(e.target.value) || 0 }))}
+                        style={{ width: 80, border: '1.5px solid #e5e7eb', borderRadius: 8, padding: '6px 8px', textAlign: 'center', fontSize: 12.5 }}
+                      />
+                    </td>
+                    <td className="tr">Rp {((qty[it.sku] || 0) * it.unit_price).toLocaleString('id-ID')}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-          <div className="flex gap-2">
-            <button
-              onClick={() => router.push('/dashboard/returns')}
-              className="rounded-lg border border-slate-200 bg-white px-4 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
-            >
-              Batal
-            </button>
-            <button
-              onClick={handleSave}
-              disabled={saving || creditTotal <= 0}
-              className="rounded-lg bg-brand-500 px-5 py-2 text-sm font-semibold text-white hover:bg-brand-600 disabled:opacity-60"
-            >
-              {saving ? 'Menyimpan...' : 'Simpan Retur'}
-            </button>
+          <div className="dv2-summary">
+            <div className="dv2-summary-row" style={{ fontSize: 15, fontWeight: 800, color: '#1a237e' }}>
+              <span>Credit Note yang akan terbit</span>
+              <span>Rp {creditTotal.toLocaleString('id-ID')}</span>
+            </div>
           </div>
-        </div>
+        </Sec>
       )}
-    </div>
+    </DocFormShell>
   );
 }

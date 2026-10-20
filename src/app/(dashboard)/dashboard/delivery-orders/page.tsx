@@ -1,3 +1,4 @@
+import ClickRow from '@/components/registry/ClickRow';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
 
@@ -48,7 +49,7 @@ export default async function DeliveryOrdersPage() {
               </tr>
             )}
             {rows.map((r) => (
-              <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+              <ClickRow key={r.id} href={`/dashboard/delivery-orders/${r.id}`} className="border-b border-slate-50 last:border-0">
                 <td className="px-4 py-3 font-medium text-slate-800">
                   {r.client_name}
                   {r.doc_no && <div className="font-mono text-[10px] font-normal text-slate-400">{r.doc_no}</div>}
@@ -76,7 +77,7 @@ export default async function DeliveryOrdersPage() {
                     Cetak
                   </Link>
                 </td>
-              </tr>
+              </ClickRow>
             ))}
           </tbody>
         </table>

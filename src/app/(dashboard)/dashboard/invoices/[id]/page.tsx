@@ -1,131 +1,51 @@
 import { notFound } from 'next/navigation';
-import Link from 'next/link';
 import { createClient } from '@/lib/supabase/server';
+import DetailShell from '@/components/registry/DetailShell';
+import { DetailTop, DetailCards, DetailTableBlock, DetailSummary, buildSummary } from '@/components/registry/DocDetail';
+import { dateShort, num } from '@/lib/format';
+import { one } from '@/lib/print-helpers';
 import RecordPaymentButton from './RecordPaymentButton';
 
 export default async function InvoiceDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
-
   const [{ data: invoice }, { data: items }, { data: payments }] = await Promise.all([
     supabase.from('invoices').select('*, clients(project_name, address, city)').eq('id', params.id).single(),
     supabase.from('invoice_items').select('sku, qty, unit_price, total, products(name)').eq('invoice_id', params.id),
     supabase.from('payments').select('id, pay_date, amount, method, reference_no, notes').eq('invoice_id', params.id).order('pay_date'),
   ]);
-
   if (!invoice) notFound();
-  const client = invoice.clients as unknown as { project_name: string; address: string | null; city: string | null } | null;
-
-  const statusBadge: Record<string, string> = {
-    UNPAID: 'bg-red-100 text-red-700',
-    PARTIAL: 'bg-amber-100 text-amber-700',
-    PAID: 'bg-emerald-100 text-emerald-700',
-  };
+  const client = one<{ project_name: string; address: string | null; city: string | null }>(invoice.clients);
+  const subtotal = (items ?? []).reduce((s, it) => s + Number(it.total), 0);
+  const { rows } = buildSummary(subtotal, invoice.discounts ?? [], invoice.charges ?? [], 'Grand Total');
+  const rp = (n: unknown) => `Rp ${Number(n ?? 0).toLocaleString('id-ID')}`;
 
   return (
-    <div>
-      <Link href="/dashboard/invoices" className="mb-3 inline-block text-sm font-medium text-slate-500 hover:text-slate-700">
-        ← Kembali ke daftar
-      </Link>
-      <Link
-        href={`/dashboard/invoices/${invoice.id}/print`}
-        className="mb-3 ml-4 inline-block text-sm font-semibold text-brand-600 hover:text-brand-700"
-      >
-        🖨️ Cetak Invoice
-      </Link>
+    <DetailShell title="Detail Invoice" icon="fi fi-rr-receipt" backHref="/dashboard/invoices" printHref={`/dashboard/invoices/${invoice.id}/print`}>
+      <DetailTop id={invoice.doc_no ?? 'Invoice'} title={client?.project_name ?? '-'} badge={invoice.status} amountLabel="Grand Total" amount={rp(invoice.grand_total)} />
+      <DetailCards cards={[
+        { icon: 'fi fi-rr-calendar', label: 'Tanggal Invoice', value: dateShort(invoice.inv_date) },
+        { icon: 'fi fi-rr-marker', label: 'Alamat', value: [client?.address, client?.city].filter(Boolean).join(', ') || '-' },
+        { icon: 'fi fi-rr-check', label: 'Terbayar', value: rp(invoice.total_paid), color: '#16a34a' },
+        { icon: 'fi fi-rr-time-quarter-past', label: 'Sisa Tagihan', value: rp(invoice.remaining), color: Number(invoice.remaining) > 0 ? '#dc2626' : '#16a34a' },
+      ]} />
+      <DetailTableBlock t={{
+        title: 'Daftar Item',
+        columns: [{ label: 'No' }, { label: 'SKU', align: 'l' }, { label: 'Nama Produk', align: 'l' }, { label: 'Qty' }, { label: 'Harga', align: 'r' }, { label: 'Total', align: 'r' }],
+        rows: (items ?? []).map((it, i) => [i + 1, it.sku, one<{ name: string }>(it.products)?.name ?? '-', num(it.qty), rp(it.unit_price), rp(it.total)]),
+      }} />
+      <DetailSummary rows={rows} />
 
-      <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="page-title"><i className="fi fi-rr-receipt" />{client?.project_name ?? '-'}</h1>
-          <p className="text-sm text-slate-500">
-            {new Date(invoice.inv_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}
-          </p>
-        </div>
-        <span className={`rounded-full px-3 py-1.5 text-xs font-bold uppercase ${statusBadge[invoice.status] || 'bg-slate-100 text-slate-600'}`}>
-          {invoice.status}
-        </span>
+      <div className="dv2-section-title" style={{ justifyContent: 'space-between' }}>
+        <span><i className="fi fi-rr-wallet" /> Riwayat Pembayaran</span>
+        {invoice.status !== 'PAID' && <RecordPaymentButton invoiceId={invoice.id} />}
       </div>
-
-      <div className="mb-5 grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <SummaryCard label="Grand Total" value={Number(invoice.grand_total)} />
-        <SummaryCard label="Terbayar" value={Number(invoice.total_paid)} tone="emerald" />
-        <SummaryCard label="Sisa Tagihan" value={Number(invoice.remaining)} tone={Number(invoice.remaining) > 0 ? 'red' : 'emerald'} />
-      </div>
-
-      <div className="mb-5 overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div className="border-b border-slate-100 px-5 py-3">
-          <h3 className="text-sm font-bold text-slate-700">Item</h3>
-        </div>
-        <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-2.5 font-semibold">SKU</th>
-              <th className="px-4 py-2.5 font-semibold">Nama Produk</th>
-              <th className="px-4 py-2.5 font-semibold">Qty</th>
-              <th className="px-4 py-2.5 font-semibold">Harga</th>
-              <th className="px-4 py-2.5 font-semibold">Total</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(items ?? []).map((it, i) => (
-              <tr key={i} className="border-b border-slate-50 last:border-0">
-                <td className="px-4 py-2.5 font-mono text-xs text-slate-700">{it.sku}</td>
-                <td className="px-4 py-2.5 text-slate-600">{(it.products as unknown as { name: string } | null)?.name ?? '-'}</td>
-                <td className="px-4 py-2.5 text-slate-600">{Number(it.qty)}</td>
-                <td className="px-4 py-2.5 text-slate-600">Rp {Number(it.unit_price).toLocaleString('id-ID')}</td>
-                <td className="px-4 py-2.5 text-slate-600">Rp {Number(it.total).toLocaleString('id-ID')}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
-      </div>
-
-      <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
-        <div className="flex items-center justify-between border-b border-slate-100 px-5 py-3">
-          <h3 className="text-sm font-bold text-slate-700">Riwayat Pembayaran</h3>
-          {invoice.status !== 'PAID' && <RecordPaymentButton invoiceId={invoice.id} />}
-        </div>
-        <div className="overflow-x-auto"><table className="w-full min-w-[560px] text-left text-sm">
-          <thead>
-            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
-              <th className="px-4 py-2.5 font-semibold">Tanggal</th>
-              <th className="px-4 py-2.5 font-semibold">Jumlah</th>
-              <th className="px-4 py-2.5 font-semibold">Metode</th>
-              <th className="px-4 py-2.5 font-semibold">No. Referensi</th>
-              <th className="px-4 py-2.5 font-semibold">Catatan</th>
-            </tr>
-          </thead>
-          <tbody>
-            {(!payments || payments.length === 0) && (
-              <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-slate-400">
-                  Belum terdapat data pembayaran
-                </td>
-              </tr>
-            )}
-            {(payments ?? []).map((p) => (
-              <tr key={p.id} className="border-b border-slate-50 last:border-0">
-                <td className="px-4 py-2.5 text-slate-600">
-                  {new Date(p.pay_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
-                </td>
-                <td className="px-4 py-2.5 font-medium text-slate-800">Rp {Number(p.amount).toLocaleString('id-ID')}</td>
-                <td className="px-4 py-2.5 text-slate-600">{p.method || '-'}</td>
-                <td className="px-4 py-2.5 text-slate-600">{p.reference_no || '-'}</td>
-                <td className="px-4 py-2.5 text-slate-500">{p.notes || '-'}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table></div>
-      </div>
-    </div>
-  );
-}
-
-function SummaryCard({ label, value, tone }: { label: string; value: number; tone?: 'emerald' | 'red' }) {
-  const toneClass = tone === 'emerald' ? 'text-emerald-600' : tone === 'red' ? 'text-red-600' : 'text-slate-800';
-  return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4">
-      <div className="text-xs font-semibold text-slate-400">{label}</div>
-      <div className={`mt-1 text-lg font-bold ${toneClass}`}>Rp {value.toLocaleString('id-ID')}</div>
-    </div>
+      <DetailTableBlock t={{
+        title: 'Pembayaran',
+        icon: 'fi fi-rr-money',
+        columns: [{ label: 'Tanggal' }, { label: 'Jumlah', align: 'r' }, { label: 'Metode' }, { label: 'No. Referensi' }, { label: 'Catatan', align: 'l' }],
+        rows: (payments ?? []).map((p) => [dateShort(p.pay_date), rp(p.amount), p.method || '-', p.reference_no || '-', p.notes || '-']),
+        empty: 'Belum terdapat data pembayaran',
+      }} />
+    </DetailShell>
   );
 }

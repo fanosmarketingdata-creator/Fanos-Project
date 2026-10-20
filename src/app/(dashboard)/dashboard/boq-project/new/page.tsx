@@ -9,10 +9,6 @@ export default async function NewBOQProjectPage() {
   ]);
 
   return (
-    <div>
-      <h1 className="page-title"><i className="fa-solid fa-layer-group" />Tambah BOQ Project</h1>
-      <p className="mb-6 text-sm text-slate-500">Susun Area → Sub-area → Item untuk proyek ini.</p>
-      <BOQProjectForm clients={clients ?? []} products={products ?? []} />
-    </div>
+    <BOQProjectForm clients={clients ?? []} products={products ?? []} />
   );
 }
