@@ -31,7 +31,7 @@ const emptyForm: ProjectInput = {
   trigger_source: '', triggered_by: '', top: '', cashback: '',
 };
 
-export default function ProjectsTable({ initialProjects, clients }: { initialProjects: ProjectRow[]; clients: ClientOpt[] }) {
+export default function ProjectsTable({ initialProjects, clients, classifications }: { initialProjects: ProjectRow[]; clients: ClientOpt[]; classifications: string[] }) {
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -108,7 +108,7 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
 
   return (
     <RegistryCard
-      title="Project Registry"
+      title="Project Master"
       icon="fa-solid fa-diagram-project"
       search={search}
       onSearch={setSearch}
@@ -209,7 +209,7 @@ export default function ProjectsTable({ initialProjects, clients }: { initialPro
                 <input value={form.location || ''} onChange={(e) => setForm({ ...form, location: e.target.value })} placeholder="Lokasi proyek (kota/wilayah)" />
               </FvField>
               <FvField label="Project Classification">
-                <input value={form.classification || ''} onChange={(e) => setForm({ ...form, classification: e.target.value })} placeholder="Contoh: Villa, Hotel, Kafe" />
+                <FvSelect value={form.classification || ''} onChange={(v) => setForm({ ...form, classification: v })} options={toOptions(classifications)} />
               </FvField>
               <FvField label="Project Type">
                 <FvSelect value={form.project_type || ''} onChange={(v) => setForm({ ...form, project_type: v })} options={toOptions(PROJECT_TYPE_OPTIONS)} />

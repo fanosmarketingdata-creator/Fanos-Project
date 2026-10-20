@@ -17,7 +17,7 @@ type Profile = {
   cursor_color?: string;
 };
 
-type NavItem = { href: string; label: string; icon: string };
+type NavItem = { href: string; label: string; icon: string; heading?: boolean; indent?: boolean };
 // Grup dengan 1 item dan `direct: true` jadi tombol biasa (tanpa dropdown).
 type NavGroup = { id: string; label: string; icon: string; items: NavItem[]; direct?: boolean; superuserOnly?: boolean };
 
@@ -36,9 +36,11 @@ const NAV_GROUPS: NavGroup[] = [
     icon: 'fi fi-rr-database',
     items: [
       { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
+      { href: '#project', label: 'Project', icon: 'fi fi-rr-briefcase', heading: true },
+      { href: '/dashboard/projects', label: 'Project Master', icon: 'fa-solid fa-diagram-project', indent: true },
+      { href: '/dashboard/project-classifications', label: 'Project Classification', icon: 'fi fi-rr-tags', indent: true },
       { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },
       { href: '/dashboard/products', label: 'Products', icon: 'fi fi-rr-boxes' },
-      { href: '/dashboard/projects', label: 'Projects', icon: 'fi fi-rr-briefcase' },
     ],
   },
   {
@@ -102,6 +104,7 @@ const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads
 
 function isActive(pathname: string | null, href: string) {
   // '/dashboard' harus cocok persis, kalau tidak semua menu ikut aktif.
+  if (href.startsWith('#')) return false;
   return href === '/dashboard' ? pathname === '/dashboard' : !!pathname?.startsWith(href);
 }
 
@@ -262,13 +265,21 @@ export default function DashboardShell({
                   >
                     <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                       {group.items.map((item) => {
+                        if (item.heading) {
+                          return (
+                            <div key={item.href} className="flex items-center gap-2 px-2.5 pb-0.5 pt-1.5 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+                              <i className={`${item.icon} w-4 text-center text-[11px] leading-none`} />
+                              <span>{item.label}</span>
+                            </div>
+                          );
+                        }
                         const active = isActive(pathname, item.href);
                         return (
                           <Link
                             key={item.href}
                             href={item.href}
                             role="menuitem"
-                            className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
+                            className={`flex items-center gap-2 rounded-lg py-1.5 pr-2.5 text-[12px] font-medium transition ${item.indent ? 'pl-6' : 'pl-2.5'} ${
                               active
                                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                                 : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
@@ -346,11 +357,16 @@ export default function DashboardShell({
                   </button>
                   {open && (
                     <div className="mb-1 ml-5 border-l border-slate-100 pl-2">
-                      {group.items.map((item) => (
+                      {group.items.map((item) => item.heading ? (
+                        <div key={item.href} className="flex items-center gap-2.5 px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
+                          <i className={`${item.icon} w-4 text-center text-[12px] leading-none`} />
+                          <span>{item.label}</span>
+                        </div>
+                      ) : (
                         <Link
                           key={item.href}
                           href={item.href}
-                          className={`flex items-center gap-2.5 rounded-lg px-3 py-2 text-[13px] font-medium ${
+                          className={`flex items-center gap-2.5 rounded-lg py-2 pr-3 text-[13px] font-medium ${item.indent ? 'pl-7' : 'pl-3'} ${
                             isActive(pathname, item.href)
                               ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white'
                               : 'text-slate-600 active:bg-brand-50'
