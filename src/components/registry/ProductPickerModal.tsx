@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useMemo, useState } from 'react';
 import { FormModal } from './RegistryModal';
 import type { ProductOption } from '@/components/ProductPicker';
@@ -75,12 +76,12 @@ function ProductPickerModal({
         </div>
         {categories.length > 0 && (
           <div className="fv2-field" style={{ minWidth: 160 }}>
-            <select value={cat} onChange={(e) => setCat(e.target.value)}>
+            <Select value={cat} onChange={(e) => setCat(e.target.value)}>
               <option value="">Semua kategori</option>
               {categories.map((c) => (
                 <option key={c} value={c}>{c}</option>
               ))}
-            </select>
+            </Select>
           </div>
         )}
       </div>

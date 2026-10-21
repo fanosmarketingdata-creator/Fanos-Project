@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useEffect, useState } from 'react';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import FinanceOptionModal from '@/components/registry/FinanceOptionModal';
@@ -32,7 +33,7 @@ export function DiscountEditor({ lines, onChange }: { lines: DiscountLine[]; onC
       <div className="fv2-section-title"><i className="fi fi-rr-tags" /> Diskon</div>
       {lines.map((d, i) => (
         <div key={i} className="fv2-item-row">
-          <select value={selectedId(d)} onChange={(e) => pick(i, e.target.value)} style={{ flex: 1 }}>
+          <Select value={selectedId(d)} onChange={(e) => pick(i, e.target.value)} style={{ flex: 1 }}>
             <option value="">{d.label ? `${d.label} (manual)` : '— Pilih diskon / pajak —'}</option>
             {group('discount').length > 0 && (
               <optgroup label="Discount">
@@ -46,7 +47,7 @@ export function DiscountEditor({ lines, onChange }: { lines: DiscountLine[]; onC
             )}
             <option value={NEW_DISCOUNT}>+ Diskon baru…</option>
             <option value={NEW_TAX}>+ Pajak baru…</option>
-          </select>
+          </Select>
           <input
             type="number"
             value={d.percent}

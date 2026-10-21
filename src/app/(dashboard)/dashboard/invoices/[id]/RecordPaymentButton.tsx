@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useState } from 'react';
 import { FormModal, FvField } from '@/components/registry/RegistryModal';
 import { useToast } from '@/components/Toast';
@@ -54,11 +55,11 @@ export default function RecordPaymentButton({ invoiceId }: { invoiceId: string }
               <FvField label="Tanggal"><input type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} /></FvField>
               <FvField label="Jumlah" required><input type="number" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} /></FvField>
               <FvField label="Metode">
-                <select value={method} onChange={(e) => setMethod(e.target.value)}>
+                <Select value={method} onChange={(e) => setMethod(e.target.value)}>
                   <option>Cash</option>
                   <option>Transfer</option>
                   <option>Cek/Giro</option>
-                </select>
+                </Select>
               </FvField>
               <FvField label="No. Referensi"><input value={referenceNo} onChange={(e) => setReferenceNo(e.target.value)} /></FvField>
               <FvField label="Catatan"><input value={notes} onChange={(e) => setNotes(e.target.value)} /></FvField>

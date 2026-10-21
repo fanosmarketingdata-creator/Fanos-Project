@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -121,10 +122,10 @@ export default function QuotationForm({
         <div className="fv2-grid">
           {!initial?.id && (
             <FvField label="Sumber Data">
-              <select value={mode} onChange={(e) => setMode(e.target.value as 'boq' | 'manual')}>
+              <Select value={mode} onChange={(e) => setMode(e.target.value as 'boq' | 'manual')}>
                 <option value="boq">Dari BOQ Project</option>
                 <option value="manual">Input Manual</option>
-              </select>
+              </Select>
             </FvField>
           )}
           <FvField label="Tanggal Quotation" required>

@@ -1,5 +1,7 @@
 'use client';
 
+import Select from '@/components/ui/Select';
+
 // Dropdown untuk field PRE-DETERMINED / LOOKUP. Bila nilai yang tersimpan
 // (data lama) tidak ada di daftar, nilai itu tetap ditampilkan supaya tidak hilang.
 export default function FvSelect({
@@ -17,7 +19,7 @@ export default function FvSelect({
 }) {
   const known = options.some((o) => o.value === value);
   return (
-    <select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
+    <Select value={value} onChange={(e) => onChange(e.target.value)} disabled={disabled}>
       <option value="">{placeholder}</option>
       {value && !known && <option value={value}>{value}</option>}
       {options.map((o) => (
@@ -25,7 +27,7 @@ export default function FvSelect({
           {o.label}
         </option>
       ))}
-    </select>
+    </Select>
   );
 }
 

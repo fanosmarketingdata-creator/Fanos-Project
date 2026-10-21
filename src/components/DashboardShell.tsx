@@ -8,7 +8,7 @@ import IdleLogout from '@/components/IdleLogout';
 import { useLang } from '@/components/I18nProvider';
 import { setLang, type Lang } from '@/lib/i18n/lang';
 import FigmaCursor from '@/components/FigmaCursor';
-import { NAV_GROUPS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
+import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
 
@@ -76,7 +76,10 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
 function isActive(pathname: string | null, href: string) {
   // '/dashboard' harus cocok persis, kalau tidak semua menu ikut aktif.
   if (href.startsWith('#')) return false;
-  return href === '/dashboard' ? pathname === '/dashboard' : !!pathname?.startsWith(href);
+  if (href === '/dashboard') return pathname === '/dashboard';
+  if (!pathname?.startsWith(href)) return false;
+  // Menu dengan alamat yang lebih spesifik menang (mis. /products/price-list vs /products).
+  return !ALL_MENU_KEYS.some((k) => k.length > href.length && k.startsWith(href) && pathname.startsWith(k));
 }
 
 function UserMenu({ profile }: { profile: { full_name: string; role: string; photo_url?: string | null } }) {

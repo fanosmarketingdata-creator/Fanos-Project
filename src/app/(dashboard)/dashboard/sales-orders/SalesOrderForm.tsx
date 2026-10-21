@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -109,10 +110,10 @@ export default function SalesOrderForm({
         <div className="fv2-grid">
           {!initial?.id && (
             <FvField label="Sumber Data">
-              <select value={mode} onChange={(e) => setMode(e.target.value as 'manual' | 'boq')}>
+              <Select value={mode} onChange={(e) => setMode(e.target.value as 'manual' | 'boq')}>
                 <option value="manual">Input Manual</option>
                 <option value="boq">Dari BOQ Project (langsung, tanpa quotation)</option>
-              </select>
+              </Select>
             </FvField>
           )}
           <FvField label="Tanggal Sales Order" required>

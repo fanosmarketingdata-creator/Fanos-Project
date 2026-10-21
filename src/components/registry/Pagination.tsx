@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useEffect, useMemo, useState } from 'react';
 
 export const ROWS_OPTIONS = [5, 10, 25, 50, 100];
@@ -84,13 +85,13 @@ export default function Pagination({
         <button type="button" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>
           ›
         </button>
-        <select className="pagination-rows-select" value={rowsPerPage} onChange={(e) => onRows(Number(e.target.value))}>
+        <Select className="pagination-rows-select" value={rowsPerPage} onChange={(e) => onRows(Number(e.target.value))}>
           {ROWS_OPTIONS.map((v) => (
             <option key={v} value={v}>
               {v}
             </option>
           ))}
-        </select>
+        </Select>
       </div>
     </div>
   );

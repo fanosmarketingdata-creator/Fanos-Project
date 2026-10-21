@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useMemo, useRef, useState } from 'react';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
@@ -337,7 +338,7 @@ export default function AccountsTable({
           <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Role Group *</label>
-              <select
+              <Select
                 value={form.role}
                 disabled={editingSelf}
                 onChange={(e) => setForm({ ...form, role: e.target.value })}
@@ -349,11 +350,11 @@ export default function AccountsTable({
                     {r}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Status</label>
-              <select
+              <Select
                 value={form.status}
                 disabled={editingSelf}
                 onChange={(e) => setForm({ ...form, status: e.target.value as 'Active' | 'Inactive' })}
@@ -361,11 +362,11 @@ export default function AccountsTable({
               >
                 <option value="Active">Active</option>
                 <option value="Inactive">Inactive</option>
-              </select>
+              </Select>
             </div>
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Team Member</label>
-              <select
+              <Select
                 value={form.team_member_id || ''}
                 onChange={(e) => setForm({ ...form, team_member_id: e.target.value })}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
@@ -376,7 +377,7 @@ export default function AccountsTable({
                     {m.name}
                   </option>
                 ))}
-              </select>
+              </Select>
             </div>
             <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
             <div className="sm:col-span-2">

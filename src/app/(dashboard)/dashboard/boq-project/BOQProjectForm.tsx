@@ -1,5 +1,6 @@
 'use client';
 
+import Select from '@/components/ui/Select';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -156,23 +157,23 @@ export default function BOQProjectForm({
             <input type="date" value={boqDate} onChange={(e) => setBoqDate(e.target.value)} />
           </FvField>
           <FvField label="Status">
-            <select value={status} onChange={(e) => setStatus(e.target.value as 'DRAFT' | 'APPROVED')}>
+            <Select value={status} onChange={(e) => setStatus(e.target.value as 'DRAFT' | 'APPROVED')}>
               <option value="DRAFT">DRAFT</option>
               <option value="APPROVED">APPROVED</option>
-            </select>
+            </Select>
           </FvField>
           <FvField label="Progress">
-            <select value={progress} onChange={(e) => setProgress(e.target.value as BOQProjectInput['progress'])}>
+            <Select value={progress} onChange={(e) => setProgress(e.target.value as BOQProjectInput['progress'])}>
               <option value="Pending">Pending</option>
               <option value="InProgress">In Progress</option>
               <option value="Completed">Completed</option>
-            </select>
+            </Select>
           </FvField>
           <FvField label="Alur Dokumen">
-            <select value={routeType} onChange={(e) => setRouteType(e.target.value)}>
+            <Select value={routeType} onChange={(e) => setRouteType(e.target.value)}>
               <option value="quotation">Via Quotation</option>
               <option value="so">Langsung ke Sales Order</option>
-            </select>
+            </Select>
           </FvField>
         </div>
       </Sec>
