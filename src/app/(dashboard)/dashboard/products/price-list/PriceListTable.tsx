@@ -1,5 +1,6 @@
 'use client';
 
+import RupiahInput from '@/components/ui/RupiahInput';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
@@ -222,10 +223,10 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
               <div className="fv2-section-title"><i className="fi fi-rr-money-bill" /> Harga</div>
               <div className="fv2-grid">
                 <FvField label="Cost Price (Rp)">
-                  <input type="number" inputMode="decimal" value={cost} onChange={(e) => setCost(e.target.value)} placeholder="0" />
+                  <RupiahInput value={cost} onValue={(n) => setCost(String(n))} />
                 </FvField>
                 <FvField label="Standard Selling Price (Rp)">
-                  <input type="number" inputMode="decimal" value={price} onChange={(e) => setPrice(e.target.value)} placeholder="0" />
+                  <RupiahInput value={price} onValue={(n) => setPrice(String(n))} />
                 </FvField>
               </div>
             </div>

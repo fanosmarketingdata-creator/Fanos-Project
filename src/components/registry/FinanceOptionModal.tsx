@@ -1,5 +1,6 @@
 'use client';
 
+import RupiahInput from '@/components/ui/RupiahInput';
 import { useState } from 'react';
 import { FormModal, FvField } from '@/components/registry/RegistryModal';
 import { FINANCE_KINDS, type FinanceKind, type FinanceOption } from '@/lib/finance';
@@ -59,7 +60,11 @@ export default function FinanceOptionModal({
         {cfg.mode !== 'none' && (
           <div style={{ marginTop: cfg.mode === 'amount' ? 0 : 14 }}>
             <FvField label={cfg.valueLabel ?? 'Nilai'} required>
-              <input type="number" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" autoFocus={cfg.mode === 'amount'} />
+              {cfg.mode === 'amount' ? (
+              <RupiahInput value={value} onValue={(n) => setValue(String(n))} autoFocus />
+            ) : (
+              <input type="number" inputMode="decimal" value={value} onChange={(e) => setValue(e.target.value)} placeholder="0" />
+            )}
             </FvField>
           </div>
         )}

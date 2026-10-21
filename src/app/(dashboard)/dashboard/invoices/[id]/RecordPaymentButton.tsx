@@ -1,5 +1,6 @@
 'use client';
 
+import RupiahInput from '@/components/ui/RupiahInput';
 import Select from '@/components/ui/Select';
 import { useState } from 'react';
 import { FormModal, FvField } from '@/components/registry/RegistryModal';
@@ -53,7 +54,7 @@ export default function RecordPaymentButton({ invoiceId }: { invoiceId: string }
           <div className="fv2-section">
             <div className="fv2-grid">
               <FvField label="Tanggal"><input type="date" value={payDate} onChange={(e) => setPayDate(e.target.value)} /></FvField>
-              <FvField label="Jumlah" required><input type="number" value={amount} onChange={(e) => setAmount(parseFloat(e.target.value) || 0)} /></FvField>
+              <FvField label="Jumlah" required><RupiahInput value={amount} onValue={setAmount} /></FvField>
               <FvField label="Metode">
                 <Select value={method} onChange={(e) => setMethod(e.target.value)}>
                   <option>Cash</option>

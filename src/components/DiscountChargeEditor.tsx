@@ -1,5 +1,6 @@
 'use client';
 
+import RupiahInput from '@/components/ui/RupiahInput';
 import Select from '@/components/ui/Select';
 import { useEffect, useState } from 'react';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
@@ -87,13 +88,7 @@ export function ChargeEditor({ lines, onChange }: { lines: ChargeLine[]; onChang
             placeholder="Keterangan (contoh: Biaya Kirim)"
             style={{ flex: 1 }}
           />
-          <input
-            type="number"
-            value={c.amount}
-            onChange={(e) => onChange(lines.map((l, j) => (j === i ? { ...l, amount: parseFloat(e.target.value) || 0 } : l)))}
-            placeholder="Rp"
-            style={{ width: 120, flex: 'none' }}
-          />
+          <RupiahInput value={c.amount} onValue={(n) => onChange(lines.map((l, j) => (j === i ? { ...l, amount: n } : l)))} style={{ width: 140, flex: 'none' }} />
           <button type="button" className="fv2-del-btn" aria-label="Hapus" onClick={() => onChange(lines.filter((_, j) => j !== i))}>
             <i className="fi fi-rr-cross-small" />
           </button>

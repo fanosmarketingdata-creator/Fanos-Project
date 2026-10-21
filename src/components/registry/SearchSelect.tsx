@@ -1,10 +1,11 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import Select from '@/components/ui/Select';
 
 export type SearchOption = { value: string; label: string; sub?: string };
 
-// Dropdown dengan pencarian (fv2-select-search di index.html).
+// Dropdown dengan pencarian. Memakai komponen Select yang sama dengan semua dropdown lain
+// supaya tampilannya seragam.
 export default function SearchSelect({
   value,
   onChange,
@@ -18,54 +19,23 @@ export default function SearchSelect({
   placeholder?: string;
   disabled?: boolean;
 }) {
-  const selected = options.find((o) => o.value === value);
-  const [query, setQuery] = useState('');
-  const [open, setOpen] = useState(false);
-
-  const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    const list = q ? options.filter((o) => (o.label + ' ' + (o.sub || '')).toLowerCase().includes(q)) : options;
-    return list.slice(0, 50);
-  }, [options, query]);
-
   return (
-    <div className="fv2-select-search">
-      <input
-        value={open ? query : selected?.label ?? ''}
-        placeholder={placeholder}
-        autoComplete="off"
-        disabled={disabled}
-        onFocus={() => {
-          setQuery('');
-          setOpen(true);
-        }}
-        onChange={(e) => {
-          setQuery(e.target.value);
-          setOpen(true);
-        }}
-        onBlur={() => setTimeout(() => setOpen(false), 150)}
-      />
-      <i className="fi fi-rr-angle-down arrow" />
-      {open && (
-        <div className="fv2-select-dropdown">
-          {results.length === 0 && <div className="empty">Tidak ditemukan</div>}
-          {results.map((o) => (
-            <button
-              key={o.value}
-              type="button"
-              className="opt"
-              onMouseDown={(e) => e.preventDefault()}
-              onClick={() => {
-                onChange(o.value, o);
-                setOpen(false);
-              }}
-            >
-              {o.label}
-              {o.sub && <span className="sub">{o.sub}</span>}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
+    <Select
+      value={value}
+      searchable
+      searchPlaceholder={placeholder}
+      placeholder={placeholder}
+      disabled={disabled}
+      onChange={(e) => {
+        const o = options.find((x) => x.value === e.target.value);
+        onChange(e.target.value, o ?? { value: e.target.value, label: '' });
+      }}
+    >
+      {options.map((o) => (
+        <option key={o.value} value={o.value} data-sub={o.sub}>
+          {o.label}
+        </option>
+      ))}
+    </Select>
   );
 }

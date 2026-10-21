@@ -3,17 +3,17 @@
 import { Children, isValidElement, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-type Item = { value: string; label: string; disabled?: boolean; group?: string };
+type Item = { value: string; label: string; sub?: string; disabled?: boolean; group?: string };
 
 // Ubah <option>/<optgroup> menjadi daftar item datar, supaya <select> lama bisa diganti tanpa ubah isinya.
 function parseChildren(children: ReactNode, group?: string, out: Item[] = []): Item[] {
   Children.forEach(children, (c) => {
     if (!isValidElement(c)) return;
-    const p = c.props as { value?: string | number; disabled?: boolean; label?: string; children?: ReactNode };
+    const p = c.props as { value?: string | number; disabled?: boolean; label?: string; children?: ReactNode; 'data-sub'?: string };
     if (c.type === 'optgroup') parseChildren(p.children, p.label, out);
     else if (c.type === 'option') {
       const text = Children.toArray(p.children).join('');
-      out.push({ value: String(p.value ?? text), label: text, disabled: p.disabled, group });
+      out.push({ value: String(p.value ?? text), label: text, sub: p['data-sub'], disabled: p.disabled, group });
     } else if (p.children) parseChildren(p.children, group, out);
   });
   return out;
@@ -25,17 +25,20 @@ export type UiSelectProps = {
   disabled?: boolean;
   className?: string;
   style?: CSSProperties;
+  searchable?: boolean; // paksa kolom cari (default: otomatis bila pilihan > 8)
+  searchPlaceholder?: string;
+  placeholder?: string; // teks saat belum ada pilihan, tanpa baris "kosongkan"
   children: ReactNode;
 };
 
 // Dropdown modern pengganti <select> bawaan browser: popover berbayang, centang pada pilihan,
 // pencarian otomatis bila pilihan banyak, navigasi keyboard, dan membuka ke atas bila ruang bawah sempit.
-export default function Select({ value, onChange, disabled, className = '', style, children }: UiSelectProps) {
+export default function Select({ value, onChange, disabled, className = '', style, searchable: forceSearch, searchPlaceholder = 'Cari...', placeholder, children }: UiSelectProps) {
   const items = useMemo(() => parseChildren(children), [children]);
   const current = String(value ?? '');
   const selected = items.find((i) => i.value === current);
   const placeholderItem = items.find((i) => i.value === '');
-  const searchable = items.length > 8;
+  const searchable = forceSearch ?? items.length > 8;
 
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState('');
@@ -47,7 +50,7 @@ export default function Select({ value, onChange, disabled, className = '', styl
 
   const visible = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return items.filter((i) => i.value !== '' && (!q || i.label.toLowerCase().includes(q)));
+    return items.filter((i) => i.value !== '' && (!q || (i.label + ' ' + (i.sub ?? '')).toLowerCase().includes(q)));
   }, [items, query]);
   // Pilihan kosong ("— Pilih salah satu —") tampil di atas sebagai opsi "kosongkan".
   const rows: Item[] = useMemo(() => (placeholderItem && !query.trim() ? [placeholderItem, ...visible] : visible), [placeholderItem, visible, query]);
@@ -129,7 +132,7 @@ export default function Select({ value, onChange, disabled, className = '', styl
   }
 
   const showPlaceholder = !selected || selected.value === '';
-  const label = selected && selected.value !== '' ? selected.label : placeholderItem?.label ?? '';
+  const label = selected && selected.value !== '' ? selected.label : placeholderItem?.label ?? placeholder ?? '';
 
   let lastGroup: string | undefined;
   return (
@@ -160,7 +163,7 @@ export default function Select({ value, onChange, disabled, className = '', styl
             {searchable && (
               <div className="ui-select-search">
                 <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7" /><path d="M20 20l-3.5-3.5" /></svg>
-                <input autoFocus value={query} onChange={(e) => { setQuery(e.target.value); setHi(0); }} placeholder="Cari..." />
+                <input autoFocus value={query} onChange={(e) => { setQuery(e.target.value); setHi(0); }} placeholder={searchPlaceholder} />
               </div>
             )}
             <div ref={listRef} className="ui-select-list" style={{ maxHeight: pos.maxH - (searchable ? 48 : 0) }}>
@@ -182,7 +185,10 @@ export default function Select({ value, onChange, disabled, className = '', styl
                       onMouseEnter={() => setHi(idx)}
                       onClick={() => choose(r)}
                     >
-                      <span>{r.label}</span>
+                      <span style={{ minWidth: 0 }}>
+                        {r.label}
+                        {r.sub && <span className="ui-select-sub">{r.sub}</span>}
+                      </span>
                       {isSel && r.value !== '' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>}
                     </button>
                   </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import RupiahInput from '@/components/ui/RupiahInput';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -105,7 +106,7 @@ export default function POForm({
                 </div>
                 <input type="number" style={{ width: 70, flex: 'none' }} value={it.qty} onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })} />
                 <input style={{ width: 70, flex: 'none' }} value={it.uom} onChange={(e) => updateItem(i, { uom: e.target.value })} />
-                <input type="number" style={{ flex: 1 }} value={it.unit_price} onChange={(e) => updateItem(i, { unit_price: parseFloat(e.target.value) || 0 })} />
+                <RupiahInput style={{ flex: 1 }} value={it.unit_price} onValue={(n) => updateItem(i, { unit_price: n })} />
                 <input style={{ flex: 1 }} readOnly value={`Rp ${(it.qty * it.unit_price).toLocaleString('id-ID')}`} />
                 <button type="button" className="fv2-del-btn" aria-label="Hapus item" onClick={() => setItems((prev) => prev.filter((_, j) => j !== i))}>
                   <i className="fi fi-rr-cross-small" />
