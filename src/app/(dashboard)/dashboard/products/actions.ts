@@ -59,9 +59,18 @@ export async function saveProduct(input: ProductInput) {
 export async function savePrices(id: string, cost_price: number, price: number) {
   if (!(cost_price >= 0) || !(price >= 0)) return { error: 'Harga tidak valid.' };
   const supabase = createClient();
-  const { error } = await supabase.from('products').update({ cost_price, price }).eq('id', id);
+  const { error } = await supabase.from('products').update({ cost_price, price, price_listed: true }).eq('id', id);
   if (error) return { error: error.message };
   revalidatePath('/dashboard/products');
+  revalidatePath('/dashboard/products/price-list');
+  return { success: true };
+}
+
+// Keluarkan produk dari Price List (produk tetap ada di Catalogue).
+export async function removeFromPriceList(id: string) {
+  const supabase = createClient();
+  const { error } = await supabase.from('products').update({ price_listed: false, cost_price: 0, price: 0 }).eq('id', id);
+  if (error) return { error: error.message };
   revalidatePath('/dashboard/products/price-list');
   return { success: true };
 }

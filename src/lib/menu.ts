@@ -33,6 +33,7 @@ export const NAV_GROUPS: NavGroup[] = [
         icon: 'fi fi-rr-credit-card',
         children: [
           { href: '/dashboard/discounts', label: 'Discount', icon: 'fi fi-rr-percentage' },
+          { href: '/dashboard/cashbacks', label: 'Cashback', icon: 'fi fi-rr-coins' },
           { href: '/dashboard/payment-methods', label: 'Payment Method', icon: 'fi fi-rr-credit-card' },
           { href: '/dashboard/payment-terms', label: 'Payment Term', icon: 'fi fi-rr-calendar-clock' },
           { href: '/dashboard/taxes', label: 'Tax', icon: 'fi fi-rr-calculator' },
@@ -127,7 +128,7 @@ export const NAV_ID: Record<string, string> = {
   Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
   Invoices: 'Faktur', 'Customer Payment': 'Pembayaran Pelanggan', 'Sales Return': 'Retur Penjualan',
   Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
-  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak', 'Credit Limit': 'Batas Kredit',
+  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Cashback: 'Cashback', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak', 'Credit Limit': 'Batas Kredit',
   Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
   'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
   Language: 'Bahasa', 'Log out': 'Keluar',

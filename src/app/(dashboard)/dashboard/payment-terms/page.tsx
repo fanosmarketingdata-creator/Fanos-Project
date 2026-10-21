@@ -1,5 +1,7 @@
-import ComingSoon from '@/components/ComingSoon';
+import { listFinanceOptions } from '../finance/actions';
+import FinanceOptionsTable from '../finance/FinanceOptionsTable';
 
-export default function Page() {
-  return <ComingSoon title="Payment Term" icon="fi fi-rr-calendar-clock" />;
+export default async function Page() {
+  const rows = await listFinanceOptions(['payment_term']);
+  return <FinanceOptionsTable kind="payment_term" rows={rows} />;
 }

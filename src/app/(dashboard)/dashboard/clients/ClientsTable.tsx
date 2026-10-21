@@ -5,7 +5,7 @@ import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
-import FvSelect from '@/components/registry/FvSelect';
+import FinanceSelect from '@/components/registry/FinanceSelect';
 import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
 import { saveClient, deleteClient, type ClientInput } from './actions';
 
@@ -201,11 +201,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             </div>
             <div style={{ marginTop: 14 }}>
               <FvField label="Credit Limit">
-                <FvSelect
-                  value={form.credit_limit == null ? '' : String(form.credit_limit)}
-                  onChange={(v) => setForm({ ...form, credit_limit: v === '' ? null : Number(v) })}
-                  options={CREDIT_LIMIT_OPTIONS.map((o) => ({ value: String(o.value), label: o.label }))}
-                />
+                <FinanceSelect kind="credit_limit" useAmount value={form.credit_limit == null ? '' : String(form.credit_limit)} onChange={(v) => setForm({ ...form, credit_limit: v === '' ? null : Number(v) })} />
               </FvField>
             </div>
           </div>

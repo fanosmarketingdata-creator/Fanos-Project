@@ -6,7 +6,8 @@ import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
-import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS, TOP_OPTIONS } from '@/lib/master-options';
+import FinanceSelect from '@/components/registry/FinanceSelect';
+import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
 import { saveProject, deleteProject, type ProjectInput } from './actions';
 
 export type ProjectRow = {
@@ -249,10 +250,10 @@ export default function ProjectsTable({ initialProjects, clients, classification
                 />
               </FvField>
               <FvField label="Term of Payment">
-                <FvSelect value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} options={toOptions(TOP_OPTIONS)} />
+                <FinanceSelect kind="payment_term" value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} />
               </FvField>
               <FvField label="Cashback">
-                <input value={form.cashback || ''} onChange={(e) => setForm({ ...form, cashback: e.target.value })} placeholder="Contoh: 5% atau Rp 2.000.000" />
+                <FinanceSelect kind="cashback" value={form.cashback || ''} onChange={(v) => setForm({ ...form, cashback: v })} />
               </FvField>
             </div>
           </div>

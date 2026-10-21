@@ -1,5 +1,7 @@
-import ComingSoon from '@/components/ComingSoon';
+import { listFinanceOptions } from '../finance/actions';
+import FinanceOptionsTable from '../finance/FinanceOptionsTable';
 
-export default function Page() {
-  return <ComingSoon title="Tax" icon="fi fi-rr-calculator" />;
+export default async function Page() {
+  const rows = await listFinanceOptions(['tax']);
+  return <FinanceOptionsTable kind="tax" rows={rows} />;
 }

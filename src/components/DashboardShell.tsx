@@ -28,10 +28,6 @@ function useNavLabel() {
   return (l: string) => navLabel(lang, l);
 }
 
-// Untuk menu mobile: item bersub ditampilkan sebagai judul + sub item menjorok.
-const expandItems = (items: NavItem[]): NavItem[] =>
-  items.flatMap((i) => (i.children ? [{ ...i, children: undefined, heading: true }, ...i.children.map((c) => ({ ...c, indent: true }))] : [i]));
-
 function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) {
   const nl = useNavLabel();
   const [open, setOpen] = useState(false);
@@ -188,6 +184,7 @@ export default function DashboardShell({
   // Layar < lg: menu jadi panel hamburger dengan akordeon (tidak ada hover di HP/tablet).
   const [mobileOpen, setMobileOpen] = useState(false);
   const [mobileGroup, setMobileGroup] = useState<string | null>(null);
+  const [mobileSubs, setMobileSubs] = useState<string[]>([]);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Dropdown terbuka saat di-hover. Penutupan ditunda sebentar supaya
@@ -396,25 +393,47 @@ export default function DashboardShell({
                   </button>
                   {open && (
                     <div className="mb-1 ml-5 border-l border-slate-100 pl-2">
-                      {expandItems(group.items).map((item) => item.heading ? (
-                        <div key={item.href} className="flex items-center gap-2.5 px-3 pb-1 pt-2 text-[11px] font-bold uppercase tracking-wide text-slate-400">
-                          <i className={`${item.icon} w-4 text-center text-[12px] leading-none`} />
-                          <span>{nl(item.label)}</span>
-                        </div>
-                      ) : (
-                        <Link
-                          key={item.href}
-                          href={item.href}
-                          className={`flex items-center gap-2.5 rounded-lg py-2 pr-3 text-[13px] font-medium ${item.indent ? 'pl-7' : 'pl-3'} ${
-                            isActive(pathname, item.href)
+                      {group.items.map((item) => {
+                        const linkCls = (href: string, pad: string) =>
+                          `flex items-center gap-2.5 rounded-lg py-2 pr-3 text-[13px] font-medium ${pad} ${
+                            isActive(pathname, href)
                               ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white'
                               : 'text-slate-600 active:bg-brand-50'
-                          }`}
-                        >
-                          <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
-                          <span>{nl(item.label)}</span>
-                        </Link>
-                      ))}
+                          }`;
+                        if (!item.children) {
+                          return (
+                            <Link key={item.href} href={item.href} className={linkCls(item.href, 'pl-3')}>
+                              <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
+                              <span>{nl(item.label)}</span>
+                            </Link>
+                          );
+                        }
+                        const subOpen = mobileSubs.includes(item.href) || item.children.some((c) => isActive(pathname, c.href));
+                        return (
+                          <div key={item.href}>
+                            <button
+                              type="button"
+                              aria-expanded={subOpen}
+                              onClick={() => setMobileSubs((p) => (p.includes(item.href) ? p.filter((x) => x !== item.href) : [...p, item.href]))}
+                              className="flex w-full items-center gap-2.5 rounded-lg py-2 pl-3 pr-3 text-left text-[13px] font-medium text-slate-600 active:bg-brand-50"
+                            >
+                              <i className={`${item.icon} w-4 text-center text-[13px] leading-none`} />
+                              <span className="flex-1">{nl(item.label)}</span>
+                              <i className={`fi fi-rr-angle-small-down text-[12px] leading-none transition-transform ${subOpen ? 'rotate-180' : ''}`} />
+                            </button>
+                            {subOpen && (
+                              <div className="ml-4 border-l border-slate-100 pl-1">
+                                {item.children.map((c) => (
+                                  <Link key={c.href} href={c.href} className={linkCls(c.href, 'pl-3')}>
+                                    <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
+                                    <span>{nl(c.label)}</span>
+                                  </Link>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

@@ -1,5 +1,7 @@
-import ComingSoon from '@/components/ComingSoon';
+import { listFinanceOptions } from '../finance/actions';
+import FinanceOptionsTable from '../finance/FinanceOptionsTable';
 
-export default function Page() {
-  return <ComingSoon title="Discount" icon="fi fi-rr-badge-percent" />;
+export default async function Page() {
+  const rows = await listFinanceOptions(['discount']);
+  return <FinanceOptionsTable kind="discount" rows={rows} />;
 }
