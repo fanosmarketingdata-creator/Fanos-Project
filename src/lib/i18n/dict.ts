@@ -1,6 +1,11 @@
 // Kamus Indonesia -> Inggris. Teks sumber aplikasi berbahasa Indonesia; bahasa
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
+  'Diskon (−) & Pajak (+)': 'Discount (−) & Tax (+)',
+  'Tambah Pajak': 'Add Tax',
+  '— Pilih pajak —': '— Select tax —',
+  '— Pilih diskon —': '— Select discount —',
+  'Pajak': 'Tax',
   '+ Tambah baru…': '+ Add new…',
   '+ Diskon baru…': '+ New discount…',
   '+ Pajak baru…': '+ New tax…',
@@ -493,6 +498,7 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Pajak(?: (.+))? \((.+)%\)$/, (m) => `Tax${m[1] ? ' ' + m[1] : ''} (${m[2]}%)`],
   [/^(\d+) produk$/, (m) => `${m[1]} product${m[1] === '1' ? '' : 's'}`],
   [/^(\d+) item$/, (m) => `${m[1]} item${m[1] === '1' ? '' : 's'}`],
   [/^(\d+) akun$/, (m) => `${m[1]} account${m[1] === '1' ? '' : 's'}`],

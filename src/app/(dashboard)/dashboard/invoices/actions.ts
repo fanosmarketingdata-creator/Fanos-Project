@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
-import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 
 // Daftar SO yang BELUM punya invoice (supaya tidak invoice dobel per SO).
 export async function getUninvoicedSalesOrders() {
@@ -53,7 +53,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(so.discounts as DiscountLine[]);
   const afterDiscount = subtotal * (1 - discountPercent / 100);
-  const grandTotal = afterDiscount + sumChargeAmount(so.charges as ChargeLine[]);
+  const grandTotal = afterDiscount + sumChargeAmount(so.charges as ChargeLine[]) + sumTaxAmount(subtotal, so.discounts as DiscountLine[]);
 
   const { data: invoice, error: invError } = await supabase
     .from('invoices')

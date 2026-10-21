@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
-import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 
 export type QuoteItemInput = {
   product_id: string | null;
@@ -30,7 +30,7 @@ function computeTotals(items: QuoteItemInput[], discounts: DiscountLine[], charg
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(discounts);
   const afterDiscount = subtotal * (1 - discountPercent / 100);
-  const total = afterDiscount + sumChargeAmount(charges);
+  const total = afterDiscount + sumChargeAmount(charges) + sumTaxAmount(subtotal, discounts);
   return { subtotal, total };
 }
 

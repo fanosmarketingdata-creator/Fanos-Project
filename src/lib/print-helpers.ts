@@ -26,7 +26,7 @@ export function clientLines(c: PrintClient) {
   return lines;
 }
 
-type Discount = { label: string; percent: number };
+type Discount = { label: string; percent: number; kind?: string };
 type Charge = { label: string; amount: number };
 
 // Sama dengan rumus di form: total diskon = jumlah persen semua baris diskon.
@@ -34,10 +34,18 @@ export function buildTotals(subtotal: number, discounts: Discount[] = [], charge
   const rows: { label: string; value: string; bold?: boolean }[] = [{ label: 'Sub Total :', value: rupiah(subtotal) }];
 
   let discountTotal = 0;
-  discounts.forEach((d) => {
+  discounts.filter((d) => d.kind !== 'tax').forEach((d) => {
     const amt = (subtotal * (d.percent || 0)) / 100;
     discountTotal += amt;
     rows.push({ label: `Disc${d.label ? ` ${d.label}` : ''} (${d.percent}%):`, value: `-${rupiah(amt)}` });
+  });
+
+  // Pajak (+) dihitung dari Subtotal - Diskon.
+  let taxTotal = 0;
+  discounts.filter((d) => d.kind === 'tax').forEach((d) => {
+    const amt = ((subtotal - discountTotal) * (d.percent || 0)) / 100;
+    taxTotal += amt;
+    rows.push({ label: `Pajak${d.label ? ` ${d.label}` : ''} (${d.percent}%):`, value: `+${rupiah(amt)}` });
   });
 
   let chargeTotal = 0;
@@ -46,7 +54,7 @@ export function buildTotals(subtotal: number, discounts: Discount[] = [], charge
     rows.push({ label: `${c.label || 'Biaya'} :`, value: rupiah(c.amount) });
   });
 
-  const total = subtotal - discountTotal + chargeTotal;
+  const total = subtotal - discountTotal + taxTotal + chargeTotal;
   rows.push({ label: `${finalLabel}:`, value: rupiah(total), bold: true });
   return { rows, total };
 }

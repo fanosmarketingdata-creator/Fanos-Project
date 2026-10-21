@@ -88,14 +88,21 @@ export function DetailSummary({ rows }: { rows: SummaryRow[] }) {
   );
 }
 
-export function buildSummary(subtotal: number, discounts: { label: string; percent: number }[] = [], charges: { label: string; amount: number }[] = [], grandLabel = 'Total'): { rows: SummaryRow[]; total: number } {
+export function buildSummary(subtotal: number, discounts: { label: string; percent: number; kind?: string }[] = [], charges: { label: string; amount: number }[] = [], grandLabel = 'Total'): { rows: SummaryRow[]; total: number } {
   const r = (n: number) => `Rp ${n.toLocaleString('id-ID')}`;
   const rows: SummaryRow[] = [{ label: 'Sub Total', value: r(subtotal) }];
   let total = subtotal;
-  discounts.forEach((d) => {
+  discounts.filter((d) => d.kind !== 'tax').forEach((d) => {
     const a = (subtotal * (d.percent || 0)) / 100;
     total -= a;
     rows.push({ label: `Diskon${d.label ? ' ' + d.label : ''} (${d.percent}%)`, value: `- ${r(a)}`, kind: 'discount' });
+  });
+  // Pajak (+) dihitung dari Subtotal - Diskon.
+  const base = total;
+  discounts.filter((d) => d.kind === 'tax').forEach((d) => {
+    const a = (base * (d.percent || 0)) / 100;
+    total += a;
+    rows.push({ label: `Pajak${d.label ? ' ' + d.label : ''} (${d.percent}%)`, value: `+ ${r(a)}`, kind: 'charge' });
   });
   charges.forEach((c) => {
     total += c.amount || 0;

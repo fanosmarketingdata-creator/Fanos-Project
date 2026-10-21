@@ -10,7 +10,7 @@ import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { type ProductOption } from '@/components/ProductPicker';
 import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
-import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount, sumTaxAmount, sumTaxPercent } from '@/lib/discount-charge';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import { saveSalesOrder, getBOQItemsForSO, type SalesOrderInput, type SOItemInput } from './actions';
 
@@ -69,7 +69,9 @@ export default function SalesOrderForm({
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(discounts);
   const afterDiscount = subtotal * (1 - discountPercent / 100);
-  const total = afterDiscount + sumChargeAmount(charges);
+  const taxAmount = sumTaxAmount(subtotal, discounts);
+  const taxPercent = sumTaxPercent(discounts);
+  const total = afterDiscount + taxAmount + sumChargeAmount(charges);
 
   async function handleSave() {
     setSaving(true);
@@ -187,7 +189,7 @@ export default function SalesOrderForm({
         </div>
         <div>
           <div className="fv2-section-title"><i className="fi fi-rr-calculator" /> Ringkasan</div>
-          <TotalsBox subtotal={subtotal} discountPercent={discountPercent} discountAmount={discountAmount} chargeAmount={chargeAmount} total={total} />
+          <TotalsBox subtotal={subtotal} discountPercent={discountPercent} discountAmount={discountAmount} taxPercent={taxPercent} taxAmount={taxAmount} chargeAmount={chargeAmount} total={total} />
         </div>
       </div>
     </DocFormShell>

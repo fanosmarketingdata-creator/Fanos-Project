@@ -59,6 +59,8 @@ export function TotalsBox({
   subtotal,
   discountPercent,
   discountAmount,
+  taxPercent = 0,
+  taxAmount = 0,
   chargeAmount,
   total,
   totalLabel = 'Total',
@@ -66,6 +68,8 @@ export function TotalsBox({
   subtotal: number;
   discountPercent: number;
   discountAmount: number;
+  taxPercent?: number;
+  taxAmount?: number;
   chargeAmount: number;
   total: number;
   totalLabel?: string;
@@ -75,6 +79,7 @@ export function TotalsBox({
     <div className="fv2-summary">
       <div className="dv2-summary-row"><span>Sub Total</span><span>{r(subtotal)}</span></div>
       <div className="dv2-summary-row discount"><span>Diskon ({discountPercent}%)</span><span>- {r(discountAmount)}</span></div>
+      {taxPercent > 0 && <div className="dv2-summary-row charge"><span>Pajak ({taxPercent}%)</span><span>+ {r(taxAmount)}</span></div>}
       <div className="dv2-summary-row charge"><span>Biaya Tambahan</span><span>{r(chargeAmount)}</span></div>
       <div className="dv2-summary-row" style={{ borderTop: '1.5px solid #e5e7eb', marginTop: 6, paddingTop: 10, fontSize: 15, fontWeight: 800, color: '#1a237e' }}>
         <span>{totalLabel}</span>

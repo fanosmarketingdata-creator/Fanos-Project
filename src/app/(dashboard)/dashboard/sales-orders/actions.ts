@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
-import { sumDiscountPercent, sumChargeAmount } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 
 export type SOItemInput = {
   product_id: string | null;
@@ -35,7 +35,7 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   const total = validItems.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(input.discounts);
   const afterDiscount = total * (1 - discountPercent / 100);
-  const grandTotal = afterDiscount + sumChargeAmount(input.charges);
+  const grandTotal = afterDiscount + sumChargeAmount(input.charges) + sumTaxAmount(total, input.discounts);
 
   const headerPayload = {
     so_date: input.so_date,
