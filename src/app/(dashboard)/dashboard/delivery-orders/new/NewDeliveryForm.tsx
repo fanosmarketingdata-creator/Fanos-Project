@@ -134,7 +134,7 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
       {mode === 'so' ? (
         <Sec title="Item yang Dikirim" icon="fi fi-rr-list">
           {loading && <p style={{ fontSize: 12, color: '#9ca3af' }}>Memuat item Sales Order...</p>}
-          {!loading && rows.length === 0 && <p style={{ fontSize: 12, color: '#9ca3af' }}>Pilih Sales Order untuk menampilkan item yang masih bisa dikirim.</p>}
+          {!loading && rows.length === 0 && <p style={{ fontSize: 12, color: '#9ca3af' }}>Pilih Sales Order untuk menampilkan item yang masih bisa dikirim. Hanya Sales Order berstatus VERIFIED yang tampil.</p>}
           {rows.length > 0 && (
             <div className="dv2-table-wrap">
               <table className="dv2-table">

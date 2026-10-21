@@ -148,6 +148,9 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
 
   const supabase = createClient();
 
+  const { data: soStatus } = await supabase.from('sales_orders').select('status').eq('id', soId).single();
+  if (soStatus?.status !== 'VERIFIED') return { error: 'Delivery Order hanya dapat dibuat dari Sales Order berstatus VERIFIED.' };
+
   // Validasi: ship qty tidak boleh melebihi sisa
   const { data: soItems } = await supabase
     .from('sales_order_items')
@@ -196,16 +199,24 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
     if (updErr) return { error: updErr.message };
   }
 
-  // Kalau semua item sudah terkirim penuh, naikkan status SO jadi COMPLETED
-  const { data: refreshed } = await supabase.from('sales_order_items').select('qty, qty_shipped').eq('sales_order_id', soId);
-  const allShipped = (refreshed ?? []).every((it) => Number(it.qty_shipped) >= Number(it.qty));
-  if (allShipped) {
-    await supabase.from('sales_orders').update({ status: 'COMPLETED' }).eq('id', soId);
-  } else {
-    await supabase.from('sales_orders').update({ status: 'ONGOING' }).eq('id', soId);
-  }
-
   revalidatePath('/dashboard/sales-orders');
   revalidatePath('/dashboard/delivery-orders');
   return { success: true, deliveryOrderId: deliveryOrder.id };
+}
+
+// Status Sales Order diubah manual: DRAFT -> VERIFIED -> COMPLETED.
+export async function changeSalesOrderStatus(id: string, to: 'VERIFIED' | 'COMPLETED') {
+  const from = to === 'VERIFIED' ? 'DRAFT' : 'VERIFIED';
+  const supabase = createClient();
+  const { data: so } = await supabase.from('sales_orders').select('status').eq('id', id).single();
+  if (!so) return { error: 'Sales Order tidak ditemukan' };
+  if (so.status !== from) {
+    return { error: to === 'VERIFIED' ? 'Hanya Sales Order berstatus DRAFT yang dapat di-verify.' : 'Sales Order harus berstatus VERIFIED sebelum dapat di-complete.' };
+  }
+  const { error } = await supabase.from('sales_orders').update({ status: to }).eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/sales-orders');
+  revalidatePath('/dashboard/delivery-orders');
+  revalidatePath('/dashboard');
+  return { success: true };
 }

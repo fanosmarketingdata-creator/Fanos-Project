@@ -9,7 +9,7 @@ export async function getSalesOrdersForDelivery() {
   const { data } = await supabase
     .from('sales_orders')
     .select('id, doc_no, so_date, status, clients(project_name)')
-    .neq('status', 'COMPLETED')
+    .eq('status', 'VERIFIED')
     .order('so_date', { ascending: false });
   return (data ?? []).map((so) => ({
     id: so.id,

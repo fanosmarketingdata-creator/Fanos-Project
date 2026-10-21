@@ -11,7 +11,7 @@ export async function getUninvoicedSalesOrders() {
   const { data: sos } = await supabase
     .from('sales_orders')
     .select('id, so_date, total_amount, clients(project_name), invoices(id)')
-    .in('status', ['ONGOING', 'COMPLETED']);
+    .in('status', ['VERIFIED', 'COMPLETED']);
 
   return (sos ?? [])
     .filter((so) => !(so.invoices as unknown as { id: string }[])?.length)

@@ -5,8 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
-import ShipItemsModal from './ShipItemsModal';
-import { deleteSalesOrder } from './actions';
+import { deleteSalesOrder, changeSalesOrderStatus } from './actions';
 
 export type SalesOrderRow = {
   id: string;
@@ -19,6 +18,7 @@ export type SalesOrderRow = {
 
 const statusBadge: Record<string, string> = {
   DRAFT: 'bg-slate-100 text-slate-600',
+  VERIFIED: 'bg-blue-100 text-blue-700',
   ONGOING: 'bg-amber-100 text-amber-700',
   COMPLETED: 'bg-emerald-100 text-emerald-700',
   CANCELLED: 'bg-red-100 text-red-700',
@@ -30,7 +30,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<SalesOrderRow | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [shipTargetId, setShipTargetId] = useState<string | null>(null);
+  const [busyId, setBusyId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -51,9 +51,20 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
     setDeleteTarget(null);
   }
 
-  function handleShipClose(didShip: boolean) {
-    setShipTargetId(null);
-    if (didShip) window.location.reload();
+  async function handleStatus(r: SalesOrderRow, to: 'VERIFIED' | 'COMPLETED') {
+    const label = to === 'VERIFIED' ? 'Verified' : 'Completed';
+    if (!window.confirm(`Tandai Sales Order ${r.doc_no ?? r.client_name} sebagai ${label}?`)) return;
+    setBusyId(r.id);
+    try {
+      const res = await changeSalesOrderStatus(r.id, to);
+      if (res.error) return toast(res.error, 'error');
+      toast(`Sales Order ditandai ${label}`, 'success');
+      router.refresh();
+    } catch (e) {
+      toast('Status gagal diubah: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+    } finally {
+      setBusyId(null);
+    }
   }
 
   return (
@@ -118,12 +129,22 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
                     >
                       Cetak
                     </Link>
-                    {r.status !== 'COMPLETED' && r.status !== 'CANCELLED' && (
+                    {r.status === 'DRAFT' && (
                       <button
-                        onClick={() => setShipTargetId(r.id)}
-                        className="rounded-lg bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100"
+                        onClick={() => handleStatus(r, 'VERIFIED')}
+                        disabled={busyId === r.id}
+                        className="rounded-lg bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
                       >
-                        Ship Items
+                        Mark as Verified
+                      </button>
+                    )}
+                    {r.status === 'VERIFIED' && (
+                      <button
+                        onClick={() => handleStatus(r, 'COMPLETED')}
+                        disabled={busyId === r.id}
+                        className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
+                      >
+                        Mark as Completed
                       </button>
                     )}
                     {r.status === 'DRAFT' && (
@@ -147,8 +168,6 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
           </tbody>
         </table>
       </div>
-
-      {shipTargetId && <ShipItemsModal soId={shipTargetId} onClose={handleShipClose} />}
 
       {deleteTarget && (
         <Modal

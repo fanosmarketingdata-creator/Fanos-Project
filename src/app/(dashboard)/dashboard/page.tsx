@@ -36,7 +36,7 @@ export default async function DashboardPage() {
     supabase.from('invoices').select('remaining').gt('remaining', 0),
     supabase.from('invoices').select('grand_total, inv_date').gte('inv_date', sixMonthsAgo),
     supabase.from('payments').select('amount').gte('pay_date', monthStart),
-    supabase.from('sales_orders').select('id', head).in('status', ['DRAFT', 'ONGOING']),
+    supabase.from('sales_orders').select('id', head).in('status', ['DRAFT', 'VERIFIED']),
     supabase.from('quotations').select('id', head).eq('status', 'DRAFT'),
     supabase.from('purchase_orders').select('id', head).in('status', ['DRAFT', 'ORDERED']),
     supabase

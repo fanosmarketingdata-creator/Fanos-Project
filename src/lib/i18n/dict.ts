@@ -1,6 +1,14 @@
 // Kamus Indonesia -> Inggris. Teks sumber aplikasi berbahasa Indonesia; bahasa
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
+  'Mark as Verified': 'Mark as Verified',
+  'Mark as Completed': 'Mark as Completed',
+  'Sales Order ditandai Verified': 'Sales Order marked as Verified',
+  'Sales Order ditandai Completed': 'Sales Order marked as Completed',
+  'Hanya Sales Order berstatus DRAFT yang dapat di-verify.': 'Only DRAFT Sales Orders can be verified.',
+  'Sales Order harus berstatus VERIFIED sebelum dapat di-complete.': 'The Sales Order must be VERIFIED before it can be completed.',
+  'Delivery Order hanya dapat dibuat dari Sales Order berstatus VERIFIED.': 'Delivery Orders can only be created from VERIFIED Sales Orders.',
+  'Pilih Sales Order untuk menampilkan item yang masih bisa dikirim. Hanya Sales Order berstatus VERIFIED yang tampil.': 'Select a Sales Order to show items that can still be shipped. Only VERIFIED Sales Orders are listed.',
   'Invoice ID': 'Invoice ID',
   'Kosongkan untuk otomatis (INV-...)': 'Leave blank for automatic (INV-...)',
   'Return ID': 'Return ID',
@@ -524,6 +532,8 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Tandai Sales Order (.+) sebagai (Verified|Completed)\?$/, (m) => `Mark Sales Order ${m[1]} as ${m[2]}?`],
+  [/^Status gagal diubah:\s*(.*)$/, (m) => `Failed to change status: ${m[1]}`],
   [/^Pajak(?: (.+))? \((.+)%\)$/, (m) => `Tax${m[1] ? ' ' + m[1] : ''} (${m[2]}%)`],
   [/^(\d+) produk$/, (m) => `${m[1]} product${m[1] === '1' ? '' : 's'}`],
   [/^(\d+) item$/, (m) => `${m[1]} item${m[1] === '1' ? '' : 's'}`],
