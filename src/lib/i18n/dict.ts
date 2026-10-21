@@ -1,6 +1,12 @@
 // Kamus Indonesia -> Inggris. Teks sumber aplikasi berbahasa Indonesia; bahasa
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
+  'Dari Quotation': 'From Quotation',
+  'Cari quotation...': 'Search quotation...',
+  'Terisi otomatis dari quotation': 'Filled automatically from the quotation',
+  'Memuat item dari Quotation...': 'Loading items from Quotation...',
+  'Mohon pilih Quotation terlebih dahulu.': 'Please select a Quotation first.',
+  'Quotation': 'Quotation',
   'Diskon (−) & Pajak (+)': 'Discount (−) & Tax (+)',
   'Tambah Pajak': 'Add Tax',
   '— Pilih pajak —': '— Select tax —',

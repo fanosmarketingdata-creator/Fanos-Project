@@ -15,9 +15,9 @@ export type SOItemInput = {
 
 export type SalesOrderInput = {
   id?: string;
-  mode: 'manual' | 'boq';
+  mode: 'quotation' | 'manual';
   so_date: string;
-  boq_project_id?: string | null;
+  quotation_id?: string | null;
   client_id: string;
   discounts: DiscountLine[];
   charges: ChargeLine[];
@@ -31,7 +31,14 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
   if (validItems.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
 
+  if (input.mode === 'quotation' && !input.quotation_id) return { error: 'Mohon pilih Quotation terlebih dahulu.' };
+
   const supabase = createClient();
+  let boqProjectId: string | null = null;
+  if (input.mode === 'quotation' && input.quotation_id) {
+    const { data: q } = await supabase.from('quotations').select('boq_project_id').eq('id', input.quotation_id).single();
+    boqProjectId = q?.boq_project_id ?? null;
+  }
   const total = validItems.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(input.discounts);
   const afterDiscount = total * (1 - discountPercent / 100);
@@ -40,7 +47,8 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   const headerPayload = {
     so_date: input.so_date,
     client_id: input.client_id,
-    boq_project_id: input.mode === 'boq' ? input.boq_project_id : null,
+    quotation_id: input.mode === 'quotation' ? input.quotation_id : null,
+    boq_project_id: boqProjectId,
     discount_percent: discountPercent,
     discounts: input.discounts,
     charges: input.charges,
@@ -78,6 +86,11 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   const { error: itemsErr } = await supabase.from('sales_order_items').insert(rows);
   if (itemsErr) return { error: itemsErr.message };
 
+  if (input.mode === 'quotation' && input.quotation_id) {
+    await supabase.from('quotations').update({ status: 'ACCEPTED' }).eq('id', input.quotation_id).eq('status', 'DRAFT');
+    revalidatePath('/dashboard/quotations');
+  }
+
   revalidatePath('/dashboard/sales-orders');
   return { success: true, id: soId };
 }
@@ -91,14 +104,20 @@ export async function deleteSalesOrder(id: string) {
   return { success: true };
 }
 
-// Server action dipanggil form "Dari BOQ Project" (SO langsung, tanpa quotation).
-export async function getBOQItemsForSO(boqProjectId: string) {
+// Server action dipanggil form "Dari Quotation": ambil client, item, diskon/pajak dan biaya tambahan.
+export async function getQuotationForSO(quotationId: string) {
   const supabase = createClient();
-  const [{ data: items }, { data: boq }] = await Promise.all([
-    supabase.from('boq_project_items').select('sku, qty, uom, product_id').eq('boq_project_id', boqProjectId),
-    supabase.from('boq_projects').select('client_id').eq('id', boqProjectId).single(),
-  ]);
-  return { items: items ?? [], clientId: boq?.client_id ?? '' };
+  const { data: q } = await supabase
+    .from('quotations')
+    .select('client_id, discounts, charges, quotation_items(product_id, sku, qty, unit_price, sort_order)')
+    .eq('id', quotationId)
+    .single();
+  if (!q) return { error: 'Quotation tidak ditemukan' as const };
+  const items = ((q.quotation_items as { product_id: string | null; sku: string; qty: number; unit_price: number; sort_order: number | null }[]) ?? [])
+    .slice()
+    .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
+    .map((it) => ({ product_id: it.product_id, sku: it.sku, qty: Number(it.qty), unit_price: Number(it.unit_price) }));
+  return { clientId: q.client_id as string, items, discounts: (q.discounts ?? []) as DiscountLine[], charges: (q.charges ?? []) as ChargeLine[] };
 }
 
 // ------------------------------------------------------------

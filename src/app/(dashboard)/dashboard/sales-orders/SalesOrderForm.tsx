@@ -13,10 +13,10 @@ import { type ProductOption } from '@/components/ProductPicker';
 import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount, sumTaxPercent } from '@/lib/discount-charge';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
-import { saveSalesOrder, getBOQItemsForSO, type SalesOrderInput, type SOItemInput } from './actions';
+import type { QuoteOption } from '@/lib/so-quotes';
+import { saveSalesOrder, getQuotationForSO, type SalesOrderInput, type SOItemInput } from './actions';
 
 export type ClientOption = { id: string; project_name: string };
-export type BOQOption = { id: string; project_name: string };
 
 function emptyItem(): SOItemInput {
   return { product_id: null, sku: '', qty: 1, unit_price: 0, notes: '' };
@@ -25,36 +25,44 @@ function emptyItem(): SOItemInput {
 export default function SalesOrderForm({
   clients,
   products,
-  boqProjects,
+  quotations,
   initial,
 }: {
   clients: ClientOption[];
   products: ProductOption[];
-  boqProjects: BOQOption[];
+  quotations: QuoteOption[];
   initial?: SalesOrderInput & { id?: string };
 }) {
   const router = useRouter();
   const toast = useToast();
   const [saving, setSaving] = useState(false);
-  const [loadingBOQ, setLoadingBOQ] = useState(false);
+  const [loadingQuote, setLoadingQuote] = useState(false);
 
-  const [mode, setMode] = useState<'manual' | 'boq'>(initial?.mode ?? 'manual');
+  const [mode, setMode] = useState<'quotation' | 'manual'>(initial?.mode ?? 'quotation');
   const [soDate, setSoDate] = useState(initial?.so_date ?? new Date().toISOString().split('T')[0]);
-  const [boqProjectId, setBoqProjectId] = useState(initial?.boq_project_id ?? '');
+  const [quotationId, setQuotationId] = useState(initial?.quotation_id ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
   const [globalNotes, setGlobalNotes] = useState(initial?.global_notes ?? '');
   const [items, setItems] = useState<SOItemInput[]>(initial?.items?.length ? initial.items : [emptyItem()]);
   const [discounts, setDiscounts] = useState<DiscountLine[]>(initial?.discounts ?? []);
   const [charges, setCharges] = useState<ChargeLine[]>(initial?.charges ?? []);
 
-  async function handlePickBOQ(id: string) {
-    setBoqProjectId(id);
+  async function handlePickQuotation(id: string) {
+    setQuotationId(id);
     if (!id) return;
-    setLoadingBOQ(true);
-    const { items: boqItems, clientId: boqClientId } = await getBOQItemsForSO(id);
-    setLoadingBOQ(false);
-    setClientId(boqClientId);
-    setItems(boqItems.map((it) => ({ product_id: it.product_id, sku: it.sku, qty: Number(it.qty), unit_price: 0, notes: '' })));
+    setLoadingQuote(true);
+    try {
+      const r = await getQuotationForSO(id);
+      if ('error' in r) return toast(r.error ?? 'Quotation tidak ditemukan', 'error');
+      setClientId(r.clientId);
+      setItems(r.items.length ? r.items.map((it) => ({ ...it, notes: '' })) : [emptyItem()]);
+      setDiscounts(r.discounts);
+      setCharges(r.charges);
+    } catch (e) {
+      toast('Quotation gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+    } finally {
+      setLoadingQuote(false);
+    }
   }
 
   function updateItem(i: number, patch: Partial<SOItemInput>) {
@@ -80,7 +88,7 @@ export default function SalesOrderForm({
       id: initial?.id,
       mode,
       so_date: soDate,
-      boq_project_id: mode === 'boq' ? boqProjectId : null,
+      quotation_id: mode === 'quotation' ? quotationId : null,
       client_id: clientId,
       discounts,
       charges,
@@ -113,34 +121,41 @@ export default function SalesOrderForm({
         <div className="fv2-grid">
           {!initial?.id && (
             <FvField label="Sumber Data">
-              <Select value={mode} onChange={(e) => setMode(e.target.value as 'manual' | 'boq')}>
+              <Select value={mode} onChange={(e) => setMode(e.target.value as 'quotation' | 'manual')}>
+                <option value="quotation">Dari Quotation</option>
                 <option value="manual">Input Manual</option>
-                <option value="boq">Dari BOQ Project (langsung, tanpa quotation)</option>
               </Select>
             </FvField>
           )}
           <FvField label="Tanggal Sales Order" required>
             <input type="date" value={soDate} onChange={(e) => setSoDate(e.target.value)} />
           </FvField>
-          {mode === 'boq' && !initial?.id ? (
-            <FvField label="BOQ Project" required>
+          {mode === 'quotation' && !initial?.id && (
+            <FvField label="Quotation" required>
               <SearchSelect
-                value={boqProjectId}
-                onChange={(v) => handlePickBOQ(v)}
-                options={boqProjects.map((b) => ({ value: b.id, label: b.project_name }))}
-                placeholder="Cari BOQ Project..."
+                value={quotationId}
+                onChange={(v) => handlePickQuotation(v)}
+                options={quotations.map((q) => ({
+                  value: q.id,
+                  label: `${q.doc_no} — ${q.client_name}`,
+                  sub: `${q.status} · Rp ${q.total_amount.toLocaleString('id-ID')}`,
+                }))}
+                placeholder="Cari quotation..."
               />
             </FvField>
-          ) : (
-            <FvField label="Client" required>
+          )}
+          <FvField label="Client" required>
+            {mode === 'quotation' ? (
+              <input readOnly value={clients.find((c) => c.id === clientId)?.project_name ?? ''} placeholder="Terisi otomatis dari quotation" />
+            ) : (
               <SearchSelect
                 value={clientId}
                 onChange={(v) => setClientId(v)}
                 options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
                 placeholder="Cari client..."
               />
-            </FvField>
-          )}
+            )}
+          </FvField>
           <FvField label="Catatan Umum">
             <input value={globalNotes} onChange={(e) => setGlobalNotes(e.target.value)} placeholder="Catatan untuk seluruh pesanan" />
           </FvField>
@@ -148,7 +163,7 @@ export default function SalesOrderForm({
       </Sec>
 
       <Sec title="Daftar Item" icon="fi fi-rr-list">
-        {loadingBOQ && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>Memuat item dari BOQ Project...</p>}
+        {loadingQuote && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>Memuat item dari Quotation...</p>}
         <div className="fv2-scroll-x">
           <div style={{ minWidth: 700 }}>
             <div className="fv2-item-head">

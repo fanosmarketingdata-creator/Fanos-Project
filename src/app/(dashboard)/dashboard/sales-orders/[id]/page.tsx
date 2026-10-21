@@ -1,12 +1,13 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import SalesOrderForm from '../SalesOrderForm';
+import { toQuoteOptions } from '@/lib/so-quotes';
 import type { SalesOrderInput } from '../actions';
 
 export default async function EditSalesOrderPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
 
-  const [{ data: so }, { data: items }, { data: clients }, { data: products }, { data: boqProjects }] =
+  const [{ data: so }, { data: items }, { data: clients }, { data: products }, { data: quotes }, { data: usedSO }] =
     await Promise.all([
       supabase.from('sales_orders').select('*').eq('id', params.id).single(),
       supabase
@@ -16,7 +17,12 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
         .order('sort_order'),
       supabase.from('clients').select('id, project_name').order('project_name'),
       supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku'),
-      supabase.from('boq_projects').select('id, project_name').order('boq_date', { ascending: false }),
+      supabase
+        .from('quotations')
+        .select('id, doc_no, status, total_amount, client_id, clients(project_name)')
+        .not('status', 'in', '(REJECTED,CANCELLED)')
+        .order('quote_date', { ascending: false }),
+      supabase.from('sales_orders').select('quotation_id, id').not('quotation_id', 'is', null),
     ]);
 
   if (!so) notFound();
@@ -24,9 +30,9 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
 
   const initial: SalesOrderInput & { id: string } = {
     id: so.id,
-    mode: so.source_type === 'boq' ? 'boq' : 'manual',
+    mode: so.source_type === 'quotation' ? 'quotation' : 'manual',
     so_date: so.so_date,
-    boq_project_id: so.boq_project_id,
+    quotation_id: so.quotation_id,
     client_id: so.client_id,
     discounts: so.discounts ?? [],
     charges: so.charges ?? [],
@@ -41,6 +47,6 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
   };
 
   return (
-    <SalesOrderForm clients={clients ?? []} products={products ?? []} boqProjects={boqProjects ?? []} initial={initial} />
+    <SalesOrderForm clients={clients ?? []} products={products ?? []} quotations={toQuoteOptions(quotes, usedSO, so.quotation_id)} initial={initial} />
   );
 }
