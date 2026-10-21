@@ -116,7 +116,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
                   )}
                 </td>
                 <td className="px-4 py-3 text-slate-500">{r.description || '-'}</td>
-                <td className="px-4 py-3 text-slate-600">{r.account_count} akun</td>
+                <td className="px-4 py-3 text-slate-600">{`${r.account_count} akun`}</td>
                 <td className="px-4 py-3 text-slate-600">{r.name === PROTECTED_ROLE ? 'Semua menu' : `${r.permissions.length} dari ${ALL_MENU_KEYS.length} menu`}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1.5">

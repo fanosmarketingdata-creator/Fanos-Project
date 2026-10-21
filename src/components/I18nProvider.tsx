@@ -9,7 +9,7 @@ export const useLang = () => useContext(LangContext);
 
 let tx: (s: string) => string = translateText;
 const ATTRS = ['placeholder', 'title', 'aria-label', 'alt'];
-const SKIP = new Set(['SCRIPT', 'STYLE', 'TEXTAREA', 'CODE', 'NOSCRIPT']);
+const SKIP = new Set(['SCRIPT', 'STYLE', 'CODE', 'NOSCRIPT']);
 
 function skipped(el: Element | null) {
   return !!el && (SKIP.has(el.tagName) || !!el.closest('[data-no-i18n]'));
@@ -17,7 +17,8 @@ function skipped(el: Element | null) {
 
 function translateNode(node: Node) {
   if (node.nodeType === Node.TEXT_NODE) {
-    if (skipped(node.parentElement)) return;
+    // Isi textarea adalah ketikan pengguna, jangan diterjemahkan (atributnya tetap).
+    if (skipped(node.parentElement) || node.parentElement?.tagName === 'TEXTAREA') return;
     const v = node.nodeValue ?? '';
     const t = tx(v);
     if (t !== v) node.nodeValue = t;

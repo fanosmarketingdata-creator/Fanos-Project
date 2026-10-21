@@ -52,7 +52,7 @@ export default function FinanceOptionsTable({ kind, rows }: { kind: FinanceKind;
     >
       <div className="product-grid-wrap">
         <div className="client-card-list">
-          {filtered.length === 0 && <div className="no-data-grid">Belum terdapat data {cfg.title.toLowerCase()}</div>}
+          {filtered.length === 0 && <div className="no-data-grid">{`Belum terdapat data ${cfg.title.toLowerCase()}`}</div>}
           {filtered.map((r) => (
             <div key={r.id} className="client-card">
               <div className="client-card-avatar"><i className={cfg.icon} /></div>

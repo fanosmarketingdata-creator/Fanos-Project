@@ -85,7 +85,7 @@ function ProductPickerModal({
           </div>
         )}
       </div>
-      <div style={{ fontSize: 11.5, color: '#9ca3af', marginBottom: 8 }}>{list.length} produk</div>
+      <div style={{ fontSize: 11.5, color: '#9ca3af', marginBottom: 8 }}>{`${list.length} produk`}</div>
       <div className="product-grid">
         {list.length === 0 && <div className="no-data-grid">Produk tidak ditemukan</div>}
         {list.map((p) => (

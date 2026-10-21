@@ -28,7 +28,7 @@ export default function BoqDetailTabs({ areas, synth }: { areas: BoqRepoArea[]; 
                 <div className="dv2-area-head">
                   <span className="ico"><i className="fi fi-rr-building" /></span>
                   <span className="nm">{a.name || '-'}</span>
-                  <span className="cnt">{a.count} item</span>
+                  <span className="cnt">{`${a.count} item`}</span>
                 </div>
                 <div className="dv2-area-body">
                   {a.subs.map((s) => (

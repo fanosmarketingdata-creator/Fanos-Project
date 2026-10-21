@@ -82,7 +82,7 @@ export default function BrandsTable({ initialRows }: { initialRows: BrandRow[] }
               <div className="client-card-avatar">{r.name.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
                 <div className="name">{r.name}</div>
-                <div className="sub">{r.product_count} produk</div>
+                <div className="sub">{`${r.product_count} produk`}</div>
               </div>
               <div className="client-card-actions">
                 <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(r)} title="Edit">

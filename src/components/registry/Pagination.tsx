@@ -43,7 +43,7 @@ export default function Pagination({
   const end = Math.min(page * rowsPerPage, total);
   const info = (
     <div className="pagination-info">
-      Menampilkan {total === 0 ? '0' : `${start}-${end}`} dari {total} data
+      {`Menampilkan ${total === 0 ? '0' : `${start}-${end}`} dari ${total} data`}
     </div>
   );
 
