@@ -8,13 +8,14 @@ export type ProductInput = {
   id?: string;
   // SKU No = AUTOGENERATE; tidak dikirim dari form.
   name: string;
+  brand?: string;
   image_url?: string | null;
   category?: string; // Main Category
   subcategory?: string;
   application?: string;
   uom: string;
-  cost_price: number;
-  price: number; // Standard Selling Price
+  cost_price?: number; // diatur di Price List
+  price?: number; // Standard Selling Price, diatur di Price List
   notes?: string;
 } & Partial<Record<SpecKey, string>>;
 
@@ -27,16 +28,15 @@ export async function saveProduct(input: ProductInput) {
   const specs: Record<string, string | null> = {};
   for (const k of SPEC_KEYS) specs[k] = (input[k] ?? '').trim() || null;
 
-  // Brand = HIDDEN (otomatis FANOS oleh default database), SKU = AUTOGENERATE (trigger database).
+  // Brand dipilih dari master Brand (default FANOS), SKU = AUTOGENERATE (trigger database).
   const payload = {
     name: input.name.trim(),
+    brand: input.brand?.trim() || 'FANOS',
     image_url: input.image_url || null,
     category: input.category || null,
     subcategory: input.subcategory || null,
     application: input.application || null,
     uom: input.uom || 'Pcs',
-    cost_price: input.cost_price || 0,
-    price: input.price || 0,
     notes: input.notes?.trim() || null,
     ...specs,
   };
@@ -52,6 +52,17 @@ export async function saveProduct(input: ProductInput) {
   }
 
   revalidatePath('/dashboard/products');
+  revalidatePath('/dashboard/products/price-list');
+  return { success: true };
+}
+
+export async function savePrices(id: string, cost_price: number, price: number) {
+  if (!(cost_price >= 0) || !(price >= 0)) return { error: 'Harga tidak valid.' };
+  const supabase = createClient();
+  const { error } = await supabase.from('products').update({ cost_price, price }).eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/products');
+  revalidatePath('/dashboard/products/price-list');
   return { success: true };
 }
 

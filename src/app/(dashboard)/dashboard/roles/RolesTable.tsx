@@ -3,9 +3,12 @@
 import { useState } from 'react';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
-import { saveRole, deleteRole, type RoleInput } from './actions';
+import { FormModal } from '@/components/registry/RegistryModal';
+import { useLang } from '@/components/I18nProvider';
+import { PERMISSION_GROUPS, ALL_MENU_KEYS, flatItems, navLabel } from '@/lib/menu';
+import { saveRole, deleteRole, saveRolePermissions, type RoleInput } from './actions';
 
-export type RoleRow = { id: string; name: string; description: string | null; account_count: number };
+export type RoleRow = { id: string; name: string; description: string | null; account_count: number; permissions: string[] };
 
 const PROTECTED_ROLE = 'Superuser';
 
@@ -16,6 +19,10 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<RoleRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const lang = useLang();
+  const [permTarget, setPermTarget] = useState<RoleRow | null>(null);
+  const [perms, setPerms] = useState<string[]>([]);
+  const [savingPerm, setSavingPerm] = useState(false);
 
   function openAdd() {
     setForm({ name: '', description: '' });
@@ -52,6 +59,27 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
     setDeleteTarget(null);
   }
 
+  function openPerms(r: RoleRow) {
+    setPermTarget(r);
+    setPerms(r.name === PROTECTED_ROLE ? ALL_MENU_KEYS : r.permissions);
+  }
+  const toggle = (k: string) => setPerms((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
+  const toggleGroup = (keys: string[]) =>
+    setPerms((p) => (keys.every((k) => p.includes(k)) ? p.filter((x) => !keys.includes(x)) : Array.from(new Set([...p, ...keys]))));
+
+  async function handleSavePerms() {
+    if (!permTarget) return;
+    setSavingPerm(true);
+    const result = await saveRolePermissions(permTarget.id, perms);
+    setSavingPerm(false);
+    if (result.error) {
+      toast(result.error, 'error');
+      return;
+    }
+    toast('Hak akses menu berhasil diperbarui', 'success');
+    setPermTarget(null);
+  }
+
   const editingProtected = form.id && initialRows.find((r) => r.id === form.id)?.name === PROTECTED_ROLE;
 
   return (
@@ -66,12 +94,13 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">Nama Role</th>
               <th className="px-4 py-3 font-semibold">Deskripsi</th>
               <th className="px-4 py-3 font-semibold">Dipakai</th>
+              <th className="px-4 py-3 font-semibold">Akses Menu</th>
               <th className="px-4 py-3 text-right font-semibold">Aksi</th>
             </tr>
           </thead>
@@ -88,8 +117,15 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
                 </td>
                 <td className="px-4 py-3 text-slate-500">{r.description || '-'}</td>
                 <td className="px-4 py-3 text-slate-600">{r.account_count} akun</td>
+                <td className="px-4 py-3 text-slate-600">{r.name === PROTECTED_ROLE ? 'Semua menu' : `${r.permissions.length} dari ${ALL_MENU_KEYS.length} menu`}</td>
                 <td className="px-4 py-3">
                   <div className="flex justify-end gap-1.5">
+                    <button
+                      onClick={() => openPerms(r)}
+                      className="rounded-lg bg-violet-50 px-2.5 py-1.5 text-xs font-medium text-violet-600 hover:bg-violet-100"
+                    >
+                      Hak Akses
+                    </button>
                     <button
                       onClick={() => openEdit(r)}
                       className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
@@ -152,6 +188,63 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
             </div>
           </div>
         </Modal>
+      )}
+
+      {permTarget && (
+        <FormModal
+          title={`Hak Akses Menu — ${permTarget.name}`}
+          icon="fi fi-rr-shield-check"
+          maxWidth={860}
+          onClose={() => setPermTarget(null)}
+          footer={
+            permTarget.name === PROTECTED_ROLE ? (
+              <button type="button" className="btn btn-secondary" onClick={() => setPermTarget(null)}>Tutup</button>
+            ) : (
+              <>
+                <button type="button" className="btn btn-primary" onClick={handleSavePerms} disabled={savingPerm}>
+                  <i className="fa-solid fa-floppy-disk" /> {savingPerm ? 'Menyimpan...' : 'Simpan'}
+                </button>
+                <button type="button" className="btn btn-secondary" onClick={() => setPermTarget(null)}>Batal</button>
+              </>
+            )
+          }
+        >
+          {permTarget.name === PROTECTED_ROLE && (
+            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12 }}>Role Superuser selalu memiliki akses penuh dan tidak dapat diubah.</p>
+          )}
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
+            {PERMISSION_GROUPS.map((g) => {
+              const keys = flatItems(g.items).map((i) => i.href);
+              const locked = permTarget.name === PROTECTED_ROLE;
+              const all = keys.every((k) => perms.includes(k));
+              return (
+                <div key={g.id} className="fv2-sub" style={{ margin: 0 }}>
+                  <label className="fv2-sub-head" style={{ cursor: locked ? 'default' : 'pointer', fontWeight: 700, fontSize: 12.5 }}>
+                    <input type="checkbox" checked={all} disabled={locked} onChange={() => toggleGroup(keys)} style={{ flex: 'none', width: 16, height: 16, padding: 0 }} />
+                    <i className={g.icon} /> {navLabel(lang, g.label)}
+                  </label>
+                  {g.items.map((i) => {
+                    const row = (it: typeof i, indent: number, checked: boolean, onChange: () => void) => (
+                      <label key={it.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: `5px 4px 5px ${indent}px`, fontSize: 12.5, cursor: locked ? 'default' : 'pointer', fontWeight: it.children ? 600 : 400 }}>
+                        <input type="checkbox" checked={checked} disabled={locked} onChange={onChange} style={{ width: 15, height: 15 }} />
+                        <i className={it.icon} style={{ color: '#6b7280', width: 16, textAlign: 'center' }} />
+                        {navLabel(lang, it.label)}
+                      </label>
+                    );
+                    if (!i.children) return row(i, 24, perms.includes(i.href), () => toggle(i.href));
+                    const ck = i.children.map((c) => c.href);
+                    return (
+                      <div key={i.href}>
+                        {row(i, 24, ck.every((k) => perms.includes(k)), () => toggleGroup(ck))}
+                        {i.children.map((c) => row(c, 48, perms.includes(c.href), () => toggle(c.href)))}
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
+        </FormModal>
       )}
 
       {deleteTarget && (

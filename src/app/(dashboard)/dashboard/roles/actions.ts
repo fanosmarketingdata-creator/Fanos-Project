@@ -3,6 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getSuperuserOrNull, NOT_SUPERUSER_ERROR } from '@/lib/auth';
+import { ALL_MENU_KEYS } from '@/lib/menu';
 
 export type RoleInput = { id?: string; name: string; description?: string };
 
@@ -66,5 +67,24 @@ export async function deleteRole(id: string) {
   if (error) return { error: error.message };
 
   revalidatePath('/dashboard/roles');
+  return { success: true };
+}
+
+// Hak akses menu per role — hanya Superuser. Role Superuser selalu berakses penuh dan tidak dapat diubah.
+export async function saveRolePermissions(roleId: string, permissions: string[]) {
+  if (!(await getSuperuserOrNull())) return { error: NOT_SUPERUSER_ERROR };
+
+  const supabase = createClient();
+  const { data: role } = await supabase.from('roles').select('name').eq('id', roleId).single();
+  if (!role) return { error: 'Role tidak ditemukan' };
+  if (role.name === PROTECTED_ROLE) return { error: 'Role Superuser selalu memiliki akses penuh dan tidak dapat diubah.' };
+
+  const valid = new Set(ALL_MENU_KEYS);
+  const clean = Array.from(new Set(permissions)).filter((p) => valid.has(p));
+
+  const { error } = await supabase.from('roles').update({ permissions: clean }).eq('id', roleId);
+  if (error) return { error: error.message };
+
+  revalidatePath('/dashboard', 'layout');
   return { success: true };
 }

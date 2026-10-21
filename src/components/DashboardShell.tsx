@@ -8,6 +8,7 @@ import IdleLogout from '@/components/IdleLogout';
 import { useLang } from '@/components/I18nProvider';
 import { setLang, type Lang } from '@/lib/i18n/lang';
 import FigmaCursor from '@/components/FigmaCursor';
+import { NAV_GROUPS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
 
@@ -19,135 +20,14 @@ type Profile = {
   cursor_color?: string;
 };
 
-type NavItem = { href: string; label: string; icon: string; heading?: boolean; indent?: boolean; children?: NavItem[] };
-// Grup dengan 1 item dan `direct: true` jadi tombol biasa (tanpa dropdown).
-type NavGroup = { id: string; label: string; icon: string; items: NavItem[]; direct?: boolean; superuserOnly?: boolean };
-
-// Struktur grup & ikon mengikuti index.html lama (Flaticon uicons).
-const NAV_GROUPS: NavGroup[] = [
-  {
-    id: 'dashboard',
-    label: 'Dashboard',
-    icon: 'fi fi-rr-dashboard',
-    direct: true,
-    items: [{ href: '/dashboard', label: 'Overview', icon: 'fi fi-rr-apps' }],
-  },
-  {
-    id: 'master',
-    label: 'Master Data',
-    icon: 'fi fi-rr-database',
-    items: [
-      { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
-      {
-        href: '#project',
-        label: 'Project',
-        icon: 'fi fi-rr-briefcase',
-        children: [
-          { href: '/dashboard/projects', label: 'Project Master', icon: 'fa-solid fa-diagram-project' },
-          { href: '/dashboard/project-classifications', label: 'Project Classification', icon: 'fi fi-rr-tags' },
-        ],
-      },
-      { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },
-      { href: '/dashboard/products', label: 'Products', icon: 'fi fi-rr-boxes' },
-    ],
-  },
-  {
-    id: 'pm',
-    label: 'Project Management',
-    icon: 'fi fi-rr-document-signed',
-    items: [
-      { href: '/dashboard/project-rfq', label: 'Project RFQ', icon: 'fi fi-rr-envelope-open-text' },
-      { href: '/dashboard/boq-project', label: 'Project BOQ', icon: 'fa-solid fa-layer-group' },
-      { href: '/dashboard/lighting-specification', label: 'Lighting Specification', icon: 'fi fi-rr-bulb' },
-    ],
-  },
-  {
-    id: 'purchase',
-    label: 'Purchase',
-    icon: 'fi fi-rr-shopping-bag',
-    items: [
-      { href: '/dashboard/purchase-orders', label: 'Purchase Order', icon: 'fa-solid fa-truck-loading' },
-      { href: '/dashboard/purchase-delivery', label: 'Purchase Delivery', icon: 'fa-solid fa-dolly' },
-      { href: '/dashboard/purchase-invoice', label: 'Purchase Invoice', icon: 'fi fi-rr-file-invoice-dollar' },
-      { href: '/dashboard/purchase-payment', label: 'Purchase Payment', icon: 'fi fi-rr-wallet' },
-    ],
-  },
-  {
-    id: 'sales',
-    label: 'Sales',
-    icon: 'fi fi-rr-chart-histogram',
-    items: [
-      { href: '/dashboard/quotations', label: 'Quotation', icon: 'fi fi-rr-file-invoice' },
-      { href: '/dashboard/sales-orders', label: 'Sales Order', icon: 'fi fi-rr-shopping-cart' },
-      { href: '/dashboard/delivery-orders', label: 'Delivery Order', icon: 'fi fi-rr-shipping-fast' },
-      { href: '/dashboard/invoices', label: 'Invoices', icon: 'fi fi-rr-receipt' },
-      { href: '/dashboard/payments', label: 'Customer Payment', icon: 'fi fi-rr-money-bill-wave' },
-      { href: '/dashboard/returns', label: 'Sales Return', icon: 'fi fi-rr-undo' },
-    ],
-  },
-  {
-    id: 'stock',
-    label: 'Stock',
-    icon: 'fa-solid fa-boxes-stacked',
-    items: [
-      { href: '/dashboard/current-stock', label: 'Current Stock', icon: 'fa-solid fa-cubes' },
-      { href: '/dashboard/stock-adjustment', label: 'Stock Adjustment', icon: 'fi fi-rr-edit' },
-      { href: '/dashboard/stock-transfer', label: 'Stock Transfer', icon: 'fi fi-rr-exchange' },
-      { href: '/dashboard/stock-movement', label: 'Stock Movement', icon: 'fi fi-rr-arrows-repeat' },
-      { href: '/dashboard/warehouse', label: 'Warehouse', icon: 'fi fi-rr-warehouse-alt' },
-    ],
-  },
-  {
-    id: 'financial',
-    label: 'Financial',
-    icon: 'fi fi-rr-credit-card',
-    items: [
-      { href: '/dashboard/outstanding', label: 'Outstanding', icon: 'fi fi-rr-triangle-warning' },
-      { href: '/dashboard/credit-notes', label: 'Credit Notes', icon: 'fi fi-rr-badge-percent' },
-    ],
-  },
-  {
-    id: 'productivity',
-    label: 'Productivity',
-    icon: 'fi fi-rr-bell',
-    items: [{ href: '/dashboard/reminders', label: 'Reminders', icon: 'fi fi-rr-alarm-clock' }],
-  },
-  {
-    id: 'superuser',
-    label: 'Superuser',
-    icon: 'fa-solid fa-user-shield',
-    superuserOnly: true,
-    items: [
-      { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-id-badge' },
-      { href: '/dashboard/accounts', label: 'Master Akun', icon: 'fi fi-rr-user-lock' },
-      { href: '/dashboard/roles', label: 'Role Group', icon: 'fi fi-rr-shield-check' },
-    ],
-  },
-];
-
 const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads/main/LOGO.ico';
 
-const NAV_ID: Record<string, string> = {
-  Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
-  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk',
-  'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek',
-  'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
-  'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian', 'Purchase Payment': 'Pembayaran Pembelian',
-  Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
-  Invoices: 'Faktur', 'Customer Payment': 'Pembayaran Pelanggan', 'Sales Return': 'Retur Penjualan',
-  Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
-  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Financial: 'Keuangan',
-  Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
-  'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
-  Language: 'Bahasa', 'Log out': 'Keluar',
-};
 // Label menu bersumber Inggris; pada bahasa Indonesia diganti lewat kamus ini.
 function useNavLabel() {
   const lang = useLang();
-  return (l: string) => (lang === 'id' ? NAV_ID[l] ?? l : l);
+  return (l: string) => navLabel(lang, l);
 }
 
-const flatItems = (items: NavItem[]): NavItem[] => items.flatMap((i) => (i.children ? i.children : [i]));
 // Untuk menu mobile: item bersub ditampilkan sebagai judul + sub item menjorok.
 const expandItems = (items: NavItem[]): NavItem[] =>
   items.flatMap((i) => (i.children ? [{ ...i, children: undefined, heading: true }, ...i.children.map((c) => ({ ...c, indent: true }))] : [i]));
@@ -285,9 +165,11 @@ function UserMenu({ profile }: { profile: { full_name: string; role: string; pho
 
 export default function DashboardShell({
   profile,
+  allowedMenus = null,
   children,
 }: {
   profile: Profile;
+  allowedMenus?: string[] | null;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -297,7 +179,10 @@ export default function DashboardShell({
   const nl = useNavLabel();
 
   // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
-  const visibleGroups = NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly));
+  const visibleGroups = filterGroups(
+    NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly)),
+    isSuperuser ? null : allowedMenus
+  );
 
   const [openId, setOpenId] = useState<string | null>(null);
   // Layar < lg: menu jadi panel hamburger dengan akordeon (tidak ada hover di HP/tablet).
@@ -488,10 +373,6 @@ export default function DashboardShell({
 
         {mobileOpen && (
           <div className="absolute inset-x-0 top-full max-h-[calc(100vh-3rem)] overflow-y-auto border-b border-slate-200 bg-white p-2 shadow-lg lg:hidden">
-            <div className="mb-1 flex items-center gap-2 border-b border-slate-100 px-3 pb-2 pt-1 xl:hidden">
-              <div className="text-[13px] font-bold text-slate-800">{profile.full_name}</div>
-              <div className="text-[10px] text-slate-400">{profile.role}</div>
-            </div>
             {visibleGroups.map((group) => {
               const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
               const rowClass = `flex w-full items-center gap-2.5 rounded-lg px-3 py-2.5 text-left text-[13px] font-bold ${

@@ -7,7 +7,7 @@ export default async function RolesPage() {
 
   const supabase = createClient();
   const [{ data: roles }, { data: profiles }] = await Promise.all([
-    supabase.from('roles').select('id, name, description').order('name'),
+    supabase.from('roles').select('id, name, description, permissions').order('name'),
     supabase.from('profiles').select('role'),
   ]);
 
@@ -18,6 +18,7 @@ export default async function RolesPage() {
     id: r.id,
     name: r.name,
     description: r.description,
+    permissions: (r.permissions as string[] | null) ?? [],
     account_count: usage.get(r.name) ?? 0,
   }));
 
@@ -25,7 +26,7 @@ export default async function RolesPage() {
     <div>
       <h1 className="page-title"><i className="fi fi-rr-shield-check" />Role Group</h1>
       <p className="mb-6 text-sm text-slate-500">
-        Kelompok peran untuk akun login. Saat ini berfungsi sebagai label; pengaturan hak akses per halaman akan tersedia pada pembaruan berikutnya.
+        Kelompok peran untuk akun login beserta hak akses menunya. Hanya Superuser yang dapat mengubah hak akses.
       </p>
       <RolesTable initialRows={rows} />
     </div>

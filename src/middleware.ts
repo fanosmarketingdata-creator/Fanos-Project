@@ -9,7 +9,10 @@ import { NextResponse, type NextRequest } from 'next/server';
 // asli", karena middleware ini jalan di SERVER pada setiap request,
 // bukan di client via setTimeout/setInterval.
 export async function middleware(request: NextRequest) {
-  let response = NextResponse.next({ request: { headers: request.headers } });
+  // Pathname diteruskan ke Server Component (layout) untuk pemeriksaan hak akses menu.
+  const reqHeaders = new Headers(request.headers);
+  reqHeaders.set('x-pathname', request.nextUrl.pathname);
+  let response = NextResponse.next({ request: { headers: reqHeaders } });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -21,12 +24,12 @@ export async function middleware(request: NextRequest) {
         },
         set(name: string, value: string, options: CookieOptions) {
           request.cookies.set({ name, value, ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({ request: { headers: reqHeaders } });
           response.cookies.set({ name, value, ...options });
         },
         remove(name: string, options: CookieOptions) {
           request.cookies.set({ name, value: '', ...options });
-          response = NextResponse.next({ request: { headers: request.headers } });
+          response = NextResponse.next({ request: { headers: reqHeaders } });
           response.cookies.set({ name, value: '', ...options });
         },
       },

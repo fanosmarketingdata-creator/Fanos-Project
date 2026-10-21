@@ -8,11 +8,12 @@ export default async function ProductsPage() {
     'id', 'sku', 'name', 'brand', 'uom', 'price', 'cost_price', 'image_url',
     'category', 'subcategory', 'application', 'notes', ...SPEC_KEYS,
   ].join(', ');
+  const { data: brandRows } = await supabase.from('brands').select('name').order('name');
   const { data: products } = await supabase.from('products').select(cols).order('created_at', { ascending: false });
 
   return (
     <div>
-      <ProductsTable initialProducts={(products ?? []) as unknown as import('./ProductsTable').ProductRow[]} />
+      <ProductsTable brands={(brandRows ?? []).map((b) => b.name)} initialProducts={(products ?? []) as unknown as import('./ProductsTable').ProductRow[]} />
     </div>
   );
 }

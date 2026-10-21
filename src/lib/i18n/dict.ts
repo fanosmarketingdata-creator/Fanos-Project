@@ -2,6 +2,15 @@
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
   // --- umum ---
+  'Anda tidak memiliki akses ke menu ini.': 'You do not have access to this menu.',
+  'Hubungi Superuser apabila Anda memerlukan akses.': 'Contact a Superuser if you need access.',
+  'Hak Akses': 'Access Rights',
+  'Akses Menu': 'Menu Access',
+  'Semua menu': 'All menus',
+  'Hak Akses Menu': 'Menu Access Rights',
+  'Hak akses menu berhasil diperbarui': 'Menu access rights updated successfully',
+  'Role Superuser selalu memiliki akses penuh dan tidak dapat diubah.': 'The Superuser role always has full access and cannot be changed.',
+  'Kelompok peran untuk akun login beserta hak akses menunya. Hanya Superuser yang dapat mengubah hak akses.': 'Role groups for login accounts along with their menu access rights. Only a Superuser can change access rights.',
   'Aksi': 'Actions',
   'Halaman ini sedang dalam pengembangan.': 'This page is under development.',
   'Menu sudah tersedia; fitur akan ditambahkan pada pembaruan berikutnya.': 'The menu is available; the feature will be added in an upcoming update.',
@@ -9,6 +18,13 @@ export const ID_EN: Record<string, string> = {
   'BCA KCP ........': 'BCA Branch ........',
   'Akun Login': 'Login Account',
   'Belum terdapat data': 'No data yet',
+  'Harga berhasil diperbarui': 'Price updated successfully',
+  'Harga tidak valid.': 'Invalid price.',
+  'Brand ini masih digunakan oleh produk sehingga tidak dapat dihapus.': 'This brand is still used by products and cannot be deleted.',
+  'Brand tersebut sudah terdaftar.': 'This brand is already registered.',
+  'Data Brand berhasil ditambahkan': 'Brand added successfully',
+  'Data Brand berhasil diperbarui': 'Brand updated successfully',
+  'Data Brand berhasil dihapus': 'Brand deleted successfully',
   'New Retur Penjualan': 'New Sales Return',
   'Akun': 'Account',
   'Alamat': 'Address',
@@ -445,6 +461,8 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
   [/^Data (.+) berhasil (dihapus|diperbarui|ditambahkan|dibuat|disimpan)$/, (m) => `${m[1]} data ${VERB[m[2]] ? 'was ' + VERB[m[2]] : m[2]} successfully`],
+  [/^(\d+) dari (\d+) menu$/, (m) => `${m[1]} of ${m[2]} menus`],
+  [/^Hak Akses Menu — (.+)$/, (m) => `Menu Access Rights — ${m[1]}`],
   [/^Kolom (.+) wajib diisi\.$/, (m) => `The ${FIELDS[m[1]] ?? m[1]} field is required.`],
   [/^Belum terdapat data (.+)$/, (m) => `No ${NOUNS[m[1]] ?? m[1]} data yet`],
   [/^Mohon pilih (.+) terlebih dahulu\.?$/, (m) => `Please select ${m[1]} first.`],
@@ -522,7 +540,7 @@ export function translateText(raw: string): string {
 // dipakai saat bahasa Indonesia dipilih.
 export const EN_ID: Record<string, string> = {
   Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
-  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk',
+  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk', Catalogue: 'Katalog', 'Price List': 'Daftar Harga',
   'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek', 'BOQ Project': 'BOQ Proyek',
   'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
   'Purchase Orders': 'Pesanan Pembelian', 'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian',
@@ -530,7 +548,7 @@ export const EN_ID: Record<string, string> = {
   'Sales Order': 'Pesanan Penjualan', 'Sales Orders': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
   'Delivery Orders': 'Surat Jalan', Invoices: 'Faktur', Payments: 'Pembayaran', 'Customer Payment': 'Pembayaran Pelanggan',
   'Sales Return': 'Retur Penjualan', Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
-  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Financial: 'Keuangan',
+  'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak',
   Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
   'Master Team Member': 'Master Anggota Tim', 'Role Group': 'Grup Peran', Language: 'Bahasa', 'Log out': 'Keluar',
   'Client Registry': 'Daftar Klien', 'Vendor Registry': 'Daftar Vendor', 'Product Catalog': 'Katalog Produk',

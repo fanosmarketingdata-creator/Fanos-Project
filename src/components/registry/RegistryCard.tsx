@@ -19,9 +19,9 @@ export default function RegistryCard({
   search: string;
   onSearch: (v: string) => void;
   info?: string;
-  addLabel: string;
-  addIcon: string;
-  onAdd: () => void;
+  addLabel?: string;
+  addIcon?: string;
+  onAdd?: () => void;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -39,9 +39,11 @@ export default function RegistryCard({
             <input type="text" placeholder="Cari..." value={search} onChange={(e) => onSearch(e.target.value)} />
           </div>
           {info && <span className="search-info">{info}</span>}
-          <button type="button" className="btn btn-primary" onClick={onAdd}>
-            <i className={addIcon} /> {addLabel}
-          </button>
+          {onAdd && (
+            <button type="button" className="btn btn-primary" onClick={onAdd}>
+              <i className={addIcon} /> {addLabel}
+            </button>
+          )}
         </div>
       </div>
       {children}

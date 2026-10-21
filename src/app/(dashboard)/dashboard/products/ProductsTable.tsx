@@ -28,14 +28,14 @@ export type ProductRow = {
 
 const emptySpecs = Object.fromEntries(SPEC_KEYS.map((k) => [k, ''])) as Record<SpecKey, string>;
 const emptyForm: ProductInput = {
-  name: '', image_url: '', category: '', subcategory: '', application: '', uom: 'Pcs',
-  cost_price: 0, price: 0, notes: '', ...emptySpecs,
+  name: '', brand: 'FANOS', image_url: '', category: '', subcategory: '', application: '', uom: 'Pcs',
+  notes: '', ...emptySpecs,
 };
 const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB — kriteria sama seperti sistem lama
 const rupiah = (n: number | null) => 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
 
-export default function ProductsTable({ initialProducts }: { initialProducts: ProductRow[] }) {
+export default function ProductsTable({ initialProducts, brands }: { initialProducts: ProductRow[]; brands: string[] }) {
   const toast = useToast();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -76,13 +76,12 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
     setForm({
       id: p.id,
       name: p.name,
+      brand: p.brand || 'FANOS',
       image_url: p.image_url || '',
       category: p.category || '',
       subcategory: p.subcategory || '',
       application: p.application || '',
       uom: p.uom,
-      cost_price: Number(p.cost_price) || 0,
-      price: Number(p.price) || 0,
       notes: p.notes || '',
       ...specs,
     });
@@ -194,8 +193,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
                   {[p.wattage && `${p.wattage}W`, p.cct && `${p.cct}K`, p.ip_rating].filter(Boolean).join(' · ') || ' '}
                 </div>
                 <div className="product-card-price">
-                  <span className="selling">{rupiah(p.price)}</span>
-                  <span className="uom">{p.uom || 'Pcs'}</span>
+                  <span className="uom">{[p.brand, p.uom || 'Pcs'].filter(Boolean).join(' · ')}</span>
                 </div>
               </div>
               <div className="product-card-actions">
@@ -235,8 +233,7 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
             <div className="dv2-grid">
               <DvCard icon="fi fi-rr-building" label="Application" value={detail.application || '-'} />
               <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
-              <DvCard icon="fi fi-rr-money-bill" label="Cost Price" value={rupiah(detail.cost_price)} />
-              <DvCard icon="fi fi-rr-money-bill" label="Standard Selling Price" value={rupiah(detail.price)} color="#16a34a" />
+              <DvCard icon="fi fi-rr-award" label="Brand" value={detail.brand || '-'} />
             </div>
             {SPEC_GROUPS.map((g) => (
               <div key={g.title}>
@@ -315,6 +312,13 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
               <FvField label="Product Name" required>
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama produk" />
               </FvField>
+              <FvField label="Brand">
+                <FvSelect
+                  value={form.brand || ''}
+                  onChange={(v) => setForm({ ...form, brand: v || 'FANOS' })}
+                  options={toOptions(brands.includes(form.brand || '') ? brands : [...brands, form.brand || 'FANOS'])}
+                />
+              </FvField>
               <FvField label="Main Category" required>
                 <FvSelect
                   value={form.category || ''}
@@ -367,26 +371,8 @@ export default function ProductsTable({ initialProducts }: { initialProducts: Pr
           ))}
 
           <div className="fv2-section">
-            <div className="fv2-section-title"><i className="fi fi-rr-money-bill" /> Harga & Catatan</div>
-            <div className="fv2-grid">
-              <FvField label="Cost Price (Rp)">
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.cost_price}
-                  onChange={(e) => setForm({ ...form, cost_price: parseFloat(e.target.value) || 0 })}
-                />
-              </FvField>
-              <FvField label="Standard Selling Price (Rp)">
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  value={form.price}
-                  onChange={(e) => setForm({ ...form, price: parseFloat(e.target.value) || 0 })}
-                />
-              </FvField>
-            </div>
-            <div style={{ marginTop: 14 }}>
+            <div className="fv2-section-title"><i className="fi fi-rr-document" /> Catatan</div>
+            <div>
               <FvField label="Notes">
                 <textarea value={form.notes || ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Catatan tambahan (opsional)" />
               </FvField>
