@@ -36,6 +36,7 @@ export async function getSOForInvoice(soId: string) {
 export type InvoiceInput = {
   so_id: string;
   inv_date: string;
+  doc_no?: string; // Invoice ID manual; kosong = otomatis
 };
 
 export async function createInvoiceFromSO(input: InvoiceInput) {
@@ -58,6 +59,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
   const { data: invoice, error: invError } = await supabase
     .from('invoices')
     .insert({
+      doc_no: input.doc_no?.trim() || null,
       inv_date: input.inv_date,
       sales_order_id: so.id,
       client_id: so.client_id,
@@ -71,7 +73,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
     })
     .select('id')
     .single();
-  if (invError) return { error: invError.message };
+  if (invError) return { error: invError.code === '23505' ? 'Invoice ID sudah digunakan oleh invoice lain.' : invError.message };
 
   const rows = items.map((it) => ({
     invoice_id: invoice.id,

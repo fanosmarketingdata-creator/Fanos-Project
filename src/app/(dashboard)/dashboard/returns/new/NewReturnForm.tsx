@@ -22,6 +22,7 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
   const router = useRouter();
   const toast = useToast();
   const [invoiceId, setInvoiceId] = useState('');
+  const [docNo, setDocNo] = useState('');
   const [returnDate, setReturnDate] = useState(new Date().toISOString().split('T')[0]);
   const [reason, setReason] = useState('');
   const [items, setItems] = useState<ReturnableItem[]>([]);
@@ -35,22 +36,34 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
     setQty({});
     if (!id) return;
     setLoading(true);
-    const data = await getReturnableItems(id);
-    setLoading(false);
-    setItems(data);
+    try {
+      setItems(await getReturnableItems(id));
+    } catch (e) {
+      toast('Item invoice gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+    } finally {
+      setLoading(false);
+    }
   }
 
   const creditTotal = items.reduce((s, it) => s + (qty[it.sku] || 0) * it.unit_price, 0);
 
   async function handleSave() {
     setSaving(true);
-    const result = await createReturn(
-      invoiceId,
-      returnDate,
-      reason,
-      items.map((it) => ({ sku: it.sku, qty_returned: qty[it.sku] || 0, unit_price: it.unit_price }))
-    );
-    setSaving(false);
+    let result: Awaited<ReturnType<typeof createReturn>>;
+    try {
+      result = await createReturn(
+        invoiceId,
+        returnDate,
+        reason,
+        items.map((it) => ({ sku: it.sku, qty_returned: qty[it.sku] || 0, unit_price: it.unit_price })),
+        docNo
+      );
+    } catch (e) {
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+      return;
+    } finally {
+      setSaving(false);
+    }
 
     if (result.error) {
       toast(result.error, 'error');
@@ -65,12 +78,16 @@ export default function NewReturnForm({ invoices }: { invoices: InvoiceOption[] 
       title="New Retur Penjualan"
       icon="fi fi-rr-undo"
       backHref="/dashboard/returns"
-      saving={saving || creditTotal <= 0}
+      saving={saving}
+      disabled={creditTotal <= 0}
       saveLabel="Simpan Retur"
       onSave={handleSave}
     >
       <Sec title="Informasi Retur" icon="fi fi-rr-info">
         <div className="fv2-grid">
+          <FvField label="Return ID">
+            <input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (RT-...)" />
+          </FvField>
           <FvField label="Invoice" required>
             <SearchSelect
               value={invoiceId}

@@ -15,6 +15,7 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
   const toast = useToast();
   const [soId, setSoId] = useState('');
   const [invDate, setInvDate] = useState(new Date().toISOString().split('T')[0]);
+  const [docNo, setDocNo] = useState('');
   const [saving, setSaving] = useState(false);
 
   async function handleSave() {
@@ -23,8 +24,15 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
       return;
     }
     setSaving(true);
-    const result = await createInvoiceFromSO({ so_id: soId, inv_date: invDate });
-    setSaving(false);
+    let result: Awaited<ReturnType<typeof createInvoiceFromSO>>;
+    try {
+      result = await createInvoiceFromSO({ so_id: soId, inv_date: invDate, doc_no: docNo });
+    } catch (e) {
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+      return;
+    } finally {
+      setSaving(false);
+    }
 
     if (result.error) {
       toast(result.error, 'error');
@@ -39,12 +47,16 @@ export default function NewInvoiceForm({ salesOrders }: { salesOrders: Uninvoice
       title="New Invoice"
       icon="fi fi-rr-receipt"
       backHref="/dashboard/invoices"
-      saving={saving || !soId}
+      saving={saving}
+      disabled={!soId}
       saveLabel="Buat Invoice"
       onSave={handleSave}
     >
       <Sec title="Informasi Invoice" icon="fi fi-rr-info">
         <div className="fv2-grid">
+          <FvField label="Invoice ID">
+            <input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (INV-...)" />
+          </FvField>
           <FvField label="Sales Order" required>
             <SearchSelect
               value={soId}

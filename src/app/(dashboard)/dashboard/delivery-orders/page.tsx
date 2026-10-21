@@ -6,7 +6,7 @@ export default async function DeliveryOrdersPage() {
   const supabase = createClient();
   const { data: dos } = await supabase
     .from('delivery_orders')
-    .select('id, doc_no, do_date, status, sales_orders(id, clients(project_name)), delivery_order_items(count)')
+    .select('id, doc_no, do_date, status, client_id, clients(project_name), sales_orders(id, clients(project_name)), delivery_order_items(count)')
     .order('do_date', { ascending: false });
 
   const rows = (dos ?? []).map((d) => {
@@ -17,17 +17,22 @@ export default async function DeliveryOrdersPage() {
       do_date: d.do_date,
       status: d.status,
       so_id: so?.id ?? '',
-      client_name: so?.clients?.project_name ?? '-',
+      client_name: so?.clients?.project_name ?? (d.clients as unknown as { project_name: string } | null)?.project_name ?? '-',
       item_count: (d.delivery_order_items as unknown as { count: number }[])?.[0]?.count ?? 0,
     };
   });
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-shipping-fast" />Delivery Orders</h1>
-      <p className="mb-6 text-sm text-slate-500">
-        Riwayat pengiriman (Surat Jalan) yang dibuat otomatis melalui tombol &quot;Ship Items&quot; pada Sales Order.
-      </p>
+      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h1 className="page-title" style={{ marginBottom: 2 }}><i className="fi fi-rr-shipping-fast" />Delivery Orders</h1>
+          <p className="text-sm text-slate-500">Surat Jalan dapat dibuat langsung atau dari Sales Order, tanpa harus menunggu Sales Order.</p>
+        </div>
+        <Link href="/dashboard/delivery-orders/new" className="btn btn-primary">
+          <i className="fi fi-rr-plus" /> New Delivery Order
+        </Link>
+      </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[640px] text-left text-sm">

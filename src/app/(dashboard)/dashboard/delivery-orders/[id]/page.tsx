@@ -9,13 +9,13 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
   const supabase = createClient();
   const { data: d } = await supabase
     .from('delivery_orders')
-    .select('id, doc_no, do_date, status, notes, sales_orders(id, doc_no, clients(project_name, address, city))')
+    .select('id, doc_no, do_date, status, notes, client_id, clients(project_name, address, city), sales_orders(id, doc_no, clients(project_name, address, city))')
     .eq('id', params.id)
     .single();
   if (!d) notFound();
 
   const so = one<{ id: string; doc_no: string | null; clients: unknown }>(d.sales_orders);
-  const client = one<{ project_name: string; address: string | null; city: string | null }>(so?.clients);
+  const client = one<{ project_name: string; address: string | null; city: string | null }>(so?.clients) ?? one<{ project_name: string; address: string | null; city: string | null }>(d.clients);
   const { data: items } = await supabase
     .from('delivery_order_items')
     .select('sku, qty_shipped, notes, products(name)')

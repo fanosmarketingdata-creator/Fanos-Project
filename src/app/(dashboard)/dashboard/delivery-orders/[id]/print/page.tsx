@@ -10,7 +10,7 @@ export default async function DeliveryOrderPrintPage({ params }: { params: { id:
   const [{ data: d }, { data: items }] = await Promise.all([
     supabase
       .from('delivery_orders')
-      .select('id, doc_no, do_date, notes, sales_orders(doc_no, clients(project_name, company, contact_name, address, city, phone))')
+      .select('id, doc_no, do_date, notes, clients(project_name, company, contact_name, address, city, phone), sales_orders(doc_no, clients(project_name, company, contact_name, address, city, phone))')
       .eq('id', params.id)
       .single(),
     supabase.from('delivery_order_items').select('sku, qty_shipped, notes, products(name, uom)').eq('delivery_order_id', params.id),
@@ -33,7 +33,7 @@ export default async function DeliveryOrderPrintPage({ params }: { params: { id:
           { label: 'No Surat Jalan', value: d.doc_no ?? '-' },
           { label: 'No SO', value: so?.doc_no ?? '-' },
         ]}
-        parties={[{ label: 'Kirim Ke,', lines: clientLines(one<PrintClient>(so?.clients)) }]}
+        parties={[{ label: 'Kirim Ke,', lines: clientLines(one<PrintClient>(so?.clients) ?? one<PrintClient>(d.clients)) }]}
         columns={[
           { key: 'no', label: 'No.', width: '6%', align: 'center' },
           { key: 'sku', label: 'Item', width: '18%', align: 'left' },

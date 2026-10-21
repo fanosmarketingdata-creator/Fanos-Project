@@ -9,6 +9,7 @@ export default function DocFormShell({
   icon,
   backHref,
   saving,
+  disabled,
   saveLabel = 'Simpan',
   onSave,
   children,
@@ -17,6 +18,7 @@ export default function DocFormShell({
   icon: string;
   backHref: string;
   saving?: boolean;
+  disabled?: boolean; // tombol simpan nonaktif (belum lengkap) tanpa tampil "Menyimpan..."
   saveLabel?: string;
   onSave: () => void;
   children: React.ReactNode;
@@ -33,7 +35,7 @@ export default function DocFormShell({
           <button type="button" className="btn btn-secondary" onClick={close}>
             Batal
           </button>
-          <button type="button" className="btn btn-primary" onClick={onSave} disabled={saving}>
+          <button type="button" className="btn btn-primary" onClick={onSave} disabled={saving || disabled}>
             <i className="fi fi-rr-disk" /> {saving ? 'Menyimpan...' : saveLabel}
           </button>
         </>

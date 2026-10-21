@@ -50,7 +50,7 @@ export async function getReturnableItems(invoiceId: string) {
 
 export type ReturnItemInput = { sku: string; qty_returned: number; unit_price: number };
 
-export async function createReturn(invoiceId: string, returnDate: string, reason: string, items: ReturnItemInput[]) {
+export async function createReturn(invoiceId: string, returnDate: string, reason: string, items: ReturnItemInput[], docNo?: string) {
   if (!invoiceId) return { error: 'Mohon pilih Invoice terlebih dahulu.' };
   if (!returnDate) return { error: 'Kolom Tanggal retur wajib diisi.' };
 
@@ -81,6 +81,7 @@ export async function createReturn(invoiceId: string, returnDate: string, reason
   const { data: salesReturn, error: retError } = await supabase
     .from('sales_returns')
     .insert({
+      doc_no: docNo?.trim() || null,
       return_date: returnDate,
       invoice_id: invoiceId,
       client_id: invoice.client_id,
@@ -89,7 +90,7 @@ export async function createReturn(invoiceId: string, returnDate: string, reason
     })
     .select('id')
     .single();
-  if (retError) return { error: retError.message };
+  if (retError) return { error: retError.code === '23505' ? 'Return ID sudah digunakan oleh retur lain.' : retError.message };
 
   const itemRows = toReturn.map((it) => ({
     sales_return_id: salesReturn.id,

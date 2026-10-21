@@ -142,7 +142,7 @@ export async function getSOShippingStatus(soId: string) {
   }));
 }
 
-export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[]) {
+export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[], docNo?: string, doNotes?: string) {
   const toShip = shipItemsInput.filter((it) => it.ship_qty > 0);
   if (toShip.length === 0) return { error: 'Mohon isi minimal satu Ship Qty.' };
 
@@ -151,7 +151,7 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
   // Validasi: ship qty tidak boleh melebihi sisa
   const { data: soItems } = await supabase
     .from('sales_order_items')
-    .select('id, sku, qty, qty_shipped')
+    .select('id, sku, qty, qty_shipped, product_id')
     .eq('sales_order_id', soId);
 
   for (const ship of toShip) {
@@ -163,16 +163,20 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
     }
   }
 
+  const { data: soHead } = await supabase.from('sales_orders').select('client_id').eq('id', soId).single();
+  const soClientId = soHead?.client_id ?? null;
+
   const { data: deliveryOrder, error: doError } = await supabase
     .from('delivery_orders')
-    .insert({ do_date: doDate, sales_order_id: soId, status: 'SHIPPED' })
+    .insert({ doc_no: docNo?.trim() || null, do_date: doDate, sales_order_id: soId, client_id: soClientId, notes: doNotes?.trim() || null, status: 'SHIPPED' })
     .select('id')
     .single();
-  if (doError) return { error: doError.message };
+  if (doError) return { error: doError.code === '23505' ? 'Delivery ID sudah digunakan oleh pengiriman lain.' : doError.message };
 
   const doItemsRows = toShip.map((it) => ({
     delivery_order_id: deliveryOrder.id,
     sales_order_item_id: it.sales_order_item_id,
+    product_id: soItems?.find((si) => si.id === it.sales_order_item_id)?.product_id ?? null,
     sku: it.sku,
     qty_shipped: it.ship_qty,
     notes: it.notes || null,
