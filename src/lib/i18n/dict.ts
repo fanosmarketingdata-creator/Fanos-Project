@@ -1,6 +1,15 @@
 // Kamus Indonesia -> Inggris. Teks sumber aplikasi berbahasa Indonesia; bahasa
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
+  'Memuat data Sales Order...': 'Loading Sales Order data...',
+  'Terisi otomatis dari Sales Order': 'Filled automatically from the Sales Order',
+  'Data ditarik dari Sales Order yang dipilih dan dapat diedit. Perubahan juga disimpan ke Sales Order tersebut.': 'Data is pulled from the selected Sales Order and can be edited. Changes are also saved to that Sales Order.',
+  'Pilih Sales Order untuk menampilkan datanya. Hanya Sales Order berstatus VERIFIED yang tampil. Data dapat diedit dan perubahannya juga disimpan ke Sales Order.': 'Select a Sales Order to show its data. Only VERIFIED Sales Orders are listed. The data can be edited and changes are also saved to the Sales Order.',
+  'Seluruh Sales Order telah memiliki invoice, atau belum terdapat Sales Order yang sudah VERIFIED.': 'All Sales Orders already have an invoice, or there is no VERIFIED Sales Order yet.',
+  'Diskon, Pajak & Biaya Tambahan': 'Discounts, Taxes & Additional Charges',
+  'Sales Order berstatus COMPLETED tidak dapat diubah.': 'A COMPLETED Sales Order cannot be changed.',
+  'Item yang sudah dikirim tidak dapat dihapus dari Sales Order.': 'Items that have already been shipped cannot be removed from the Sales Order.',
+  'Ship Qty': 'Ship Qty',
   'Sales Order berstatus COMPLETED tidak dapat dihapus.': 'A COMPLETED Sales Order cannot be deleted.',
   'Kode': 'Code',
   'Mark as Verified': 'Mark as Verified',
@@ -534,6 +543,7 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Qty (.+) tidak boleh kurang dari qty yang sudah dikirim \((.+)\)\.$/, (m) => `Qty ${m[1]} cannot be less than the quantity already shipped (${m[2]}).`],
   [/^Apakah Anda yakin ingin menghapus (.+?) untuk$/, (m) => `Are you sure you want to delete the ${m[1]} for`],
   [/^Apakah Anda yakin ingin menghapus (PO|.+?) ke$/, (m) => `Are you sure you want to delete the ${m[1]} to`],
   [/^\?\s*Delivery Order\s+terkait akan turut terhapus\.$/, () => '? The related Delivery Orders will also be deleted.'],

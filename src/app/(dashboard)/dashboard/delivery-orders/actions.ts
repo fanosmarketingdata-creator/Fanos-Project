@@ -2,6 +2,8 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { syncSalesOrder, shipItems } from '../sales-orders/actions';
+import type { SOEdits } from '@/lib/so-types';
 
 // Sales Order yang masih punya sisa barang untuk dikirim.
 export async function getSalesOrdersForDelivery() {
@@ -17,6 +19,26 @@ export async function getSalesOrdersForDelivery() {
     so_date: so.so_date as string,
     client_name: (so.clients as unknown as { project_name: string } | null)?.project_name ?? '-',
   }));
+}
+
+// Delivery Order dari Sales Order. Bila item/diskon/biaya diubah di form, Sales Order ikut diperbarui lebih dulu.
+export async function createDeliveryFromSO(input: {
+  so_id: string;
+  doc_no?: string;
+  do_date: string;
+  notes?: string;
+  edits?: SOEdits;
+  ship: { sales_order_item_id: string; sku: string; ship_qty: number }[];
+}) {
+  if (!input.so_id) return { error: 'Mohon pilih Sales Order terlebih dahulu.' };
+  if (!input.do_date) return { error: 'Kolom Tanggal kirim wajib diisi.' };
+  if (input.edits) {
+    const synced = await syncSalesOrder(input.so_id, input.edits);
+    if (synced.error) return { error: synced.error };
+  }
+  const r = await shipItems(input.so_id, input.do_date, input.ship, input.doc_no, input.notes);
+  revalidatePath('/dashboard/delivery-orders');
+  return r;
 }
 
 export type ManualDOItem = { product_id: string | null; sku: string; qty: number; notes?: string };

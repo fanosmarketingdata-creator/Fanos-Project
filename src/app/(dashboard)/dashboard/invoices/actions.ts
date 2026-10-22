@@ -3,6 +3,8 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
+import { syncSalesOrder } from '../sales-orders/actions';
+import type { SOEdits } from '@/lib/so-types';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 
 // Daftar SO yang BELUM punya invoice (supaya tidak invoice dobel per SO).
@@ -10,13 +12,14 @@ export async function getUninvoicedSalesOrders() {
   const supabase = createClient();
   const { data: sos } = await supabase
     .from('sales_orders')
-    .select('id, so_date, total_amount, clients(project_name), invoices(id)')
+    .select('id, doc_no, so_date, total_amount, clients(project_name), invoices(id)')
     .in('status', ['VERIFIED', 'COMPLETED']);
 
   return (sos ?? [])
     .filter((so) => !(so.invoices as unknown as { id: string }[])?.length)
     .map((so) => ({
       id: so.id,
+      doc_no: (so.doc_no as string | null) ?? null,
       so_date: so.so_date,
       total_amount: Number(so.total_amount),
       client_name: (so.clients as unknown as { project_name: string } | null)?.project_name ?? '-',
@@ -37,6 +40,7 @@ export type InvoiceInput = {
   so_id: string;
   inv_date: string;
   doc_no?: string; // Invoice ID manual; kosong = otomatis
+  edits?: SOEdits; // perubahan item/diskon/biaya dari form; disimpan juga ke Sales Order
 };
 
 export async function createInvoiceFromSO(input: InvoiceInput) {
@@ -44,6 +48,10 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
   if (!input.inv_date) return { error: 'Kolom Tanggal Invoice wajib diisi.' };
 
   const supabase = createClient();
+  if (input.edits) {
+    const synced = await syncSalesOrder(input.so_id, input.edits);
+    if (synced.error) return { error: synced.error };
+  }
   const so = await getSOForInvoice(input.so_id);
   if (!so) return { error: 'Sales Order tidak ditemukan' };
 

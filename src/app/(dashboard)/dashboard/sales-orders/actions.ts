@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
+import type { SOFull, SOEdits } from '@/lib/so-types';
 
 export type SOItemInput = {
   product_id: string | null;
@@ -220,5 +221,87 @@ export async function changeSalesOrderStatus(id: string, to: 'VERIFIED' | 'COMPL
   revalidatePath('/dashboard/sales-orders');
   revalidatePath('/dashboard/delivery-orders');
   revalidatePath('/dashboard');
+  return { success: true };
+}
+
+// Data lengkap Sales Order (item, diskon/pajak, biaya tambahan) untuk form Invoice / Delivery Order.
+export async function getSalesOrderFull(soId: string): Promise<SOFull | null> {
+  const supabase = createClient();
+  const [{ data: so }, { data: items }] = await Promise.all([
+    supabase.from('sales_orders').select('id, doc_no, status, client_id, discounts, charges, clients(project_name)').eq('id', soId).single(),
+    supabase
+      .from('sales_order_items')
+      .select('id, product_id, sku, qty, qty_shipped, unit_price, notes, sort_order, products(name)')
+      .eq('sales_order_id', soId)
+      .order('sort_order'),
+  ]);
+  if (!so) return null;
+  return {
+    id: so.id,
+    doc_no: (so.doc_no as string | null) ?? null,
+    status: so.status as string,
+    client_id: so.client_id as string,
+    client_name: (so.clients as unknown as { project_name: string } | null)?.project_name ?? '-',
+    discounts: (so.discounts ?? []) as DiscountLine[],
+    charges: (so.charges ?? []) as ChargeLine[],
+    items: (items ?? []).map((it) => ({
+      id: it.id as string,
+      product_id: (it.product_id as string | null) ?? null,
+      sku: it.sku as string,
+      name: (it.products as unknown as { name: string } | null)?.name ?? '',
+      qty: Number(it.qty),
+      qty_shipped: Number(it.qty_shipped),
+      unit_price: Number(it.unit_price),
+      notes: (it.notes as string | null) ?? '',
+    })),
+  };
+}
+
+// Simpan perubahan dari form Invoice / Delivery Order ke Sales Order asalnya.
+export async function syncSalesOrder(soId: string, edits: SOEdits) {
+  const supabase = createClient();
+  const { data: so } = await supabase.from('sales_orders').select('status').eq('id', soId).single();
+  if (!so) return { error: 'Sales Order tidak ditemukan' };
+  if (so.status === 'COMPLETED') return { error: 'Sales Order berstatus COMPLETED tidak dapat diubah.' };
+
+  const items = edits.items.filter((it) => it.sku && it.qty > 0);
+  if (items.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
+
+  const { data: existing } = await supabase.from('sales_order_items').select('id, qty_shipped').eq('sales_order_id', soId);
+  const keep = new Set(items.filter((it) => it.id).map((it) => it.id as string));
+
+  // Item yang dihapus: tidak boleh bila sudah pernah dikirim.
+  for (const ex of existing ?? []) {
+    if (!keep.has(ex.id) && Number(ex.qty_shipped) > 0) return { error: 'Item yang sudah dikirim tidak dapat dihapus dari Sales Order.' };
+  }
+  for (const it of items) {
+    const ex = (existing ?? []).find((e) => e.id === it.id);
+    if (ex && it.qty < Number(ex.qty_shipped)) return { error: `Qty ${it.sku} tidak boleh kurang dari qty yang sudah dikirim (${Number(ex.qty_shipped)}).` };
+  }
+
+  const removed = (existing ?? []).filter((ex) => !keep.has(ex.id)).map((ex) => ex.id);
+  if (removed.length) {
+    const { error } = await supabase.from('sales_order_items').delete().in('id', removed);
+    if (error) return { error: error.message };
+  }
+  for (let i = 0; i < items.length; i++) {
+    const it = items[i];
+    const row = { product_id: it.product_id, sku: it.sku, qty: it.qty, unit_price: it.unit_price, total: it.qty * it.unit_price, notes: it.notes || null, sort_order: i };
+    const { error } = it.id
+      ? await supabase.from('sales_order_items').update(row).eq('id', it.id)
+      : await supabase.from('sales_order_items').insert({ ...row, sales_order_id: soId });
+    if (error) return { error: error.message };
+  }
+
+  const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
+  const discountPercent = sumDiscountPercent(edits.discounts);
+  const total = subtotal * (1 - discountPercent / 100) + sumChargeAmount(edits.charges) + sumTaxAmount(subtotal, edits.discounts);
+  const { error: hErr } = await supabase
+    .from('sales_orders')
+    .update({ discounts: edits.discounts, charges: edits.charges, discount_percent: discountPercent, total_amount: total })
+    .eq('id', soId);
+  if (hErr) return { error: hErr.message };
+
+  revalidatePath('/dashboard/sales-orders');
   return { success: true };
 }

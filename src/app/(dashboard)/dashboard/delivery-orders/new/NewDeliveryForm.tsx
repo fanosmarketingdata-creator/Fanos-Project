@@ -9,19 +9,20 @@ import { FvField } from '@/components/registry/RegistryModal';
 import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import Select from '@/components/ui/Select';
 import type { ProductOption } from '@/components/ProductPicker';
-import { getSOShippingStatus, shipItems } from '../../sales-orders/actions';
-import { createManualDelivery, type ManualDOItem } from '../actions';
+import SOEditPanel from '@/components/registry/SOEditPanel';
+import type { SOEdits } from '@/lib/so-types';
+import { getSalesOrderFull } from '../../sales-orders/actions';
+import { createManualDelivery, createDeliveryFromSO, type ManualDOItem } from '../actions';
 
 type SOOption = { id: string; doc_no: string; so_date: string; client_name: string };
 type ClientOption = { id: string; project_name: string };
-type ShipRow = { id: string; sku: string; name: string; ordered: number; shipped: number; remaining: number };
 
 const emptyItem = (): ManualDOItem => ({ product_id: null, sku: '', qty: 1, notes: '' });
 
 export default function NewDeliveryForm({ salesOrders, clients, products }: { salesOrders: SOOption[]; clients: ClientOption[]; products: ProductOption[] }) {
   const router = useRouter();
   const toast = useToast();
-  const [mode, setMode] = useState<'manual' | 'so'>('manual');
+  const [mode, setMode] = useState<'manual' | 'so'>('so');
   const [docNo, setDocNo] = useState('');
   const [doDate, setDoDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
@@ -29,7 +30,8 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
 
   // Dari Sales Order
   const [soId, setSoId] = useState('');
-  const [rows, setRows] = useState<ShipRow[]>([]);
+  const [edits, setEdits] = useState<SOEdits | null>(null);
+  const [original, setOriginal] = useState('');
   const [shipQty, setShipQty] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(false);
 
@@ -39,14 +41,17 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
 
   async function pickSO(id: string) {
     setSoId(id);
-    setRows([]);
+    setEdits(null);
     setShipQty({});
     if (!id) return;
     setLoading(true);
     try {
-      const data = await getSOShippingStatus(id);
-      setRows(data);
-      setShipQty(Object.fromEntries(data.map((r) => [r.id, r.remaining])));
+      const so = await getSalesOrderFull(id);
+      if (!so) return toast('Sales Order tidak ditemukan', 'error');
+      const e: SOEdits = { items: so.items, discounts: so.discounts, charges: so.charges };
+      setEdits(e);
+      setOriginal(JSON.stringify(e));
+      setShipQty(Object.fromEntries(so.items.map((it) => [it.id as string, Math.max(0, it.qty - (it.qty_shipped ?? 0))])));
     } catch (e) {
       toast('Item Sales Order gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
@@ -56,14 +61,17 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
 
   const updateItem = (i: number, patch: Partial<ManualDOItem>) => setItems((p) => p.map((it, j) => (j === i ? { ...it, ...patch } : it)));
 
-  const ready = mode === 'so' ? !!soId && rows.some((r) => (shipQty[r.id] || 0) > 0) : !!clientId && items.some((it) => it.sku && it.qty > 0);
+  const ready = mode === 'so' ? !!soId && !!edits && edits.items.some((it) => it.id && (shipQty[it.id] || 0) > 0) : !!clientId && items.some((it) => it.sku && it.qty > 0);
 
   async function handleSave() {
     setSaving(true);
     try {
       if (mode === 'so') {
-        const payload = rows.map((r) => ({ sales_order_item_id: r.id, sku: r.sku, ship_qty: shipQty[r.id] || 0 })).filter((r) => r.ship_qty > 0);
-        const r = await shipItems(soId, doDate, payload, docNo, notes);
+        const payload = (edits?.items ?? [])
+          .filter((it) => it.id && (shipQty[it.id] || 0) > 0)
+          .map((it) => ({ sales_order_item_id: it.id as string, sku: it.sku, ship_qty: shipQty[it.id as string] || 0 }));
+        const changed = edits && JSON.stringify(edits) !== original;
+        const r = await createDeliveryFromSO({ so_id: soId, doc_no: docNo, do_date: doDate, notes, edits: changed ? edits : undefined, ship: payload });
         if (r.error) return toast(r.error, 'error');
       } else {
         const r = await createManualDelivery({ doc_no: docNo, do_date: doDate, client_id: clientId, notes, items });
@@ -98,8 +106,8 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
           </FvField>
           <FvField label="Sumber Data">
             <Select value={mode} onChange={(e) => setMode(e.target.value as 'manual' | 'so')}>
-              <option value="manual">Input Manual (tanpa Sales Order)</option>
               <option value="so">Dari Sales Order</option>
+              <option value="manual">Input Manual (tanpa Sales Order)</option>
             </Select>
           </FvField>
           {mode === 'so' ? (
@@ -132,37 +140,24 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
       </Sec>
 
       {mode === 'so' ? (
-        <Sec title="Item yang Dikirim" icon="fi fi-rr-list">
-          {loading && <p style={{ fontSize: 12, color: '#9ca3af' }}>Memuat item Sales Order...</p>}
-          {!loading && rows.length === 0 && <p style={{ fontSize: 12, color: '#9ca3af' }}>Pilih Sales Order untuk menampilkan item yang masih bisa dikirim. Hanya Sales Order berstatus VERIFIED yang tampil.</p>}
-          {rows.length > 0 && (
-            <div className="dv2-table-wrap">
-              <table className="dv2-table">
-                <thead>
-                  <tr><th className="tl">SKU</th><th>Dipesan</th><th>Terkirim</th><th>Sisa</th><th>Ship Qty</th></tr>
-                </thead>
-                <tbody>
-                  {rows.map((r) => (
-                    <tr key={r.id}>
-                      <td className="tl"><div style={{ fontWeight: 700 }}>{r.sku}</div><div style={{ fontSize: 11, color: '#9ca3af' }}>{r.name}</div></td>
-                      <td>{r.ordered}</td>
-                      <td>{r.shipped}</td>
-                      <td style={{ fontWeight: 700, color: '#16a34a' }}>{r.remaining}</td>
-                      <td>
-                        <input
-                          type="number" min={0} max={r.remaining} disabled={r.remaining <= 0}
-                          value={shipQty[r.id] || 0}
-                          onChange={(e) => setShipQty((p) => ({ ...p, [r.id]: parseFloat(e.target.value) || 0 }))}
-                          style={{ width: 80, border: '1.5px solid #e5e7eb', borderRadius: 8, padding: '6px 8px', textAlign: 'center', fontSize: 12.5 }}
-                        />
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+        <>
+          {loading && <div className="dv2-loading"><div className="spinner" />Memuat data Sales Order...</div>}
+          {!loading && !edits && (
+            <p style={{ fontSize: 12, color: '#9ca3af' }}>
+              Pilih Sales Order untuk menampilkan datanya. Hanya Sales Order berstatus VERIFIED yang tampil. Data dapat diedit dan perubahannya juga disimpan ke Sales Order.
+            </p>
           )}
-        </Sec>
+          {edits && (
+            <SOEditPanel
+              value={edits}
+              onChange={setEdits}
+              products={products}
+              allowAddRemove={false}
+              shipQty={shipQty}
+              onShipQty={(id, q) => setShipQty((p) => ({ ...p, [id]: q }))}
+            />
+          )}
+        </>
       ) : (
         <Sec title="Daftar Item" icon="fi fi-rr-list">
           <div className="fv2-scroll-x">
