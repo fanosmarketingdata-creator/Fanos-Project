@@ -125,10 +125,6 @@ function UserMenu({ profile, onLogout }: { profile: { full_name: string; role: s
             <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
           )}
         </span>
-        <span className="hidden text-left leading-tight xl:block">
-          <span className="block text-[12px] font-bold text-slate-800">{profile.full_name}</span>
-          <span className="block text-[9.5px] text-slate-400">{profile.role}</span>
-        </span>
         <i className={`fi fi-rr-angle-small-down text-[10px] leading-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -370,7 +366,7 @@ export default function DashboardShell({
         <div className="flex-1 lg:hidden" />
 
         {!isSuperuser && (
-          <div className="hidden 2xl:block">
+          <div className="shrink-0">
             <PresenceWidget meId={profile.id} />
           </div>
         )}

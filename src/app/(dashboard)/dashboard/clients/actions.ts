@@ -12,6 +12,7 @@ export type ClientInput = {
   email?: string;
   address?: string;
   credit_limit?: number | null;
+  status?: string;
 };
 
 export async function saveClient(input: ClientInput) {
@@ -29,6 +30,7 @@ export async function saveClient(input: ClientInput) {
     email: input.email || null,
     address: input.address || null,
     credit_limit: input.credit_limit ?? null,
+    status: ['Active', 'Inactive', 'Blacklist', 'Unverified'].includes(input.status || '') ? input.status : 'Unverified',
   };
 
   const query = input.id

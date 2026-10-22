@@ -306,9 +306,9 @@
 .fc-inner { position: relative; }
 .fc svg { position: absolute; display: block; overflow: visible; filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.35)); }
 .fc-tag {
-  position: absolute; white-space: nowrap; font: 600 12px/1 inherit;
-  padding: 5px 9px 6px; border-radius: 999px; letter-spacing: 0.005em;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+  position: absolute; white-space: nowrap; font-weight: 600; font-size: 10px; line-height: 1;
+  padding: 3px 7px 4px; border-radius: 999px; letter-spacing: 0.005em;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.28);
 }
 /* Transisi warna saat Superuser mengubah warna kursor; putaran untuk kursor wait. */
 .fc-tag { transition: background-color 0.12s ease-out; }

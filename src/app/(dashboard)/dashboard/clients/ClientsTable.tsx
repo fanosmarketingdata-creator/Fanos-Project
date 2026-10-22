@@ -5,6 +5,7 @@ import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
+import FvSelect from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
 import { saveClient, deleteClient, type ClientInput } from './actions';
@@ -19,9 +20,32 @@ export type ClientRow = {
   email: string | null;
   address: string | null;
   credit_limit: number | null;
+  status: string | null;
 };
 
-const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null };
+const STATUSES = ['Active', 'Inactive', 'Blacklist', 'Unverified'] as const;
+const STATUS_META: Record<string, { icon: string; color: string; bg: string }> = {
+  Active: { icon: 'fi fi-rr-badge-check', color: '#16a34a', bg: '#dcfce7' },
+  Inactive: { icon: 'fi fi-rr-pause-circle', color: '#64748b', bg: '#f1f5f9' },
+  Blacklist: { icon: 'fi fi-rr-ban', color: '#dc2626', bg: '#fee2e2' },
+  Unverified: { icon: 'fi fi-rr-time-quarter-to', color: '#d97706', bg: '#fef3c7' },
+};
+
+function StatusBadge({ status, withLabel }: { status: string | null; withLabel?: boolean }) {
+  const st = status && STATUS_META[status] ? status : 'Unverified';
+  const m = STATUS_META[st];
+  return (
+    <span
+      title={st}
+      style={{ display: 'inline-flex', alignItems: 'center', gap: 5, background: m.bg, color: m.color, borderRadius: 999, padding: withLabel ? '2px 9px 2px 6px' : 0, width: withLabel ? undefined : 20, height: 20, justifyContent: 'center', fontSize: 11, fontWeight: 700, flexShrink: 0 }}
+    >
+      <i className={m.icon} style={{ fontSize: 12, lineHeight: 1 }} />
+      {withLabel && st}
+    </span>
+  );
+}
+
+const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified' };
 
 const creditLabel = (n: number | null) =>
   n == null ? '-' : CREDIT_LIMIT_OPTIONS.find((o) => o.value === Number(n))?.label ?? 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -60,6 +84,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       email: c.email || '',
       address: c.address || '',
       credit_limit: c.credit_limit == null ? null : Number(c.credit_limit),
+      status: c.status || 'Unverified',
     });
     setModalOpen(true);
   }
@@ -121,7 +146,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
               <div className="client-card-avatar">{c.company.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
-                <div className="name">{c.company}</div>
+                <div className="name" style={{ display: 'flex', alignItems: 'center', gap: 7 }}><StatusBadge status={c.status} /><span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.company}</span></div>
                 <div className="sub">{c.client_no || '-'}</div>
               </div>
               <div className="client-card-meta">
@@ -149,7 +174,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div className="dv2-topbar">
               <div>
                 <div className="dv2-topbar-id">{detail.client_no || 'Client'}</div>
-                <div className="dv2-topbar-title">{detail.company}</div>
+                <div className="dv2-topbar-title" style={{ display: 'flex', alignItems: 'center', gap: 8 }}><StatusBadge status={detail.status} /> {detail.company}</div>
               </div>
             </div>
             <div className="dv2-grid">
@@ -157,6 +182,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
               <DvCard icon="fi fi-rr-briefcase" label="Position" value={detail.position || '-'} />
               <DvCard icon="fi fi-rr-envelope" label="Email" value={detail.email || '-'} />
               <DvCard icon="fi fi-rr-phone-call" label="Phone" value={detail.phone || '-'} />
+              <DvCard icon="fi fi-rr-shield-check" label="Status" value={detail.status || 'Unverified'} color={STATUS_META[detail.status || 'Unverified']?.color} />
               <DvCard icon="fi fi-rr-credit-card" label="Credit Limit" value={creditLabel(detail.credit_limit)} color="#16a34a" />
             </div>
             <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Company Address</div>
@@ -197,6 +223,11 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div style={{ marginTop: 14 }}>
               <FvField label="Company Address">
                 <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap perusahaan" />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Status">
+                <FvSelect value={form.status || 'Unverified'} onChange={(v) => setForm({ ...form, status: v })} options={STATUSES.map((x) => ({ value: x, label: x }))} placeholder="Status" />
               </FvField>
             </div>
             <div style={{ marginTop: 14 }}>
