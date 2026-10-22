@@ -5,11 +5,12 @@ export default async function BOQProjectPage() {
   const supabase = createClient();
   const { data: boqs } = await supabase
     .from('boq_projects')
-    .select('id, project_name, boq_date, status, progress, clients(project_name), boq_project_items(count)')
+    .select('id, doc_no, project_name, boq_date, status, progress, clients(project_name), boq_project_items(count)')
     .order('boq_date', { ascending: false });
 
   const rows = (boqs ?? []).map((b) => ({
     id: b.id,
+    doc_no: (b.doc_no as string | null) ?? null,
     project_name: b.project_name,
     boq_date: b.boq_date,
     status: b.status,

@@ -1,5 +1,6 @@
 'use client';
 
+import RowActions from '@/components/ui/RowActions';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -91,6 +92,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="px-4 py-3 font-semibold">Kode</th>
               <th className="px-4 py-3 font-semibold">Client</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Total</th>
@@ -101,17 +103,15 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data Sales Order
                 </td>
               </tr>
             )}
             {filtered.map((r) => (
               <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/sales-orders/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">
-                  {r.client_name}
-                  {r.doc_no && <div className="font-mono text-[10px] font-normal text-slate-400">{r.doc_no}</div>}
-                </td>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.doc_no || '-'}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.so_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
@@ -122,46 +122,15 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <Link
-                      href={`/dashboard/sales-orders/${r.id}/print`}
-                      className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-                    >
-                      Cetak
-                    </Link>
-                    {r.status === 'DRAFT' && (
-                      <button
-                        onClick={() => handleStatus(r, 'VERIFIED')}
-                        disabled={busyId === r.id}
-                        className="rounded-lg bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-50"
-                      >
-                        Mark as Verified
-                      </button>
-                    )}
-                    {r.status === 'VERIFIED' && (
-                      <button
-                        onClick={() => handleStatus(r, 'COMPLETED')}
-                        disabled={busyId === r.id}
-                        className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-50"
-                      >
-                        Mark as Completed
-                      </button>
-                    )}
-                    {r.status === 'DRAFT' && (
-                      <Link
-                        href={`/dashboard/sales-orders/${r.id}`}
-                        className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                      >
-                        Edit
-                      </Link>
-                    )}
-                    <button
-                      onClick={() => setDeleteTarget(r)}
-                      className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Hapus
-                    </button>
-                  </div>
+                  <RowActions
+                    actions={[
+                { label: 'Cetak', icon: 'fi fi-rr-print', href: `/dashboard/sales-orders/${r.id}/print` },
+                { label: 'Mark as Verified', icon: 'fi fi-rr-badge-check', onClick: () => handleStatus(r, 'VERIFIED'), disabled: busyId === r.id, hidden: r.status !== 'DRAFT' },
+                { label: 'Mark as Completed', icon: 'fi fi-rr-check', onClick: () => handleStatus(r, 'COMPLETED'), disabled: busyId === r.id, hidden: r.status !== 'VERIFIED' },
+                { label: 'Edit', icon: 'fi fi-rr-pencil', href: `/dashboard/sales-orders/${r.id}`, hidden: r.status !== 'DRAFT' },
+                { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r), hidden: r.status === 'COMPLETED' },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

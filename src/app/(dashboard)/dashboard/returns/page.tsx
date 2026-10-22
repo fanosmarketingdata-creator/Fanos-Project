@@ -5,11 +5,12 @@ export default async function ReturnsPage() {
   const supabase = createClient();
   const { data: returns } = await supabase
     .from('sales_returns')
-    .select('id, return_date, reason, status, clients(project_name), sales_return_items(subtotal)')
+    .select('id, doc_no, return_date, reason, status, clients(project_name), sales_return_items(subtotal)')
     .order('return_date', { ascending: false });
 
   const rows = (returns ?? []).map((r) => ({
     id: r.id,
+    doc_no: (r.doc_no as string | null) ?? null,
     return_date: r.return_date,
     reason: r.reason,
     status: r.status,
@@ -36,6 +37,7 @@ export default async function ReturnsPage() {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="px-4 py-3 font-semibold">Kode</th>
               <th className="px-4 py-3 font-semibold">Client</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Nilai Retur</th>
@@ -46,13 +48,14 @@ export default async function ReturnsPage() {
           <tbody>
             {rows.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data retur
                 </td>
               </tr>
             )}
             {rows.map((r) => (
               <tr key={r.id} className="border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.doc_no || '-'}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.return_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}

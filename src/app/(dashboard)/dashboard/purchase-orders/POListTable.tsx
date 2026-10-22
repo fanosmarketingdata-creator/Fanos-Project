@@ -1,5 +1,6 @@
 'use client';
 
+import RowActions from '@/components/ui/RowActions';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -84,6 +85,7 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="px-4 py-3 font-semibold">Kode</th>
               <th className="px-4 py-3 font-semibold">Vendor</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Total</th>
@@ -94,17 +96,15 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data Purchase Order
                 </td>
               </tr>
             )}
             {filtered.map((r) => (
               <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/purchase-orders/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="px-4 py-3 font-medium text-slate-800">
-                  {r.vendor_name}
-                  {r.doc_no && <div className="font-mono text-[10px] font-normal text-slate-400">{r.doc_no}</div>}
-                </td>
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.doc_no || '-'}</td>
+                <td className="px-4 py-3 font-medium text-slate-800">{r.vendor_name}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.po_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
@@ -115,48 +115,15 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <Link
-                      href={`/dashboard/purchase-orders/${r.id}/print`}
-                      className="rounded-lg bg-slate-100 px-2.5 py-1.5 text-xs font-medium text-slate-600 hover:bg-slate-200"
-                    >
-                      Cetak
-                    </Link>
-                    {r.status === 'DRAFT' && (
-                      <>
-                        <Link
-                          href={`/dashboard/purchase-orders/${r.id}`}
-                          className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                        >
-                          Edit
-                        </Link>
-                        <button
-                          onClick={() => handleAdvance(r)}
-                          disabled={advancingId === r.id}
-                          className="rounded-lg bg-indigo-50 px-2.5 py-1.5 text-xs font-medium text-indigo-600 hover:bg-indigo-100 disabled:opacity-60"
-                        >
-                          Order ke Vendor
-                        </button>
-                      </>
-                    )}
-                    {r.status === 'ORDERED' && (
-                      <button
-                        onClick={() => handleAdvance(r)}
-                        disabled={advancingId === r.id}
-                        className="rounded-lg bg-emerald-50 px-2.5 py-1.5 text-xs font-medium text-emerald-700 hover:bg-emerald-100 disabled:opacity-60"
-                      >
-                        Tandai Diterima
-                      </button>
-                    )}
-                    {r.status !== 'RECEIVED' && (
-                      <button
-                        onClick={() => setDeleteTarget(r)}
-                        className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                      >
-                        Hapus
-                      </button>
-                    )}
-                  </div>
+                  <RowActions
+                    actions={[
+                { label: 'Cetak', icon: 'fi fi-rr-print', href: `/dashboard/purchase-orders/${r.id}/print` },
+                { label: 'Edit', icon: 'fi fi-rr-pencil', href: `/dashboard/purchase-orders/${r.id}`, hidden: r.status !== 'DRAFT' },
+                { label: 'Order ke Vendor', icon: 'fi fi-rr-paper-plane', onClick: () => handleAdvance(r), disabled: advancingId === r.id, hidden: r.status !== 'DRAFT' },
+                { label: 'Tandai Diterima', icon: 'fi fi-rr-check', onClick: () => handleAdvance(r), disabled: advancingId === r.id, hidden: r.status !== 'ORDERED' },
+                { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r), hidden: r.status === 'RECEIVED' },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

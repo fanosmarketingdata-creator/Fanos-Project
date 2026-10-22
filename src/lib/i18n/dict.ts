@@ -1,6 +1,8 @@
 // Kamus Indonesia -> Inggris. Teks sumber aplikasi berbahasa Indonesia; bahasa
 // Inggris (default) diterapkan saat runtime oleh <I18nTranslator />.
 export const ID_EN: Record<string, string> = {
+  'Sales Order berstatus COMPLETED tidak dapat dihapus.': 'A COMPLETED Sales Order cannot be deleted.',
+  'Kode': 'Code',
   'Mark as Verified': 'Mark as Verified',
   'Mark as Completed': 'Mark as Completed',
   'Sales Order ditandai Verified': 'Sales Order marked as Verified',
@@ -532,6 +534,9 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Apakah Anda yakin ingin menghapus (.+?) untuk$/, (m) => `Are you sure you want to delete the ${m[1]} for`],
+  [/^Apakah Anda yakin ingin menghapus (PO|.+?) ke$/, (m) => `Are you sure you want to delete the ${m[1]} to`],
+  [/^\?\s*Delivery Order\s+terkait akan turut terhapus\.$/, () => '? The related Delivery Orders will also be deleted.'],
   [/^Tandai Sales Order (.+) sebagai (Verified|Completed)\?$/, (m) => `Mark Sales Order ${m[1]} as ${m[2]}?`],
   [/^Status gagal diubah:\s*(.*)$/, (m) => `Failed to change status: ${m[1]}`],
   [/^Pajak(?: (.+))? \((.+)%\)$/, (m) => `Tax${m[1] ? ' ' + m[1] : ''} (${m[2]}%)`],

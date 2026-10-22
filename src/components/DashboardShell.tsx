@@ -8,6 +8,7 @@ import IdleLogout from '@/components/IdleLogout';
 import { useLang } from '@/components/I18nProvider';
 import { setLang, type Lang } from '@/lib/i18n/lang';
 import FigmaCursor from '@/components/FigmaCursor';
+import NumberInputFix from '@/components/NumberInputFix';
 import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
@@ -82,7 +83,7 @@ function isActive(pathname: string | null, href: string) {
   return !ALL_MENU_KEYS.some((k) => k.length > href.length && k.startsWith(href) && pathname.startsWith(k));
 }
 
-function UserMenu({ profile }: { profile: { full_name: string; role: string; photo_url?: string | null } }) {
+function UserMenu({ profile, onLogout }: { profile: { full_name: string; role: string; photo_url?: string | null }; onLogout: () => void }) {
   const lang = useLang();
   const nl = useNavLabel();
   const [open, setOpen] = useState(false);
@@ -156,6 +157,19 @@ function UserMenu({ profile }: { profile: { full_name: string; role: string; pho
               {lang === o.code && <i className="fi fi-rr-check text-[11px]" />}
             </button>
           ))}
+          <div className="my-1.5 border-t border-slate-100" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-red-600 transition hover:bg-red-50"
+          >
+            <i className="fi fi-rr-sign-out-alt text-[13px] leading-none" />
+            <span className="flex-1">{nl('Log out')}</span>
+          </button>
         </div>
       )}
     </div>
@@ -257,6 +271,7 @@ export default function DashboardShell({
           <span className="sub-text">Mohon menunggu</span>
         </div>
       )}
+      <NumberInputFix />
       <FigmaCursor name={profile.full_name || 'you'} colour={profile.cursor_color} />
       <IdleLogout />
       <ResponsiveTables />
@@ -361,14 +376,7 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-300/70 pl-3">
-          <UserMenu profile={profile} />
-          <button
-            onClick={handleLogout}
-            title={nl('Log out')}
-            className="ml-0.5 flex h-7 w-7 items-center justify-center rounded-full bg-red-600/10 text-xs text-red-600 transition hover:bg-red-600/20"
-          >
-            <i className="fi fi-rr-sign-out-alt" />
-          </button>
+          <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 
         {mobileOpen && (

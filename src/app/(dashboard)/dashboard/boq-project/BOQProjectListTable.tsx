@@ -1,5 +1,6 @@
 'use client';
 
+import RowActions from '@/components/ui/RowActions';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -9,6 +10,7 @@ import { deleteBOQProject } from './actions';
 
 export type BOQProjectRow = {
   id: string;
+  doc_no: string | null;
   project_name: string;
   boq_date: string;
   status: string;
@@ -74,6 +76,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
         <table className="w-full min-w-[640px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="px-4 py-3 font-semibold">Kode</th>
               <th className="px-4 py-3 font-semibold">Project</th>
               <th className="px-4 py-3 font-semibold">Client</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
@@ -86,13 +89,14 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={8} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data BOQ Project
                 </td>
               </tr>
             )}
             {filtered.map((r) => (
               <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/boq-project/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
+                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.doc_no || '-'}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{r.project_name}</td>
                 <td className="px-4 py-3 text-slate-600">{r.client_name}</td>
                 <td className="px-4 py-3 text-slate-600">
@@ -106,20 +110,12 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
                   </span>
                 </td>
                 <td className="px-4 py-3">
-                  <div className="flex justify-end gap-1.5">
-                    <Link
-                      href={`/dashboard/boq-project/${r.id}`}
-                      className="rounded-lg bg-blue-50 px-2.5 py-1.5 text-xs font-medium text-blue-600 hover:bg-blue-100"
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      onClick={() => setDeleteTarget(r)}
-                      className="rounded-lg bg-red-50 px-2.5 py-1.5 text-xs font-medium text-red-600 hover:bg-red-100"
-                    >
-                      Hapus
-                    </button>
-                  </div>
+                  <RowActions
+                    actions={[
+                      { label: 'Edit', icon: 'fi fi-rr-pencil', href: `/dashboard/boq-project/${r.id}` },
+                      { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r) },
+                    ]}
+                  />
                 </td>
               </tr>
             ))}

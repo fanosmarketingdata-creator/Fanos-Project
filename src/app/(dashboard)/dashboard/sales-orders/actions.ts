@@ -97,6 +97,8 @@ export async function saveSalesOrder(input: SalesOrderInput) {
 
 export async function deleteSalesOrder(id: string) {
   const supabase = createClient();
+  const { data: cur } = await supabase.from('sales_orders').select('status').eq('id', id).single();
+  if (cur?.status === 'COMPLETED') return { error: 'Sales Order berstatus COMPLETED tidak dapat dihapus.' };
   const { error } = await supabase.from('sales_orders').delete().eq('id', id);
   if (error) return { error: error.message };
 
