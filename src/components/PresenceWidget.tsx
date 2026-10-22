@@ -5,11 +5,11 @@ import { createClient } from '@/lib/supabase/client';
 
 type Person = { id: string; full_name: string; photo_url: string | null; role: string };
 
-const MAX_AVATARS = 4;
-
 // Indikator "siapa yang sedang aktif" (Supabase Realtime Presence).
 // Hanya dirender untuk non-Superuser, dan akun Superuser tidak pernah ikut
 // ditampilkan: daftar hanya berisi akun Active ber-role selain Superuser.
+const MAX_AVATARS = 4;
+
 export default function PresenceWidget({ meId }: { meId: string }) {
   const supabase = useMemo(() => createClient(), []);
   const [people, setPeople] = useState<Person[]>([]);
@@ -56,8 +56,12 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
   const online = sorted.filter((p) => onlineIds.has(p.id));
   const offline = sorted.filter((p) => !onlineIds.has(p.id));
-  const shown = sorted.slice(0, MAX_AVATARS);
-  const remaining = sorted.length - shown.length;
+
+  // Avatar bertumpuk tidak menyertakan user yang sedang login (sudah punya dot hijau di profilnya);
+  // panel yang terbuka tetap menampilkan semua user termasuk dirinya.
+  const others = sorted.filter((p) => p.id !== meId);
+  const shown = others.slice(0, MAX_AVATARS);
+  const remaining = others.length - shown.length;
 
   return (
     <div className="relative">
@@ -77,7 +81,6 @@ export default function PresenceWidget({ meId }: { meId: string }) {
           </span>
         )}
       </button>
-
       {open && (
         <>
           <div className="fixed inset-0 z-[900]" onClick={() => setOpen(false)} />

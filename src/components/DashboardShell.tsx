@@ -83,7 +83,8 @@ function isActive(pathname: string | null, href: string) {
   return !ALL_MENU_KEYS.some((k) => k.length > href.length && k.startsWith(href) && pathname.startsWith(k));
 }
 
-function UserMenu({ profile, onLogout }: { profile: { full_name: string; role: string; photo_url?: string | null }; onLogout: () => void }) {
+function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: string; role: string; photo_url?: string | null }; onLogout: () => void }) {
+  const showPresence = profile.role !== 'Superuser' && !!profile.id;
   const lang = useLang();
   const nl = useNavLabel();
   const [open, setOpen] = useState(false);
@@ -117,13 +118,16 @@ function UserMenu({ profile, onLogout }: { profile: { full_name: string; role: s
         onClick={() => setOpen((v) => !v)}
         className="flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-1.5 transition hover:bg-slate-100"
       >
-        <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
-          {profile.photo_url ? (
-            // eslint-disable-next-line @next/next/no-img-element
-            <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
-          ) : (
-            <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
-          )}
+        <span className="relative">
+          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
+            {profile.photo_url ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
+            ) : (
+              <span className="text-xs font-bold">{profile.full_name?.charAt(0).toUpperCase()}</span>
+            )}
+          </span>
+          {showPresence && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />}
         </span>
         <i className={`fi fi-rr-angle-small-down text-[10px] leading-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
