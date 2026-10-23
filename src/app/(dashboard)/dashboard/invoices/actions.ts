@@ -110,39 +110,3 @@ export async function deleteInvoice(id: string) {
 // ------------------------------------------------------------
 // PAYMENTS — tercatat per invoice, total_paid & remaining dihitung ulang.
 // ------------------------------------------------------------
-export async function recordPayment(invoiceId: string, payDate: string, amount: number, method: string, referenceNo?: string, notes?: string) {
-  if (amount <= 0) return { error: 'Jumlah pembayaran harus lebih dari 0.' };
-
-  const supabase = createClient();
-  const { data: invoice } = await supabase.from('invoices').select('grand_total, total_paid').eq('id', invoiceId).single();
-  if (!invoice) return { error: 'Invoice tidak ditemukan' };
-
-  const newTotalPaid = Number(invoice.total_paid) + amount;
-  if (newTotalPaid > Number(invoice.grand_total)) {
-    return { error: `Jumlah pembayaran melebihi sisa tagihan (Rp ${(Number(invoice.grand_total) - Number(invoice.total_paid)).toLocaleString('id-ID')})` };
-  }
-
-  const { error: payError } = await supabase.from('payments').insert({
-    invoice_id: invoiceId,
-    pay_date: payDate,
-    amount,
-    method,
-    reference_no: referenceNo || null,
-    notes: notes || null,
-  });
-  if (payError) return { error: payError.message };
-
-  const newRemaining = Number(invoice.grand_total) - newTotalPaid;
-  const newStatus = newRemaining <= 0 ? 'PAID' : 'PARTIAL';
-
-  const { error: updErr } = await supabase
-    .from('invoices')
-    .update({ total_paid: newTotalPaid, remaining: newRemaining, status: newStatus })
-    .eq('id', invoiceId);
-  if (updErr) return { error: updErr.message };
-
-  revalidatePath('/dashboard/invoices');
-  revalidatePath('/dashboard/payments');
-  revalidatePath('/dashboard/outstanding');
-  return { success: true };
-}

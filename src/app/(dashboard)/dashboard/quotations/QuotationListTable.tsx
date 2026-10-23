@@ -104,7 +104,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
             )}
             {filtered.map((r) => (
               <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/quotations/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
-                <td className="whitespace-nowrap px-4 py-3 font-mono text-xs text-slate-500">{r.doc_no || '-'}</td>
+                <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">{r.doc_no || '-'}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.quote_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}

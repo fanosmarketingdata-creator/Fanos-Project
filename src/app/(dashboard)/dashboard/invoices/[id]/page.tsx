@@ -11,7 +11,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
   const [{ data: invoice }, { data: items }, { data: payments }] = await Promise.all([
     supabase.from('invoices').select('*, clients(project_name, address, city)').eq('id', params.id).single(),
     supabase.from('invoice_items').select('sku, qty, unit_price, total, products(name)').eq('invoice_id', params.id),
-    supabase.from('payments').select('id, pay_date, amount, method, reference_no, notes').eq('invoice_id', params.id).order('pay_date'),
+    supabase.from('payments').select('id, doc_no, pay_date, amount, discount, method, reference_no, notes').eq('invoice_id', params.id).order('pay_date'),
   ]);
   if (!invoice) notFound();
   const client = one<{ project_name: string; address: string | null; city: string | null }>(invoice.clients);
@@ -25,7 +25,7 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       <DetailCards cards={[
         { icon: 'fi fi-rr-calendar', label: 'Tanggal Invoice', value: dateShort(invoice.inv_date) },
         { icon: 'fi fi-rr-marker', label: 'Alamat', value: [client?.address, client?.city].filter(Boolean).join(', ') || '-' },
-        { icon: 'fi fi-rr-check', label: 'Terbayar', value: rp(invoice.total_paid), color: '#16a34a' },
+        { icon: 'fi fi-rr-check', label: 'Terbayar', value: rp(Number(invoice.total_paid) + Number(invoice.paid_discount ?? 0) + Number(invoice.credit_applied ?? 0)), color: '#16a34a' },
         { icon: 'fi fi-rr-time-quarter-past', label: 'Sisa Tagihan', value: rp(invoice.remaining), color: Number(invoice.remaining) > 0 ? '#dc2626' : '#16a34a' },
       ]} />
       <DetailTableBlock t={{
@@ -42,8 +42,8 @@ export default async function InvoiceDetailPage({ params }: { params: { id: stri
       <DetailTableBlock t={{
         title: 'Pembayaran',
         icon: 'fi fi-rr-money',
-        columns: [{ label: 'Tanggal' }, { label: 'Jumlah', align: 'r' }, { label: 'Metode' }, { label: 'No. Referensi' }, { label: 'Catatan', align: 'l' }],
-        rows: (payments ?? []).map((p) => [dateShort(p.pay_date), rp(p.amount), p.method || '-', p.reference_no || '-', p.notes || '-']),
+        columns: [{ label: 'Payment ID' }, { label: 'Tanggal' }, { label: 'Jumlah', align: 'r' }, { label: 'Total Discount', align: 'r' }, { label: 'Metode' }, { label: 'No. Referensi' }, { label: 'Catatan', align: 'l' }],
+        rows: (payments ?? []).map((p) => [p.doc_no || '-', dateShort(p.pay_date), rp(p.amount), rp(p.discount), p.method || '-', p.reference_no || '-', p.notes || '-']),
         empty: 'Belum terdapat data pembayaran',
       }} />
     </DetailShell>
