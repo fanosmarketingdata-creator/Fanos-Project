@@ -1,5 +1,6 @@
 'use server';
 
+import { getDefaultWarehouseId } from '@/lib/stock';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoicePayments } from '@/lib/invoice-sync';
@@ -109,12 +110,13 @@ export async function getInvoiceFactor(invoiceId: string) {
 
 export type ReturnItemInput = { sku: string; qty_returned: number; unit_price: number; condition?: string };
 
-async function addStock(supabase: Sb, retId: string, refNo: string | null, date: string, items: ReturnItemInput[], note: string) {
+async function addStock(supabase: Sb, retId: string, refNo: string | null, date: string, items: ReturnItemInput[], note: string, warehouseId?: string) {
   const skus = items.map((i) => i.sku);
   const { data: prods } = await supabase.from('products').select('id, sku').in('sku', skus);
   const idBySku = new Map((prods ?? []).map((p) => [p.sku as string, p.id as string]));
+  const wh = warehouseId || (await getDefaultWarehouseId(supabase));
   const rows = items.map((i) => ({
-    move_date: date, product_id: idBySku.get(i.sku) ?? null, sku: i.sku, qty: i.qty_returned,
+    warehouse_id: wh, reason: 'Retur Penjualan', move_date: date, product_id: idBySku.get(i.sku) ?? null, sku: i.sku, qty: i.qty_returned,
     ref_type: 'SALES_RETURN', ref_id: retId, ref_no: refNo, notes: note,
   }));
   if (rows.length === 0) return {};
@@ -128,7 +130,7 @@ async function loadInvoice(supabase: Sb, invoiceId: string) {
 }
 
 // ---------------------------------------------------------------- RETURN ORDER
-export async function createReturnOrder(input: { invoice_id: string; return_date: string; reason: string; items: ReturnItemInput[]; doc_no?: string }) {
+export async function createReturnOrder(input: { invoice_id: string; return_date: string; reason: string; items: ReturnItemInput[]; doc_no?: string; warehouse_id?: string }) {
   if (!input.invoice_id) return { error: 'Mohon pilih Invoice terlebih dahulu.' };
   if (!input.return_date) return { error: 'Kolom Tanggal retur wajib diisi.' };
   const items = input.items.filter((it) => it.qty_returned > 0);
@@ -146,7 +148,7 @@ export async function createReturnOrder(input: { invoice_id: string; return_date
 
   const { data: ret, error } = await supabase
     .from('sales_returns')
-    .insert({ doc_no: input.doc_no?.trim() || null, kind: 'ORDER', return_date: input.return_date, invoice_id: input.invoice_id, client_id: inv.client_id, reason: input.reason || null, status: 'RECEIVED' })
+    .insert({ doc_no: input.doc_no?.trim() || null, kind: 'ORDER', return_date: input.return_date, invoice_id: input.invoice_id, client_id: inv.client_id, reason: input.reason || null, status: 'RECEIVED', warehouse_id: input.warehouse_id || null })
     .select('id, doc_no')
     .single();
   if (error) return { error: error.code === '23505' ? 'Return ID sudah digunakan oleh retur lain.' : error.message };
@@ -158,7 +160,7 @@ export async function createReturnOrder(input: { invoice_id: string; return_date
 
   // Hanya barang berkondisi Baik yang masuk kembali ke stok.
   const good = items.filter((it) => it.condition !== 'Rusak');
-  const st = await addStock(supabase, ret.id, ret.doc_no, input.return_date, good, 'Retur penjualan (Return Order)');
+  const st = await addStock(supabase, ret.id, ret.doc_no, input.return_date, good, 'Retur penjualan (Return Order)', input.warehouse_id);
   if (st.error) return { error: st.error };
   refresh();
   return { success: true };
@@ -168,6 +170,7 @@ export async function createReturnOrder(input: { invoice_id: string; return_date
 export type ReturnInvoiceInput = {
   invoice_id: string; return_date: string; reason: string; items: ReturnItemInput[];
   doc_no?: string; cn_doc_no?: string; return_order_id?: string; restock: boolean;
+  warehouse_id?: string;
   settlement: 'CREDIT' | 'REFUND'; refund_method?: string; refund_reference?: string;
 };
 
@@ -197,7 +200,7 @@ export async function createReturnInvoice(input: ReturnInvoiceInput) {
     .insert({
       doc_no: input.doc_no?.trim() || null, kind: 'INVOICE', return_date: input.return_date, invoice_id: input.invoice_id,
       client_id: inv.client_id, reason: input.reason || null, status: 'COMPLETED',
-      return_order_id: input.return_order_id || null, restock, settlement: input.settlement,
+      return_order_id: input.return_order_id || null, restock, settlement: input.settlement, warehouse_id: input.warehouse_id || null,
     })
     .select('id, doc_no')
     .single();
@@ -238,7 +241,7 @@ export async function createReturnInvoice(input: ReturnInvoiceInput) {
   if (synced.error) return { error: synced.error };
 
   if (restock) {
-    const st = await addStock(supabase, ret.id, ret.doc_no, input.return_date, items, 'Retur penjualan (Return Invoice)');
+    const st = await addStock(supabase, ret.id, ret.doc_no, input.return_date, items, 'Retur penjualan (Return Invoice)', input.warehouse_id);
     if (st.error) return { error: st.error };
   }
   refresh();

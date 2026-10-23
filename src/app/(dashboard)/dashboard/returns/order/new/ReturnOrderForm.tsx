@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
+import WarehouseField from '@/components/registry/WarehouseField';
 import FvSelect from '@/components/registry/FvSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { getReturnableItems, createReturnOrder, type ReturnableItem } from '../../actions';
@@ -19,6 +20,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
   const [docNo, setDocNo] = useState('');
   const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
   const [reason, setReason] = useState('');
+  const [warehouseId, setWarehouseId] = useState('');
   const [items, setItems] = useState<ReturnableItem[]>([]);
   const [qty, setQty] = useState<Record<string, number>>({});
   const [cond, setCond] = useState<Record<string, string>>({});
@@ -49,7 +51,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
     setSaving(true);
     try {
       const r = await createReturnOrder({
-        invoice_id: invoiceId, return_date: date, reason, doc_no: docNo,
+        invoice_id: invoiceId, return_date: date, reason, doc_no: docNo, warehouse_id: warehouseId,
         items: items.map((it) => ({ sku: it.sku, qty_returned: qty[it.sku] || 0, unit_price: it.unit_price, condition: cond[it.sku] || 'Baik' })),
       });
       if (r.error) return toast(r.error, 'error');
@@ -76,6 +78,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
           </FvField>
           <FvField label="Client"><input readOnly value={inv?.client_name ?? ''} placeholder="Terisi otomatis dari invoice" /></FvField>
           <FvField label="Tanggal Retur" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
+          <WarehouseField label="Gudang Tujuan (Barang Kembali)" value={warehouseId} onChange={setWarehouseId} required />
         </div>
         <div style={{ marginTop: 14 }}>
           <FvField label="Alasan">

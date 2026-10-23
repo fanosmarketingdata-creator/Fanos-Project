@@ -145,7 +145,7 @@ export async function getSOShippingStatus(soId: string) {
   }));
 }
 
-export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[], docNo?: string, doNotes?: string) {
+export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[], docNo?: string, doNotes?: string, warehouseId?: string) {
   const toShip = shipItemsInput.filter((it) => it.ship_qty > 0);
   if (toShip.length === 0) return { error: 'Mohon isi minimal satu Ship Qty.' };
 
@@ -174,7 +174,7 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
 
   const { data: deliveryOrder, error: doError } = await supabase
     .from('delivery_orders')
-    .insert({ doc_no: docNo?.trim() || null, do_date: doDate, sales_order_id: soId, client_id: soClientId, notes: doNotes?.trim() || null, status: 'SHIPPED' })
+    .insert({ doc_no: docNo?.trim() || null, do_date: doDate, sales_order_id: soId, client_id: soClientId, notes: doNotes?.trim() || null, status: 'SHIPPED', warehouse_id: warehouseId || null })
     .select('id')
     .single();
   if (doError) return { error: doError.code === '23505' ? 'Delivery ID sudah digunakan oleh pengiriman lain.' : doError.message };

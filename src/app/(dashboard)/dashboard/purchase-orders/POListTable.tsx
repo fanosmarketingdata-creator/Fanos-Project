@@ -120,7 +120,8 @@ export default function POListTable({ initialRows }: { initialRows: PORow[] }) {
                 { label: 'Cetak', icon: 'fi fi-rr-print', href: `/dashboard/purchase-orders/${r.id}/print` },
                 { label: 'Edit', icon: 'fi fi-rr-pencil', href: `/dashboard/purchase-orders/${r.id}`, hidden: r.status !== 'DRAFT' },
                 { label: 'Order ke Vendor', icon: 'fi fi-rr-paper-plane', onClick: () => handleAdvance(r), disabled: advancingId === r.id, hidden: r.status !== 'DRAFT' },
-                { label: 'Tandai Diterima', icon: 'fi fi-rr-check', onClick: () => handleAdvance(r), disabled: advancingId === r.id, hidden: r.status !== 'ORDERED' },
+                { label: 'Buat Invoice', icon: 'fi fi-rr-file-invoice-dollar', href: `/dashboard/purchase-invoice/new?po=${r.id}`, hidden: r.status === 'DRAFT' },
+                { label: 'Terima Barang', icon: 'fi fi-rr-check', href: `/dashboard/purchase-delivery/new?po=${r.id}`, hidden: r.status !== 'ORDERED' },
                 { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r), hidden: r.status === 'RECEIVED' },
                     ]}
                   />

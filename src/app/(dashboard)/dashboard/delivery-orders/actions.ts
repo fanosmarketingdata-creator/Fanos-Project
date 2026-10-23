@@ -27,6 +27,7 @@ export async function createDeliveryFromSO(input: {
   doc_no?: string;
   do_date: string;
   notes?: string;
+  warehouse_id?: string;
   edits?: SOEdits;
   ship: { sales_order_item_id: string; sku: string; ship_qty: number }[];
 }) {
@@ -36,7 +37,7 @@ export async function createDeliveryFromSO(input: {
     const synced = await syncSalesOrder(input.so_id, input.edits);
     if (synced.error) return { error: synced.error };
   }
-  const r = await shipItems(input.so_id, input.do_date, input.ship, input.doc_no, input.notes);
+  const r = await shipItems(input.so_id, input.do_date, input.ship, input.doc_no, input.notes, input.warehouse_id);
   revalidatePath('/dashboard/delivery-orders');
   return r;
 }
@@ -44,7 +45,7 @@ export async function createDeliveryFromSO(input: {
 export type ManualDOItem = { product_id: string | null; sku: string; qty: number; notes?: string };
 
 // Delivery Order langsung (tanpa Sales Order): client + item dipilih manual.
-export async function createManualDelivery(input: { doc_no?: string; do_date: string; client_id: string; notes?: string; items: ManualDOItem[] }) {
+export async function createManualDelivery(input: { doc_no?: string; do_date: string; client_id: string; notes?: string; warehouse_id?: string; items: ManualDOItem[] }) {
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.do_date) return { error: 'Kolom Tanggal kirim wajib diisi.' };
   const items = input.items.filter((it) => it.sku && it.qty > 0);
@@ -60,6 +61,7 @@ export async function createManualDelivery(input: { doc_no?: string; do_date: st
       sales_order_id: null,
       notes: input.notes?.trim() || null,
       status: 'SHIPPED',
+      warehouse_id: input.warehouse_id || null,
     })
     .select('id')
     .single();

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
+import WarehouseField from '@/components/registry/WarehouseField';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { getReturnableItems, getOrdersForInvoice, getInvoiceFactor, createReturnInvoice, type ReturnableItem } from '../../actions';
@@ -28,6 +29,7 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
   const [qty, setQty] = useState<Record<string, number>>({});
   const [factor, setFactor] = useState({ discountPercent: 0, taxPercent: 0, factor: 1 });
   const [restock, setRestock] = useState(true);
+  const [warehouseId, setWarehouseId] = useState('');
   const [settlement, setSettlement] = useState<'CREDIT' | 'REFUND'>('CREDIT');
   const [method, setMethod] = useState('');
   const [reference, setReference] = useState('');
@@ -77,7 +79,7 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
     try {
       const r = await createReturnInvoice({
         invoice_id: invoiceId, return_date: date, reason, doc_no: docNo, cn_doc_no: cnNo,
-        return_order_id: fromOrder ? orderId : undefined, restock,
+        return_order_id: fromOrder ? orderId : undefined, restock, warehouse_id: warehouseId,
         settlement, refund_method: method, refund_reference: reference,
         items: items.map((it) => ({ sku: it.sku, qty_returned: qty[it.sku] || 0, unit_price: it.unit_price })),
       });
@@ -113,9 +115,12 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
           <FvField label="Alasan"><input value={reason} onChange={(e) => setReason(e.target.value)} placeholder="Contoh: Barang rusak atau tidak sesuai spesifikasi" /></FvField>
         </div>
         {!fromOrder && invoiceId && (
-          <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 12.5 }}>
-            <input type="checkbox" checked={restock} onChange={(e) => setRestock(e.target.checked)} /> Kembalikan stok ke gudang (tanpa Return Order)
-          </label>
+          <>
+            <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 12.5 }}>
+              <input type="checkbox" checked={restock} onChange={(e) => setRestock(e.target.checked)} /> Kembalikan stok ke gudang (tanpa Return Order)
+            </label>
+            {restock && <div style={{ marginTop: 12, maxWidth: 360 }}><WarehouseField label="Gudang Tujuan (Barang Kembali)" value={warehouseId} onChange={setWarehouseId} required /></div>}
+          </>
         )}
         {fromOrder && <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Stok sudah bertambah saat Return Order dibuat, jadi tidak ditambah lagi.</p>}
       </Sec>

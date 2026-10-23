@@ -7,6 +7,7 @@ import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { ProductPickButton } from '@/components/registry/ProductPickerModal';
+import WarehouseField from '@/components/registry/WarehouseField';
 import Select from '@/components/ui/Select';
 import type { ProductOption } from '@/components/ProductPicker';
 import SOEditPanel from '@/components/registry/SOEditPanel';
@@ -26,6 +27,7 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
   const [docNo, setDocNo] = useState('');
   const [doDate, setDoDate] = useState(new Date().toISOString().split('T')[0]);
   const [notes, setNotes] = useState('');
+  const [warehouseId, setWarehouseId] = useState('');
   const [saving, setSaving] = useState(false);
 
   // Dari Sales Order
@@ -71,10 +73,10 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
           .filter((it) => it.id && (shipQty[it.id] || 0) > 0)
           .map((it) => ({ sales_order_item_id: it.id as string, sku: it.sku, ship_qty: shipQty[it.id as string] || 0 }));
         const changed = edits && JSON.stringify(edits) !== original;
-        const r = await createDeliveryFromSO({ so_id: soId, doc_no: docNo, do_date: doDate, notes, edits: changed ? edits : undefined, ship: payload });
+        const r = await createDeliveryFromSO({ so_id: soId, doc_no: docNo, do_date: doDate, notes, warehouse_id: warehouseId, edits: changed ? edits : undefined, ship: payload });
         if (r.error) return toast(r.error, 'error');
       } else {
-        const r = await createManualDelivery({ doc_no: docNo, do_date: doDate, client_id: clientId, notes, items });
+        const r = await createManualDelivery({ doc_no: docNo, do_date: doDate, client_id: clientId, notes, warehouse_id: warehouseId, items });
         if (r.error) return toast(r.error, 'error');
       }
       toast('Data Delivery Order berhasil dibuat', 'success');
@@ -133,6 +135,7 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
               />
             </FvField>
           )}
+          <WarehouseField label="Gudang Asal Barang" value={warehouseId} onChange={setWarehouseId} required />
           <FvField label="Catatan">
             <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan pengiriman (opsional)" />
           </FvField>
