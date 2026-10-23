@@ -9,6 +9,7 @@ import { useLang } from '@/components/I18nProvider';
 import { setLang, type Lang } from '@/lib/i18n/lang';
 import FigmaCursor from '@/components/FigmaCursor';
 import NumberInputFix from '@/components/NumberInputFix';
+import PushPrompt from '@/components/PushPrompt';
 import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
@@ -272,6 +273,7 @@ export default function DashboardShell({
         </div>
       )}
       <NumberInputFix />
+      <PushPrompt />
       <FigmaCursor name={profile.full_name || 'you'} colour={profile.cursor_color} />
       <IdleLogout />
       <ResponsiveTables />
