@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import FigmaCursor from '@/components/FigmaCursor';
+import UpdateAnnouncementModal from '@/components/UpdateAnnouncementModal';
 import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
@@ -56,6 +57,7 @@ export default function LoginPage() {
   return (
     <div className="login-page">
       <FigmaCursor name="Tamu" />
+      <UpdateAnnouncementModal />
       <div className="login-aurora" aria-hidden="true">
         <span className="a1" />
         <span className="a2" />
