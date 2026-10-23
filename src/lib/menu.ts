@@ -81,6 +81,7 @@ export const NAV_GROUPS: NavGroup[] = [
     items: [
       { href: '/dashboard/quotations', label: 'Quotation', icon: 'fi fi-rr-file-invoice' },
       { href: '/dashboard/sales-orders', label: 'Sales Order', icon: 'fi fi-rr-shopping-cart' },
+      { href: '/dashboard/packing-list', label: 'Packing List', icon: 'fi fi-rr-box-open' },
       { href: '/dashboard/delivery-orders', label: 'Delivery Order', icon: 'fi fi-rr-shipping-fast' },
       { href: '/dashboard/invoices', label: 'Invoices', icon: 'fi fi-rr-receipt' },
       {
@@ -142,7 +143,7 @@ export const NAV_ID: Record<string, string> = {
   'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek',
   'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
   'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian', 'Purchase Payment': 'Pembayaran Pembelian',
-  Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan',
+  Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan', 'Packing List': 'Daftar Kemas',
   Invoices: 'Faktur', Collection: 'Penagihan', Payment: 'Pembayaran', Return: 'Retur', Order: 'Pesanan', Invoice: 'Faktur', 'Credit Note': 'Nota Kredit',
   Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
   'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Cashback: 'Cashback', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak', 'Credit Limit': 'Batas Kredit',
