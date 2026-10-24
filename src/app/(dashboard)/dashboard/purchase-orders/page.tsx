@@ -19,8 +19,6 @@ export default async function PurchaseOrdersPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fa-solid fa-truck-loading" />Purchase Orders</h1>
-      <p className="mb-6 text-sm text-slate-500">Pesanan pembelian ke vendor.</p>
       <POListTable initialRows={rows} />
     </div>
   );

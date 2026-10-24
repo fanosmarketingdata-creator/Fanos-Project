@@ -18,8 +18,6 @@ export default async function StockAdjustmentPage() {
   });
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-edit" />Stock Adjustment</h1>
-      <p className="mb-6 text-sm text-slate-500">Penyesuaian stok manual (Stock In / Stock Out / Koreksi Selisih) di luar transaksi jual-beli. Setiap dokumen otomatis tercatat di Stock Movement.</p>
       <AdjustmentTable rows={rows} />
     </div>
   );

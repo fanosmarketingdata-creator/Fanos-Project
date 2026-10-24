@@ -19,8 +19,6 @@ export default async function SalesOrdersPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-shopping-cart" />Sales Orders</h1>
-      <p className="mb-6 text-sm text-slate-500">Pesanan terkonfirmasi dari client.</p>
       <SalesOrderListTable initialRows={rows} />
     </div>
   );

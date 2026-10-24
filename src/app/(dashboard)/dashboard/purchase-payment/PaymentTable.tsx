@@ -42,14 +42,14 @@ export default function PaymentTable({ rows }: { rows: PPRow[] }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari payment, invoice, vendor..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-        </div>
-        <Link href="/dashboard/purchase-payment/new" className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600">+ New Purchase Payment</Link>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-wallet" style={{ fontSize: 16, color: '#2563eb' }} /> Purchase Payment</h3>
+        <div className="flex-wrap">
+        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari payment, invoice, vendor..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <Link href="/dashboard/purchase-payment/new" className="btn btn-primary"><i className="fi fi-rr-plus" /> New Purchase Payment</Link>
       </div>
+      </div>
+      
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[820px] text-left text-sm">
           <thead>

@@ -643,3 +643,11 @@ body, button, input, select, textarea { font-family: 'Outfit', 'Segoe UI', Arial
   .ann-overlay, .ann-modal, .ann-header, .ann-orb, .ann-tag i, .ann-icon svg, .ann-line, .ann-title-wrap { animation: none !important; }
   .ann-btn::before { display: none; }
 }
+
+/* Top bar: garis aksen tipis berwarna di tepi atas + animasi dropdown menu. */
+.topbar-accent { position: absolute; inset: 0 0 auto 0; height: 2px; pointer-events: none;
+  background: linear-gradient(90deg, #2563eb 0%, #6366f1 45%, #ef4444 100%); opacity: .9; }
+@keyframes nav-pop-in { from { opacity: 0; transform: translateY(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+.nav-pop { animation: nav-pop-in .14s ease-out; transform-origin: top left; }
+@media (prefers-reduced-motion: reduce) { .nav-pop { animation: none; } }
+@media print { .topbar-accent { display: none; } }

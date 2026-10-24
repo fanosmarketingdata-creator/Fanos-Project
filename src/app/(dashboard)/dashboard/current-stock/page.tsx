@@ -25,8 +25,6 @@ export default async function CurrentStockPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fa-solid fa-cubes" />Current Stock</h1>
-      <p className="mb-6 text-sm text-slate-500">Informasi stok barang saat ini per gudang. Halaman ini hanya untuk melihat data; ubah stok lewat Stock Adjustment atau Stock Transfer.</p>
       <CurrentStockTable warehouses={whs ?? []} products={products} onHand={onHand} inTransit={inTransit} />
     </div>
   );

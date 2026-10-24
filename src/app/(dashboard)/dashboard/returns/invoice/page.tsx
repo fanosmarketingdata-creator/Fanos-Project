@@ -24,8 +24,6 @@ export default async function ReturnInvoicePage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-receipt" />Return Invoice</h1>
-      <p className="mb-6 text-sm text-slate-500">Koreksi keuangan atas invoice: menerbitkan Credit Note untuk mengurangi piutang atau refund ke client.</p>
       <ReturnListTable kind="invoice" rows={rows} />
     </div>
   );

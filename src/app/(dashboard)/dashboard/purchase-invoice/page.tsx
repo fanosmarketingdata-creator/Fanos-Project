@@ -17,8 +17,6 @@ export default async function PurchaseInvoicePage() {
   }));
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-file-invoice-dollar" />Purchase Invoice</h1>
-      <p className="mb-6 text-sm text-slate-500">Tagihan dari vendor berdasarkan Purchase Order. Sisa utang berkurang otomatis saat Purchase Payment dicatat.</p>
       <InvoiceTable rows={rows} />
     </div>
   );

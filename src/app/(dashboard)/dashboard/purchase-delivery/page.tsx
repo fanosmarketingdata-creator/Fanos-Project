@@ -19,8 +19,6 @@ export default async function PurchaseDeliveryPage() {
   });
   return (
     <div>
-      <h1 className="page-title"><i className="fa-solid fa-dolly" />Purchase Delivery</h1>
-      <p className="mb-6 text-sm text-slate-500">Penerimaan barang dari vendor berdasarkan Purchase Order. Setiap penerimaan otomatis menambah stok dan tercatat di Stock Movement sebagai Goods Receipt.</p>
       <ReceiptTable rows={rows} />
     </div>
   );

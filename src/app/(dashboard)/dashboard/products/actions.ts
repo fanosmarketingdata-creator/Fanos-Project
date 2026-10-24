@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
-import { SPEC_KEYS, type SpecKey } from './fields';
+import { SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
 
 export type ProductInput = {
   id?: string;
@@ -17,7 +17,8 @@ export type ProductInput = {
   cost_price?: number; // diatur di Price List
   price?: number; // Standard Selling Price, diatur di Price List
   notes?: string;
-} & Partial<Record<SpecKey, string>>;
+  package_type?: string;
+} & Partial<Record<SpecKey, string>> & Partial<Record<PackNumKey, number>>;
 
 export async function saveProduct(input: ProductInput) {
   if (!input.name?.trim()) return { error: 'Kolom Product Name wajib diisi.' };
@@ -27,6 +28,16 @@ export async function saveProduct(input: ProductInput) {
 
   const specs: Record<string, string | null> = {};
   for (const k of SPEC_KEYS) specs[k] = (input[k] ?? '').trim() || null;
+
+  const pack: Record<string, number> = {};
+  for (const k of PACK_NUM_KEYS) {
+    const v = Number(input[k]) || 0;
+    if (v < 0) return { error: 'Data pengemasan tidak boleh negatif.' };
+    pack[k] = v;
+  }
+  if (pack.gross_weight > 0 && pack.units_per_package > 0 && pack.net_weight * pack.units_per_package > pack.gross_weight + 0.0005) {
+    return { error: 'Berat kotor per kemasan tidak boleh lebih kecil dari berat bersih (berat bersih per unit × isi per kemasan).' };
+  }
 
   // Brand dipilih dari master Brand (default FANOS), SKU = AUTOGENERATE (trigger database).
   const payload = {
@@ -38,6 +49,8 @@ export async function saveProduct(input: ProductInput) {
     application: input.application || null,
     uom: input.uom || 'Pcs',
     notes: input.notes?.trim() || null,
+    package_type: input.package_type || 'Carton',
+    ...pack,
     ...specs,
   };
 

@@ -41,14 +41,14 @@ export default function PackingListTable({ rows }: { rows: PLRow[] }) {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari packing list, client, SO..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-        </div>
-        <Link href="/dashboard/packing-list/new" className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600">+ New Packing List</Link>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-box-open" style={{ fontSize: 16, color: '#2563eb' }} /> Packing List</h3>
+        <div className="flex-wrap">
+        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari packing list, client, SO..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <Link href="/dashboard/packing-list/new" className="btn btn-primary"><i className="fi fi-rr-plus" /> New Packing List</Link>
       </div>
+      </div>
+      
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[720px] text-left text-sm">
           <thead>
@@ -58,8 +58,8 @@ export default function PackingListTable({ rows }: { rows: PLRow[] }) {
               <th className="px-4 py-3 font-semibold">Sales Order</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Total Qty</th>
-              <th className="px-4 py-3 font-semibold">Koli</th>
-              <th className="px-4 py-3 font-semibold">Berat (Kg)</th>
+              <th className="px-4 py-3 font-semibold">Jumlah Kemasan</th>
+              <th className="px-4 py-3 font-semibold">Berat Kotor (Kg)</th>
               <th className="px-4 py-3 text-right font-semibold">Aksi</th>
             </tr>
           </thead>

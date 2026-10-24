@@ -11,8 +11,6 @@ export default async function RemindersPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-bell" />Reminders</h1>
-      <p className="mb-6 text-sm text-slate-500">Pengingat tugas & tenggat waktu.</p>
       <RemindersList initialRows={reminders ?? []} />
     </div>
   );

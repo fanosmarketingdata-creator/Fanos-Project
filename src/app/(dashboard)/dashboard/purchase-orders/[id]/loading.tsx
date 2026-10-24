@@ -1,5 +1,5 @@
-import PageSkeleton from '@/components/PageSkeleton';
+import ModalSkeleton from '@/components/ModalSkeleton';
 
 export default function Loading() {
-  return <PageSkeleton variant="form" />;
+  return <ModalSkeleton />;
 }

@@ -25,14 +25,13 @@ export default async function DeliveryOrdersPage() {
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="page-title" style={{ marginBottom: 2 }}><i className="fi fi-rr-shipping-fast" />Delivery Orders</h1>
-          <p className="text-sm text-slate-500">Surat Jalan dapat dibuat langsung atau dari Sales Order, tanpa harus menunggu Sales Order.</p>
-        </div>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-shipping-fast" style={{ fontSize: 16, color: '#2563eb' }} /> Delivery Orders</h3>
+        <div className="flex-wrap">
         <Link href="/dashboard/delivery-orders/new" className="btn btn-primary">
           <i className="fi fi-rr-plus" /> New Delivery Order
         </Link>
+      </div>
       </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">

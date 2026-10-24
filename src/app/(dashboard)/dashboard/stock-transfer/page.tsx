@@ -19,8 +19,6 @@ export default async function StockTransferPage() {
   });
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-exchange" />Stock Transfer</h1>
-      <p className="mb-6 text-sm text-slate-500">Pemindahan stok antar gudang dengan dua langkah: Gudang asal mengirim (Kirim), lalu Gudang tujuan menerima (Terima).</p>
       <TransferTable rows={rows} />
     </div>
   );

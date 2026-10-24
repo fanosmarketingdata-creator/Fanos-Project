@@ -5,11 +5,11 @@ export default async function PackingListPage() {
   const supabase = createClient();
   const { data } = await supabase
     .from('packing_lists')
-    .select('id, doc_no, pl_date, status, clients(project_name), sales_orders(doc_no), packing_list_items(qty, colli, weight)')
+    .select('id, doc_no, pl_date, status, clients(project_name), sales_orders(doc_no), packing_list_items(qty, colli, gross_weight)')
     .order('pl_date', { ascending: false });
   const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v as T)) ?? null;
   const rows = (data ?? []).map((p) => {
-    const items = (p.packing_list_items as unknown as { qty: number; colli: number; weight: number }[]) ?? [];
+    const items = (p.packing_list_items as unknown as { qty: number; colli: number; gross_weight: number }[]) ?? [];
     return {
       id: p.id as string,
       doc_no: (p.doc_no as string | null) ?? null,
@@ -19,13 +19,11 @@ export default async function PackingListPage() {
       so_no: one<{ doc_no: string | null }>(p.sales_orders)?.doc_no ?? '-',
       qty: items.reduce((s, i) => s + Number(i.qty), 0),
       colli: items.reduce((s, i) => s + Number(i.colli), 0),
-      weight: items.reduce((s, i) => s + Number(i.weight), 0),
+      weight: items.reduce((s, i) => s + Number(i.gross_weight), 0),
     };
   });
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-box-open" />Packing List</h1>
-      <p className="mb-6 text-sm text-slate-500">Daftar pengemasan barang berdasarkan Sales Order yang sudah VERIFIED, sebelum dibuat Delivery Order.</p>
       <PackingListTable rows={rows} />
     </div>
   );

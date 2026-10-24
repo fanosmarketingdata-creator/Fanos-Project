@@ -47,20 +47,21 @@ export default function InvoiceTable({ rows }: { rows: PIRow[] }) {
 
   return (
     <div>
-      <div className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span className="text-slate-500">Total Utang ke Vendor (Outstanding): </span><b className="text-red-600">{rp(totalDebt)}</b></div>
-      <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2">
-          <div className="relative w-64">
-            <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-            <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari invoice, vendor, PO..."
-              className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-          </div>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-file-invoice-dollar" style={{ fontSize: 16, color: '#2563eb' }} /> Purchase Invoice</h3>
+        <div className="flex-wrap">
+        <>
+          <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari invoice, vendor, PO..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
           <select value={status} onChange={(e) => setStatus(e.target.value)} className="rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm outline-none">
             <option value="">Semua Status</option><option value="UNPAID">UNPAID</option><option value="PARTIAL">PARTIAL</option><option value="PAID">PAID</option>
           </select>
-        </div>
-        <Link href="/dashboard/purchase-invoice/new" className="shrink-0 rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600">+ New Purchase Invoice</Link>
+        </>
+        <Link href="/dashboard/purchase-invoice/new" className="btn btn-primary"><i className="fi fi-rr-plus" /> New Purchase Invoice</Link>
       </div>
+      </div>
+      <div className="mb-4 rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm"><span className="text-slate-500">Total Utang ke Vendor (Outstanding): </span><b className="text-red-600">{rp(totalDebt)}</b></div>
+      
+
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[960px] text-left text-sm">
           <thead>

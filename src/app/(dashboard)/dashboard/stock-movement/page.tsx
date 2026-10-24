@@ -22,8 +22,6 @@ export default async function StockMovementPage() {
   }));
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-arrows-repeat" />Stock Movement</h1>
-      <p className="mb-6 text-sm text-slate-500">Buku besar (ledger) seluruh perubahan stok: penjualan, retur, penyesuaian, dan transfer. Hanya untuk dilihat.</p>
       <StockMovementTable rows={rows} warehouses={(whs ?? []).map((w) => ({ id: w.name as string, name: w.name as string }))} />
     </div>
   );

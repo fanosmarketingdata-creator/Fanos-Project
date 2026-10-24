@@ -51,7 +51,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
       </button>
       {open && (
         <div role="menu" className="absolute left-full top-0 z-[610] min-w-[200px] pl-1.5">
-          <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+          <div className="rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.22)] ring-1 ring-brand-500/5">
             {(item.children ?? []).map((c) => {
               const a = isActive(pathname, c.href);
               return (
@@ -278,7 +278,8 @@ export default function DashboardShell({
       <IdleLogout />
       <ResponsiveTables />
 
-      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200/70 bg-white/90 px-3 py-2 backdrop-blur sm:gap-3 sm:px-4 print:hidden">
+      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 bg-gradient-to-r from-white via-brand-50/60 to-white px-3 py-2.5 shadow-[0_1px_0_rgba(15,23,42,0.05),0_8px_24px_-14px_rgba(37,99,235,0.45)] backdrop-blur sm:gap-3 sm:px-4 print:hidden">
+        <span className="topbar-accent" aria-hidden />
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
@@ -293,22 +294,24 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className="h-[18px] w-auto shrink-0 drop-shadow-sm" />
+        <img src={LOGO_URL} alt="Fanos" className="mr-1 h-[20px] w-auto shrink-0 drop-shadow-sm transition-transform duration-200 hover:scale-105" />
 
         <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-[12px] xl:px-2.5 font-bold transition ${
-              groupActive || openId === group.id
-                ? 'bg-brand-500/10 text-brand-900'
-                : 'text-slate-500 hover:bg-brand-500/[0.07] hover:text-brand-500'
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[12px] font-semibold transition-all duration-200 xl:px-3 ${
+              groupActive
+                ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
+                : openId === group.id
+                  ? 'bg-white text-brand-600 shadow-sm ring-1 ring-brand-500/20'
+                  : 'text-slate-600 hover:-translate-y-px hover:bg-white hover:text-brand-600 hover:shadow-sm'
             }`;
 
             if (group.direct) {
               return (
                 <Link key={group.id} href={group.items[0].href} className={btnClass}>
-                  <i className={`${group.icon} hidden text-[11px] leading-none xl:inline`} />
+                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 xl:inline`} />
                   <span>{nl(group.label)}</span>
                 </Link>
               );
@@ -331,7 +334,7 @@ export default function DashboardShell({
                   onClick={() => (canHover() ? openMenu(group.id) : open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
-                  <i className={`${group.icon} hidden text-[11px] leading-none xl:inline`} />
+                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 xl:inline`} />
                   <span>{nl(group.label)}</span>
                   <i className={`fi fi-rr-angle-small-down hidden text-[10px] leading-none transition-transform xl:inline ${open ? 'rotate-180' : ''}`} />
                 </button>
@@ -339,7 +342,7 @@ export default function DashboardShell({
                 {open && (
                   <div
                     role="menu"
-                    className="absolute left-0 top-full z-[600] min-w-[190px] pt-1.5"
+                    className="nav-pop absolute left-0 top-full z-[600] min-w-[200px] pt-2"
                   >
                     <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
                       {group.items.map((item) => {
@@ -377,7 +380,7 @@ export default function DashboardShell({
           </div>
         )}
 
-        <div className="flex shrink-0 items-center gap-2 border-l border-slate-300/70 pl-3">
+        <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3">
           <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 

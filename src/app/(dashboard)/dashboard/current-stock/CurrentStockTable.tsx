@@ -29,18 +29,10 @@ export default function CurrentStockTable({ warehouses, products, onHand, inTran
 
   return (
     <div>
-      <div className="mb-4 flex flex-wrap gap-3">
-        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Total Stok (On Hand)</div><div className="mt-1 text-lg font-bold text-slate-800">{totalQty}</div></div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Dalam Perjalanan (In Transit)</div><div className="mt-1 text-lg font-bold text-amber-600">{totalTransit}</div></div>
-        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Jumlah SKU</div><div className="mt-1 text-lg font-bold text-slate-800">{rows.length}</div></div>
-      </div>
-
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="relative w-full max-w-xs">
-          <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-          <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari SKU, produk, brand..."
-            className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-        </div>
+      <div className="card-header">
+        <h3><i className="fa-solid fa-cubes" style={{ fontSize: 16, color: '#2563eb' }} /> Current Stock</h3>
+        <div className="flex-wrap">
+        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari SKU, produk, brand..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         <div style={{ minWidth: 200 }}>
           <Select value={wh} onChange={(e) => setWh(e.target.value)}>
             <option value="">Semua Gudang</option>
@@ -49,6 +41,14 @@ export default function CurrentStockTable({ warehouses, products, onHand, inTran
         </div>
         <label className="flex items-center gap-2 text-[12.5px] text-slate-600"><input type="checkbox" checked={onlyStock} onChange={(e) => setOnlyStock(e.target.checked)} /> Hanya yang ada stok</label>
       </div>
+      </div>
+      <div className="mb-4 flex flex-wrap gap-3">
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Total Stok (On Hand)</div><div className="mt-1 text-lg font-bold text-slate-800">{totalQty}</div></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Dalam Perjalanan (In Transit)</div><div className="mt-1 text-lg font-bold text-amber-600">{totalTransit}</div></div>
+        <div className="rounded-xl border border-slate-200 bg-white p-4"><div className="text-xs font-semibold text-slate-400">Jumlah SKU</div><div className="mt-1 text-lg font-bold text-slate-800">{rows.length}</div></div>
+      </div>
+
+      
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[640px] text-left text-sm">

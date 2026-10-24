@@ -25,8 +25,6 @@ export default async function CreditNotesPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-badge-percent" />Credit Note</h1>
-      <p className="mb-6 text-sm text-slate-500">Nota kredit yang terbit dari Return Invoice. Saldo dapat dipakai untuk invoice lain atau direfund.</p>
       <CreditNoteTable initialRows={rows} />
     </div>
   );

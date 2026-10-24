@@ -24,8 +24,6 @@ export default async function ReturnOrderPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-undo" />Return Order</h1>
-      <p className="mb-6 text-sm text-slate-500">Retur barang dari client berdasarkan invoice yang sudah terbit. Barang yang diterima kembali menambah stok gudang.</p>
       <ReturnListTable kind="order" rows={rows} />
     </div>
   );

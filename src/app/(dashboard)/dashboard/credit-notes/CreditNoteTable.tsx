@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import RowActions from '@/components/ui/RowActions';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
@@ -26,6 +26,8 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState<Detail | null>(null);
+  const [opening, setOpening] = useState(false);
+  const openRef = useRef(false);
   const [mode, setMode] = useState<{ type: 'apply' | 'refund'; row: CNRow } | null>(null);
   const [invoices, setInvoices] = useState<{ id: string; doc_no: string | null; inv_date: string; remaining: number }[]>([]);
   const [invoiceId, setInvoiceId] = useState('');
@@ -45,11 +47,16 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
   const totalBalance = filtered.reduce((s, r) => s + (r.amount - r.applied - r.refunded), 0);
 
   async function openDetail(id: string) {
+    openRef.current = true;
+    setOpening(true);
     try {
       const d = await getCreditNoteDetail(id);
-      if (!d) return toast('Credit Note tidak ditemukan', 'error');
+      if (!openRef.current) return; // modal ditutup saat data masih dimuat
+      if (!d) { setOpening(false); return toast('Credit Note tidak ditemukan', 'error'); }
       setDetail(d);
+      setOpening(false);
     } catch (e) {
+      setOpening(false);
       toast('Detail gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     }
   }
@@ -82,6 +89,10 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
 
   return (
     <div>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-badge-percent" style={{ fontSize: 16, color: '#2563eb' }} /> Credit Note</h3>
+        <div className="flex-wrap"><div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari credit note, client, invoice..." value={search} onChange={(e) => setSearch(e.target.value)} /></div></div>
+      </div>
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="text-xs font-semibold text-slate-400">Total Credit Note Diterbitkan</div>
@@ -93,11 +104,6 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
         </div>
       </div>
 
-      <div className="relative mb-4 w-full max-w-xs">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari credit note, client, invoice..."
-          className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-      </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[820px] text-left text-sm">
@@ -148,8 +154,13 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
         <Pagination total={paged.total} page={paged.page} totalPages={paged.totalPages} rowsPerPage={paged.rowsPerPage} onPage={paged.setPage} onRows={paged.setRowsPerPage} />
       </div>
 
+      {opening && !detail && (
+        <DetailModal title="Detail Credit Note" onClose={() => { openRef.current = false; setOpening(false); }}>
+          <div className="dv2-loading"><div className="spinner" />Memuat detail...</div>
+        </DetailModal>
+      )}
       {detail && (
-        <DetailModal title="Detail Credit Note" onClose={() => setDetail(null)}>
+        <DetailModal title="Detail Credit Note" onClose={() => { openRef.current = false; setDetail(null); }}>
           <div className="dv2">
             <div className="dv2-topbar">
               <div><div className="dv2-topbar-id">{detail.doc_no || 'Credit Note'}</div><div className="dv2-topbar-title">{detail.client_name}</div></div>

@@ -22,8 +22,6 @@ export default async function OutstandingPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-triangle-warning" />Outstanding</h1>
-      <p className="mb-6 text-sm text-slate-500">Invoice yang belum lunas, terisi otomatis dari sistem dan diurutkan dari yang paling lama.</p>
       <OutstandingTable initialRows={rows} />
     </div>
   );

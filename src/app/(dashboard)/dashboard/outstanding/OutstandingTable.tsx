@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useRef } from 'react';
 import Link from 'next/link';
 import RowActions from '@/components/ui/RowActions';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
@@ -27,6 +27,7 @@ export default function OutstandingTable({ initialRows }: { initialRows: Outstan
   const [search, setSearch] = useState('');
   const [detail, setDetail] = useState<Detail | null>(null);
   const [loading, setLoading] = useState(false);
+  const openRef = useRef(false);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -38,10 +39,12 @@ export default function OutstandingTable({ initialRows }: { initialRows: Outstan
   const totalPaid = filtered.reduce((s, r) => s + r.paid, 0);
 
   async function openDetail(id: string) {
+    openRef.current = true;
     setLoading(true);
     try {
       const d = await getCollectionDetail(id);
-      if (!d) return toast('Invoice tidak ditemukan', 'error');
+      if (!openRef.current) return; // modal ditutup saat data masih dimuat
+      if (!d) { setLoading(false); return toast('Invoice tidak ditemukan', 'error'); }
       setDetail(d);
     } catch (e) {
       toast('Detail gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
@@ -52,6 +55,10 @@ export default function OutstandingTable({ initialRows }: { initialRows: Outstan
 
   return (
     <div>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-triangle-warning" style={{ fontSize: 16, color: '#2563eb' }} /> Outstanding</h3>
+        <div className="flex-wrap"><div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari invoice atau client..." value={search} onChange={(e) => setSearch(e.target.value)} /></div></div>
+      </div>
       <div className="mb-4 flex flex-wrap gap-3">
         <div className="rounded-xl border border-slate-200 bg-white p-4">
           <div className="text-xs font-semibold text-slate-400">Total Piutang (Belum Dibayar)</div>
@@ -67,11 +74,6 @@ export default function OutstandingTable({ initialRows }: { initialRows: Outstan
         </div>
       </div>
 
-      <div className="mb-4 relative w-full max-w-xs">
-        <span className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"><i className="fa-solid fa-search text-[13px]" /></span>
-        <input value={search} onChange={(e) => setSearch(e.target.value)} placeholder="Cari invoice atau client..."
-          className="w-full rounded-lg border border-slate-200 bg-white py-2 pl-9 pr-3 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" />
-      </div>
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
         <table className="w-full min-w-[760px] text-left text-sm">
@@ -119,10 +121,14 @@ export default function OutstandingTable({ initialRows }: { initialRows: Outstan
       <div className="mt-3">
         <Pagination total={paged.total} page={paged.page} totalPages={paged.totalPages} rowsPerPage={paged.rowsPerPage} onPage={paged.setPage} onRows={paged.setRowsPerPage} />
       </div>
-      {loading && <div className="dv2-loading" style={{ marginTop: 8 }}><div className="spinner" />Memuat detail...</div>}
+      {loading && !detail && (
+        <DetailModal title="Detail Outstanding" onClose={() => { openRef.current = false; setLoading(false); }}>
+          <div className="dv2-loading"><div className="spinner" />Memuat detail...</div>
+        </DetailModal>
+      )}
 
       {detail && (
-        <DetailModal title="Detail Outstanding" onClose={() => setDetail(null)}>
+        <DetailModal title="Detail Outstanding" onClose={() => { openRef.current = false; setDetail(null); }}>
           <div className="dv2">
             <div className="dv2-topbar">
               <div>

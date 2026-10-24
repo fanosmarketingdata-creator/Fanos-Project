@@ -67,13 +67,11 @@ export default function RemindersList({ initialRows }: { initialRows: ReminderRo
 
   return (
     <div>
-      <div className="mb-4 flex justify-end">
-        <button
-          onClick={openAdd}
-          className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-brand-600"
-        >
-          + Tambah Reminder
-        </button>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-bell" style={{ fontSize: 16, color: '#2563eb' }} /> Reminders</h3>
+        <div className="flex-wrap">
+        <button type="button" onClick={openAdd} className="btn btn-primary"><i className="fi fi-rr-plus" /> Tambah Reminder</button>
+      </div>
       </div>
 
       <div className="space-y-2">

@@ -19,8 +19,6 @@ export default async function PurchasePaymentPage() {
   });
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-wallet" />Purchase Payment</h1>
-      <p className="mb-6 text-sm text-slate-500">Pembayaran ke vendor terhadap Purchase Invoice.</p>
       <PaymentTable rows={rows} />
     </div>
   );

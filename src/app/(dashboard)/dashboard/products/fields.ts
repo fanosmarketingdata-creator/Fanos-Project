@@ -52,3 +52,7 @@ export const SPEC_GROUPS: { title: string; icon: string; fields: SpecField[] }[]
     ],
   },
 ];
+
+// Data pengemasan (numerik + jenis kemasan) untuk Packing List.
+export const PACK_NUM_KEYS = ['units_per_package', 'net_weight', 'gross_weight', 'pkg_length_cm', 'pkg_width_cm', 'pkg_height_cm'] as const;
+export type PackNumKey = (typeof PACK_NUM_KEYS)[number];

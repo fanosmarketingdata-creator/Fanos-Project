@@ -25,8 +25,6 @@ export default async function PaymentsPage() {
 
   return (
     <div>
-      <h1 className="page-title"><i className="fi fi-rr-money-bill-wave" />Payment</h1>
-      <p className="mb-6 text-sm text-slate-500">Pembayaran dari client terhadap invoice (Collection).</p>
       <PaymentListTable initialRows={rows} />
     </div>
   );
