@@ -10,7 +10,8 @@
    LOGIN (mengikuti login.html lama)
 ============================================================ */
 .login-page {
-  min-height: 100vh;
+  height: 100vh;
+  height: 100dvh;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -651,3 +652,6 @@ body, button, input, select, textarea { font-family: 'Outfit', 'Segoe UI', Arial
 .nav-pop { animation: nav-pop-in .14s ease-out; transform-origin: top left; }
 @media (prefers-reduced-motion: reduce) { .nav-pop { animation: none; } }
 @media print { .topbar-accent { display: none; } }
+
+/* Halaman login pasti muat satu layar: tidak boleh bisa di-scroll. */
+html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; overscroll-behavior: none; }

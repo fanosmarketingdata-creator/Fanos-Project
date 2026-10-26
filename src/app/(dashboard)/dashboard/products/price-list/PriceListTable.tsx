@@ -168,7 +168,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
       )}
 
       {priceForm && (
-        <FormModal
+        <FormModal full
           title={priceForm.isNew ? 'New Price List' : 'Edit Harga'}
           icon="fi fi-rr-usd-circle"
           maxWidth={560}

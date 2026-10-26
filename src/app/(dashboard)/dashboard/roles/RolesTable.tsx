@@ -191,7 +191,7 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
       )}
 
       {permTarget && (
-        <FormModal
+        <FormModal full
           title={`Hak Akses Menu — ${permTarget.name}`}
           icon="fi fi-rr-shield-check"
           maxWidth={860}

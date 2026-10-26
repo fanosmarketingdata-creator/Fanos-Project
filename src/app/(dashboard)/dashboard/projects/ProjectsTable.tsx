@@ -182,7 +182,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
       )}
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={form.id ? 'Edit Project' : 'New Project'}
           icon={form.id ? 'fa-solid fa-pencil' : 'fa-solid fa-folder-plus'}
           onClose={() => setModalOpen(false)}

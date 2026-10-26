@@ -98,7 +98,7 @@ export default function BrandsTable({ initialRows }: { initialRows: BrandRow[] }
       </div>
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={editId ? 'Edit Brand' : 'New Brand'}
           icon="fi fi-rr-award"
           maxWidth={480}

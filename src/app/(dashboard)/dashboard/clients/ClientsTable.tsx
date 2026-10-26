@@ -195,7 +195,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       )}
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={form.id ? 'Edit Client' : 'New Client'}
           icon={form.id ? 'fa-solid fa-pencil' : 'fa-solid fa-user-plus'}
           onClose={() => setModalOpen(false)}

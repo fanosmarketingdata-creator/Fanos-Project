@@ -15,6 +15,14 @@ function useEscape(onClose: () => void, full = false) {
   }, [onClose, full]);
 }
 
+function useBodyLock() {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+}
+
 // Modal form biru (showModal() di index.html).
 export function FormModal({
   title,
@@ -23,6 +31,7 @@ export function FormModal({
   footer,
   children,
   maxWidth,
+  full,
 }: {
   title: string;
   icon: string;
@@ -30,11 +39,13 @@ export function FormModal({
   footer?: React.ReactNode;
   children: React.ReactNode;
   maxWidth?: number;
+  full?: boolean;
 }) {
   useEscape(onClose);
+  useBodyLock();
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={maxWidth ? { maxWidth } : undefined}>
+    <div className={'modal-overlay' + (full ? ' modal-full-overlay' : '')} onClick={(e) => !full && e.target === e.currentTarget && onClose()}>
+      <div className={'modal' + (full ? ' modal-full' : '')} style={!full && maxWidth ? { maxWidth } : undefined}>
         <div className="modal-header">
           <h3>
             <i className={icon} /> {title}
@@ -43,7 +54,7 @@ export function FormModal({
             ✕
           </button>
         </div>
-        <div className="modal-body">{children}</div>
+        <div className="modal-body">{full ? <div className="modal-inner">{children}</div> : children}</div>
         {footer && <div className="modal-footer">{footer}</div>}
       </div>
     </div>
@@ -65,6 +76,7 @@ export function FullModal({
   children: React.ReactNode;
 }) {
   useEscape(onClose, true);
+  useBodyLock();
   return (
     <div className="modal-overlay modal-full-overlay">
       <div className="modal modal-full" role="dialog" aria-modal="true" aria-label={title}>
@@ -88,9 +100,10 @@ export function FullModal({
 // Modal detail (showModalDetail()).
 export function DetailModal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
   useEscape(onClose);
+  useBodyLock();
   return (
-    <div className="modal-overlay" onClick={(e) => e.target === e.currentTarget && onClose()}>
-      <div className="modal" style={{ maxWidth: 550 }}>
+    <div className="modal-overlay modal-full-overlay">
+      <div className="modal modal-full">
         <div className="modal-header">
           <h3>
             <i className="fa-solid fa-eye" /> {title}
@@ -99,8 +112,8 @@ export function DetailModal({ title, onClose, children }: { title: string; onClo
             ✕
           </button>
         </div>
-        <div className="modal-body modal-body-detail">
-          {children}
+        <div className="modal-body">
+          <div className="modal-inner">{children}</div>
         </div>
         <div className="modal-footer">
           <button type="button" className="btn btn-secondary" onClick={onClose}>

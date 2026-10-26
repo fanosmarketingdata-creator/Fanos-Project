@@ -24,12 +24,19 @@ const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v a
 // Item Sales Order + qty yang masih belum dimasukkan ke Packing List lain.
 export async function getPackingItems(soId: string) {
   const supabase = createClient();
-  const [{ data: so }, { data: items }, { data: packed }] = await Promise.all([
+  const [{ data: so }, itemsRes, { data: packed }] = await Promise.all([
     supabase.from('sales_orders').select('id, clients(project_name, company, address, city)').eq('id', soId).single(),
     supabase.from('sales_order_items').select('sku, qty, sort_order, products(name, uom, package_type, units_per_package, net_weight, gross_weight, pkg_length_cm, pkg_width_cm, pkg_height_cm)').eq('sales_order_id', soId).order('sort_order'),
     supabase.from('packing_lists').select('packing_list_items(sku, qty)').eq('sales_order_id', soId),
   ]);
   if (!so) return null;
+  let items = itemsRes.data;
+  if (itemsRes.error) {
+    // Kolom pengemasan produk (migrasi 0028) belum ada: ambil data dasar saja agar item tetap tampil.
+    const fb = await supabase.from('sales_order_items').select('sku, qty, sort_order, products(name, uom)').eq('sales_order_id', soId).order('sort_order');
+    if (fb.error) throw new Error(fb.error.message);
+    items = fb.data as unknown as typeof items;
+  }
   const done = new Map<string, number>();
   (packed ?? []).forEach((pl) => ((pl.packing_list_items as unknown as { sku: string; qty: number }[]) ?? []).forEach((i) => done.set(i.sku, (done.get(i.sku) ?? 0) + Number(i.qty))));
   const c = one<{ project_name: string; company: string | null; address: string | null; city: string | null }>(so.clients);

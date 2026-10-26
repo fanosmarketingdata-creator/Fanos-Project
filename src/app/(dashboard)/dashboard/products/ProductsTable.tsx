@@ -9,7 +9,7 @@ import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/componen
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
 import { SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
-import { PACKAGE_TYPES, calcCbm } from '@/lib/packing';
+import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
 
 export type ProductRow = {
@@ -254,10 +254,9 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
             <div className="dv2-grid">
               <DvCard icon="fi fi-rr-box-open" label="Jenis Kemasan" value={detail.package_type || 'Carton'} />
               <DvCard icon="fi fi-rr-apps" label={`Isi per Kemasan (${detail.uom || 'Pcs'})`} value={String(Number(detail.units_per_package) || '-')} />
-              <DvCard icon="fi fi-rr-weight" label="Berat Bersih / Unit (Kg)" value={String(Number(detail.net_weight) || '-')} />
-              <DvCard icon="fi fi-rr-weight" label="Berat Kotor / Kemasan (Kg)" value={String(Number(detail.gross_weight) || '-')} />
+              <DvCard icon="fi fi-rr-balance-scale-left" label="Berat Bersih / Unit (Kg)" value={String(Number(detail.net_weight) || '-')} />
+              <DvCard icon="fi fi-rr-balance-scale-left" label="Berat Kotor / Kemasan (Kg)" value={String(Number(detail.gross_weight) || '-')} />
               <DvCard icon="fi fi-rr-ruler-combined" label="Dimensi Kemasan P x L x T (cm)" value={Number(detail.pkg_length_cm) || Number(detail.pkg_width_cm) || Number(detail.pkg_height_cm) ? `${Number(detail.pkg_length_cm)} x ${Number(detail.pkg_width_cm)} x ${Number(detail.pkg_height_cm)}` : '-'} />
-              <DvCard icon="fi fi-rr-cube" label="Volume / Kemasan (CBM)" value={calcCbm(Number(detail.pkg_length_cm), Number(detail.pkg_width_cm), Number(detail.pkg_height_cm), 1) ? calcCbm(Number(detail.pkg_length_cm), Number(detail.pkg_width_cm), Number(detail.pkg_height_cm), 1).toFixed(4) : '-'} />
             </div>
             {detail.notes && (
               <>
@@ -272,7 +271,7 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
       )}
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={form.id ? 'Edit Product' : 'New Product'}
           icon={form.id ? 'fa-solid fa-pencil' : 'fa-solid fa-box-open'}
           onClose={() => setModalOpen(false)}
@@ -407,9 +406,6 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
               </FvField>
               <FvField label="Tinggi Kemasan (cm)">
                 <input type="number" min={0} value={form.pkg_height_cm || 0} onChange={(e) => setForm({ ...form, pkg_height_cm: parseFloat(e.target.value) || 0 })} />
-              </FvField>
-              <FvField label="Volume / Kemasan (CBM)">
-                <input readOnly value={calcCbm(form.pkg_length_cm || 0, form.pkg_width_cm || 0, form.pkg_height_cm || 0, 1).toFixed(4)} />
               </FvField>
             </div>
             <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Data ini terisi otomatis di Packing List (jenis kemasan, isi per kemasan, NW, GW, dimensi, dan CBM) dan tetap bisa diubah per dokumen.</p>

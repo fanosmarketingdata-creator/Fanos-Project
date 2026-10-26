@@ -92,7 +92,7 @@ export default function WarehouseTable({ initialRows }: { initialRows: Warehouse
       </div>
 
       {open && (
-        <FormModal title={form.id ? 'Edit Warehouse' : 'New Warehouse'} icon="fi fi-rr-warehouse-alt" onClose={() => setOpen(false)}
+        <FormModal full title={form.id ? 'Edit Warehouse' : 'New Warehouse'} icon="fi fi-rr-warehouse-alt" onClose={() => setOpen(false)}
           footer={<>
             <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving}><i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}</button>
             <button type="button" className="btn btn-secondary" onClick={() => setOpen(false)}>Batal</button>

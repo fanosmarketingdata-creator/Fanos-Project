@@ -97,7 +97,7 @@ export default function ClassificationsTable({ initialRows }: { initialRows: Cla
       </div>
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={editId ? 'Edit Classification' : 'New Classification'}
           icon="fi fi-rr-tags"
           maxWidth={480}

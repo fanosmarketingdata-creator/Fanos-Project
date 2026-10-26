@@ -139,7 +139,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
       </div>
 
       {modalOpen && (
-        <FormModal
+        <FormModal full
           title={form.id ? 'Edit Vendor' : 'New Vendor'}
           icon={form.id ? 'fi fi-rr-pencil' : 'fa-solid fa-truck'}
           onClose={() => setModalOpen(false)}

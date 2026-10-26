@@ -197,7 +197,7 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
       )}
 
       {mode && (
-        <FormModal
+        <FormModal full
           title={mode.type === 'apply' ? 'Pakai Credit Note ke Invoice' : 'Refund Credit Note'}
           icon={mode.type === 'apply' ? 'fi fi-rr-receipt' : 'fi fi-rr-hand-holding-usd'}
           onClose={() => setMode(null)}
