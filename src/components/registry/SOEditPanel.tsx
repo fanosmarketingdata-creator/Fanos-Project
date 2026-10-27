@@ -117,6 +117,8 @@ export default function SOEditPanel({
           chargeAmount={sumChargeAmount(charges)}
           total={total}
           totalLabel="Total"
+          discounts={discounts}
+          charges={charges}
         />
           </div>
         </div>

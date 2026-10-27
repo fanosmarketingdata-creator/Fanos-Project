@@ -60,7 +60,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
                   href={c.href}
                   role="menuitem"
                   className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
-                    a ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+                    a ? 'bg-[#1e3a8a] text-white' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
                   }`}
                 >
                   <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
@@ -278,8 +278,7 @@ export default function DashboardShell({
       <IdleLogout />
       <ResponsiveTables />
 
-      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 bg-gradient-to-r from-white via-brand-50/60 to-white px-3 py-2.5 shadow-[0_1px_0_rgba(15,23,42,0.05),0_8px_24px_-14px_rgba(37,99,235,0.45)] backdrop-blur sm:gap-3 sm:px-4 print:hidden">
-        <span className="topbar-accent" aria-hidden />
+      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200 bg-white px-3 py-2.5 sm:gap-3 sm:px-4 print:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
@@ -294,18 +293,18 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className="mr-1 h-[20px] w-auto shrink-0 drop-shadow-sm transition-transform duration-200 hover:scale-105" />
+        <img src={LOGO_URL} alt="Fanos" className="mr-1 h-[20px] w-auto shrink-0" />
 
         <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-full px-2.5 py-1.5 text-[12px] font-semibold transition-all duration-200 xl:px-3 ${
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
               groupActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                 : openId === group.id
-                  ? 'bg-white text-brand-600 shadow-sm ring-1 ring-brand-500/20'
-                  : 'text-slate-600 hover:-translate-y-px hover:bg-white hover:text-brand-600 hover:shadow-sm'
+                  ? 'bg-slate-100 text-[#1e3a8a]'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-[#1e3a8a]'
             }`;
 
             if (group.direct) {

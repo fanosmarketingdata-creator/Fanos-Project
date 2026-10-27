@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
+import { ConfirmModal } from '@/components/registry/RegistryModal';
 import { deleteSalesOrder, changeSalesOrderStatus } from './actions';
 
 export type SalesOrderRow = {
@@ -52,14 +53,16 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
     setDeleteTarget(null);
   }
 
+  const [statusTarget, setStatusTarget] = useState<{ row: SalesOrderRow; to: 'VERIFIED' | 'COMPLETED' } | null>(null);
+
   async function handleStatus(r: SalesOrderRow, to: 'VERIFIED' | 'COMPLETED') {
     const label = to === 'VERIFIED' ? 'Verified' : 'Completed';
-    if (!window.confirm(`Tandai Sales Order ${r.doc_no ?? r.client_name} sebagai ${label}?`)) return;
     setBusyId(r.id);
     try {
       const res = await changeSalesOrderStatus(r.id, to);
       if (res.error) return toast(res.error, 'error');
       toast(`Sales Order ditandai ${label}`, 'success');
+      setStatusTarget(null);
       router.refresh();
     } catch (e) {
       toast('Status gagal diubah: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
@@ -121,8 +124,8 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
                   <RowActions
                     actions={[
                 { label: 'Cetak', icon: 'fi fi-rr-print', href: `/dashboard/sales-orders/${r.id}/print` },
-                { label: 'Mark as Verified', icon: 'fi fi-rr-badge-check', onClick: () => handleStatus(r, 'VERIFIED'), disabled: busyId === r.id, hidden: r.status !== 'DRAFT' },
-                { label: 'Mark as Completed', icon: 'fi fi-rr-check', onClick: () => handleStatus(r, 'COMPLETED'), disabled: busyId === r.id, hidden: r.status !== 'VERIFIED' },
+                { label: 'Mark as Verified', icon: 'fi fi-rr-badge-check', onClick: () => setStatusTarget({ row: r, to: 'VERIFIED' }), disabled: busyId === r.id, hidden: r.status !== 'DRAFT' },
+                { label: 'Mark as Completed', icon: 'fi fi-rr-check', onClick: () => setStatusTarget({ row: r, to: 'COMPLETED' }), disabled: busyId === r.id, hidden: r.status !== 'VERIFIED' },
                 { label: 'Edit', icon: 'fi fi-rr-pencil', href: `/dashboard/sales-orders/${r.id}`, hidden: r.status !== 'DRAFT' },
                 { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r), hidden: r.status === 'COMPLETED' },
                     ]}
@@ -161,6 +164,20 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
             terkait akan turut terhapus.
           </p>
         </Modal>
+      )}
+      {statusTarget && (
+        <ConfirmModal
+          title={statusTarget.to === 'VERIFIED' ? 'Mark as Verified' : 'Mark as Completed'}
+          icon={statusTarget.to === 'VERIFIED' ? 'fi fi-rr-badge-check' : 'fi fi-rr-check'}
+          tone={statusTarget.to === 'VERIFIED' ? 'blue' : 'green'}
+          question={statusTarget.to === 'VERIFIED' ? 'Tandai Sales Order ini sebagai Verified?' : 'Tandai Sales Order ini sebagai Completed?'}
+          itemName={statusTarget.row.doc_no ?? statusTarget.row.client_name}
+          note={statusTarget.to === 'VERIFIED' ? 'Sales Order yang sudah Verified dapat diproses ke Delivery Order dan Packing List.' : 'Sales Order yang sudah Completed dianggap selesai.'}
+          confirmLabel={statusTarget.to === 'VERIFIED' ? 'Ya, Verified' : 'Ya, Completed'}
+          busy={busyId === statusTarget.row.id}
+          onConfirm={() => handleStatus(statusTarget.row, statusTarget.to)}
+          onClose={() => setStatusTarget(null)}
+        />
       )}
     </div>
   );

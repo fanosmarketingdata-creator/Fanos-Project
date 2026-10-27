@@ -224,3 +224,70 @@ main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:hover { transform: transl
   main > * { animation: none !important; }
   .card-header h3::before { display: none; }
 }
+
+/* ============================================================
+   GAYA BISNIS: menenangkan penyegaran sebelumnya.
+   Netral (putih/abu-abu) dengan satu aksen navy. Menimpa aturan di atas.
+============================================================ */
+main { background: none; }
+main > * { animation: none; }
+.card-header h3::before { display: none; }
+.card-header h3 { color: #0f172a; }
+.card-header h3 i { color: #64748b !important; }
+.card-header { border-bottom-color: #e2e8f0; }
+
+main .overflow-x-auto.bg-white { border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04); }
+@media screen and (min-width: 768px) {
+  main table thead tr,
+  main table thead th { background: #f1f5f9; color: #475569; border-bottom: 1px solid #e2e8f0; }
+  main table tbody tr:hover td { background: #f8fafc; }
+  main table tbody tr:hover td:first-child { box-shadow: none; }
+  main table tbody td { border-bottom-color: #eef2f7; }
+}
+
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) {
+  border: 1px solid #e2e8f0; border-left: 3px solid #1e3a8a; border-radius: 8px; box-shadow: none; transform: none;
+}
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:hover { transform: none; box-shadow: none; }
+
+.client-card { border-radius: 8px; border-color: #e2e8f0; box-shadow: none; }
+.client-card:hover { border-color: #94a3b8; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
+.client-card-avatar { box-shadow: none; }
+.product-card:hover { transform: none; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1); }
+.dv2-card:hover { transform: none; box-shadow: none; }
+.badge::before { display: none; }
+
+/* Tombol di halaman: solid navy, tanpa gradasi atau efek angkat. */
+main .btn, .card-header .btn { border-radius: 6px; }
+main .btn-primary, .card-header .btn-primary { background: #1e3a8a; }
+main .btn-primary:hover, .card-header .btn-primary:hover { background: #1e40af; transform: none; box-shadow: none; }
+main .btn-secondary { background: #fff; border: 1px solid #cbd5e1; color: #334155; }
+main .search-box input, main .card-header select { border-radius: 6px; }
+main button.bg-brand-500, main a.bg-brand-500, main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #1e3a8a; border-radius: 6px; transform: none; box-shadow: none; }
+main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #1e40af; }
+
+/* ---- Penyeragaman: judul halaman, kartu, input, dan Overview ---- */
+main .page-title { color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; }
+main .page-title i { color: #64748b; }
+main .bg-white.rounded-xl, main .bg-white.rounded-2xl { background: #fff; border-color: #e2e8f0; border-radius: 8px; }
+
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']),
+main select,
+main textarea { border-width: 1px; border-color: #cbd5e1; border-radius: 6px; background-color: #fff; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
+main select:focus,
+main textarea:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); }
+main input[placeholder^='Cari'] { border-radius: 6px; }
+main label.text-xs.font-semibold, main label.text-slate-500 { text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600; color: #475569; }
+main button.border-slate-200 { border-radius: 6px; }
+main td button[class*='bg-'][class*='-50']:hover, main td a[class*='bg-'][class*='-50']:hover { transform: none; box-shadow: none; }
+
+.dash-kpi, .dash-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
+a:hover > .dash-kpi { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); border-color: #94a3b8; }
+.dash-kpi-icon, .dash-activity-icon { background: #f1f5f9 !important; color: #475569 !important; border-radius: 6px; }
+.dash-kpi-val { color: #0f172a !important; font-weight: 700; }
+.dash-kpi-lbl { color: #64748b; }
+.dash-section-title, .dash-panel-title { color: #0f172a; font-weight: 700; }
+.dash-section-title i, .dash-panel-title i { color: #64748b; }

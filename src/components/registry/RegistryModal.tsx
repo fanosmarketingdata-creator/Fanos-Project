@@ -207,3 +207,60 @@ export function FvField({
     </div>
   );
 }
+
+// Modal konfirmasi aksi positif (Mark as Verified / Completed): biru atau hijau.
+export function ConfirmModal({
+  title,
+  icon = 'fi fi-rr-badge-check',
+  tone = 'blue',
+  question,
+  itemName,
+  note,
+  confirmLabel,
+  busy,
+  onConfirm,
+  onClose,
+}: {
+  title: string;
+  icon?: string;
+  tone?: 'blue' | 'green';
+  question: string;
+  itemName: string;
+  note?: string;
+  confirmLabel: string;
+  busy: boolean;
+  onConfirm: () => void;
+  onClose: () => void;
+}) {
+  useEscape(onClose);
+  return (
+    <div className={`modal-overlay modal-delete modal-confirm modal-confirm-${tone}`} onClick={(e) => e.target === e.currentTarget && !busy && onClose()}>
+      <div className="modal" style={{ maxWidth: 480 }}>
+        <div className="modal-header">
+          <h3>
+            <i className={icon} /> {title}
+          </h3>
+          <button type="button" className="modal-close" onClick={onClose} aria-label="Tutup">
+            ✕
+          </button>
+        </div>
+        <div className="modal-body" style={{ textAlign: 'center', padding: 24 }}>
+          <div className="modal-icon">
+            <i className={icon} />
+          </div>
+          <div className="modal-title">{question}</div>
+          <div className="modal-item-id">{itemName}</div>
+          {note && <div style={{ fontSize: 12, color: '#6b7280', marginTop: 12 }}>{note}</div>}
+        </div>
+        <div className="modal-footer" style={{ justifyContent: 'center', gap: 12 }}>
+          <button type="button" className="btn-secondary" onClick={onClose} disabled={busy}>
+            Batal
+          </button>
+          <button type="button" className="btn-danger" onClick={onConfirm} disabled={busy}>
+            <i className={icon} /> {busy ? 'Memproses...' : confirmLabel}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}

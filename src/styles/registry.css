@@ -806,3 +806,103 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 /* Header daftar (judul + pencarian + filter + tombol): seragam di semua menu. */
 .card-header .flex-wrap select { padding: 7px 28px 7px 12px; border: 1px solid #ddd; border-radius: 20px; font-size: 12px; background: #fafafa; font-family: inherit; }
 .card-header .flex-wrap label { font-size: 12px; }
+
+/* Modal konfirmasi positif (varian biru / hijau dari modal-delete). */
+.modal-confirm-blue .modal-header { background: linear-gradient(135deg, #2563eb, #1d4ed8); }
+.modal-confirm-green .modal-header { background: linear-gradient(135deg, #16a34a, #15803d); }
+.modal-confirm .modal-icon { background: #dbeafe; }
+.modal-confirm .modal-icon .fi, .modal-confirm .modal-icon i { font-size: 32px; color: #2563eb; }
+.modal-confirm-green .modal-icon { background: #dcfce7; }
+.modal-confirm-green .modal-icon .fi, .modal-confirm-green .modal-icon i { color: #16a34a; }
+.modal-confirm-blue .modal-footer .btn-danger { background: linear-gradient(135deg, #2563eb, #1d4ed8); box-shadow: 0 4px 14px rgba(37, 99, 235, 0.3); }
+.modal-confirm-blue .modal-footer .btn-danger:hover { box-shadow: 0 6px 20px rgba(37, 99, 235, 0.4); }
+.modal-confirm-green .modal-footer .btn-danger { background: linear-gradient(135deg, #16a34a, #15803d); box-shadow: 0 4px 14px rgba(22, 163, 74, 0.3); }
+.modal-confirm-green .modal-footer .btn-danger:hover { box-shadow: 0 6px 20px rgba(22, 163, 74, 0.4); }
+
+/* ============================================================
+   TAMPILAN FORM & DETAIL BISNIS (create / edit / detail)
+   Netral dan tenang: putih, abu-abu, dan satu warna aksen navy.
+   Berlaku untuk semua modal kecuali hapus & konfirmasi.
+============================================================ */
+.modal:not(.modal-delete) { border-radius: 12px; box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.35); }
+.modal-full { border-radius: 0 !important; }
+
+/* Header: putih, judul navy, garis tipis. */
+.modal:not(.modal-delete) .modal-header { background: #fff; color: #0f172a; border-bottom: 1px solid #e2e8f0; padding: 14px 24px; }
+.modal:not(.modal-delete) .modal-header h3 { color: #0f172a; font-size: 15px; font-weight: 700; letter-spacing: 0.1px; }
+.modal:not(.modal-delete) .modal-header h3 i { color: #64748b; font-size: 15px; }
+.modal:not(.modal-delete) .modal-close { background: transparent; color: #64748b; border-radius: 6px; width: 30px; height: 30px; font-size: 16px; }
+.modal:not(.modal-delete) .modal-close:hover { background: #f1f5f9; color: #0f172a; transform: none; }
+
+/* Body abu-abu muda supaya kartu putih terlihat jelas. */
+.modal:not(.modal-delete) .modal-body { background: #f6f8fb; }
+.modal:not(.modal-delete) .modal-footer { background: #fff; border-top: 1px solid #e2e8f0; padding: 12px 24px; }
+
+/* Tombol: solid navy tanpa gradasi. */
+.modal:not(.modal-delete) .btn { border-radius: 6px; font-weight: 600; box-shadow: none; }
+.modal:not(.modal-delete) .btn-primary { background: #1e3a8a; color: #fff; }
+.modal:not(.modal-delete) .btn-primary:hover { background: #1e40af; transform: none; box-shadow: none; }
+.modal:not(.modal-delete) .btn-secondary { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
+.modal:not(.modal-delete) .btn-secondary:hover { background: #f1f5f9; }
+
+/* Seksi form menjadi kartu putih dengan judul sederhana. */
+.modal:not(.modal-delete) .fv2-section { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; padding: 16px 18px; margin-bottom: 14px; }
+.modal:not(.modal-delete) .fv2-section .fv2-section { background: none; border: 0; padding: 0; margin-bottom: 10px; }
+.modal:not(.modal-delete) .fv2-section-title { color: #0f172a; font-size: 13px; font-weight: 700; text-transform: none; letter-spacing: 0; border-bottom: 1px solid #e2e8f0; padding-bottom: 10px; margin-bottom: 14px; }
+.modal:not(.modal-delete) .fv2-section-title i { color: #64748b; }
+.modal:not(.modal-delete) .fv2-field label { color: #475569; font-size: 12px; font-weight: 600; text-transform: none; letter-spacing: 0; }
+.modal:not(.modal-delete) .fv2-field input,
+.modal:not(.modal-delete) .fv2-field select,
+.modal:not(.modal-delete) .fv2-field textarea,
+.modal:not(.modal-delete) .fv2-item-row input,
+.modal:not(.modal-delete) .fv2-item-row select { background: #fff; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13.5px; color: #0f172a; }
+.modal:not(.modal-delete) .fv2-field input:focus,
+.modal:not(.modal-delete) .fv2-field select:focus,
+.modal:not(.modal-delete) .fv2-field textarea:focus,
+.modal:not(.modal-delete) .fv2-item-row input:focus,
+.modal:not(.modal-delete) .fv2-item-row select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); }
+.modal:not(.modal-delete) .fv2-field input[readonly],
+.modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #f1f5f9; color: #64748b; }
+.modal:not(.modal-delete) .fv2-item-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; }
+.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
+.modal:not(.modal-delete) .fv2-add-btn,
+.modal:not(.modal-delete) .fv2-add-btn.green,
+.modal:not(.modal-delete) .fv2-add-btn.amber { background: #fff; color: #1e3a8a; border: 1px solid #cbd5e1; border-radius: 6px; }
+.modal:not(.modal-delete) .fv2-add-btn:hover { background: #f1f5f9; }
+.modal:not(.modal-delete) .fv2-del-btn { background: #fff; color: #b91c1c; border: 1px solid #e2e8f0; border-radius: 6px; }
+.modal:not(.modal-delete) .fv2-del-btn:hover { background: #fef2f2; color: #b91c1c; }
+.modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-radius: 8px; border-color: #e2e8f0; }
+.modal:not(.modal-delete) .fv2-area-head, .modal:not(.modal-delete) .dv2-area-head { background: #f8fafc; }
+.modal:not(.modal-delete) .fv2-area-head .ico, .modal:not(.modal-delete) .dv2-area-head .ico { background: #e2e8f0; color: #334155; border-radius: 6px; }
+.modal:not(.modal-delete) .dv2-area-head .nm { color: #0f172a; }
+.modal:not(.modal-delete) .fv2-sub-head i, .modal:not(.modal-delete) .dv2-sub-title i { color: #64748b; }
+
+/* Detail: kartu data datar, ikon abu-abu kecil, judul dokumen tenang. */
+.modal:not(.modal-delete) .dv2-topbar { background: #fff; border: 1px solid #e2e8f0; border-left: 3px solid #1e3a8a; border-radius: 8px; }
+.modal:not(.modal-delete) .dv2-topbar-id { color: #64748b; }
+.modal:not(.modal-delete) .dv2-topbar-title { color: #0f172a; }
+.modal:not(.modal-delete) .dv2-topbar-amount .val { color: #0f172a; }
+.modal:not(.modal-delete) .dv2-card { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; box-shadow: none; transform: none; }
+.modal:not(.modal-delete) .dv2-card:hover { box-shadow: none; transform: none; }
+.modal:not(.modal-delete) .dv2-card-icon { background: #f1f5f9; color: #64748b; border-radius: 6px; width: 30px; height: 30px; font-size: 13px; }
+.modal:not(.modal-delete) .dv2-card-label { color: #64748b; font-size: 10.5px; }
+.modal:not(.modal-delete) .dv2-card-value { color: #0f172a; font-weight: 600; }
+.modal:not(.modal-delete) .dv2-section-title { color: #0f172a; border-bottom: 1px solid #e2e8f0; font-size: 13px; letter-spacing: 0; }
+.modal:not(.modal-delete) .dv2-section-title i { color: #64748b; }
+.modal:not(.modal-delete) .dv2-summary-grand { color: #0f172a; }
+.modal:not(.modal-delete) .dv2-summary-row.charge { color: #334155; }
+.modal:not(.modal-delete) .dv2-table-wrap { background: #fff; border-color: #e2e8f0; border-radius: 8px; }
+.modal:not(.modal-delete) table.dv2-table thead th { background: #f1f5f9; color: #475569; border-bottom: 1px solid #e2e8f0; }
+.modal:not(.modal-delete) table.dv2-table tbody td { border-bottom-color: #eef2f7; }
+.modal:not(.modal-delete) table.dv2-table tbody tr:hover td { background: #f8fafc; }
+.modal:not(.modal-delete) .fv2-upload-box:hover { border-color: #1e3a8a; background: #f8fafc; }
+.modal:not(.modal-delete) .dv2-loading .spinner { border-color: #e2e8f0; border-top-color: #1e3a8a; }
+
+@media (max-width: 768px) {
+  .modal:not(.modal-delete) .fv2-section { padding: 14px; }
+  .modal:not(.modal-delete) .modal-header { padding: 12px 16px; }
+}
+
+/* Modal layar penuh: tanpa animasi masuk. Skeleton lalu form asli tampil di posisi
+   yang sama, sehingga tidak terlihat seperti modal muncul dua kali. */
+.modal-full-overlay, .modal-full-overlay .modal-full { animation: none !important; }

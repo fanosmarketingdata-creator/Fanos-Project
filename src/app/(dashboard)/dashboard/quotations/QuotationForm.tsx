@@ -205,7 +205,7 @@ export default function QuotationForm({
         </div>
         <div>
           <div className="fv2-section-title"><i className="fi fi-rr-calculator" /> Ringkasan</div>
-          <TotalsBox subtotal={subtotal} discountPercent={discountPercent} discountAmount={discountAmount} taxPercent={taxPercent} taxAmount={taxAmount} chargeAmount={chargeAmount} total={total} />
+          <TotalsBox subtotal={subtotal} discountPercent={discountPercent} discountAmount={discountAmount} taxPercent={taxPercent} taxAmount={taxAmount} chargeAmount={chargeAmount} total={total} discounts={discounts} charges={charges} />
         </div>
       </div>
     </DocFormShell>
