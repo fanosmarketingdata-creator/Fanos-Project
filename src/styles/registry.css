@@ -906,3 +906,31 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 /* Modal layar penuh: tanpa animasi masuk. Skeleton lalu form asli tampil di posisi
    yang sama, sehingga tidak terlihat seperti modal muncul dua kali. */
 .modal-full-overlay, .modal-full-overlay .modal-full { animation: none !important; }
+
+/* ---- Penegasan warna & kontras (lebih tegas, tetap formal) ---- */
+.modal:not(.modal-delete) .modal-header { background: #1e3a8a; border-bottom: 0; }
+.modal:not(.modal-delete) .modal-header h3, .modal:not(.modal-delete) .modal-header h3 i { color: #fff; }
+.modal:not(.modal-delete) .modal-close { color: #dbe4ff; }
+.modal:not(.modal-delete) .modal-close:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
+.modal:not(.modal-delete) .modal-body { background: #e9eef6; }
+.modal:not(.modal-delete) .modal-footer { background: #f8fafc; border-top: 1px solid #cbd5e1; }
+.modal:not(.modal-delete) .fv2-section { border: 1px solid #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.modal:not(.modal-delete) .fv2-section-title { color: #1e3a8a; border-bottom: 1px solid #dbe3ee; }
+.modal:not(.modal-delete) .fv2-section-title::before { content: ''; width: 4px; height: 15px; border-radius: 2px; background: #1e3a8a; flex-shrink: 0; }
+.modal:not(.modal-delete) .fv2-section-title i { color: #1e3a8a; }
+.modal:not(.modal-delete) .fv2-field label { color: #1e293b; }
+.modal:not(.modal-delete) .fv2-field input,
+.modal:not(.modal-delete) .fv2-field select,
+.modal:not(.modal-delete) .fv2-field textarea { border-color: #94a3b8; }
+.modal:not(.modal-delete) .fv2-field input[readonly], .modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #eef2f7; color: #475569; }
+.modal:not(.modal-delete) .dv2-topbar { border: 1px solid #cdd7e4; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.modal:not(.modal-delete) .dv2-topbar-id { color: #1e3a8a; }
+.modal:not(.modal-delete) .dv2-card { border: 1px solid #cdd7e4; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+.modal:not(.modal-delete) .dv2-card-icon { background: #dbe6fb; color: #1e3a8a; }
+.modal:not(.modal-delete) .dv2-card-label { color: #475569; }
+.modal:not(.modal-delete) .dv2-section-title { color: #1e3a8a; border-bottom: 1px solid #cbd5e1; }
+.modal:not(.modal-delete) .dv2-section-title i { color: #1e3a8a; }
+.modal:not(.modal-delete) .dv2-table-wrap, .modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-color: #cdd7e4; }
+.modal:not(.modal-delete) table.dv2-table thead th { background: #dde6f4; color: #1e3a8a; border-bottom: 1px solid #c3d0e4; }
+.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #fff; border-color: #cdd7e4; }
+.modal:not(.modal-delete) .fv2-item-row { background: #f1f5fa; border-color: #cdd7e4; }

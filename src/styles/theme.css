@@ -291,3 +291,28 @@ a:hover > .dash-kpi { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.
 .dash-kpi-lbl { color: #64748b; }
 .dash-section-title, .dash-panel-title { color: #0f172a; font-weight: 700; }
 .dash-section-title i, .dash-panel-title i { color: #64748b; }
+
+/* ---- Penegasan warna & kontras halaman (lebih tegas, tetap formal) ---- */
+body, main { background-color: #eef2f7; }
+.card-header h3 { color: #1e3a8a; font-weight: 700; }
+.card-header h3 i { color: #1e3a8a !important; }
+.card-header { border-bottom-color: #cbd5e1; }
+main .page-title { color: #1e3a8a; border-bottom-color: #cbd5e1; }
+main .page-title i { color: #1e3a8a; }
+main .overflow-x-auto.bg-white { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
+@media screen and (min-width: 768px) {
+  main table thead tr, main table thead th { background: #dde6f4; color: #1e3a8a; border-bottom: 1px solid #c3d0e4; }
+  main table tbody tr:hover td { background: #eaf1fd; }
+  main table tbody td { border-bottom-color: #e3e9f2; }
+}
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { border-color: #cdd7e4; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.client-card { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+.client-card:hover { border-color: #1e3a8a; }
+main .bg-white.rounded-xl, main .bg-white.rounded-2xl, .dash-kpi, .dash-panel { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+.dash-kpi-icon { background: #dbe6fb !important; color: #1e3a8a !important; }
+.dash-section-title, .dash-panel-title { color: #1e3a8a; }
+.dash-section-title i, .dash-panel-title i { color: #1e3a8a; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), main select, main textarea { border-color: #94a3b8; }
+main .btn-secondary { border-color: #94a3b8; }

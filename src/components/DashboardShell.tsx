@@ -264,7 +264,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#f4f7fb] print:block print:bg-white">
+    <div className="flex min-h-screen flex-col bg-[#eef2f7] print:block print:bg-white">
       {loggingOut && (
         <div className="login-overlay print:hidden" role="status" aria-live="polite">
           <div className="spinner" />
@@ -278,7 +278,7 @@ export default function DashboardShell({
       <IdleLogout />
       <ResponsiveTables />
 
-      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200 bg-white px-3 py-2.5 sm:gap-3 sm:px-4 print:hidden">
+      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b-2 border-[#1e3a8a] bg-white px-3 py-2.5 sm:gap-3 sm:px-4 print:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
