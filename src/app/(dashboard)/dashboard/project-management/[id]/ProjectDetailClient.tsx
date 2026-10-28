@@ -25,7 +25,7 @@ export type ActivityRow = { id: string; task_id: string | null; actor_name: stri
 const COLUMNS: TaskStatus[] = ['To-Do', 'In Progress', 'Review', 'Completed'];
 const PRIOS: PmPriority[] = ['High', 'Medium', 'Low'];
 const PROJECT_STATUSES: PmStatus[] = ['Planning', 'In Progress', 'Completed', 'On Hold'];
-type Tab = 'tasks' | 'discussion' | 'team' | 'notifications' | 'files';
+type Tab = 'tasks' | 'team' | 'notifications';
 
 export default function ProjectDetailClient({
   project, tasks: initialTasks, members, memberIds, comments, files, activity,
@@ -47,9 +47,6 @@ export default function ProjectDetailClient({
   const [pf, setPf] = useState<ProjectInfo>(project);
   const [savingP, setSavingP] = useState(false);
   const [addMemberOpen, setAddMemberOpen] = useState(false);
-  const [discussion, setDiscussion] = useState('');
-  const [fileName, setFileName] = useState('');
-  const [fileUrl, setFileUrl] = useState('');
 
   useEffect(() => { setTasks(initialTasks); }, [initialTasks]);
   useEffect(() => { setPf(project); }, [project]);
@@ -57,8 +54,6 @@ export default function ProjectDetailClient({
   const byId = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
   const team = memberIds.map((id) => byId.get(id)).filter(Boolean) as Member[];
   const owner = byId.get(project.owner_id);
-  const projectComments = comments.filter((c) => !c.task_id);
-  const projectFiles = files;
 
   const visible = tasks.filter((t) => !q.trim() || t.title.toLowerCase().includes(q.trim().toLowerCase()) || t.description.toLowerCase().includes(q.trim().toLowerCase()));
   const open = tasks.find((t) => t.id === openId) ?? null;
@@ -147,8 +142,8 @@ export default function ProjectDetailClient({
 
       <div className="pm-tabs">
         {([
-          ['tasks', 'Tasks', tasks.length], ['discussion', 'Discussion', projectComments.length], ['team', 'Team Member', team.length],
-          ['notifications', 'Notifications', activity.length], ['files', 'Files', projectFiles.length],
+          ['tasks', 'Tasks', tasks.length], ['team', 'Team Member', team.length],
+          ['notifications', 'Notifications', activity.length],
         ] as [Tab, string, number][]).map(([k, label, n]) => (
           <button key={k} type="button" className={`pm-tab ${tab === k ? 'on' : ''}`} onClick={() => setTab(k)}>{label} <span className="n">{n}</span></button>
         ))}
@@ -208,20 +203,6 @@ export default function ProjectDetailClient({
         </>
       )}
 
-      {tab === 'discussion' && (
-        <div className="pm-panel">
-          {projectComments.length === 0 && <div className="pm-empty">Belum ada diskusi. Mulai percakapan pertama.</div>}
-          {projectComments.map((c) => (
-            <div key={c.id} className="pm-comment"><span className="who">{c.author_name}</span><span className="when">{fmtDateTime(c.created_at)}</span><div className="tx">{c.body}</div></div>
-          ))}
-          <div style={{ display: 'flex', gap: 8, marginTop: 12 }}>
-            <input className="pm-input" value={discussion} onChange={(e) => setDiscussion(e.target.value)} placeholder="Tulis pesan..."
-              onKeyDown={async (e) => { if (e.key === 'Enter' && discussion.trim()) { const r = await addComment(project.id, null, discussion); if (!fail(r)) { setDiscussion(''); router.refresh(); } } }} />
-            <button type="button" className="pm-primary" onClick={async () => { const r = await addComment(project.id, null, discussion); if (!fail(r)) { setDiscussion(''); router.refresh(); } }}>Kirim</button>
-          </div>
-        </div>
-      )}
-
       {tab === 'team' && (
         <div className="pm-panel">
           {team.length === 0 && <div className="pm-empty">Belum ada anggota. Klik "Add Member" di kanan atas.</div>}
@@ -248,28 +229,6 @@ export default function ProjectDetailClient({
               <div><div><b>{a.actor_name || 'Sistem'}</b> {a.text}</div><div className="tm">{fmtDateTime(a.created_at)}</div></div>
             </div>
           ))}
-        </div>
-      )}
-
-      {tab === 'files' && (
-        <div className="pm-panel">
-          {projectFiles.length === 0 && <div className="pm-empty">Belum ada file. Tambahkan tautan dokumen di bawah.</div>}
-          {projectFiles.map((f) => (
-            <div key={f.id} className="pm-file">
-              <div className="ic"><i className="fi fi-rr-document" /></div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <a className="nm" href={f.url} target="_blank" rel="noreferrer">{f.name}</a>
-                <div className="sb">{f.url}</div>
-              </div>
-              <span style={{ fontSize: 11, color: '#94a3b8' }}>{f.created_by} · {fmtDateTime(f.created_at)}</span>
-              <button type="button" className="pm-ghost" style={{ height: 30, padding: '0 10px' }} onClick={async () => { const r = await deleteFile(project.id, f.id); if (!fail(r)) router.refresh(); }}><i className="fi fi-rr-trash" /></button>
-            </div>
-          ))}
-          <div style={{ display: 'flex', gap: 8, marginTop: 12, flexWrap: 'wrap' }}>
-            <input className="pm-input" style={{ flex: '1 1 180px' }} value={fileName} onChange={(e) => setFileName(e.target.value)} placeholder="Nama file" />
-            <input className="pm-input" style={{ flex: '2 1 260px' }} value={fileUrl} onChange={(e) => setFileUrl(e.target.value)} placeholder="https://tautan-file..." />
-            <button type="button" className="pm-primary" onClick={async () => { const r = await addFile(project.id, null, fileName, fileUrl); if (!fail(r)) { setFileName(''); setFileUrl(''); router.refresh(); } }}><i className="fi fi-rr-plus" /> Tambah</button>
-          </div>
         </div>
       )}
 
