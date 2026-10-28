@@ -33,15 +33,18 @@ export async function saveClient(input: ClientInput) {
     status: ['Active', 'Inactive', 'Blacklist', 'Unverified'].includes(input.status || '') ? input.status : 'Unverified',
   };
 
-  const query = input.id
-    ? supabase.from('clients').update(payload).eq('id', input.id)
-    : supabase.from('clients').insert(payload);
-
-  const { error } = await query;
-  if (error) return { error: error.message };
+  let id = input.id;
+  if (id) {
+    const { error } = await supabase.from('clients').update(payload).eq('id', id);
+    if (error) return { error: error.message };
+  } else {
+    const { data, error } = await supabase.from('clients').insert(payload).select('id').single();
+    if (error) return { error: error.message };
+    id = data.id as string;
+  }
 
   revalidatePath('/dashboard/clients');
-  return { success: true };
+  return { success: true, id, company: payload.company };
 }
 
 export async function deleteClient(id: string) {

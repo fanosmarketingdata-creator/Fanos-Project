@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { ensureProject } from '@/lib/project-sync';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 
@@ -20,6 +21,7 @@ export type QuotationInput = {
   quote_date: string;
   validity_date?: string;
   boq_project_id?: string | null;
+  project_name?: string; // hanya untuk Input Manual
   client_id: string;
   discounts: DiscountLine[];
   charges: ChargeLine[];
@@ -35,6 +37,7 @@ function computeTotals(items: QuoteItemInput[], discounts: DiscountLine[], charg
 }
 
 export async function saveQuotation(input: QuotationInput) {
+  if (input.mode === 'manual' && !input.project_name?.trim()) return { error: 'Nama Project wajib diisi.' };
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.quote_date) return { error: 'Kolom Tanggal Quotation wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
@@ -43,10 +46,14 @@ export async function saveQuotation(input: QuotationInput) {
   const supabase = createClient();
   const { subtotal, total } = computeTotals(validItems, input.discounts, input.charges);
 
+  const manualProject = input.mode === 'manual' ? input.project_name?.trim() || '' : '';
+  const projectId = manualProject ? await ensureProject(supabase, manualProject, input.client_id) : null;
+
   const headerPayload = {
     quote_date: input.quote_date,
     validity_date: input.validity_date || null,
     boq_project_id: input.mode === 'boq' ? input.boq_project_id : null,
+    ...(input.mode === 'manual' ? { project_name: manualProject || null, project_id: projectId } : {}),
     client_id: input.client_id,
     discounts: input.discounts,
     charges: input.charges,
@@ -84,6 +91,7 @@ export async function saveQuotation(input: QuotationInput) {
   const { error: itemsError } = await supabase.from('quotation_items').insert(rows);
   if (itemsError) return { error: itemsError.message };
 
+  revalidatePath('/dashboard/projects');
   revalidatePath('/dashboard/quotations');
   return { success: true, id: quoteId };
 }

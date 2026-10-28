@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { ensureProject } from '@/lib/project-sync';
 
 export type BOQItemInput = {
   product_id: string | null;
@@ -43,6 +44,9 @@ export async function saveBOQProject(input: BOQProjectInput) {
     route_type: input.route_type,
   };
 
+  // Nama project otomatis masuk / terhubung ke Master Project.
+  const projectId = await ensureProject(supabase, input.project_name, input.client_id);
+
   let boqId = input.id;
 
   if (boqId) {
@@ -83,6 +87,8 @@ export async function saveBOQProject(input: BOQProjectInput) {
     if (itemsError) return { error: itemsError.message };
   }
 
+  if (projectId && boqId) await supabase.from('boq_projects').update({ project_id: projectId }).eq('id', boqId); // abaikan bila migrasi 0029 belum dijalankan
+  revalidatePath('/dashboard/projects');
   revalidatePath('/dashboard/boq-project');
   return { success: true, id: boqId };
 }

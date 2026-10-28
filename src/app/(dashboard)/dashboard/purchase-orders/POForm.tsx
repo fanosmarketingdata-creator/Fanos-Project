@@ -9,9 +9,10 @@ import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { type ProductOption } from '@/components/ProductPicker';
-import { savePurchaseOrder, type PurchaseOrderInput, type POItemInput } from './actions';
+import { savePurchaseOrder, getSOItemsForPO, type PurchaseOrderInput, type POItemInput } from './actions';
 
 export type VendorOption = { id: string; company: string };
+export type SOOption = { id: string; label: string };
 
 function emptyItem(): POItemInput {
   return { sku: '', description: '', qty: 1, uom: 'Pcs', unit_price: 0 };
@@ -20,9 +21,11 @@ function emptyItem(): POItemInput {
 export default function POForm({
   vendors,
   products,
+  salesOrders = [],
   initial,
 }: {
   vendors: VendorOption[];
+  salesOrders?: SOOption[];
   products: ProductOption[];
   initial?: PurchaseOrderInput & { id?: string };
 }) {
@@ -32,11 +35,31 @@ export default function POForm({
 
   const [poDate, setPoDate] = useState(initial?.po_date ?? new Date().toISOString().split('T')[0]);
   const [vendorId, setVendorId] = useState(initial?.vendor_id ?? '');
+  const [soId, setSoId] = useState('');
+  const [loadingSO, setLoadingSO] = useState(false);
   const [notes, setNotes] = useState(initial?.notes ?? '');
   const [items, setItems] = useState<POItemInput[]>(initial?.items?.length ? initial.items : [emptyItem()]);
 
   function updateItem(i: number, patch: Partial<POItemInput>) {
     setItems((prev) => prev.map((it, j) => (j === i ? { ...it, ...patch } : it)));
+  }
+
+  async function pickSO(id: string) {
+    setSoId(id);
+    if (!id) return;
+    setLoadingSO(true);
+    try {
+      const list = await getSOItemsForPO(id);
+      if (list.length === 0) return toast('Sales Order ini tidak memiliki item', 'error');
+      setItems(list);
+      const label = salesOrders.find((s) => s.id === id)?.label.split(' · ')[0];
+      if (label && !notes) setNotes(`Berdasarkan Sales Order ${label}`);
+      toast('Item dari Sales Order dimuat. Harga beli diambil dari Product Catalogue, silakan sesuaikan.', 'success');
+    } catch (e) {
+      toast('Item Sales Order gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+    } finally {
+      setLoadingSO(false);
+    }
   }
 
   const total = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
@@ -48,6 +71,7 @@ export default function POForm({
       po_date: poDate,
       vendor_id: vendorId,
       notes,
+      sales_order_id: soId || null,
       items,
     });
     setSaving(false);
@@ -79,6 +103,11 @@ export default function POForm({
               placeholder="Cari vendor..."
             />
           </FvField>
+          {!initial?.id && salesOrders.length > 0 && (
+            <FvField label="Tarik dari Sales Order (opsional)">
+              <SearchSelect value={soId} onChange={pickSO} options={salesOrders.map((o) => ({ value: o.id, label: o.label }))} placeholder="Cari Sales Order..." />
+            </FvField>
+          )}
           <FvField label="Tanggal PO" required>
             <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} />
           </FvField>
@@ -89,6 +118,7 @@ export default function POForm({
       </Sec>
 
       <Sec title="Daftar Item" icon="fi fi-rr-list">
+        {loadingSO && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>Memuat item dari Sales Order...</p>}
         <div className="fv2-scroll-x">
           <div style={{ minWidth: 700 }}>
             <div className="fv2-item-head">

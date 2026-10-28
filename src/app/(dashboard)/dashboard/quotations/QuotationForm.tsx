@@ -9,6 +9,7 @@ import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import DocFormShell, { Sec, TotalsBox } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
+import ProjectClientFields from '@/components/registry/ProjectClientFields';
 import { type ProductOption } from '@/components/ProductPicker';
 import { DiscountEditor, ChargeEditor } from '@/components/DiscountChargeEditor';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount, sumTaxPercent } from '@/lib/discount-charge';
@@ -42,6 +43,7 @@ export default function QuotationForm({
   const [quoteDate, setQuoteDate] = useState(initial?.quote_date ?? new Date().toISOString().split('T')[0]);
   const [validityDate, setValidityDate] = useState(initial?.validity_date ?? '');
   const [boqProjectId, setBoqProjectId] = useState(initial?.boq_project_id ?? '');
+  const [projectName, setProjectName] = useState(initial?.project_name ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
   const [items, setItems] = useState<QuoteItemInput[]>(initial?.items?.length ? initial.items : [emptyItem()]);
   const [discounts, setDiscounts] = useState<DiscountLine[]>(initial?.discounts ?? []);
@@ -87,6 +89,7 @@ export default function QuotationForm({
   const total = afterDiscount + taxAmount + sumChargeAmount(charges);
 
   async function handleSave() {
+    if (mode === 'manual' && !projectName.trim()) return toast('Nama Project wajib diisi.', 'error');
     setSaving(true);
     const result = await saveQuotation({
       id: initial?.id,
@@ -94,6 +97,7 @@ export default function QuotationForm({
       quote_date: quoteDate,
       validity_date: validityDate || undefined,
       boq_project_id: mode === 'boq' ? boqProjectId : null,
+      project_name: mode === 'manual' ? projectName : undefined,
       client_id: clientId,
       discounts,
       charges,
@@ -144,14 +148,7 @@ export default function QuotationForm({
               />
             </FvField>
           ) : (
-            <FvField label="Client" required>
-              <SearchSelect
-                value={clientId}
-                onChange={(v) => setClientId(v)}
-                options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
-                placeholder="Cari client..."
-              />
-            </FvField>
+            <ProjectClientFields projectName={projectName} clientId={clientId} onProjectName={setProjectName} onClientId={setClientId} fallbackClients={clients} hideProject={mode === 'boq'} />
           )}
           <FvField label="Berlaku Sampai">
             <input type="date" value={validityDate} onChange={(e) => setValidityDate(e.target.value)} />

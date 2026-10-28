@@ -45,15 +45,18 @@ export async function saveProject(input: ProjectInput) {
     updated_at: new Date().toISOString(),
   };
 
-  const query = input.id
-    ? supabase.from('projects').update(payload).eq('id', input.id)
-    : supabase.from('projects').insert(payload);
-
-  const { error } = await query;
-  if (error) return { error: error.message };
+  let id = input.id;
+  if (id) {
+    const { error } = await supabase.from('projects').update(payload).eq('id', id);
+    if (error) return { error: error.message };
+  } else {
+    const { data, error } = await supabase.from('projects').insert(payload).select('id').single();
+    if (error) return { error: error.message };
+    id = data.id as string;
+  }
 
   revalidatePath('/dashboard/projects');
-  return { success: true };
+  return { success: true, id, name: payload.name, client_id: payload.client_id };
 }
 
 export async function deleteProject(id: string) {

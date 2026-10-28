@@ -28,6 +28,7 @@ export default async function EditQuotationPage({ params }: { params: { id: stri
     quote_date: quote.quote_date,
     validity_date: quote.validity_date ?? '',
     boq_project_id: quote.boq_project_id,
+    project_name: quote.project_name ?? '',
     client_id: quote.client_id,
     discounts: quote.discounts ?? [],
     charges: quote.charges ?? [],

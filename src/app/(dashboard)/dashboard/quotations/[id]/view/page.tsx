@@ -8,7 +8,7 @@ import { one } from '@/lib/print-helpers';
 export default async function QuotationViewPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const [{ data: q }, { data: items }] = await Promise.all([
-    supabase.from('quotations').select('id, doc_no, quote_date, validity_date, status, discounts, charges, total_amount, clients(project_name, company), boq_projects(project_name)').eq('id', params.id).single(),
+    supabase.from('quotations').select('id, doc_no, quote_date, validity_date, status, discounts, charges, total_amount, project_name, clients(project_name, company), boq_projects(project_name)').eq('id', params.id).single(),
     supabase.from('quotation_items').select('sku, description, qty, uom, unit_price, subtotal').eq('quotation_id', params.id).order('sort_order'),
   ]);
   if (!q) notFound();
@@ -25,6 +25,7 @@ export default async function QuotationViewPage({ params }: { params: { id: stri
         { icon: 'fi fi-rr-calendar-clock', label: 'Berlaku Sampai', value: dateShort(q.validity_date) },
         { icon: 'fi fi-rr-user', label: 'Client', value: client?.project_name ?? '-' },
         { icon: 'fa-solid fa-layer-group', label: 'BOQ Project', value: boq?.project_name ?? '-' },
+        { icon: 'fi fi-rr-briefcase', label: 'Nama Project', value: boq?.project_name ?? q.project_name ?? '-' },
       ]} />
       <DetailTableBlock t={{
         title: 'Daftar Item',

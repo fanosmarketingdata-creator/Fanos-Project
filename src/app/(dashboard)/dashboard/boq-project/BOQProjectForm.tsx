@@ -7,6 +7,7 @@ import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
+import ProjectClientFields from '@/components/registry/ProjectClientFields';
 import { type ProductOption } from '@/components/ProductPicker';
 import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import { saveBOQProject, type BOQAreaInput, type BOQProjectInput } from './actions';
@@ -142,17 +143,7 @@ export default function BOQProjectForm({
     >
       <Sec title="Informasi Project" icon="fi fi-rr-info">
         <div className="fv2-grid">
-          <FvField label="Nama Project" required>
-            <input value={projectName} onChange={(e) => setProjectName(e.target.value)} placeholder="Nama project" />
-          </FvField>
-          <FvField label="Client" required>
-            <SearchSelect
-              value={clientId}
-              onChange={(v) => setClientId(v)}
-              options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
-              placeholder="Cari client..."
-            />
-          </FvField>
+          <ProjectClientFields projectName={projectName} clientId={clientId} onProjectName={setProjectName} onClientId={setClientId} fallbackClients={clients} />
           <FvField label="Tanggal BOQ" required>
             <input type="date" value={boqDate} onChange={(e) => setBoqDate(e.target.value)} />
           </FvField>
