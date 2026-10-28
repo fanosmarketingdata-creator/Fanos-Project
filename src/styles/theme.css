@@ -242,18 +242,18 @@ main .overflow-x-auto.bg-white { border: 1px solid #e2e8f0; border-radius: 8px; 
   main table thead th { background: #f1f5f9; color: #475569; border-bottom: 1px solid #e2e8f0; }
   main table tbody tr:hover td { background: #f8fafc; }
   main table tbody tr:hover td:first-child { box-shadow: none; }
-  main table tbody td { border-bottom-color: #eef2f7; }
+  main table tbody td { border-bottom-color: #f6f8fc; }
 }
 
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) {
-  border: 1px solid #e2e8f0; border-left: 3px solid #1e3a8a; border-radius: 8px; box-shadow: none; transform: none;
+  border: 1px solid #e2e8f0; border-left: 3px solid #3563e9; border-radius: 8px; box-shadow: none; transform: none;
 }
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:hover { transform: none; box-shadow: none; }
 
 .client-card { border-radius: 8px; border-color: #e2e8f0; box-shadow: none; }
-.client-card:hover { border-color: #94a3b8; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
+.client-card:hover { border-color: #d3dae6; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
 .client-card-avatar { box-shadow: none; }
 .product-card:hover { transform: none; box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1); }
 .dv2-card:hover { transform: none; box-shadow: none; }
@@ -261,12 +261,12 @@ main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:hover { transform: none; 
 
 /* Tombol di halaman: solid navy, tanpa gradasi atau efek angkat. */
 main .btn, .card-header .btn { border-radius: 6px; }
-main .btn-primary, .card-header .btn-primary { background: #1e3a8a; }
-main .btn-primary:hover, .card-header .btn-primary:hover { background: #1e40af; transform: none; box-shadow: none; }
+main .btn-primary, .card-header .btn-primary { background: #3563e9; }
+main .btn-primary:hover, .card-header .btn-primary:hover { background: #2b52cc; transform: none; box-shadow: none; }
 main .btn-secondary { background: #fff; border: 1px solid #cbd5e1; color: #334155; }
 main .search-box input, main .card-header select { border-radius: 6px; }
-main button.bg-brand-500, main a.bg-brand-500, main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #1e3a8a; border-radius: 6px; transform: none; box-shadow: none; }
-main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #1e40af; }
+main button.bg-brand-500, main a.bg-brand-500, main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #3563e9; border-radius: 6px; transform: none; box-shadow: none; }
+main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: #2b52cc; }
 
 /* ---- Penyeragaman: judul halaman, kartu, input, dan Overview ---- */
 main .page-title { color: #0f172a; font-size: 15px; border-bottom: 1px solid #e2e8f0; }
@@ -278,14 +278,14 @@ main select,
 main textarea { border-width: 1px; border-color: #cbd5e1; border-radius: 6px; background-color: #fff; }
 main input:not([type='checkbox']):not([type='radio']):not([type='file']):focus,
 main select:focus,
-main textarea:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); }
+main textarea:focus { border-color: #3563e9; box-shadow: 0 0 0 3px rgba(53, 99, 233, 0.12); }
 main input[placeholder^='Cari'] { border-radius: 6px; }
 main label.text-xs.font-semibold, main label.text-slate-500 { text-transform: none; letter-spacing: 0; font-size: 12px; font-weight: 600; color: #475569; }
 main button.border-slate-200 { border-radius: 6px; }
 main td button[class*='bg-'][class*='-50']:hover, main td a[class*='bg-'][class*='-50']:hover { transform: none; box-shadow: none; }
 
 .dash-kpi, .dash-panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 8px; }
-a:hover > .dash-kpi { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); border-color: #94a3b8; }
+a:hover > .dash-kpi { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); border-color: #d3dae6; }
 .dash-kpi-icon, .dash-activity-icon { background: #f1f5f9 !important; color: #475569 !important; border-radius: 6px; }
 .dash-kpi-val { color: #0f172a !important; font-weight: 700; }
 .dash-kpi-lbl { color: #64748b; }
@@ -293,26 +293,108 @@ a:hover > .dash-kpi { transform: none; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.
 .dash-section-title i, .dash-panel-title i { color: #64748b; }
 
 /* ---- Penegasan warna & kontras halaman (lebih tegas, tetap formal) ---- */
-body, main { background-color: #eef2f7; }
-.card-header h3 { color: #1e3a8a; font-weight: 700; }
-.card-header h3 i { color: #1e3a8a !important; }
+body, main { background-color: #f6f8fc; }
+.card-header h3 { color: #3563e9; font-weight: 700; }
+.card-header h3 i { color: #3563e9 !important; }
 .card-header { border-bottom-color: #cbd5e1; }
-main .page-title { color: #1e3a8a; border-bottom-color: #cbd5e1; }
-main .page-title i { color: #1e3a8a; }
-main .overflow-x-auto.bg-white { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
+main .page-title { color: #3563e9; border-bottom-color: #cbd5e1; }
+main .page-title i { color: #3563e9; }
+main .overflow-x-auto.bg-white { border-color: #e5e9f2; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.08); }
 @media screen and (min-width: 768px) {
-  main table thead tr, main table thead th { background: #dde6f4; color: #1e3a8a; border-bottom: 1px solid #c3d0e4; }
-  main table tbody tr:hover td { background: #eaf1fd; }
+  main table thead tr, main table thead th { background: #f1f5fc; color: #3563e9; border-bottom: 1px solid #e5e9f2; }
+  main table tbody tr:hover td { background: #f3f6ff; }
   main table tbody td { border-bottom-color: #e3e9f2; }
 }
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
 main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
-main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { border-color: #cdd7e4; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
-.client-card { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
-.client-card:hover { border-color: #1e3a8a; }
-main .bg-white.rounded-xl, main .bg-white.rounded-2xl, .dash-kpi, .dash-panel { border-color: #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
-.dash-kpi-icon { background: #dbe6fb !important; color: #1e3a8a !important; }
-.dash-section-title, .dash-panel-title { color: #1e3a8a; }
-.dash-section-title i, .dash-panel-title i { color: #1e3a8a; }
-main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), main select, main textarea { border-color: #94a3b8; }
-main .btn-secondary { border-color: #94a3b8; }
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { border-color: #e5e9f2; border-left: 4px solid #3563e9; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.client-card { border-color: #e5e9f2; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+.client-card:hover { border-color: #3563e9; }
+main .bg-white.rounded-xl, main .bg-white.rounded-2xl, .dash-kpi, .dash-panel { border-color: #e5e9f2; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.06); }
+.dash-kpi-icon { background: #eaf0ff !important; color: #3563e9 !important; }
+.dash-section-title, .dash-panel-title { color: #3563e9; }
+.dash-section-title i, .dash-panel-title i { color: #3563e9; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), main select, main textarea { border-color: #d3dae6; }
+main .btn-secondary { border-color: #d3dae6; }
+
+/* ============================================================
+   TAMPILAN MODERN halaman: segar, lapang, lembut.
+============================================================ */
+body, main { background-color: #f5f8fd; }
+main { background-image: radial-gradient(900px 320px at 100% -10%, rgba(47, 107, 240, 0.06), transparent 70%); }
+.card-header h3, main .page-title { color: #0f1b33; font-size: 16px; font-weight: 700; }
+.card-header h3 i, main .page-title i { color: #2f6bf0 !important; background: #eef4ff; width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 14px !important; margin-right: 0; }
+.card-header, main .page-title { border-bottom: 1px solid #e5eaf3; }
+
+main .overflow-x-auto.bg-white { border: 1px solid #e5eaf3; border-radius: 16px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04), 0 14px 34px -22px rgba(47, 107, 240, 0.28); }
+@media screen and (min-width: 768px) {
+  main table thead tr, main table thead th { background: #f3f7ff; color: #4a67a8; border-bottom: 1px solid #e1e9f8; letter-spacing: .5px; }
+  main table tbody tr:hover td { background: #f6f9ff; }
+  main table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 #2f6bf0; }
+  main table tbody td { border-bottom-color: #edf1f8; }
+}
+
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { background: #fff; border: 1px solid #e5eaf3; border-left: 4px solid #2f6bf0; border-radius: 14px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04), 0 10px 26px -20px rgba(47, 107, 240, 0.35); }
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2) { border-left-color: #10b981; }
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { border-left-color: #f59e0b; }
+
+.client-card { border-color: #e5eaf3; border-radius: 14px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04); }
+.client-card:hover { border-color: #b9ccf5; box-shadow: 0 14px 30px -18px rgba(47, 107, 240, 0.4); transform: translateY(-1px); }
+.client-card-avatar { background: linear-gradient(135deg, #e6efff, #d7e5ff); color: #2459d6; }
+.product-card:hover { box-shadow: 0 16px 34px -18px rgba(47, 107, 240, 0.4); }
+
+main .btn, .card-header .btn { border-radius: 10px; }
+main .btn-primary, .card-header .btn-primary { background: linear-gradient(135deg, #3b7bff, #2459d6); box-shadow: 0 6px 16px -8px rgba(47, 107, 240, 0.6); }
+main .btn-primary:hover, .card-header .btn-primary:hover { background: linear-gradient(135deg, #4a86ff, #2a63e6); box-shadow: 0 8px 20px -8px rgba(47, 107, 240, 0.65); transform: translateY(-1px); }
+main .btn-secondary { background: #fff; border: 1px solid #d5deec; color: #334155; }
+main .btn-secondary:hover { background: #eef4ff; border-color: #b9ccf5; color: #2459d6; }
+main button.bg-brand-500, main a.bg-brand-500 { background: linear-gradient(135deg, #3b7bff, #2459d6); border-radius: 10px; box-shadow: 0 6px 16px -8px rgba(47, 107, 240, 0.6); }
+main button.bg-brand-500:hover:not(:disabled), main a.bg-brand-500:hover { background: linear-gradient(135deg, #4a86ff, #2a63e6); transform: translateY(-1px); box-shadow: 0 8px 20px -8px rgba(47, 107, 240, 0.65); }
+
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), main select, main textarea { border-color: #d5deec; border-radius: 10px; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):focus, main select:focus, main textarea:focus { border-color: #2f6bf0; box-shadow: 0 0 0 4px rgba(47, 107, 240, 0.14); }
+main input[placeholder^='Cari'], main .search-box input { border-radius: 999px; }
+
+.dash-kpi, .dash-panel { border: 1px solid #e5eaf3; border-radius: 16px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04), 0 12px 28px -22px rgba(47, 107, 240, 0.3); }
+a:hover > .dash-kpi { transform: translateY(-2px); box-shadow: 0 16px 32px -20px rgba(47, 107, 240, 0.45); border-color: #b9ccf5; }
+.dash-kpi-icon { background: #eef4ff !important; color: #2f6bf0 !important; border-radius: 12px; }
+.dash-section-title, .dash-panel-title { color: #0f1b33; }
+.dash-section-title i, .dash-panel-title i { color: #2f6bf0; }
+main main, main .overflow-x-auto { scrollbar-color: #c3d1ea transparent; }
+* { scrollbar-color: #c3d1ea transparent; }
+::-webkit-scrollbar-thumb { background: #c3d1ea; }
+::selection { background: rgba(47, 107, 240, 0.2); }
+
+/* ---- TEMA MODERN (halaman) ---- */
+body, main { background-color: #f6f8fc; }
+.card-header h3 { color: #0f172a; font-size: 16px; }
+.card-header h3 i { color: #3563e9 !important; }
+.card-header h3::before { display: none; }
+.card-header { border-bottom: 1px solid #edf0f6; }
+main .page-title { color: #0f172a; border-bottom-color: #edf0f6; }
+main .page-title i { color: #3563e9; }
+main .overflow-x-auto.bg-white { border: 1px solid #e8ecf4; border-radius: 14px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 10px 30px -18px rgba(53, 99, 233, 0.25); }
+@media screen and (min-width: 768px) {
+  main table thead tr, main table thead th { background: #f7f9fd; color: #64748b; border-bottom: 1px solid #edf0f6; font-weight: 600; }
+  main table tbody tr:hover td { background: #f6f9ff; }
+  main table tbody tr:hover td:first-child { box-shadow: inset 3px 0 0 #3563e9; }
+  main table tbody td { border-bottom-color: #f0f3f9; }
+}
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white,
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(2),
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white:nth-child(3) { border: 1px solid #e8ecf4; border-radius: 14px; box-shadow: 0 6px 20px -14px rgba(53, 99, 233, 0.3); background: linear-gradient(135deg, #ffffff, #f5f8ff); }
+main .bg-white.rounded-xl, main .bg-white.rounded-2xl, .dash-kpi, .dash-panel { border-color: #e8ecf4; border-radius: 14px; box-shadow: 0 6px 20px -16px rgba(53, 99, 233, 0.3); }
+.dash-kpi-icon { background: #eaf0ff !important; color: #3563e9 !important; border-radius: 12px; }
+.dash-section-title, .dash-panel-title { color: #0f172a; }
+.dash-section-title i, .dash-panel-title i { color: #3563e9; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):not([type='range']), main select, main textarea { border-color: #dfe5ef; border-radius: 10px; }
+main input:not([type='checkbox']):not([type='radio']):not([type='file']):focus, main select:focus, main textarea:focus { border-color: #3563e9; box-shadow: 0 0 0 4px rgba(53, 99, 233, 0.12); }
+main .btn, .card-header .btn, main button.bg-brand-500, main a.bg-brand-500 { border-radius: 10px; }
+main .btn-primary, .card-header .btn-primary, main button.bg-brand-500, main a.bg-brand-500 { background: linear-gradient(180deg, #4a76f7, #3563e9); box-shadow: 0 4px 12px -4px rgba(53, 99, 233, 0.55); }
+main .btn-primary:hover, .card-header .btn-primary:hover { background: linear-gradient(180deg, #4170f3, #2f5ad8); transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(53, 99, 233, 0.65); }
+main .btn-secondary { background: #fff; border-color: #dfe5ef; color: #475569; }
+.client-card:hover { border-color: #b8caf9; }
+main .search-box input, main .card-header select { border-radius: 999px; }
+::selection { background: rgba(53, 99, 233, 0.18); }

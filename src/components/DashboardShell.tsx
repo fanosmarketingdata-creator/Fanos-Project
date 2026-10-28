@@ -60,7 +60,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
                   href={c.href}
                   role="menuitem"
                   className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
-                    a ? 'bg-[#1e3a8a] text-white' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+                    a ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-100' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
                   }`}
                 >
                   <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
@@ -264,7 +264,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#eef2f7] print:block print:bg-white">
+    <div className="flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white">
       {loggingOut && (
         <div className="login-overlay print:hidden" role="status" aria-live="polite">
           <div className="spinner" />
@@ -278,7 +278,7 @@ export default function DashboardShell({
       <IdleLogout />
       <ResponsiveTables />
 
-      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b-2 border-[#1e3a8a] bg-white px-3 py-2.5 sm:gap-3 sm:px-4 print:hidden">
+      <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200/80 bg-white/90 px-3 py-2.5 shadow-[0_8px_24px_-20px_rgba(47,107,240,0.5)] backdrop-blur sm:gap-3 sm:px-4 print:hidden">
         <button
           type="button"
           onClick={() => setMobileOpen((v) => !v)}
@@ -299,12 +299,12 @@ export default function DashboardShell({
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-md px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
               groupActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                 : openId === group.id
-                  ? 'bg-slate-100 text-[#1e3a8a]'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-[#1e3a8a]'
+                  ? 'bg-slate-100 text-blue-600'
+                  : 'text-slate-600 hover:bg-slate-100 hover:text-blue-600'
             }`;
 
             if (group.direct) {

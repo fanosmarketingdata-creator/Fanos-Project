@@ -98,7 +98,7 @@ export default async function DashboardPage() {
                   className="w-full rounded-t-md"
                   style={{
                     height: `${Math.max((b.total / maxTotal) * 80, b.total > 0 ? 3 : 0)}%`,
-                    background: '#1e3a8a',
+                    background: '#3563e9',
                   }}
                 />
                 <div className="text-[11px] text-slate-500">{b.label}</div>

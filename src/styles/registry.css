@@ -707,7 +707,7 @@
 .badge-approved, .badge-accepted, .badge-completed, .badge-active, .badge-paid, .badge-delivered, .badge-received, .badge-open { background: #dcfce7; color: #166534; }
 .badge-inactive, .badge-unpaid, .badge-cancelled, .badge-rejected, .badge-overdue { background: #fee2e2; color: #991b1b; }
 .badge-out-for-delivery, .badge-partially-delivered, .badge-partial, .badge-ordered, .badge-in-progress, .badge-inprogress, .badge-pending { background: #fef3c7; color: #92400e; }
-.badge-resolved, .badge-issued { background: #dbeafe; color: #1e40af; }
+.badge-resolved, .badge-issued { background: #dbeafe; color: #2b52cc; }
 
 .btn-print { background: #ede9fe; color: #7c3aed; }
 .btn-print:hover { background: #7c3aed; color: #fff; box-shadow: 0 3px 10px rgba(124, 58, 237, 0.3); }
@@ -840,8 +840,8 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 
 /* Tombol: solid navy tanpa gradasi. */
 .modal:not(.modal-delete) .btn { border-radius: 6px; font-weight: 600; box-shadow: none; }
-.modal:not(.modal-delete) .btn-primary { background: #1e3a8a; color: #fff; }
-.modal:not(.modal-delete) .btn-primary:hover { background: #1e40af; transform: none; box-shadow: none; }
+.modal:not(.modal-delete) .btn-primary { background: #3563e9; color: #fff; }
+.modal:not(.modal-delete) .btn-primary:hover { background: #2b52cc; transform: none; box-shadow: none; }
 .modal:not(.modal-delete) .btn-secondary { background: #fff; color: #334155; border: 1px solid #cbd5e1; }
 .modal:not(.modal-delete) .btn-secondary:hover { background: #f1f5f9; }
 
@@ -860,14 +860,14 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .modal:not(.modal-delete) .fv2-field select:focus,
 .modal:not(.modal-delete) .fv2-field textarea:focus,
 .modal:not(.modal-delete) .fv2-item-row input:focus,
-.modal:not(.modal-delete) .fv2-item-row select:focus { border-color: #1e3a8a; box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); }
+.modal:not(.modal-delete) .fv2-item-row select:focus { border-color: #3563e9; box-shadow: 0 0 0 3px rgba(53, 99, 233, 0.12); }
 .modal:not(.modal-delete) .fv2-field input[readonly],
 .modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #f1f5f9; color: #64748b; }
 .modal:not(.modal-delete) .fv2-item-row { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px; }
 .modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; }
 .modal:not(.modal-delete) .fv2-add-btn,
 .modal:not(.modal-delete) .fv2-add-btn.green,
-.modal:not(.modal-delete) .fv2-add-btn.amber { background: #fff; color: #1e3a8a; border: 1px solid #cbd5e1; border-radius: 6px; }
+.modal:not(.modal-delete) .fv2-add-btn.amber { background: #fff; color: #3563e9; border: 1px solid #cbd5e1; border-radius: 6px; }
 .modal:not(.modal-delete) .fv2-add-btn:hover { background: #f1f5f9; }
 .modal:not(.modal-delete) .fv2-del-btn { background: #fff; color: #b91c1c; border: 1px solid #e2e8f0; border-radius: 6px; }
 .modal:not(.modal-delete) .fv2-del-btn:hover { background: #fef2f2; color: #b91c1c; }
@@ -878,7 +878,7 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .modal:not(.modal-delete) .fv2-sub-head i, .modal:not(.modal-delete) .dv2-sub-title i { color: #64748b; }
 
 /* Detail: kartu data datar, ikon abu-abu kecil, judul dokumen tenang. */
-.modal:not(.modal-delete) .dv2-topbar { background: #fff; border: 1px solid #e2e8f0; border-left: 3px solid #1e3a8a; border-radius: 8px; }
+.modal:not(.modal-delete) .dv2-topbar { background: #fff; border: 1px solid #e2e8f0; border-left: 3px solid #3563e9; border-radius: 8px; }
 .modal:not(.modal-delete) .dv2-topbar-id { color: #64748b; }
 .modal:not(.modal-delete) .dv2-topbar-title { color: #0f172a; }
 .modal:not(.modal-delete) .dv2-topbar-amount .val { color: #0f172a; }
@@ -893,10 +893,10 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .modal:not(.modal-delete) .dv2-summary-row.charge { color: #334155; }
 .modal:not(.modal-delete) .dv2-table-wrap { background: #fff; border-color: #e2e8f0; border-radius: 8px; }
 .modal:not(.modal-delete) table.dv2-table thead th { background: #f1f5f9; color: #475569; border-bottom: 1px solid #e2e8f0; }
-.modal:not(.modal-delete) table.dv2-table tbody td { border-bottom-color: #eef2f7; }
+.modal:not(.modal-delete) table.dv2-table tbody td { border-bottom-color: #f6f8fc; }
 .modal:not(.modal-delete) table.dv2-table tbody tr:hover td { background: #f8fafc; }
-.modal:not(.modal-delete) .fv2-upload-box:hover { border-color: #1e3a8a; background: #f8fafc; }
-.modal:not(.modal-delete) .dv2-loading .spinner { border-color: #e2e8f0; border-top-color: #1e3a8a; }
+.modal:not(.modal-delete) .fv2-upload-box:hover { border-color: #3563e9; background: #f8fafc; }
+.modal:not(.modal-delete) .dv2-loading .spinner { border-color: #e2e8f0; border-top-color: #3563e9; }
 
 @media (max-width: 768px) {
   .modal:not(.modal-delete) .fv2-section { padding: 14px; }
@@ -908,29 +908,152 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .modal-full-overlay, .modal-full-overlay .modal-full { animation: none !important; }
 
 /* ---- Penegasan warna & kontras (lebih tegas, tetap formal) ---- */
-.modal:not(.modal-delete) .modal-header { background: #1e3a8a; border-bottom: 0; }
+.modal:not(.modal-delete) .modal-header { background: #3563e9; border-bottom: 0; }
 .modal:not(.modal-delete) .modal-header h3, .modal:not(.modal-delete) .modal-header h3 i { color: #fff; }
 .modal:not(.modal-delete) .modal-close { color: #dbe4ff; }
 .modal:not(.modal-delete) .modal-close:hover { background: rgba(255, 255, 255, 0.16); color: #fff; }
-.modal:not(.modal-delete) .modal-body { background: #e9eef6; }
+.modal:not(.modal-delete) .modal-body { background: #f4f6fb; }
 .modal:not(.modal-delete) .modal-footer { background: #f8fafc; border-top: 1px solid #cbd5e1; }
-.modal:not(.modal-delete) .fv2-section { border: 1px solid #cdd7e4; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
-.modal:not(.modal-delete) .fv2-section-title { color: #1e3a8a; border-bottom: 1px solid #dbe3ee; }
-.modal:not(.modal-delete) .fv2-section-title::before { content: ''; width: 4px; height: 15px; border-radius: 2px; background: #1e3a8a; flex-shrink: 0; }
-.modal:not(.modal-delete) .fv2-section-title i { color: #1e3a8a; }
+.modal:not(.modal-delete) .fv2-section { border: 1px solid #e5e9f2; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.modal:not(.modal-delete) .fv2-section-title { color: #3563e9; border-bottom: 1px solid #dbe3ee; }
+.modal:not(.modal-delete) .fv2-section-title::before { content: ''; width: 4px; height: 15px; border-radius: 2px; background: #3563e9; flex-shrink: 0; }
+.modal:not(.modal-delete) .fv2-section-title i { color: #3563e9; }
 .modal:not(.modal-delete) .fv2-field label { color: #1e293b; }
 .modal:not(.modal-delete) .fv2-field input,
 .modal:not(.modal-delete) .fv2-field select,
-.modal:not(.modal-delete) .fv2-field textarea { border-color: #94a3b8; }
-.modal:not(.modal-delete) .fv2-field input[readonly], .modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #eef2f7; color: #475569; }
-.modal:not(.modal-delete) .dv2-topbar { border: 1px solid #cdd7e4; border-left: 4px solid #1e3a8a; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
-.modal:not(.modal-delete) .dv2-topbar-id { color: #1e3a8a; }
-.modal:not(.modal-delete) .dv2-card { border: 1px solid #cdd7e4; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
-.modal:not(.modal-delete) .dv2-card-icon { background: #dbe6fb; color: #1e3a8a; }
+.modal:not(.modal-delete) .fv2-field textarea { border-color: #d3dae6; }
+.modal:not(.modal-delete) .fv2-field input[readonly], .modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #f6f8fc; color: #475569; }
+.modal:not(.modal-delete) .dv2-topbar { border: 1px solid #e5e9f2; border-left: 4px solid #3563e9; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.07); }
+.modal:not(.modal-delete) .dv2-topbar-id { color: #3563e9; }
+.modal:not(.modal-delete) .dv2-card { border: 1px solid #e5e9f2; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+.modal:not(.modal-delete) .dv2-card-icon { background: #eaf0ff; color: #3563e9; }
 .modal:not(.modal-delete) .dv2-card-label { color: #475569; }
-.modal:not(.modal-delete) .dv2-section-title { color: #1e3a8a; border-bottom: 1px solid #cbd5e1; }
-.modal:not(.modal-delete) .dv2-section-title i { color: #1e3a8a; }
-.modal:not(.modal-delete) .dv2-table-wrap, .modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-color: #cdd7e4; }
-.modal:not(.modal-delete) table.dv2-table thead th { background: #dde6f4; color: #1e3a8a; border-bottom: 1px solid #c3d0e4; }
-.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #fff; border-color: #cdd7e4; }
-.modal:not(.modal-delete) .fv2-item-row { background: #f1f5fa; border-color: #cdd7e4; }
+.modal:not(.modal-delete) .dv2-section-title { color: #3563e9; border-bottom: 1px solid #cbd5e1; }
+.modal:not(.modal-delete) .dv2-section-title i { color: #3563e9; }
+.modal:not(.modal-delete) .dv2-table-wrap, .modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-color: #e5e9f2; }
+.modal:not(.modal-delete) table.dv2-table thead th { background: #f1f5fc; color: #3563e9; border-bottom: 1px solid #e5e9f2; }
+.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #fff; border-color: #e5e9f2; }
+.modal:not(.modal-delete) .fv2-item-row { background: #f1f5fa; border-color: #e5e9f2; }
+
+/* ============================================================
+   TAMPILAN MODERN: segar, lapang, lembut.
+   Biru cerah sebagai warna utama, latar terang, sudut membulat, bayangan halus.
+============================================================ */
+:root { --f-primary: #2f6bf0; --f-primary-d: #2459d6; --f-tint: #eef4ff; --f-line: #e5eaf3; --f-bg: #f5f8fd; --f-ink: #0f1b33; --f-muted: #64748b; }
+
+.modal:not(.modal-delete) { border-radius: 16px; box-shadow: 0 30px 80px -20px rgba(30, 64, 175, 0.28), 0 8px 24px -8px rgba(15, 27, 51, 0.12); }
+.modal-full { border-radius: 0 !important; }
+.modal:not(.modal-delete) .modal-header { background: #fff; border-bottom: 1px solid var(--f-line); padding: 16px 26px; }
+.modal:not(.modal-delete) .modal-header h3 { color: var(--f-ink); font-size: 16px; font-weight: 700; }
+.modal:not(.modal-delete) .modal-header h3 i { color: var(--f-primary); background: var(--f-tint); width: 32px; height: 32px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-size: 15px; }
+.modal:not(.modal-delete) .modal-close { color: var(--f-muted); background: #f1f5fb; border-radius: 10px; }
+.modal:not(.modal-delete) .modal-close:hover { background: #e4ecfb; color: var(--f-ink); }
+.modal:not(.modal-delete) .modal-body { background: var(--f-bg); }
+.modal:not(.modal-delete) .modal-footer { background: #fff; border-top: 1px solid var(--f-line); padding: 14px 26px; }
+
+.modal:not(.modal-delete) .btn { border-radius: 10px; font-weight: 600; padding: 9px 20px; }
+.modal:not(.modal-delete) .btn-primary { background: linear-gradient(135deg, #3b7bff, var(--f-primary-d)); box-shadow: 0 6px 16px -6px rgba(47, 107, 240, 0.55); }
+.modal:not(.modal-delete) .btn-primary:hover { background: linear-gradient(135deg, #4a86ff, #2a63e6); box-shadow: 0 8px 20px -6px rgba(47, 107, 240, 0.6); transform: translateY(-1px); }
+.modal:not(.modal-delete) .btn-secondary { background: #fff; color: #334155; border: 1px solid #d5deec; }
+.modal:not(.modal-delete) .btn-secondary:hover { background: var(--f-tint); border-color: #b9ccf5; color: var(--f-primary-d); }
+
+.modal:not(.modal-delete) .fv2-section { background: #fff; border: 1px solid var(--f-line); border-radius: 14px; padding: 20px 22px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04), 0 8px 24px -16px rgba(47, 107, 240, 0.18); }
+.modal:not(.modal-delete) .fv2-section .fv2-section { background: none; border: 0; box-shadow: none; padding: 0; }
+.modal:not(.modal-delete) .fv2-section-title { color: var(--f-ink); font-size: 14px; border-bottom: 1px solid #edf1f8; }
+.modal:not(.modal-delete) .fv2-section-title::before { display: none; }
+.modal:not(.modal-delete) .fv2-section-title i { color: var(--f-primary); background: var(--f-tint); width: 26px; height: 26px; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; }
+.modal:not(.modal-delete) .fv2-field label { color: #475569; }
+.modal:not(.modal-delete) .fv2-field input,
+.modal:not(.modal-delete) .fv2-field select,
+.modal:not(.modal-delete) .fv2-field textarea,
+.modal:not(.modal-delete) .fv2-item-row input,
+.modal:not(.modal-delete) .fv2-item-row select { border: 1px solid #d5deec; border-radius: 10px; background: #fff; }
+.modal:not(.modal-delete) .fv2-field input:hover, .modal:not(.modal-delete) .fv2-field select:hover, .modal:not(.modal-delete) .fv2-field textarea:hover { border-color: #b4c4e0; }
+.modal:not(.modal-delete) .fv2-field input:focus,
+.modal:not(.modal-delete) .fv2-field select:focus,
+.modal:not(.modal-delete) .fv2-field textarea:focus,
+.modal:not(.modal-delete) .fv2-item-row input:focus,
+.modal:not(.modal-delete) .fv2-item-row select:focus { border-color: var(--f-primary); box-shadow: 0 0 0 4px rgba(47, 107, 240, 0.14); }
+.modal:not(.modal-delete) .fv2-field input[readonly], .modal:not(.modal-delete) .fv2-field textarea[readonly] { background: #f1f5fb; color: var(--f-muted); }
+.modal:not(.modal-delete) .fv2-item-row { background: #f7f9fe; border: 1px solid var(--f-line); border-radius: 12px; }
+.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { background: #fff; border: 1px solid var(--f-line); border-radius: 14px; }
+.modal:not(.modal-delete) .fv2-add-btn, .modal:not(.modal-delete) .fv2-add-btn.green, .modal:not(.modal-delete) .fv2-add-btn.amber { background: var(--f-tint); color: var(--f-primary-d); border: 1px dashed #a9c2f7; border-radius: 10px; }
+.modal:not(.modal-delete) .fv2-add-btn:hover { background: #e0ebff; }
+.modal:not(.modal-delete) .fv2-del-btn { background: #fff1f2; color: #e11d48; border: 0; border-radius: 10px; }
+.modal:not(.modal-delete) .fv2-del-btn:hover { background: #ffe4e8; }
+.modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-color: var(--f-line); border-radius: 14px; }
+.modal:not(.modal-delete) .fv2-area-head, .modal:not(.modal-delete) .dv2-area-head { background: #f7f9fe; }
+.modal:not(.modal-delete) .fv2-area-head .ico, .modal:not(.modal-delete) .dv2-area-head .ico { background: var(--f-tint); color: var(--f-primary); border-radius: 10px; }
+.modal:not(.modal-delete) .dv2-area-head .nm { color: var(--f-ink); }
+
+.modal:not(.modal-delete) .dv2-topbar { background: linear-gradient(135deg, #f1f6ff, #ffffff); border: 1px solid #d9e5fb; border-left: 4px solid var(--f-primary); border-radius: 14px; box-shadow: 0 8px 24px -16px rgba(47, 107, 240, 0.35); }
+.modal:not(.modal-delete) .dv2-topbar-id { color: var(--f-primary); }
+.modal:not(.modal-delete) .dv2-topbar-title, .modal:not(.modal-delete) .dv2-topbar-amount .val { color: var(--f-ink); }
+.modal:not(.modal-delete) .dv2-card { background: #fff; border: 1px solid var(--f-line); border-radius: 12px; box-shadow: 0 1px 2px rgba(15, 27, 51, 0.04); }
+.modal:not(.modal-delete) .dv2-card-icon { background: var(--f-tint); color: var(--f-primary); border-radius: 10px; width: 34px; height: 34px; }
+.modal:not(.modal-delete) .dv2-card-label { color: var(--f-muted); }
+.modal:not(.modal-delete) .dv2-card-value { color: var(--f-ink); }
+.modal:not(.modal-delete) .dv2-section-title { color: var(--f-ink); border-bottom: 1px solid #e3e9f4; }
+.modal:not(.modal-delete) .dv2-section-title i { color: var(--f-primary); }
+.modal:not(.modal-delete) .dv2-table-wrap { border-color: var(--f-line); border-radius: 14px; background: #fff; }
+.modal:not(.modal-delete) table.dv2-table thead th { background: #f1f6ff; color: #3a5ea8; border-bottom: 1px solid #dfe8f8; }
+.modal:not(.modal-delete) table.dv2-table tbody tr:hover td { background: #f7faff; }
+.modal:not(.modal-delete) .dv2-loading .spinner { border-color: #eaf0ff; border-top-color: var(--f-primary); }
+
+/* Kartu master & badge: lebih lembut. */
+.client-card { border-radius: 14px; }
+.badge { border-radius: 999px; }
+
+/* ============================================================
+   TEMA MODERN: bersih, segar, lembut. Satu warna merek (biru cerah),
+   permukaan putih, latar abu sangat muda, sudut membulat, bayangan halus.
+============================================================ */
+.modal:not(.modal-delete) { border-radius: 16px; }
+.modal-full { border-radius: 0 !important; }
+.modal:not(.modal-delete) .modal-header { background: #fff; border-bottom: 1px solid #edf0f6; padding: 16px 28px; }
+.modal:not(.modal-delete) .modal-header h3, .modal:not(.modal-delete) .modal-header h3 i { color: #0f172a; }
+.modal:not(.modal-delete) .modal-header h3 { font-size: 16px; font-weight: 700; gap: 10px; }
+.modal:not(.modal-delete) .modal-header h3 i { display: inline-flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 10px; background: #eaf0ff; color: #3563e9; font-size: 15px; }
+.modal:not(.modal-delete) .modal-close { color: #64748b; }
+.modal:not(.modal-delete) .modal-close:hover { background: #f1f5f9; color: #0f172a; }
+.modal:not(.modal-delete) .modal-body { background: #f6f8fc; }
+.modal:not(.modal-delete) .modal-footer { background: #fff; border-top: 1px solid #edf0f6; padding: 14px 28px; }
+.modal:not(.modal-delete) .fv2-section { border: 1px solid #e8ecf4; border-radius: 14px; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03), 0 6px 20px -12px rgba(53, 99, 233, 0.12); padding: 20px 22px; }
+.modal:not(.modal-delete) .fv2-section-title { color: #0f172a; border-bottom: 1px solid #f0f2f8; }
+.modal:not(.modal-delete) .fv2-section-title::before { width: 3px; height: 14px; background: linear-gradient(180deg, #4f7bff, #3563e9); }
+.modal:not(.modal-delete) .fv2-section-title i { color: #3563e9; }
+.modal:not(.modal-delete) .fv2-field label { color: #475569; font-weight: 600; }
+.modal:not(.modal-delete) .fv2-field input,
+.modal:not(.modal-delete) .fv2-field select,
+.modal:not(.modal-delete) .fv2-field textarea,
+.modal:not(.modal-delete) .fv2-item-row input,
+.modal:not(.modal-delete) .fv2-item-row select { border-radius: 10px; border-color: #dfe5ef; background: #fff; }
+.modal:not(.modal-delete) .fv2-field input:hover, .modal:not(.modal-delete) .fv2-field select:hover { border-color: #b9c4d8; }
+.modal:not(.modal-delete) .fv2-field input:focus, .modal:not(.modal-delete) .fv2-field select:focus, .modal:not(.modal-delete) .fv2-field textarea:focus { border-color: #3563e9; box-shadow: 0 0 0 4px rgba(53, 99, 233, 0.12); }
+.modal:not(.modal-delete) .fv2-field input[readonly] { background: #f3f5fa; color: #64748b; }
+.modal:not(.modal-delete) .fv2-item-row { background: #f8faff; border-color: #e8ecf4; border-radius: 10px; }
+.modal:not(.modal-delete) .btn { border-radius: 10px; }
+.modal:not(.modal-delete) .btn-primary { background: linear-gradient(180deg, #4a76f7, #3563e9); box-shadow: 0 4px 12px -4px rgba(53, 99, 233, 0.55); }
+.modal:not(.modal-delete) .btn-primary:hover { background: linear-gradient(180deg, #4170f3, #2f5ad8); box-shadow: 0 6px 16px -6px rgba(53, 99, 233, 0.6); }
+.modal:not(.modal-delete) .btn-secondary { border-color: #dfe5ef; color: #475569; }
+.modal:not(.modal-delete) .fv2-add-btn, .modal:not(.modal-delete) .fv2-add-btn.green, .modal:not(.modal-delete) .fv2-add-btn.amber { background: #eaf0ff; color: #3563e9; border: 0; border-radius: 10px; }
+.modal:not(.modal-delete) .fv2-add-btn:hover { background: #dbe6ff; }
+.modal:not(.modal-delete) .fv2-del-btn { border-radius: 10px; border-color: #f0d9dc; background: #fff5f5; }
+.modal:not(.modal-delete) .fv2-summary, .modal:not(.modal-delete) .dv2-summary { border-radius: 12px; border-color: #e8ecf4; background: #fff; }
+.modal:not(.modal-delete) .dv2-topbar { border: 1px solid #e8ecf4; border-left: 4px solid #3563e9; border-radius: 14px; box-shadow: 0 6px 20px -12px rgba(53, 99, 233, 0.18); }
+.modal:not(.modal-delete) .dv2-topbar-id { color: #3563e9; }
+.modal:not(.modal-delete) .dv2-card { border-color: #e8ecf4; border-radius: 12px; box-shadow: none; }
+.modal:not(.modal-delete) .dv2-card-icon { background: #eaf0ff; color: #3563e9; border-radius: 10px; }
+.modal:not(.modal-delete) .dv2-card-label { color: #64748b; }
+.modal:not(.modal-delete) .dv2-section-title { color: #0f172a; border-bottom-color: #e8ecf4; }
+.modal:not(.modal-delete) .dv2-section-title i { color: #3563e9; }
+.modal:not(.modal-delete) .dv2-table-wrap, .modal:not(.modal-delete) .fv2-area, .modal:not(.modal-delete) .dv2-area { border-color: #e8ecf4; border-radius: 12px; }
+.modal:not(.modal-delete) table.dv2-table thead th { background: #f4f7fd; color: #64748b; border-bottom: 1px solid #e8ecf4; }
+.modal:not(.modal-delete) table.dv2-table tbody tr:hover td { background: #f8faff; }
+.client-card { border-radius: 14px; border-color: #e8ecf4; box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03); }
+.client-card:hover { border-color: #b8caf9; box-shadow: 0 10px 28px -14px rgba(53, 99, 233, 0.35); transform: translateY(-1px); }
+.client-card-avatar { background: linear-gradient(135deg, #5b86ff, #3563e9); color: #fff; }
+.product-card { border-radius: 14px; }
+.btn { border-radius: 10px; }
+.btn-primary { background: linear-gradient(180deg, #4a76f7, #3563e9); box-shadow: 0 4px 12px -4px rgba(53, 99, 233, 0.55); }
+.btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(53, 99, 233, 0.65); }
