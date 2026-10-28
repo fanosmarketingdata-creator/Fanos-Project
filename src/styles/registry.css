@@ -1057,3 +1057,8 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .btn { border-radius: 10px; }
 .btn-primary { background: linear-gradient(180deg, #4a76f7, #3563e9); box-shadow: 0 4px 12px -4px rgba(53, 99, 233, 0.55); }
 .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 8px 18px -8px rgba(53, 99, 233, 0.65); }
+
+/* Tautan "Tambah ... baru" di bawah dropdown (tidak mempersempit pilihan). */
+.qa-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 0; background: none; border: 0; cursor: pointer; font-size: 12px; font-weight: 600; color: #3563e9; }
+.qa-link:hover { color: #2b52cc; text-decoration: underline; }
+.qa-link i { font-size: 11px; }

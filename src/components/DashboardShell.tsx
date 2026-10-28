@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
 import { useLang } from '@/components/I18nProvider';
@@ -227,6 +227,37 @@ export default function DashboardShell({
   }, [pathname]);
 
   // Tap di luar header menutup dropdown / panel mobile.
+  // Pil menu aktif yang meluncur antar menu: sisi depan bergerak lebih cepat daripada sisi belakang.
+  const navRef = useRef<HTMLElement>(null);
+  const [pill, setPill] = useState<{ l: number; r: number; tr: string } | null>(null);
+  const pillPrev = useRef<{ l: number; r: number } | null>(null);
+  const placePill = useCallback((animate: boolean) => {
+    const nav = navRef.current;
+    if (!nav) return;
+    const el = nav.querySelector<HTMLElement>('[data-nav-active="1"]');
+    if (!el) { pillPrev.current = null; setPill(null); return; }
+    const nr = nav.getBoundingClientRect();
+    const er = el.getBoundingClientRect();
+    const l = er.left - nr.left;
+    const r = nr.right - er.right;
+    const prev = pillPrev.current;
+    let tr = 'none';
+    if (animate && prev) {
+      const fwd = l > prev.l; // bergerak ke kanan
+      const fast = 'cubic-bezier(.22,1,.36,1) 0.36s';
+      const slow = 'cubic-bezier(.65,0,.35,1) 0.55s';
+      tr = fwd ? `right ${fast}, left ${slow}` : `left ${fast}, right ${slow}`;
+    }
+    pillPrev.current = { l, r };
+    setPill({ l, r, tr });
+  }, []);
+  useEffect(() => { placePill(true); }, [pathname, placePill]);
+  useEffect(() => {
+    const h = () => placePill(false);
+    window.addEventListener('resize', h);
+    return () => window.removeEventListener('resize', h);
+  }, [placePill]);
+
   const headerRef = useRef<HTMLElement>(null);
   useEffect(() => {
     if (!openId && !mobileOpen) return;
@@ -295,13 +326,14 @@ export default function DashboardShell({
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={LOGO_URL} alt="Fanos" className="mr-1 h-[20px] w-auto shrink-0" />
 
-        <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
+        <nav ref={navRef} className="relative hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
+          {pill && <span aria-hidden className="nav-pill" style={{ left: pill.l, right: pill.r, transition: pill.tr }} />}
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 relative z-[1] text-[12px] font-semibold transition-colors duration-200 xl:px-3 ${
               groupActive
-                ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
+                ? 'text-white'
                 : openId === group.id
                   ? 'bg-slate-100 text-blue-600'
                   : 'text-slate-600 hover:bg-slate-100 hover:text-blue-600'
@@ -309,7 +341,7 @@ export default function DashboardShell({
 
             if (group.direct) {
               return (
-                <Link key={group.id} href={group.items[0].href} className={btnClass}>
+                <Link key={group.id} href={group.items[0].href} className={btnClass} data-nav-active={groupActive ? '1' : undefined}>
                   <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 xl:inline`} />
                   <span>{nl(group.label)}</span>
                 </Link>
@@ -327,6 +359,7 @@ export default function DashboardShell({
                 <button
                   type="button"
                   className={btnClass}
+                  data-nav-active={groupActive ? '1' : undefined}
                   aria-haspopup="menu"
                   aria-expanded={open}
                   // Layar sentuh: tap membuka/menutup. Mouse: sudah terbuka oleh hover.

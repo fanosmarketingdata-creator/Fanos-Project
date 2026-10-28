@@ -95,7 +95,7 @@ export default async function DashboardPage() {
                   {b.total > 0 ? (b.total / 1_000_000).toLocaleString('id-ID', { maximumFractionDigits: 1 }) + ' jt' : ''}
                 </div>
                 <div
-                  className="w-full rounded-t-md"
+                  className="chart-bar w-full rounded-t-md"
                   style={{
                     height: `${Math.max((b.total / maxTotal) * 80, b.total > 0 ? 3 : 0)}%`,
                     background: '#3563e9',

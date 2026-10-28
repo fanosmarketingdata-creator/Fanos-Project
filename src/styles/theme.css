@@ -398,3 +398,48 @@ main .btn-secondary { background: #fff; border-color: #dfe5ef; color: #475569; }
 .client-card:hover { border-color: #b8caf9; }
 main .search-box input, main .card-header select { border-radius: 999px; }
 ::selection { background: rgba(53, 99, 233, 0.18); }
+
+/* ============================================================
+   ANIMASI & GERAK (warna tidak diubah)
+============================================================ */
+/* Pil menu aktif yang meluncur di top bar. */
+.nav-pill { position: absolute; top: 50%; height: 30px; transform: translateY(-50%); border-radius: 10px; z-index: 0; pointer-events: none;
+  background: linear-gradient(135deg, #3b82f6, #2563eb); box-shadow: 0 6px 16px -6px rgba(37, 99, 235, 0.6); }
+
+/* Halaman masuk: fade + naik + sedikit blur, lalu isinya muncul berurutan. */
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); filter: blur(5px); } to { opacity: 1; transform: none; filter: blur(0); } }
+@keyframes item-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes bar-grow { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+main > * { animation: page-in 0.5s cubic-bezier(0.22, 1, 0.36, 1) both; }
+main .card-header { animation: item-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+main table tbody tr, .client-card, .product-card, .dash-kpi, .dash-panel,
+main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white { animation: item-in 0.42s cubic-bezier(0.22, 1, 0.36, 1) both; }
+main table tbody tr:nth-child(1), .client-card:nth-child(1), .product-card:nth-child(1), main .mb-4.flex.flex-wrap.gap-3 > :nth-child(1), .dash-kpi-row > :nth-child(1) .dash-kpi { animation-delay: 0.04s; }
+main table tbody tr:nth-child(2), .client-card:nth-child(2), .product-card:nth-child(2), main .mb-4.flex.flex-wrap.gap-3 > :nth-child(2), .dash-kpi-row > :nth-child(2) .dash-kpi { animation-delay: 0.08s; }
+main table tbody tr:nth-child(3), .client-card:nth-child(3), .product-card:nth-child(3), main .mb-4.flex.flex-wrap.gap-3 > :nth-child(3), .dash-kpi-row > :nth-child(3) .dash-kpi { animation-delay: 0.12s; }
+main table tbody tr:nth-child(4), .client-card:nth-child(4), .product-card:nth-child(4), .dash-kpi-row > :nth-child(4) .dash-kpi { animation-delay: 0.16s; }
+main table tbody tr:nth-child(5), .client-card:nth-child(5), .product-card:nth-child(5) { animation-delay: 0.2s; }
+main table tbody tr:nth-child(6), .client-card:nth-child(6), .product-card:nth-child(6) { animation-delay: 0.24s; }
+main table tbody tr:nth-child(7), .client-card:nth-child(7), .product-card:nth-child(7) { animation-delay: 0.28s; }
+main table tbody tr:nth-child(8), .client-card:nth-child(8), .product-card:nth-child(8) { animation-delay: 0.32s; }
+main table tbody tr:nth-child(n+9), .client-card:nth-child(n+9), .product-card:nth-child(n+9) { animation-delay: 0.36s; }
+.chart-bar { transform-origin: bottom; animation: bar-grow 0.8s cubic-bezier(0.22, 1, 0.36, 1) 0.25s both; }
+
+/* Interaksi mikro: tombol menekan, kartu terangkat halus. */
+.btn, main button.bg-brand-500, main a.bg-brand-500, .btn-action-icon { transition: transform 0.15s ease, box-shadow 0.2s ease, background-color 0.2s ease; }
+.btn:active:not(:disabled), .btn-action-icon:active { transform: scale(0.96) !important; }
+.client-card, .product-card, .dash-kpi { transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), box-shadow 0.25s ease, border-color 0.2s ease; }
+.client-card:hover, .dash-kpi:hover { transform: translateY(-2px); }
+
+/* Modal biasa (pop up kecil) masuk dengan skala lembut. */
+@keyframes modal-pop { from { opacity: 0; transform: translateY(14px) scale(0.97); } to { opacity: 1; transform: none; } }
+.modal-overlay:not(.modal-full-overlay) .modal { animation: modal-pop 0.28s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@media (prefers-reduced-motion: reduce) {
+  main > *, main .card-header, main table tbody tr, .client-card, .product-card, .dash-kpi, .dash-panel, .chart-bar,
+  main .mb-4.flex.flex-wrap.gap-3 > .rounded-xl.bg-white, .modal-overlay .modal { animation: none !important; }
+  .nav-pill { transition: none !important; }
+}
+@media print {
+  main > *, main .card-header, main table tbody tr, .client-card, .product-card, .dash-kpi, .dash-panel, .chart-bar { animation: none !important; }
+}

@@ -48,8 +48,8 @@ export default function ProjectClientFields({
     <>
       {!hideProject && (
       <FvField label="Nama Project" required>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
+        <div>
+          <div>
             <SearchSelect
               value={current?.id ?? (projectName.trim() ? '__current' : '')}
               onChange={(v) => {
@@ -62,15 +62,15 @@ export default function ProjectClientFields({
               placeholder="Pilih / cari project..."
             />
           </div>
-          <button type="button" className="btn btn-secondary" onClick={() => setAddProject(true)} title="Tambah project baru">
-            <i className="fi fi-rr-plus" /> Baru
+          <button type="button" className="qa-link" onClick={() => setAddProject(true)}>
+            <i className="fi fi-rr-plus" /> Tambah project baru
           </button>
         </div>
       </FvField>
       )}
       <FvField label="Client" required>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'stretch' }}>
-          <div style={{ flex: 1, minWidth: 0 }}>
+        <div>
+          <div>
             <SearchSelect
               value={clientId}
               onChange={(v) => onClientId(v)}
@@ -78,8 +78,8 @@ export default function ProjectClientFields({
               placeholder="Cari client..."
             />
           </div>
-          <button type="button" className="btn btn-secondary" onClick={() => setAddClient(true)} title="Tambah client baru">
-            <i className="fi fi-rr-plus" /> Baru
+          <button type="button" className="qa-link" onClick={() => setAddClient(true)}>
+            <i className="fi fi-rr-plus" /> Tambah client baru
           </button>
         </div>
       </FvField>
