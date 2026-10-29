@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import { FormModal, FvField } from '@/components/registry/RegistryModal';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
@@ -8,8 +8,12 @@ import FinanceSelect from '@/components/registry/FinanceSelect';
 import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
 import { saveClient, type ClientInput } from '@/app/(dashboard)/dashboard/clients/actions';
 import { saveProject, type ProjectInput } from '@/app/(dashboard)/dashboard/projects/actions';
-import { getProjectClientLookups, getBrandNames, createProductQuick } from '@/lib/quick-add-actions';
+import { getProjectClientLookups, getBrandNames } from '@/lib/quick-add-actions';
 import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import { createClient as createBrowserClient } from '@/lib/supabase/client';
+import { SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from '@/app/(dashboard)/dashboard/products/fields';
+import { PACKAGE_TYPES } from '@/lib/packing';
+import { saveProduct, type ProductInput } from '@/app/(dashboard)/dashboard/products/actions';
 import type { ProductOption } from '@/components/ProductPicker';
 
 const STATUSES = ['Active', 'Inactive', 'Blacklist', 'Unverified'];
@@ -192,23 +196,54 @@ export function ProjectQuickModal({
   );
 }
 
-// Form tambah Product baru (ringkas): SKU dibuat otomatis; spesifikasi lengkap bisa dilengkapi di Master Data > Product.
+const ALLOWED_IMG = ['image/jpeg', 'image/png', 'image/webp'];
+const MAX_IMG = 2 * 1024 * 1024;
+const EMPTY_SPECS = Object.fromEntries(SPEC_KEYS.map((k) => [k, ''])) as Record<SpecKey, string>;
+const EMPTY_PACK = { package_type: 'Carton', ...Object.fromEntries(PACK_NUM_KEYS.map((k) => [k, 0])) } as { package_type: string } & Record<PackNumKey, number>;
+
+// Form tambah Product baru: isinya sama dengan New Product di Master Data > Product Catalogue.
 export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; onSaved: (p: ProductOption) => void }) {
   const toast = useToast();
+  const supabase = createBrowserClient();
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [brands, setBrands] = useState<string[]>([]);
-  const [form, setForm] = useState({ name: '', brand: 'FANOS', category: '', subcategory: '', application: '', uom: 'Pcs' });
+  const [form, setForm] = useState<ProductInput>({ name: '', brand: 'FANOS', image_url: '', category: '', subcategory: '', application: '', uom: 'Pcs', notes: '', ...EMPTY_SPECS, ...EMPTY_PACK });
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
     getBrandNames().then(setBrands).catch(() => {});
   }, []);
 
-  async function save() {
+  async function handleFile(file: File) {
+    if (!ALLOWED_IMG.includes(file.type)) return toast('Format berkas tidak didukung. Gunakan format JPG, PNG, atau WebP.', 'error');
+    if (file.size > MAX_IMG) return toast('Ukuran berkas melebihi batas maksimum 2 MB.', 'error');
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${crypto.randomUUID()}.${ext}`;
+      const { error: upErr } = await supabase.storage.from('product-images').upload(path, file);
+      if (upErr) return toast('Unggah berkas gagal: ' + upErr.message, 'error');
+      const { data } = supabase.storage.from('product-images').getPublicUrl(path);
+      setForm((f) => ({ ...f, image_url: data.publicUrl }));
+      toast('Foto produk berhasil diunggah', 'success');
+    } finally {
+      setUploading(false);
+    }
+  }
+  function onDrop(e: React.DragEvent) {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file) handleFile(file);
+  }
+
+  async function handleSave() {
     setSaving(true);
     try {
-      const r = await createProductQuick(form);
-      if (r.error || !r.product) return toast(r.error ?? 'Produk gagal disimpan.', 'error');
-      toast('Data Product berhasil ditambahkan', 'success');
+      const r = await saveProduct(form);
+      if (r.error) return toast(r.error, 'error');
+      if (!r.product) return toast('Produk tersimpan, tetapi data tidak terbaca. Muat ulang halaman.', 'error');
+      toast('Data Produk berhasil ditambahkan', 'success');
       onSaved(r.product);
     } catch (e) {
       toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
@@ -217,52 +252,154 @@ export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; o
     }
   }
 
-  const brandList = brands.includes(form.brand) ? brands : [...brands, form.brand];
   return (
     <FormModal
+      maxWidth={980}
       title="New Product"
-      icon="fi fi-rr-box-open"
-      maxWidth={760}
+      icon="fa-solid fa-box-open"
       onClose={onClose}
       footer={
         <>
-          <button type="button" className="btn btn-primary" onClick={save} disabled={saving}>
+          <button type="button" className="btn btn-primary" onClick={handleSave} disabled={saving || uploading}>
             <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
           </button>
           <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
         </>
       }
     >
-      <div className="fv2-section">
-        <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
-        <div className="fv2-grid">
-          <FvField label="SKU No"><input value="" placeholder="Dibuat otomatis oleh sistem" readOnly /></FvField>
-          <FvField label="Product Name" required>
-            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama produk" autoFocus />
-          </FvField>
-          <FvField label="Brand">
-            <FvSelect value={form.brand} onChange={(v) => setForm({ ...form, brand: v })} options={toOptions(brandList)} placeholder="Brand" />
-          </FvField>
-          <FvField label="UOM">
-            <FvSelect value={form.uom} onChange={(v) => setForm({ ...form, uom: v })} options={toOptions(UOM_OPTIONS)} placeholder="UOM" />
-          </FvField>
-          <FvField label="Main Category" required>
-            <FvSelect value={form.category} onChange={(v) => setForm({ ...form, category: v, subcategory: '' })} options={toOptions(Object.keys(PRODUCT_CATEGORIES))} placeholder="— Pilih salah satu —" />
-          </FvField>
-          <FvField label="Subcategory">
-            <FvSelect
-              value={form.subcategory}
-              onChange={(v) => setForm({ ...form, subcategory: v })}
-              options={toOptions(PRODUCT_CATEGORIES[form.category] ?? [])}
-              placeholder={form.category ? '— Pilih salah satu —' : 'Pilih Main Category terlebih dahulu'}
-              disabled={!form.category}
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-picture" /> Image Reference</div>
+            <div
+              className="fv2-upload-box"
+              onClick={() => fileInputRef.current?.click()}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={onDrop}
+            >
+              {uploading ? (
+                <div className="txt">Sedang mengunggah...</div>
+              ) : form.image_url ? (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={form.image_url} alt="" />
+              ) : (
+                <>
+                  <div className="icon"><i className="fi fi-rr-cloud-upload" /></div>
+                  <div className="txt">Klik atau seret foto ke area ini</div>
+                </>
+              )}
+            </div>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              style={{ display: 'none' }}
+              onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
             />
-          </FvField>
-          <FvField label="Application">
-            <FvSelect value={form.application} onChange={(v) => setForm({ ...form, application: v })} options={toOptions(PRODUCT_APPLICATION_OPTIONS)} placeholder="— Pilih salah satu —" />
-          </FvField>
-        </div>
-      </div>
+            <div className="fv2-hint">Format JPG, PNG, atau WebP dengan ukuran maksimal 2 MB.</div>
+          </div>
+
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
+            <div className="fv2-grid">
+              <FvField label="SKU No">
+                <input value="" placeholder="Dibuat otomatis oleh sistem" readOnly />
+              </FvField>
+              <FvField label="Product Name" required>
+                <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama produk" />
+              </FvField>
+              <FvField label="Brand">
+                <FvSelect
+                  value={form.brand || ''}
+                  onChange={(v) => setForm({ ...form, brand: v || 'FANOS' })}
+                  options={toOptions(brands.includes(form.brand || '') ? brands : [...brands, form.brand || 'FANOS'])}
+                />
+              </FvField>
+              <FvField label="Main Category" required>
+                <FvSelect
+                  value={form.category || ''}
+                  onChange={(v) => setForm({ ...form, category: v, subcategory: '' })}
+                  options={toOptions(Object.keys(PRODUCT_CATEGORIES))}
+                />
+              </FvField>
+              <FvField label="Subcategory">
+                <FvSelect
+                  value={form.subcategory || ''}
+                  onChange={(v) => setForm({ ...form, subcategory: v })}
+                  options={toOptions((PRODUCT_CATEGORIES[form.category || ''] ?? []))}
+                  placeholder={form.category ? '— Pilih salah satu —' : 'Pilih Main Category terlebih dahulu'}
+                  disabled={!form.category}
+                />
+              </FvField>
+              <FvField label="Application">
+                <FvSelect
+                  value={form.application || ''}
+                  onChange={(v) => setForm({ ...form, application: v })}
+                  options={toOptions(PRODUCT_APPLICATION_OPTIONS)}
+                />
+              </FvField>
+              <FvField label="UOM">
+                <FvSelect
+                  value={form.uom}
+                  onChange={(v) => setForm({ ...form, uom: v || 'Pcs' })}
+                  options={toOptions(UOM_OPTIONS)}
+                  placeholder="Pcs"
+                />
+              </FvField>
+            </div>
+          </div>
+
+          {SPEC_GROUPS.map((g) => (
+            <div className="fv2-section" key={g.title}>
+              <div className="fv2-section-title"><i className={g.icon} /> {g.title}</div>
+              <div className="fv2-grid">
+                {g.fields.map((f) => (
+                  <FvField key={f.key} label={f.label}>
+                    <input
+                      value={form[f.key] || ''}
+                      onChange={(e) => setForm({ ...form, [f.key]: e.target.value })}
+                      placeholder={f.placeholder}
+                    />
+                  </FvField>
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-box-open" /> Data Pengemasan (Packing)</div>
+            <div className="fv2-grid">
+              <FvField label="Jenis Kemasan">
+                <FvSelect value={form.package_type || 'Carton'} onChange={(v) => setForm({ ...form, package_type: v || 'Carton' })} options={PACKAGE_TYPES.map((t) => ({ value: t, label: t }))} placeholder="Carton" />
+              </FvField>
+              <FvField label={`Isi per Kemasan (${form.uom || 'Pcs'})`}>
+                <input type="number" min={0} value={form.units_per_package || 0} onChange={(e) => setForm({ ...form, units_per_package: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+              <FvField label="Berat Bersih / Unit (Kg)">
+                <input type="number" min={0} step="0.001" value={form.net_weight || 0} onChange={(e) => setForm({ ...form, net_weight: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+              <FvField label="Berat Kotor / Kemasan (Kg)">
+                <input type="number" min={0} step="0.001" value={form.gross_weight || 0} onChange={(e) => setForm({ ...form, gross_weight: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+              <FvField label="Panjang Kemasan (cm)">
+                <input type="number" min={0} value={form.pkg_length_cm || 0} onChange={(e) => setForm({ ...form, pkg_length_cm: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+              <FvField label="Lebar Kemasan (cm)">
+                <input type="number" min={0} value={form.pkg_width_cm || 0} onChange={(e) => setForm({ ...form, pkg_width_cm: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+              <FvField label="Tinggi Kemasan (cm)">
+                <input type="number" min={0} value={form.pkg_height_cm || 0} onChange={(e) => setForm({ ...form, pkg_height_cm: parseFloat(e.target.value) || 0 })} />
+              </FvField>
+            </div>
+            <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Data ini terisi otomatis di Packing List (jenis kemasan, isi per kemasan, NW, GW, dimensi, dan CBM) dan tetap bisa diubah per dokumen.</p>
+          </div>
+
+          <div className="fv2-section">
+            <div className="fv2-section-title"><i className="fi fi-rr-document" /> Catatan</div>
+            <div>
+              <FvField label="Notes">
+                <textarea value={form.notes || ''} onChange={(e) => setForm({ ...form, notes: e.target.value })} placeholder="Catatan tambahan (opsional)" />
+              </FvField>
+            </div>
+          </div>
     </FormModal>
   );
 }

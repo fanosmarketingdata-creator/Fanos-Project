@@ -54,11 +54,16 @@ export async function saveProduct(input: ProductInput) {
     ...specs,
   };
 
-  const query = input.id
-    ? supabase.from('products').update(payload).eq('id', input.id)
-    : supabase.from('products').insert(payload);
-
-  const { error } = await query;
+  type Saved = { id: string; sku: string; name: string; uom: string; image_url: string | null; brand: string | null; category: string | null; price: number | null; cost_price: number | null };
+  let saved = null as Saved | null;
+  let error: { code?: string; message: string } | null = null;
+  if (input.id) {
+    ({ error } = await supabase.from('products').update(payload).eq('id', input.id));
+  } else {
+    const r = await supabase.from('products').insert(payload).select('id, sku, name, uom, image_url, brand, category, price, cost_price').single();
+    error = r.error;
+    saved = (r.data as unknown as Saved) ?? null;
+  }
   if (error) {
     if (error.code === '23505') return { error: 'SKU telah digunakan oleh produk lain.' };
     return { error: error.message };
@@ -66,7 +71,7 @@ export async function saveProduct(input: ProductInput) {
 
   revalidatePath('/dashboard/products');
   revalidatePath('/dashboard/products/price-list');
-  return { success: true };
+  return { success: true, product: saved as Saved | null };
 }
 
 export async function savePrices(id: string, cost_price: number, price: number) {
