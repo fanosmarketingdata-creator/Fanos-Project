@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { ensureProject } from '@/lib/project-sync';
@@ -37,6 +38,7 @@ function computeTotals(items: QuoteItemInput[], discounts: DiscountLine[], charg
 }
 
 export async function saveQuotation(input: QuotationInput) {
+  { const denied = await guard('/dashboard/quotations', 'save', input); if (denied) return { error: denied }; }
   if (input.mode === 'manual' && !input.project_name?.trim()) return { error: 'Nama Project wajib diisi.' };
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.quote_date) return { error: 'Kolom Tanggal Quotation wajib diisi.' };
@@ -117,6 +119,7 @@ export async function getBOQItemsForQuote(boqProjectId: string) {
 }
 
 export async function deleteQuotation(id: string) {
+  { const denied = await guard('/dashboard/quotations', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('quotations').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -127,6 +130,7 @@ export async function deleteQuotation(id: string) {
 
 // ACCEPT quotation -> otomatis buat Sales Order dari item-itemnya.
 export async function acceptQuotationAndCreateSO(quotationId: string) {
+  { const denied = await guard('/dashboard/quotations', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
 
   const { data: quote, error: quoteError } = await supabase

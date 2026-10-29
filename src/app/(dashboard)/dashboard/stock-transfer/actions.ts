@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getStockMap, postMovements } from '@/lib/stock';
@@ -14,6 +15,7 @@ function refresh() {
 }
 
 export async function createTransfer(input: TransferInput) {
+  { const denied = await guard('/dashboard/stock-transfer', 'create'); if (denied) return { error: denied }; }
   if (!input.from_warehouse_id || !input.to_warehouse_id) return { error: 'Gudang asal dan tujuan wajib dipilih.' };
   if (input.from_warehouse_id === input.to_warehouse_id) return { error: 'Gudang asal dan tujuan tidak boleh sama.' };
   const items = input.items.filter((i) => i.sku && i.qty > 0);
@@ -39,6 +41,7 @@ export async function createTransfer(input: TransferInput) {
 
 // Langkah 1: Gudang asal mengirim. Stok asal berkurang, barang berstatus In-Transit.
 export async function shipTransfer(id: string) {
+  { const denied = await guard('/dashboard/stock-transfer', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: t } = await supabase.from('stock_transfers').select('id, doc_no, status, transfer_date, from_warehouse_id').eq('id', id).single();
   if (!t) return { error: 'Dokumen tidak ditemukan' };
@@ -62,6 +65,7 @@ export async function shipTransfer(id: string) {
 
 // Langkah 2: Gudang tujuan menerima. Stok tujuan bertambah, transfer selesai.
 export async function receiveTransfer(id: string, receivedDate?: string) {
+  { const denied = await guard('/dashboard/stock-transfer', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: t } = await supabase.from('stock_transfers').select('id, doc_no, status, to_warehouse_id').eq('id', id).single();
   if (!t) return { error: 'Dokumen tidak ditemukan' };
@@ -80,6 +84,7 @@ export async function receiveTransfer(id: string, receivedDate?: string) {
 }
 
 export async function deleteTransfer(id: string) {
+  { const denied = await guard('/dashboard/stock-transfer', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: t } = await supabase.from('stock_transfers').select('status').eq('id', id).single();
   if (!t) return { error: 'Dokumen tidak ditemukan' };

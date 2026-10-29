@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { syncSalesOrder, shipItems } from '../sales-orders/actions';
@@ -31,6 +32,7 @@ export async function createDeliveryFromSO(input: {
   edits?: SOEdits;
   ship: { sales_order_item_id: string; sku: string; ship_qty: number }[];
 }) {
+  { const denied = await guard('/dashboard/delivery-orders', 'create'); if (denied) return { error: denied }; }
   if (!input.so_id) return { error: 'Mohon pilih Sales Order terlebih dahulu.' };
   if (!input.do_date) return { error: 'Kolom Tanggal kirim wajib diisi.' };
   if (input.edits) {
@@ -46,6 +48,7 @@ export type ManualDOItem = { product_id: string | null; sku: string; qty: number
 
 // Delivery Order langsung (tanpa Sales Order): client + item dipilih manual.
 export async function createManualDelivery(input: { doc_no?: string; do_date: string; client_id: string; notes?: string; warehouse_id?: string; items: ManualDOItem[] }) {
+  { const denied = await guard('/dashboard/delivery-orders', 'create'); if (denied) return { error: denied }; }
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.do_date) return { error: 'Kolom Tanggal kirim wajib diisi.' };
   const items = input.items.filter((it) => it.sku && it.qty > 0);

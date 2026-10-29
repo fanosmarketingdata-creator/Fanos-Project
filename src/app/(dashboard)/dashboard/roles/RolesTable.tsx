@@ -5,10 +5,10 @@ import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
 import { FormModal } from '@/components/registry/RegistryModal';
 import { useLang } from '@/components/I18nProvider';
-import { PERMISSION_GROUPS, ALL_MENU_KEYS, flatItems, navLabel } from '@/lib/menu';
+import { PERMISSION_GROUPS, ALL_MENU_KEYS, CRUD_ACTIONS, flatItems, navLabel, type CrudAction, type RoleActions } from '@/lib/menu';
 import { saveRole, deleteRole, saveRolePermissions, type RoleInput } from './actions';
 
-export type RoleRow = { id: string; name: string; description: string | null; account_count: number; permissions: string[] };
+export type RoleRow = { id: string; name: string; description: string | null; account_count: number; permissions: string[]; role_actions: RoleActions };
 
 const PROTECTED_ROLE = 'Superuser';
 
@@ -22,6 +22,8 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
   const lang = useLang();
   const [permTarget, setPermTarget] = useState<RoleRow | null>(null);
   const [perms, setPerms] = useState<string[]>([]);
+  const [acts, setActs] = useState<RoleActions>({});
+  const [permSearch, setPermSearch] = useState('');
   const [savingPerm, setSavingPerm] = useState(false);
 
   function openAdd() {
@@ -61,16 +63,75 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
 
   function openPerms(r: RoleRow) {
     setPermTarget(r);
-    setPerms(r.name === PROTECTED_ROLE ? ALL_MENU_KEYS : r.permissions);
+    setPermSearch('');
+    if (r.name === PROTECTED_ROLE) {
+      setPerms(ALL_MENU_KEYS);
+      setActs(Object.fromEntries(ALL_MENU_KEYS.map((k) => [k, [...CRUD_ACTIONS]])));
+      return;
+    }
+    setPerms(r.permissions);
+    // Menu tanpa catatan Create/Edit/Delete (data lama) dianggap berhak penuh.
+    setActs(Object.fromEntries(r.permissions.map((k) => [k, r.role_actions[k] ?? [...CRUD_ACTIONS]])));
   }
-  const toggle = (k: string) => setPerms((p) => (p.includes(k) ? p.filter((x) => x !== k) : [...p, k]));
-  const toggleGroup = (keys: string[]) =>
-    setPerms((p) => (keys.every((k) => p.includes(k)) ? p.filter((x) => !keys.includes(x)) : Array.from(new Set([...p, ...keys]))));
+  const hasView = (k: string) => perms.includes(k);
+  const hasAct = (k: string, a: CrudAction) => !!acts[k]?.includes(a);
+  const rowFull = (k: string) => hasView(k) && CRUD_ACTIONS.every((a) => hasAct(k, a));
+
+  function setRow(keys: string[], view: boolean, list: CrudAction[]) {
+    setPerms((p) => (view ? Array.from(new Set([...p, ...keys])) : p.filter((x) => !keys.includes(x))));
+    setActs((cur) => {
+      const next = { ...cur };
+      keys.forEach((k) => { if (view) next[k] = [...list]; else delete next[k]; });
+      return next;
+    });
+  }
+  function toggleView(k: string) {
+    if (hasView(k)) setRow([k], false, []);
+    else setRow([k], true, []);
+  }
+  function toggleAct(k: string, a: CrudAction) {
+    if (!hasView(k)) {
+      setRow([k], true, [a]);
+      return;
+    }
+    setActs((cur) => {
+      const list = cur[k] ?? [];
+      return { ...cur, [k]: list.includes(a) ? list.filter((x) => x !== a) : [...list, a] };
+    });
+  }
+  function toggleRowAll(k: string) {
+    if (rowFull(k)) setRow([k], false, []);
+    else setRow([k], true, [...CRUD_ACTIONS]);
+  }
+  // Toggle satu kolom (View / Create / Edit / Delete) untuk sekelompok menu.
+  function toggleColumn(keys: string[], col: 'view' | CrudAction) {
+    if (col === 'view') {
+      const all = keys.every(hasView);
+      if (all) setRow(keys, false, []);
+      else setPerms((p) => Array.from(new Set([...p, ...keys])));
+      if (!all) setActs((cur) => { const n = { ...cur }; keys.forEach((k) => { n[k] = n[k] ?? []; }); return n; });
+      return;
+    }
+    const all = keys.every((k) => hasView(k) && hasAct(k, col));
+    setPerms((p) => (all ? p : Array.from(new Set([...p, ...keys]))));
+    setActs((cur) => {
+      const n = { ...cur };
+      keys.forEach((k) => {
+        const list = n[k] ?? [];
+        n[k] = all ? list.filter((x) => x !== col) : Array.from(new Set([...list, col]));
+      });
+      return n;
+    });
+  }
+  const preset = (kind: 'full' | 'view' | 'none') => {
+    if (kind === 'none') return setRow(ALL_MENU_KEYS, false, []);
+    setRow(ALL_MENU_KEYS, true, kind === 'full' ? [...CRUD_ACTIONS] : []);
+  };
 
   async function handleSavePerms() {
     if (!permTarget) return;
     setSavingPerm(true);
-    const result = await saveRolePermissions(permTarget.id, perms);
+    const result = await saveRolePermissions(permTarget.id, perms, acts);
     setSavingPerm(false);
     if (result.error) {
       toast(result.error, 'error');
@@ -192,9 +253,9 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
 
       {permTarget && (
         <FormModal full
-          title={`Hak Akses Menu — ${permTarget.name}`}
+          title={`Hak Akses — ${permTarget.name}`}
           icon="fi fi-rr-shield-check"
-          maxWidth={860}
+          maxWidth={980}
           onClose={() => setPermTarget(null)}
           footer={
             permTarget.name === PROTECTED_ROLE ? (
@@ -209,41 +270,100 @@ export default function RolesTable({ initialRows }: { initialRows: RoleRow[] }) 
             )
           }
         >
-          {permTarget.name === PROTECTED_ROLE && (
-            <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12 }}>Role Superuser selalu memiliki akses penuh dan tidak dapat diubah.</p>
-          )}
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: 14 }}>
-            {PERMISSION_GROUPS.map((g) => {
-              const keys = flatItems(g.items).map((i) => i.href);
-              const locked = permTarget.name === PROTECTED_ROLE;
-              const all = keys.every((k) => perms.includes(k));
+          {(() => {
+            const locked = permTarget.name === PROTECTED_ROLE;
+            const q = permSearch.trim().toLowerCase();
+            const COLS: { key: 'view' | CrudAction; label: string; icon: string }[] = [
+              { key: 'view', label: 'View', icon: 'fi fi-rr-eye' },
+              { key: 'create', label: 'Create', icon: 'fi fi-rr-plus' },
+              { key: 'edit', label: 'Edit', icon: 'fi fi-rr-pencil' },
+              { key: 'delete', label: 'Delete', icon: 'fi fi-rr-trash' },
+            ];
+            const cell = (k: string, c: 'view' | CrudAction) => {
+              const on = c === 'view' ? hasView(k) : hasAct(k, c) && hasView(k);
               return (
-                <div key={g.id} className="fv2-sub" style={{ margin: 0 }}>
-                  <label className="fv2-sub-head" style={{ cursor: locked ? 'default' : 'pointer', fontWeight: 700, fontSize: 12.5 }}>
-                    <input type="checkbox" checked={all} disabled={locked} onChange={() => toggleGroup(keys)} style={{ flex: 'none', width: 16, height: 16, padding: 0 }} />
-                    <i className={g.icon} /> {navLabel(lang, g.label)}
-                  </label>
-                  {g.items.map((i) => {
-                    const row = (it: typeof i, indent: number, checked: boolean, onChange: () => void) => (
-                      <label key={it.href} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: `5px 4px 5px ${indent}px`, fontSize: 12.5, cursor: locked ? 'default' : 'pointer', fontWeight: it.children ? 600 : 400 }}>
-                        <input type="checkbox" checked={checked} disabled={locked} onChange={onChange} style={{ width: 15, height: 15 }} />
-                        <i className={it.icon} style={{ color: '#6b7280', width: 16, textAlign: 'center' }} />
-                        {navLabel(lang, it.label)}
-                      </label>
-                    );
-                    if (!i.children) return row(i, 24, perms.includes(i.href), () => toggle(i.href));
-                    const ck = i.children.map((c) => c.href);
-                    return (
-                      <div key={i.href}>
-                        {row(i, 24, ck.every((k) => perms.includes(k)), () => toggleGroup(ck))}
-                        {i.children.map((c) => row(c, 48, perms.includes(c.href), () => toggle(c.href)))}
-                      </div>
-                    );
-                  })}
-                </div>
+                <td key={c} className="rm-c">
+                  <input type="checkbox" checked={on} disabled={locked} onChange={() => (c === 'view' ? toggleView(k) : toggleAct(k, c))} />
+                </td>
               );
-            })}
-          </div>
+            };
+            return (
+              <>
+                {locked ? (
+                  <p style={{ fontSize: 12, color: '#6b7280', marginBottom: 12 }}>Role Superuser selalu memiliki akses penuh dan tidak dapat diubah.</p>
+                ) : (
+                  <div className="rm-bar">
+                    <div className="search-box" style={{ maxWidth: 280 }}>
+                      <span className="search-icon"><i className="fa-solid fa-search" /></span>
+                      <input type="text" placeholder="Cari menu..." value={permSearch} onChange={(e) => setPermSearch(e.target.value)} />
+                    </div>
+                    <div className="rm-presets">
+                      <button type="button" className="btn btn-secondary btn-xs" onClick={() => preset('full')}>Akses Penuh</button>
+                      <button type="button" className="btn btn-secondary btn-xs" onClick={() => preset('view')}>Hanya Lihat</button>
+                      <button type="button" className="btn btn-secondary btn-xs" onClick={() => preset('none')}>Kosongkan</button>
+                    </div>
+                  </div>
+                )}
+                <div className="rm-wrap">
+                  <table className="rm-table">
+                    <thead>
+                      <tr>
+                        <th>Menu</th>
+                        {COLS.map((c) => (
+                          <th key={c.key} className="rm-c"><i className={c.icon} /> {c.label}</th>
+                        ))}
+                        <th className="rm-c">Semua</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {PERMISSION_GROUPS.map((g) => {
+                        const leaves = flatItems(g.items);
+                        const shown = leaves.filter((i) => !q || navLabel(lang, i.label).toLowerCase().includes(q) || i.label.toLowerCase().includes(q));
+                        if (shown.length === 0) return null;
+                        const keys = leaves.map((i) => i.href);
+                        const rows: React.ReactNode[] = [];
+                        rows.push(
+                          <tr key={g.id} className="rm-group">
+                            <td><i className={g.icon} /> {navLabel(lang, g.label)}</td>
+                            {COLS.map((c) => {
+                              const all = keys.every((k) => (c.key === 'view' ? hasView(k) : hasView(k) && hasAct(k, c.key as CrudAction)));
+                              return (
+                                <td key={c.key} className="rm-c">
+                                  <input type="checkbox" checked={all} disabled={locked} onChange={() => toggleColumn(keys, c.key)} />
+                                </td>
+                              );
+                            })}
+                            <td className="rm-c">
+                              <input type="checkbox" checked={keys.every(rowFull)} disabled={locked} onChange={() => (keys.every(rowFull) ? setRow(keys, false, []) : setRow(keys, true, [...CRUD_ACTIONS]))} />
+                            </td>
+                          </tr>
+                        );
+                        g.items.forEach((it) => {
+                          const list = it.children ?? [it];
+                          const vis = list.filter((i) => shown.includes(i));
+                          if (vis.length === 0) return;
+                          if (it.children) rows.push(<tr key={it.href + '-h'} className="rm-sub"><td colSpan={6}><i className={it.icon} /> {navLabel(lang, it.label)}</td></tr>);
+                          vis.forEach((i) => {
+                            rows.push(
+                              <tr key={i.href} className="rm-row">
+                                <td style={{ paddingLeft: it.children ? 38 : 22 }}><i className={i.icon} style={{ color: '#9ca3af', width: 16, textAlign: 'center', marginRight: 6 }} />{navLabel(lang, i.label)}</td>
+                                {COLS.map((c) => cell(i.href, c.key))}
+                                <td className="rm-c"><input type="checkbox" checked={rowFull(i.href)} disabled={locked} onChange={() => toggleRowAll(i.href)} /></td>
+                              </tr>
+                            );
+                          });
+                        });
+                        return rows;
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+                <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 10 }}>
+                  View = menu tampil dan datanya bisa dilihat. Create / Edit / Delete = boleh menambah / mengubah / menghapus data pada menu tersebut. Aturan ini juga dicek di server saat menyimpan.
+                </p>
+              </>
+            );
+          })()}
         </FormModal>
       )}
 

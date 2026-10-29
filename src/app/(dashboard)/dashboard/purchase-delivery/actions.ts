@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getStockMap, postMovements } from '@/lib/stock';
@@ -44,6 +45,7 @@ export type ReceiptInput = {
 };
 
 export async function createPurchaseDelivery(input: ReceiptInput) {
+  { const denied = await guard('/dashboard/purchase-delivery', 'create'); if (denied) return { error: denied }; }
   if (!input.purchase_order_id) return { error: 'Mohon pilih Purchase Order terlebih dahulu.' };
   if (!input.warehouse_id) return { error: 'Mohon pilih Gudang penerima.' };
   if (!input.gr_date) return { error: 'Kolom Tanggal terima wajib diisi.' };
@@ -91,6 +93,7 @@ export async function createPurchaseDelivery(input: ReceiptInput) {
 
 // Hapus penerimaan: stok dibalik (ditolak bila barang sudah terpakai sehingga stok jadi minus).
 export async function deletePurchaseDelivery(id: string) {
+  { const denied = await guard('/dashboard/purchase-delivery', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: gr } = await supabase.from('purchase_deliveries').select('id, warehouse_id, purchase_order_id').eq('id', id).single();
   if (!gr) return { error: 'Dokumen tidak ditemukan' };

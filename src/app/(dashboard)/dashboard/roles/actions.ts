@@ -3,7 +3,7 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getSuperuserOrNull, NOT_SUPERUSER_ERROR } from '@/lib/auth';
-import { ALL_MENU_KEYS } from '@/lib/menu';
+import { ALL_MENU_KEYS, CRUD_ACTIONS, type CrudAction, type RoleActions } from '@/lib/menu';
 
 export type RoleInput = { id?: string; name: string; description?: string };
 
@@ -71,7 +71,7 @@ export async function deleteRole(id: string) {
 }
 
 // Hak akses menu per role — hanya Superuser. Role Superuser selalu berakses penuh dan tidak dapat diubah.
-export async function saveRolePermissions(roleId: string, permissions: string[]) {
+export async function saveRolePermissions(roleId: string, permissions: string[], actions: RoleActions = {}) {
   if (!(await getSuperuserOrNull())) return { error: NOT_SUPERUSER_ERROR };
 
   const supabase = createClient();
@@ -82,8 +82,18 @@ export async function saveRolePermissions(roleId: string, permissions: string[])
   const valid = new Set(ALL_MENU_KEYS);
   const clean = Array.from(new Set(permissions)).filter((p) => valid.has(p));
 
-  const { error } = await supabase.from('roles').update({ permissions: clean }).eq('id', roleId);
-  if (error) return { error: error.message };
+  // Create/Edit/Delete hanya berlaku untuk menu yang boleh dilihat.
+  const cleanActions: RoleActions = {};
+  for (const k of clean) {
+    const list = (actions[k] ?? []).filter((a): a is CrudAction => CRUD_ACTIONS.includes(a as CrudAction));
+    cleanActions[k] = Array.from(new Set(list));
+  }
+
+  const { error } = await supabase.from('roles').update({ permissions: clean, role_actions: cleanActions }).eq('id', roleId);
+  if (error) {
+    if (/role_actions/.test(error.message)) return { error: 'Jalankan migrasi 0034_role_actions.sql di Supabase SQL Editor terlebih dahulu.' };
+    return { error: error.message };
+  }
 
   revalidatePath('/dashboard', 'layout');
   return { success: true };

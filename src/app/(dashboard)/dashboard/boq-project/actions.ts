@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { ensureProject } from '@/lib/project-sync';
@@ -26,6 +27,7 @@ export type BOQProjectInput = {
 };
 
 export async function saveBOQProject(input: BOQProjectInput) {
+  { const denied = await guard('/dashboard/boq-project', 'save', input); if (denied) return { error: denied }; }
   if (!input.project_name?.trim()) return { error: 'Kolom Project Name wajib diisi.' };
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.boq_date) return { error: 'Kolom Tanggal BOQ wajib diisi.' };
@@ -94,6 +96,7 @@ export async function saveBOQProject(input: BOQProjectInput) {
 }
 
 export async function deleteBOQProject(id: string) {
+  { const denied = await guard('/dashboard/boq-project', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('boq_projects').delete().eq('id', id);
   if (error) return { error: error.message };

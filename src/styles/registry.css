@@ -1062,3 +1062,26 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .qa-link { display: inline-flex; align-items: center; gap: 5px; margin-top: 6px; padding: 0; background: none; border: 0; cursor: pointer; font-size: 12px; font-weight: 600; color: #3563e9; }
 .qa-link:hover { color: #2b52cc; text-decoration: underline; }
 .qa-link i { font-size: 11px; }
+
+/* ---- Hak akses CRUD per role (lihat layout dashboard) ---- */
+.perm-scope { display: contents; }
+.perm-scope[data-no-create] .card-header .btn-primary,
+.perm-scope[data-no-create] .card-header a.btn-primary { display: none !important; }
+.perm-scope[data-no-edit] .btn-edit { display: none !important; }
+.perm-scope[data-no-delete] .btn-delete { display: none !important; }
+
+/* ---- Matriks hak akses (Role Group) ---- */
+.rm-bar { display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap; margin-bottom: 12px; }
+.rm-presets { display: flex; gap: 6px; }
+.rm-wrap { border: 1px solid #e8ecf4; border-radius: 12px; overflow: hidden; overflow-x: auto; }
+.rm-table { width: 100%; border-collapse: collapse; font-size: 12.5px; min-width: 560px; }
+.rm-table th { background: #f6f8fc; color: #475569; font-weight: 700; padding: 10px 12px; text-align: left; font-size: 12px; white-space: nowrap; position: sticky; top: 0; z-index: 1; }
+.rm-table td { padding: 7px 12px; border-top: 1px solid #eef1f7; }
+.rm-table .rm-c { text-align: center; width: 84px; }
+.rm-table th i { margin-right: 4px; color: #3563e9; }
+.rm-table tr.rm-group td { background: #f3f6fe; font-weight: 800; color: #1e293b; }
+.rm-table tr.rm-group td i { color: #3563e9; margin-right: 6px; }
+.rm-table tr.rm-sub td { font-weight: 700; color: #475569; background: #fafbfd; padding-left: 22px; }
+.rm-table tr.rm-row:hover td { background: #f8faff; }
+.rm-table input[type='checkbox'] { width: 16px; height: 16px; cursor: pointer; accent-color: #3563e9; }
+.rm-table input[type='checkbox']:disabled { cursor: default; }

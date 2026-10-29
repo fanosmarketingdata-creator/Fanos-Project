@@ -1,11 +1,13 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
 export type WarehouseInput = { id?: string; code?: string; name: string; address?: string; is_default?: boolean; is_active?: boolean };
 
 export async function saveWarehouse(input: WarehouseInput) {
+  { const denied = await guard('/dashboard/warehouse', 'save', input); if (denied) return { error: denied }; }
   const name = input.name?.trim();
   if (!name) return { error: 'Kolom Nama Gudang wajib diisi.' };
   const supabase = createClient();
@@ -26,6 +28,7 @@ export async function saveWarehouse(input: WarehouseInput) {
 }
 
 export async function deleteWarehouse(id: string) {
+  { const denied = await guard('/dashboard/warehouse', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const [{ count: mv }, { count: tr }, { count: adj }] = await Promise.all([
     supabase.from('stock_movements').select('id', { count: 'exact', head: true }).eq('warehouse_id', id),

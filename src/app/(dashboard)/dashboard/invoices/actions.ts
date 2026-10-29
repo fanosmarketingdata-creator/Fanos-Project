@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
@@ -44,6 +45,7 @@ export type InvoiceInput = {
 };
 
 export async function createInvoiceFromSO(input: InvoiceInput) {
+  { const denied = await guard('/dashboard/invoices', 'create'); if (denied) return { error: denied }; }
   if (!input.so_id) return { error: 'Mohon pilih Sales Order terlebih dahulu.' };
   if (!input.inv_date) return { error: 'Kolom Tanggal Invoice wajib diisi.' };
 
@@ -99,6 +101,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
 }
 
 export async function deleteInvoice(id: string) {
+  { const denied = await guard('/dashboard/invoices', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('invoices').delete().eq('id', id);
   if (error) return { error: error.message };

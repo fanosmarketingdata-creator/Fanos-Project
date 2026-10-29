@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { syncPurchaseInvoice } from '@/lib/purchase-sync';
@@ -40,6 +41,7 @@ export type PurchaseInvoiceInput = {
 };
 
 export async function createPurchaseInvoice(input: PurchaseInvoiceInput) {
+  { const denied = await guard('/dashboard/purchase-invoice', 'create'); if (denied) return { error: denied }; }
   if (!input.purchase_order_id) return { error: 'Mohon pilih Purchase Order terlebih dahulu.' };
   if (!input.inv_date) return { error: 'Kolom Tanggal Invoice wajib diisi.' };
   const lines = input.lines.filter((l) => l.sku && l.qty > 0);
@@ -78,6 +80,7 @@ export async function createPurchaseInvoice(input: PurchaseInvoiceInput) {
 }
 
 export async function deletePurchaseInvoice(id: string) {
+  { const denied = await guard('/dashboard/purchase-invoice', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { count } = await supabase.from('purchase_payments').select('id', { count: 'exact', head: true }).eq('purchase_invoice_id', id);
   if ((count ?? 0) > 0) return { error: 'Invoice sudah memiliki pembayaran. Hapus pembayarannya terlebih dahulu.' };
@@ -88,6 +91,7 @@ export async function deletePurchaseInvoice(id: string) {
 }
 
 export async function recalcPurchaseInvoice(id: string) {
+  { const denied = await guard('/dashboard/purchase-invoice', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   return syncPurchaseInvoice(supabase, id);
 }

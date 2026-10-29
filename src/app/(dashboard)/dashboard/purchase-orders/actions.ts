@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -21,6 +22,7 @@ export type PurchaseOrderInput = {
 };
 
 export async function savePurchaseOrder(input: PurchaseOrderInput) {
+  { const denied = await guard('/dashboard/purchase-orders', 'save', input); if (denied) return { error: denied }; }
   if (!input.vendor_id) return { error: 'Mohon pilih Vendor terlebih dahulu.' };
   if (!input.po_date) return { error: 'Kolom Tanggal PO wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
@@ -67,6 +69,7 @@ export async function savePurchaseOrder(input: PurchaseOrderInput) {
 }
 
 export async function deletePurchaseOrder(id: string) {
+  { const denied = await guard('/dashboard/purchase-orders', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: po } = await supabase.from('purchase_orders').select('status').eq('id', id).single();
   if (po && po.status === 'RECEIVED') return { error: 'PO yang telah diterima tidak dapat dihapus.' };
@@ -80,6 +83,7 @@ export async function deletePurchaseOrder(id: string) {
 
 // DRAFT -> ORDERED -> RECEIVED (hanya maju satu langkah, tidak bisa mundur)
 export async function advancePOStatus(id: string) {
+  { const denied = await guard('/dashboard/purchase-orders', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: po } = await supabase.from('purchase_orders').select('status').eq('id', id).single();
   if (!po) return { error: 'PO tidak ditemukan' };

@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
@@ -21,6 +22,7 @@ export type ProductInput = {
 } & Partial<Record<SpecKey, string>> & Partial<Record<PackNumKey, number>>;
 
 export async function saveProduct(input: ProductInput) {
+  { const denied = await guard('/dashboard/products', 'save', input); if (denied) return { error: denied }; }
   if (!input.name?.trim()) return { error: 'Kolom Product Name wajib diisi.' };
   if (!input.category) return { error: 'Mohon pilih Main Category terlebih dahulu.' };
 
@@ -75,6 +77,7 @@ export async function saveProduct(input: ProductInput) {
 }
 
 export async function savePrices(id: string, cost_price: number, price: number) {
+  { const denied = await guard('/dashboard/products', 'edit'); if (denied) return { error: denied }; }
   if (!(cost_price >= 0) || !(price >= 0)) return { error: 'Harga tidak valid.' };
   const supabase = createClient();
   const { error } = await supabase.from('products').update({ cost_price, price, price_listed: true }).eq('id', id);
@@ -86,6 +89,7 @@ export async function savePrices(id: string, cost_price: number, price: number) 
 
 // Keluarkan produk dari Price List (produk tetap ada di Catalogue).
 export async function removeFromPriceList(id: string) {
+  { const denied = await guard('/dashboard/products', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('products').update({ price_listed: false, cost_price: 0, price: 0 }).eq('id', id);
   if (error) return { error: error.message };
@@ -94,6 +98,7 @@ export async function removeFromPriceList(id: string) {
 }
 
 export async function deleteProduct(id: string) {
+  { const denied = await guard('/dashboard/products', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('products').delete().eq('id', id);
   if (error) return { error: error.message };

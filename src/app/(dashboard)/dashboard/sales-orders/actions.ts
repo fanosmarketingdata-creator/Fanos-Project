@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
@@ -27,6 +28,7 @@ export type SalesOrderInput = {
 };
 
 export async function saveSalesOrder(input: SalesOrderInput) {
+  { const denied = await guard('/dashboard/sales-orders', 'save', input); if (denied) return { error: denied }; }
   if (!input.client_id) return { error: 'Mohon pilih Client terlebih dahulu.' };
   if (!input.so_date) return { error: 'Kolom Tanggal SO wajib diisi.' };
   const validItems = input.items.filter((it) => it.sku && it.qty > 0);
@@ -97,6 +99,7 @@ export async function saveSalesOrder(input: SalesOrderInput) {
 }
 
 export async function deleteSalesOrder(id: string) {
+  { const denied = await guard('/dashboard/sales-orders', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: cur } = await supabase.from('sales_orders').select('status').eq('id', id).single();
   if (cur?.status === 'COMPLETED') return { error: 'Sales Order berstatus COMPLETED tidak dapat dihapus.' };
@@ -209,6 +212,7 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
 
 // Status Sales Order diubah manual: DRAFT -> VERIFIED -> COMPLETED.
 export async function changeSalesOrderStatus(id: string, to: 'VERIFIED' | 'COMPLETED') {
+  { const denied = await guard('/dashboard/sales-orders', 'edit'); if (denied) return { error: denied }; }
   const from = to === 'VERIFIED' ? 'DRAFT' : 'VERIFIED';
   const supabase = createClient();
   const { data: so } = await supabase.from('sales_orders').select('status').eq('id', id).single();

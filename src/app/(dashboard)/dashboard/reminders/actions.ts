@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -11,6 +12,7 @@ export type ReminderInput = {
 };
 
 export async function saveReminder(input: ReminderInput) {
+  { const denied = await guard('/dashboard/reminders', 'save', input); if (denied) return { error: denied }; }
   if (!input.title?.trim()) return { error: 'Kolom Judul wajib diisi.' };
   if (!input.due_date) return { error: 'Kolom Tanggal jatuh tempo wajib diisi.' };
 
@@ -37,6 +39,7 @@ export async function saveReminder(input: ReminderInput) {
 }
 
 export async function toggleReminderDone(id: string, isDone: boolean) {
+  { const denied = await guard('/dashboard/reminders', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('reminders').update({ is_done: !isDone }).eq('id', id);
   if (error) return { error: error.message };
@@ -46,6 +49,7 @@ export async function toggleReminderDone(id: string, isDone: boolean) {
 }
 
 export async function deleteReminder(id: string) {
+  { const denied = await guard('/dashboard/reminders', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('reminders').delete().eq('id', id);
   if (error) return { error: error.message };

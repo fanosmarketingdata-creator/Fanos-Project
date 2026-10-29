@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -48,6 +49,7 @@ export async function ensureColumns(projectId: string) {
 }
 
 export async function savePmProject(input: PmProjectInput) {
+  { const denied = await guard('/dashboard/project-management', 'save', input); if (denied) return { error: denied }; }
   if (!input.name?.trim()) return { error: 'Nama project wajib diisi.' };
   if (input.start_date && input.end_date && input.end_date < input.start_date) return { error: 'Tanggal selesai tidak boleh sebelum tanggal mulai.' };
   const supabase = createClient();
@@ -82,6 +84,7 @@ export async function savePmProject(input: PmProjectInput) {
 }
 
 export async function deletePmProject(id: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_projects').delete().eq('id', id);
   if (error) return { error: error.message };
@@ -90,6 +93,7 @@ export async function deletePmProject(id: string) {
 }
 
 export async function addProjectMember(projectId: string, memberId: string) {
+  { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_project_members').upsert({ project_id: projectId, team_member_id: memberId });
   if (error) return { error: error.message };
@@ -100,6 +104,7 @@ export async function addProjectMember(projectId: string, memberId: string) {
 }
 
 export async function removeProjectMember(projectId: string, memberId: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_project_members').delete().eq('project_id', projectId).eq('team_member_id', memberId);
   if (error) return { error: error.message };
@@ -122,6 +127,7 @@ export type TaskInput = {
 };
 
 export async function saveTask(input: TaskInput) {
+  { const denied = await guard('/dashboard/project-management', 'save', input); if (denied) return { error: denied }; }
   if (!input.title?.trim()) return { error: 'Judul task wajib diisi.' };
   if (!input.column_id) return { error: 'Kolom board wajib dipilih.' };
   if (input.start_date && input.due_date && input.due_date < input.start_date) return { error: 'Due date tidak boleh sebelum start date.' };
@@ -162,6 +168,7 @@ export async function saveTask(input: TaskInput) {
 }
 
 export async function moveTask(projectId: string, taskId: string, columnId: string) {
+  { const denied = await guard('/dashboard/project-management', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const [{ data: old }, { data: col }] = await Promise.all([
     supabase.from('pm_tasks').select('column_id, title').eq('id', taskId).single(),
@@ -177,6 +184,7 @@ export async function moveTask(projectId: string, taskId: string, columnId: stri
 
 // ---- Kolom board ----
 export async function addColumn(projectId: string, name: string, color: string, isDone = false) {
+  { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   if (!name.trim()) return { error: 'Nama board wajib diisi.' };
   const supabase = createClient();
   const { data: last } = await supabase.from('pm_columns').select('sort_order').eq('project_id', projectId).order('sort_order', { ascending: false }).limit(1);
@@ -188,6 +196,7 @@ export async function addColumn(projectId: string, name: string, color: string, 
 }
 
 export async function updateColumn(projectId: string, columnId: string, patch: { name?: string; color?: string; is_done?: boolean }) {
+  { const denied = await guard('/dashboard/project-management', 'edit'); if (denied) return { error: denied }; }
   if (patch.name !== undefined && !patch.name.trim()) return { error: 'Nama board wajib diisi.' };
   const supabase = createClient();
   const upd: Record<string, unknown> = {};
@@ -203,6 +212,7 @@ export async function updateColumn(projectId: string, columnId: string, patch: {
 
 // Hapus board: task di dalamnya dipindah ke board pertama yang tersisa. Board terakhir tidak bisa dihapus.
 export async function deleteColumn(projectId: string, columnId: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: cols } = await supabase.from('pm_columns').select('id, name, sort_order').eq('project_id', projectId).order('sort_order');
   const rest = (cols ?? []).filter((c) => c.id !== columnId);
@@ -219,6 +229,7 @@ export async function deleteColumn(projectId: string, columnId: string) {
 }
 
 export async function shiftColumn(projectId: string, columnId: string, dir: -1 | 1) {
+  { const denied = await guard('/dashboard/project-management', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: cols } = await supabase.from('pm_columns').select('id, sort_order').eq('project_id', projectId).order('sort_order');
   const list = cols ?? [];
@@ -232,6 +243,7 @@ export async function shiftColumn(projectId: string, columnId: string, dir: -1 |
 }
 
 export async function deleteTask(projectId: string, taskId: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_tasks').delete().eq('id', taskId);
   if (error) return { error: error.message };
@@ -241,6 +253,7 @@ export async function deleteTask(projectId: string, taskId: string) {
 }
 
 export async function addSubtask(projectId: string, taskId: string, title: string) {
+  { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   if (!title.trim()) return { error: 'Judul subtask wajib diisi.' };
   const supabase = createClient();
   const { data: last } = await supabase.from('pm_subtasks').select('sort_order').eq('task_id', taskId).order('sort_order', { ascending: false }).limit(1);
@@ -251,6 +264,7 @@ export async function addSubtask(projectId: string, taskId: string, title: strin
 }
 
 export async function toggleSubtask(projectId: string, subtaskId: string, done: boolean) {
+  { const denied = await guard('/dashboard/project-management', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_subtasks').update({ done }).eq('id', subtaskId);
   if (error) return { error: error.message };
@@ -259,6 +273,7 @@ export async function toggleSubtask(projectId: string, subtaskId: string, done: 
 }
 
 export async function deleteSubtask(projectId: string, subtaskId: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_subtasks').delete().eq('id', subtaskId);
   if (error) return { error: error.message };
@@ -267,6 +282,7 @@ export async function deleteSubtask(projectId: string, subtaskId: string) {
 }
 
 export async function addComment(projectId: string, taskId: string | null, body: string) {
+  { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   if (!body.trim()) return { error: 'Komentar tidak boleh kosong.' };
   const supabase = createClient();
   const author = await actorName();
@@ -278,6 +294,7 @@ export async function addComment(projectId: string, taskId: string | null, body:
 }
 
 export async function addFile(projectId: string, taskId: string | null, name: string, url: string) {
+  { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   if (!name.trim() || !url.trim()) return { error: 'Nama dan tautan file wajib diisi.' };
   if (!/^https?:\/\//i.test(url.trim())) return { error: 'Tautan harus diawali http:// atau https://' };
   const supabase = createClient();
@@ -289,6 +306,7 @@ export async function addFile(projectId: string, taskId: string | null, name: st
 }
 
 export async function deleteFile(projectId: string, fileId: string) {
+  { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_files').delete().eq('id', fileId);
   if (error) return { error: error.message };

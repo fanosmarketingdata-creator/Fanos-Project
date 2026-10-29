@@ -1006,6 +1006,12 @@ export const ID_EN: Record<string, string> = {
   'Product Baru': 'New Product',
   'Data Product berhasil ditambahkan': 'Product added successfully',
   'Produk gagal disimpan.': 'Product could not be saved.',
+  'Akses Penuh': 'Full Access',
+  'Hanya Lihat': 'View Only',
+  'Kosongkan': 'Clear All',
+  'Cari menu...': 'Search menu...',
+  'Menu': 'Menu',
+  'View = menu tampil dan datanya bisa dilihat. Create / Edit / Delete = boleh menambah / mengubah / menghapus data pada menu tersebut. Aturan ini juga dicek di server saat menyimpan.': 'View = the menu is visible and its data can be viewed. Create / Edit / Delete = allowed to add / change / remove data in that menu. These rules are also enforced on the server when saving.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

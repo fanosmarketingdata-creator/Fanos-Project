@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoicePayments } from '@/lib/invoice-sync';
@@ -23,6 +24,7 @@ function refresh() {
 }
 
 export async function savePayment(input: PaymentInput) {
+  { const denied = await guard('/dashboard/payments', 'save', input); if (denied) return { error: denied }; }
   if (!input.invoice_id) return { error: 'Mohon pilih Invoice terlebih dahulu.' };
   if (!input.pay_date) return { error: 'Kolom Tanggal Payment wajib diisi.' };
   const amount = Number(input.amount) || 0;
@@ -66,6 +68,7 @@ export async function savePayment(input: PaymentInput) {
 }
 
 export async function deletePayment(id: string) {
+  { const denied = await guard('/dashboard/payments', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: p } = await supabase.from('payments').select('invoice_id').eq('id', id).single();
   const { error } = await supabase.from('payments').delete().eq('id', id);

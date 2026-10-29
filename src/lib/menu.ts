@@ -183,3 +183,24 @@ export function filterGroups(groups: NavGroup[], allowed: string[] | null): NavG
     .map((g) => (g.direct || g.superuserOnly ? g : { ...g, items: g.items.map(ok).filter(Boolean) as NavItem[] }))
     .filter((g) => g.direct || g.superuserOnly || g.items.length > 0);
 }
+
+// ---- Hak akses detail per menu (CRUD) ----
+// View = menu ada di roles.permissions. Create/Edit/Delete disimpan di roles.role_actions
+// ({ '/dashboard/clients': ['create', 'edit'] }). Menu tanpa catatan di role_actions
+// (data lama) dianggap memiliki Create, Edit, dan Delete penuh agar tidak ada yang terkunci.
+export type CrudAction = 'create' | 'edit' | 'delete';
+export const CRUD_ACTIONS: CrudAction[] = ['create', 'edit', 'delete'];
+export type RoleActions = Record<string, CrudAction[]>;
+
+export function menuKeyForPath(pathname: string): string | null {
+  return ALL_MENU_KEYS.filter((k) => pathname === k || pathname.startsWith(k + '/')).sort((a, b) => b.length - a.length)[0] ?? null;
+}
+
+// allowed === null: akses penuh (Superuser / role tanpa data).
+export function canDo(allowed: string[] | null, roleActions: RoleActions | null, href: string, action: CrudAction): boolean {
+  if (allowed === null) return true;
+  if (!ALL_MENU_KEYS.includes(href)) return true;
+  if (!allowed.includes(href)) return false;
+  const list = roleActions?.[href];
+  return list ? list.includes(action) : true;
+}

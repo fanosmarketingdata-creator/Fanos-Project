@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { getStockMap, postMovements } from '@/lib/stock';
@@ -14,6 +15,7 @@ function refresh() {
 }
 
 export async function createAdjustment(input: AdjInput) {
+  { const denied = await guard('/dashboard/stock-adjustment', 'create'); if (denied) return { error: denied }; }
   if (!input.warehouse_id) return { error: 'Mohon pilih Gudang terlebih dahulu.' };
   if (!input.adj_date) return { error: 'Kolom Tanggal wajib diisi.' };
   if (!input.reason?.trim()) return { error: 'Kolom Alasan / Kategori wajib diisi.' };
@@ -60,6 +62,7 @@ export async function createAdjustment(input: AdjInput) {
 
 // Hapus (void) dokumen: catatan stoknya dibalik. Ditolak bila hasilnya membuat stok minus.
 export async function deleteAdjustment(id: string) {
+  { const denied = await guard('/dashboard/stock-adjustment', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: adj } = await supabase.from('stock_adjustments').select('id, warehouse_id').eq('id', id).single();
   if (!adj) return { error: 'Dokumen tidak ditemukan' };

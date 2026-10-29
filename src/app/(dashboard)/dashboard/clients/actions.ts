@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -16,6 +17,7 @@ export type ClientInput = {
 };
 
 export async function saveClient(input: ClientInput) {
+  { const denied = await guard('/dashboard/clients', 'save', input); if (denied) return { error: denied }; }
   if (!input.company?.trim()) {
     return { error: 'Kolom Company Name wajib diisi.' };
   }
@@ -48,6 +50,7 @@ export async function saveClient(input: ClientInput) {
 }
 
 export async function deleteClient(id: string) {
+  { const denied = await guard('/dashboard/clients', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('clients').delete().eq('id', id);
   if (error) return { error: error.message };

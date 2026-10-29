@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { calcCbm } from '@/lib/packing';
@@ -63,6 +64,7 @@ export type PackingLine = {
 export type PackingInput = { so_id: string; doc_no?: string; pl_date: string; ship_to?: string; packed_by?: string; notes?: string; items: PackingLine[] };
 
 export async function createPackingList(input: PackingInput) {
+  { const denied = await guard('/dashboard/packing-list', 'create'); if (denied) return { error: denied }; }
   if (!input.so_id) return { error: 'Mohon pilih Sales Order terlebih dahulu.' };
   if (!input.pl_date) return { error: 'Kolom Tanggal wajib diisi.' };
   // Total Qty baris = jumlah kemasan x unit per kemasan (dihitung ulang di server).
@@ -107,6 +109,7 @@ export async function createPackingList(input: PackingInput) {
 }
 
 export async function deletePackingList(id: string) {
+  { const denied = await guard('/dashboard/packing-list', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('packing_lists').delete().eq('id', id);
   if (error) return { error: error.message };

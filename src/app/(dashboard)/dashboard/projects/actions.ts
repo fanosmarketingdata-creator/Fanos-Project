@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -17,6 +18,7 @@ export type ProjectInput = {
 };
 
 export async function saveProject(input: ProjectInput) {
+  { const denied = await guard('/dashboard/projects', 'save', input); if (denied) return { error: denied }; }
   if (!input.name?.trim()) return { error: 'Kolom Project Name wajib diisi.' };
 
   const supabase = createClient();
@@ -60,6 +62,7 @@ export async function saveProject(input: ProjectInput) {
 }
 
 export async function deleteProject(id: string) {
+  { const denied = await guard('/dashboard/projects', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('projects').delete().eq('id', id);
   if (error) return { error: error.message };

@@ -1,15 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireSuperuser } from '@/lib/auth';
 import RolesTable from './RolesTable';
+import type { RoleActions } from '@/lib/menu';
 
 export default async function RolesPage() {
   await requireSuperuser();
 
   const supabase = createClient();
-  const [{ data: roles }, { data: profiles }] = await Promise.all([
-    supabase.from('roles').select('id, name, description, permissions').order('name'),
-    supabase.from('profiles').select('role'),
-  ]);
+  let rolesRes = await supabase.from('roles').select('id, name, description, permissions, role_actions').order('name');
+  if (rolesRes.error) rolesRes = (await supabase.from('roles').select('id, name, description, permissions').order('name')) as typeof rolesRes;
+  const roles = rolesRes.data as { id: string; name: string; description: string | null; permissions: string[] | null; role_actions?: RoleActions | null }[] | null;
+  const { data: profiles } = await supabase.from('profiles').select('role');
 
   const usage = new Map<string, number>();
   (profiles ?? []).forEach((p) => usage.set(p.role, (usage.get(p.role) ?? 0) + 1));
@@ -19,6 +20,7 @@ export default async function RolesPage() {
     name: r.name,
     description: r.description,
     permissions: (r.permissions as string[] | null) ?? [],
+    role_actions: (r.role_actions as RoleActions | null) ?? {},
     account_count: usage.get(r.name) ?? 0,
   }));
 

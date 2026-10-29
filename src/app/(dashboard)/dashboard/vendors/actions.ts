@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 
@@ -15,6 +16,7 @@ export type VendorInput = {
 };
 
 export async function saveVendor(input: VendorInput) {
+  { const denied = await guard('/dashboard/vendors', 'save', input); if (denied) return { error: denied }; }
   if (!input.company?.trim()) {
     return { error: 'Kolom Nama perusahaan wajib diisi.' };
   }
@@ -42,6 +44,7 @@ export async function saveVendor(input: VendorInput) {
 }
 
 export async function deleteVendor(id: string) {
+  { const denied = await guard('/dashboard/vendors', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('vendors').delete().eq('id', id);
   if (error) return { error: error.message };

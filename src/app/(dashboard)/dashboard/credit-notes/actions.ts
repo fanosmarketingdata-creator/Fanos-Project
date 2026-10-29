@@ -1,5 +1,6 @@
 'use server';
 
+import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { syncInvoicePayments } from '@/lib/invoice-sync';
@@ -31,6 +32,7 @@ export async function getApplicableInvoices(cnId: string) {
 }
 
 export async function applyCreditNote(cnId: string, invoiceId: string, amount: number, date: string) {
+  { const denied = await guard('/dashboard/credit-notes', 'edit'); if (denied) return { error: denied }; }
   if (!invoiceId) return { error: 'Mohon pilih Invoice terlebih dahulu.' };
   if (!(amount > 0)) return { error: 'Jumlah harus lebih dari 0.' };
   const supabase = createClient();
@@ -54,6 +56,7 @@ export async function applyCreditNote(cnId: string, invoiceId: string, amount: n
 }
 
 export async function refundCreditNote(cnId: string, amount: number, date: string, method: string, reference: string) {
+  { const denied = await guard('/dashboard/credit-notes', 'edit'); if (denied) return { error: denied }; }
   if (!(amount > 0)) return { error: 'Jumlah harus lebih dari 0.' };
   const supabase = createClient();
   const { data: cn } = await supabase.from('credit_notes').select('amount, applied_amount, refunded_amount').eq('id', cnId).single();
