@@ -97,7 +97,7 @@ export async function saveQuotation(input: QuotationInput) {
 }
 
 // Dipanggil dari QuotationForm (client) saat mode "Dari BOQ Project" dan
-// user memilih BOQ-nya — ambil seluruh item (flat, lintas Area/Sub-area)
+// user memilih BOQ-nya — ambil item BOQ yang diakumulasi per SKU (lintas Area/Sub-area)
 // plus client_id BOQ itu supaya form bisa auto-isi Client.
 export async function getBOQItemsForQuote(boqProjectId: string) {
   const supabase = createClient();
@@ -105,7 +105,15 @@ export async function getBOQItemsForQuote(boqProjectId: string) {
     supabase.from('boq_project_items').select('sku, qty, uom, product_id').eq('boq_project_id', boqProjectId),
     supabase.from('boq_projects').select('client_id').eq('id', boqProjectId).single(),
   ]);
-  return { items: items ?? [], clientId: boq?.client_id ?? '' };
+  // Akumulasi per SKU (sintesis lintas Area/Sub-area): qty dijumlahkan, urutan mengikuti kemunculan pertama.
+  const by = new Map<string, { sku: string; qty: number; uom: string | null; product_id: string | null }>();
+  (items ?? []).forEach((it) => {
+    const key = `${it.product_id ?? ''}|${it.sku}|${(it.uom ?? '').toLowerCase()}`;
+    const cur = by.get(key);
+    if (cur) cur.qty += Number(it.qty) || 0;
+    else by.set(key, { sku: it.sku as string, qty: Number(it.qty) || 0, uom: (it.uom as string | null) ?? null, product_id: (it.product_id as string | null) ?? null });
+  });
+  return { items: Array.from(by.values()), clientId: boq?.client_id ?? '' };
 }
 
 export async function deleteQuotation(id: string) {
