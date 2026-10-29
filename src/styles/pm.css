@@ -157,3 +157,28 @@
   .pm-board { grid-template-columns: repeat(4, 260px); }
   .pm-props { grid-template-columns: 100px 1fr; }
 }
+
+/* Tombol kembali */
+.pm-back { display: inline-flex; align-items: center; gap: 8px; padding: 4px 14px 4px 4px; margin-bottom: 14px; background: #fff; border: 1px solid #e3e8f2; border-radius: 999px; font-size: 13px; font-weight: 700; color: #334155; cursor: pointer; box-shadow: 0 1px 2px rgba(15, 23, 42, .04); transition: all .2s ease; }
+.pm-back .ar { width: 28px; height: 28px; border-radius: 50%; background: #eaf0ff; color: #3563e9; display: inline-flex; align-items: center; justify-content: center; font-size: 17px; transition: transform .2s ease, background .2s ease, color .2s ease; }
+.pm-back:hover { border-color: #b8caf9; color: #3563e9; box-shadow: 0 6px 16px -10px rgba(53, 99, 233, .5); }
+.pm-back:hover .ar { background: #3563e9; color: #fff; transform: translateX(-3px); }
+
+/* Board berwarna */
+.pm-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; flex-shrink: 0; }
+.pm-col { border-radius: 16px; }
+.pm-swatches { display: flex; flex-wrap: wrap; gap: 8px; }
+.pm-swatches button { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #fff; box-shadow: 0 0 0 1px #dbe1ec; cursor: pointer; transition: transform .15s ease; padding: 0; }
+.pm-swatches button:hover { transform: scale(1.12); }
+.pm-swatches button.on { box-shadow: 0 0 0 2px #0f172a; }
+.pm-col-add { align-self: start; min-height: 64px; border: 2px dashed #cfd8e8; border-radius: 16px; background: transparent; color: #64748b; font-weight: 700; font-size: 13px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all .2s ease; }
+.pm-col-add:hover { border-color: #3563e9; color: #3563e9; background: #f4f7ff; }
+.pm-col-head .pm-dots > button { font-size: 18px; }
+
+/* Dropdown di panel task */
+.pm-sel { position: relative; max-width: 100%; }
+.pm-sel .ui-select-trigger { height: 36px; border-radius: 10px; font-size: 12.5px; font-weight: 600; padding: 0 12px; }
+.pm-sel .pm-dot { position: absolute; right: 38px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+.pm-date { height: 36px; border: 1px solid #dfe5ef; border-radius: 10px; padding: 0 10px; font-size: 12.5px; font-weight: 600; color: #0f172a; background: #fff; }
+.pm-toolbar .ui-select-trigger { height: 38px; border-radius: 999px; font-size: 12.5px; font-weight: 600; padding: 0 14px; min-width: 150px; background: #fff; }
+.pm-pill-btn { white-space: nowrap; }

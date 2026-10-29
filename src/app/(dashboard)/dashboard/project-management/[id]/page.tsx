@@ -1,14 +1,16 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
-import ProjectDetailClient, { type TaskRow, type CommentRow, type FileRow, type ActivityRow, type ProjectInfo } from './ProjectDetailClient';
+import { ensureColumns } from '../actions';
+import ProjectDetailClient, { type ColumnRow, type TaskRow, type CommentRow, type FileRow, type ActivityRow, type ProjectInfo } from './ProjectDetailClient';
 import type { Member } from '../pm-ui';
 
 export default async function ProjectDetailPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const id = params.id;
-  const [{ data: p }, { data: tasks }, { data: subs }, { data: asg }, { data: pmm }, { data: tm }, { data: prof }, { data: comments }, { data: files }, { data: acts }] = await Promise.all([
+  await ensureColumns(id);
+  const [{ data: p }, { data: tasks }, { data: subs }, { data: asg }, { data: pmm }, { data: tm }, { data: prof }, { data: comments }, { data: files }, { data: acts }, { data: cols }] = await Promise.all([
     supabase.from('pm_projects').select('id, name, description, status, priority, start_date, end_date, owner_id').eq('id', id).single(),
-    supabase.from('pm_tasks').select('id, title, description, status, priority, start_date, due_date, depends_on, sort_order').eq('project_id', id).order('sort_order'),
+    supabase.from('pm_tasks').select('id, title, description, status, column_id, priority, start_date, due_date, depends_on, sort_order').eq('project_id', id).order('sort_order'),
     supabase.from('pm_subtasks').select('id, task_id, title, done, sort_order, pm_tasks!inner(project_id)').eq('pm_tasks.project_id', id).order('sort_order'),
     supabase.from('pm_task_assignees').select('task_id, team_member_id, pm_tasks!inner(project_id)').eq('pm_tasks.project_id', id),
     supabase.from('pm_project_members').select('team_member_id').eq('project_id', id),
@@ -17,6 +19,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     supabase.from('pm_comments').select('id, task_id, author_name, body, created_at').eq('project_id', id).order('created_at'),
     supabase.from('pm_files').select('id, task_id, name, url, created_by, created_at').eq('project_id', id).order('created_at', { ascending: false }),
     supabase.from('pm_activity').select('id, task_id, actor_name, text, created_at').eq('project_id', id).order('created_at', { ascending: false }).limit(200),
+    supabase.from('pm_columns').select('id, name, color, is_done, sort_order').eq('project_id', id).order('sort_order'),
   ]);
   if (!p) notFound();
 
@@ -27,7 +30,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     id: t.id as string,
     title: t.title as string,
     description: (t.description as string | null) ?? '',
-    status: t.status as TaskRow['status'],
+    column_id: (t.column_id as string | null) ?? '',
     priority: t.priority as TaskRow['priority'],
     start_date: (t.start_date as string | null) ?? '',
     due_date: (t.due_date as string | null) ?? '',
@@ -51,6 +54,7 @@ export default async function ProjectDetailPage({ params }: { params: { id: stri
     <ProjectDetailClient
       project={info}
       tasks={taskRows}
+      columns={(cols ?? []) as ColumnRow[]}
       members={members}
       memberIds={(pmm ?? []).map((m) => m.team_member_id as string)}
       comments={(comments ?? []) as CommentRow[]}

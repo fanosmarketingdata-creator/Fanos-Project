@@ -3,6 +3,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
+import Select from '@/components/ui/Select';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
 import FvSelect from '@/components/registry/FvSelect';
 import { AvatarStack, Avatar, StatusPill, PriorityPill, Progress, fmtDate, type Member } from './pm-ui';
@@ -118,20 +119,20 @@ export default function ProjectListClient({ rows, members }: { rows: PmProjectRo
           <div className="pm-search"><i className="fi fi-rr-search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari project..." /></div>
         </div>
         <div className="right">
-          <select className="pm-select" value={sort} onChange={(e) => setSort(e.target.value)}>
+          <Select value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="added">Terbaru Ditambahkan</option>
             <option value="name">Nama A–Z</option>
             <option value="due">Deadline Terdekat</option>
             <option value="progress">Progres Tertinggi</option>
-          </select>
-          <select className="pm-select" value={fStatus} onChange={(e) => setFStatus(e.target.value)}>
+          </Select>
+          <Select value={fStatus} onChange={(e) => setFStatus(e.target.value)}>
             <option value="">Semua Status</option>
             {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
-          <select className="pm-select" value={fPrio} onChange={(e) => setFPrio(e.target.value)}>
+          </Select>
+          <Select value={fPrio} onChange={(e) => setFPrio(e.target.value)}>
             <option value="">Semua Prioritas</option>
             {PRIORITIES.map((s) => <option key={s} value={s}>{s}</option>)}
-          </select>
+          </Select>
           <div className="pm-viewtoggle">
             <button type="button" className={view === 'grid' ? 'on' : ''} onClick={() => setView('grid')} title="Grid"><i className="fi fi-rr-apps" /></button>
             <button type="button" className={view === 'list' ? 'on' : ''} onClick={() => setView('list')} title="List"><i className="fi fi-rr-list" /></button>
