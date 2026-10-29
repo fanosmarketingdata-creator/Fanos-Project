@@ -37,7 +37,7 @@ export function ProductPickButton({
           products={products}
           selectedSku={value}
           onClose={() => setOpen(false)}
-          onCreated={onCreated ? (p) => { onCreated(p); onSelect(p); setOpen(false); } : undefined}
+          onCreated={onCreated}
           onSelect={(p) => {
             onSelect(p);
             setOpen(false);

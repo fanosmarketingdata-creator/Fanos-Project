@@ -90,8 +90,6 @@ export default function ProjectClientFields({
           onClose={() => setAddProject(false)}
           onSaved={(p) => {
             setProjects((prev) => [{ id: p.id, name: p.name, client_id: p.client_id }, ...prev]);
-            onProjectName(p.name);
-            if (p.client_id) onClientId(p.client_id);
             setAddProject(false);
           }}
         />
@@ -101,7 +99,6 @@ export default function ProjectClientFields({
           onClose={() => setAddClient(false)}
           onSaved={(c) => {
             setClients((prev) => [...prev, { id: c.id, company: c.company }]);
-            onClientId(c.id);
             setAddClient(false);
           }}
         />
