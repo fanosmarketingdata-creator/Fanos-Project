@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
@@ -8,7 +8,7 @@ import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/componen
 import FvSelect from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
-import { saveClient, deleteClient, type ClientInput } from './actions';
+import { saveClient, deleteClient, getClientProjects, type ClientInput, type ClientProjectInfo } from './actions';
 
 export type ClientRow = {
   id: string;
@@ -57,6 +57,14 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
   const [form, setForm] = useState<ClientInput>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [detail, setDetail] = useState<ClientRow | null>(null);
+  const [cProjects, setCProjects] = useState<ClientProjectInfo[] | null>(null);
+  useEffect(() => {
+    setCProjects(null);
+    if (!detail) return;
+    let alive = true;
+    getClientProjects(detail.id).then((r) => { if (alive) setCProjects(r); }).catch(() => { if (alive) setCProjects([]); });
+    return () => { alive = false; };
+  }, [detail]);
   const [deleteTarget, setDeleteTarget] = useState<ClientRow | null>(null);
   const [deleting, setDeleting] = useState(false);
 
@@ -190,6 +198,33 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
               <div className="dv2-card-icon"><i className="fi fi-rr-home" /></div>
               <div><div className="dv2-card-value" style={{ fontWeight: 500 }}>{detail.address || '-'}</div></div>
             </div>
+            <div className="dv2-section-title"><i className="fi fi-rr-briefcase" /> Project</div>
+            {cProjects === null ? (
+              <div className="dv2-card"><div><div className="dv2-card-value" style={{ fontWeight: 500, color: '#94a3b8' }}>Memuat project...</div></div></div>
+            ) : cProjects.length === 0 ? (
+              <div className="dv2-card"><div><div className="dv2-card-value" style={{ fontWeight: 500, color: '#94a3b8' }}>Belum ada project untuk client ini.</div></div></div>
+            ) : (
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                {cProjects.map((p) => {
+                  const c = p.stage === 'Berjalan' ? { bg: '#e8f7f1', fg: '#059669' } : p.stage === 'Selesai' ? { bg: '#eaf1ff', fg: '#3563e9' } : { bg: '#fff4e3', fg: '#b45309' };
+                  return (
+                    <div key={p.id} className="dv2-card" style={{ alignItems: 'center', gap: 12 }}>
+                      <div className="dv2-card-icon"><i className="fi fi-rr-building" /></div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div className="dv2-card-value" style={{ fontWeight: 700 }}>{p.name}</div>
+                        <div style={{ fontSize: 11.5, color: '#94a3b8', marginTop: 2 }}>
+                          {[p.project_no, p.location].filter(Boolean).join(' · ') || '-'}
+                        </div>
+                        <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginTop: 6, fontSize: 11, color: '#64748b', fontWeight: 600 }}>
+                          <span>BOQ: {p.boq}</span><span>·</span><span>Quotation: {p.quotations}</span><span>·</span><span>Sales Order: {p.salesOrders}</span>
+                        </div>
+                      </div>
+                      <span style={{ background: c.bg, color: c.fg, fontSize: 11, fontWeight: 700, padding: '4px 12px', borderRadius: 999, whiteSpace: 'nowrap' }}>{p.stage}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </DetailModal>
       )}

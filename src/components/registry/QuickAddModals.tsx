@@ -8,7 +8,9 @@ import FinanceSelect from '@/components/registry/FinanceSelect';
 import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
 import { saveClient, type ClientInput } from '@/app/(dashboard)/dashboard/clients/actions';
 import { saveProject, type ProjectInput } from '@/app/(dashboard)/dashboard/projects/actions';
-import { getProjectClientLookups } from '@/lib/quick-add-actions';
+import { getProjectClientLookups, getBrandNames, createProductQuick } from '@/lib/quick-add-actions';
+import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import type { ProductOption } from '@/components/ProductPicker';
 
 const STATUSES = ['Active', 'Inactive', 'Blacklist', 'Unverified'];
 
@@ -183,6 +185,81 @@ export function ProjectQuickModal({
           </FvField>
           <FvField label="Cashback">
             <FinanceSelect kind="cashback" value={form.cashback || ''} onChange={(v) => setForm({ ...form, cashback: v })} />
+          </FvField>
+        </div>
+      </div>
+    </FormModal>
+  );
+}
+
+// Form tambah Product baru (ringkas): SKU dibuat otomatis; spesifikasi lengkap bisa dilengkapi di Master Data > Product.
+export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; onSaved: (p: ProductOption) => void }) {
+  const toast = useToast();
+  const [brands, setBrands] = useState<string[]>([]);
+  const [form, setForm] = useState({ name: '', brand: 'FANOS', category: '', subcategory: '', application: '', uom: 'Pcs' });
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    getBrandNames().then(setBrands).catch(() => {});
+  }, []);
+
+  async function save() {
+    setSaving(true);
+    try {
+      const r = await createProductQuick(form);
+      if (r.error || !r.product) return toast(r.error ?? 'Produk gagal disimpan.', 'error');
+      toast('Data Product berhasil ditambahkan', 'success');
+      onSaved(r.product);
+    } catch (e) {
+      toast('Data gagal disimpan: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  const brandList = brands.includes(form.brand) ? brands : [...brands, form.brand];
+  return (
+    <FormModal
+      title="New Product"
+      icon="fi fi-rr-box-open"
+      maxWidth={760}
+      onClose={onClose}
+      footer={
+        <>
+          <button type="button" className="btn btn-primary" onClick={save} disabled={saving}>
+            <i className="fa-solid fa-floppy-disk" /> {saving ? 'Menyimpan...' : 'Simpan'}
+          </button>
+          <button type="button" className="btn btn-secondary" onClick={onClose}>Batal</button>
+        </>
+      }
+    >
+      <div className="fv2-section">
+        <div className="fv2-section-title"><i className="fi fi-rr-box" /> Informasi Produk</div>
+        <div className="fv2-grid">
+          <FvField label="SKU No"><input value="" placeholder="Dibuat otomatis oleh sistem" readOnly /></FvField>
+          <FvField label="Product Name" required>
+            <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Nama produk" autoFocus />
+          </FvField>
+          <FvField label="Brand">
+            <FvSelect value={form.brand} onChange={(v) => setForm({ ...form, brand: v })} options={toOptions(brandList)} placeholder="Brand" />
+          </FvField>
+          <FvField label="UOM">
+            <FvSelect value={form.uom} onChange={(v) => setForm({ ...form, uom: v })} options={toOptions(UOM_OPTIONS)} placeholder="UOM" />
+          </FvField>
+          <FvField label="Main Category" required>
+            <FvSelect value={form.category} onChange={(v) => setForm({ ...form, category: v, subcategory: '' })} options={toOptions(Object.keys(PRODUCT_CATEGORIES))} placeholder="— Pilih salah satu —" />
+          </FvField>
+          <FvField label="Subcategory">
+            <FvSelect
+              value={form.subcategory}
+              onChange={(v) => setForm({ ...form, subcategory: v })}
+              options={toOptions(PRODUCT_CATEGORIES[form.category] ?? [])}
+              placeholder={form.category ? '— Pilih salah satu —' : 'Pilih Main Category terlebih dahulu'}
+              disabled={!form.category}
+            />
+          </FvField>
+          <FvField label="Application">
+            <FvSelect value={form.application} onChange={(v) => setForm({ ...form, application: v })} options={toOptions(PRODUCT_APPLICATION_OPTIONS)} placeholder="— Pilih salah satu —" />
           </FvField>
         </div>
       </div>

@@ -4,16 +4,19 @@ import Select from '@/components/ui/Select';
 import { useMemo, useState } from 'react';
 import { FormModal } from './RegistryModal';
 import type { ProductOption } from '@/components/ProductPicker';
+import { ProductQuickModal } from './QuickAddModals';
 
 // Pemilih produk berupa pop up kartu produk (seperti index.html), bukan dropdown.
 export function ProductPickButton({
   products,
   value,
   onSelect,
+  onCreated,
 }: {
   products: ProductOption[];
   value: string; // SKU terpilih
   onSelect: (p: ProductOption) => void;
+  onCreated?: (p: ProductOption) => void; // bila diisi, pop up menampilkan tombol "Product Baru"
 }) {
   const [open, setOpen] = useState(false);
   const selected = products.find((p) => p.sku === value);
@@ -34,6 +37,7 @@ export function ProductPickButton({
           products={products}
           selectedSku={value}
           onClose={() => setOpen(false)}
+          onCreated={onCreated ? (p) => { onCreated(p); onSelect(p); setOpen(false); } : undefined}
           onSelect={(p) => {
             onSelect(p);
             setOpen(false);
@@ -49,13 +53,16 @@ function ProductPickerModal({
   selectedSku,
   onSelect,
   onClose,
+  onCreated,
 }: {
   products: ProductOption[];
   selectedSku: string;
   onSelect: (p: ProductOption) => void;
   onClose: () => void;
+  onCreated?: (p: ProductOption) => void;
 }) {
   const [q, setQ] = useState('');
+  const [adding, setAdding] = useState(false);
   const [cat, setCat] = useState('');
   const categories = useMemo(() => Array.from(new Set(products.map((p) => p.category).filter(Boolean))) as string[], [products]);
 
@@ -74,6 +81,11 @@ function ProductPickerModal({
         <div className="fv2-field" style={{ flex: 1, minWidth: 200 }}>
           <input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari SKU, nama, atau brand..." />
         </div>
+        {onCreated && (
+          <button type="button" className="btn btn-primary" onClick={() => setAdding(true)} style={{ whiteSpace: 'nowrap' }}>
+            <i className="fi fi-rr-plus" /> Product Baru
+          </button>
+        )}
         {categories.length > 0 && (
           <div className="fv2-field" style={{ minWidth: 160 }}>
             <Select value={cat} onChange={(e) => setCat(e.target.value)}>
@@ -117,6 +129,7 @@ function ProductPickerModal({
           </div>
         ))}
       </div>
+      {adding && onCreated && <ProductQuickModal onClose={() => setAdding(false)} onSaved={(p) => { setAdding(false); onCreated(p); }} />}
     </FormModal>
   );
 }

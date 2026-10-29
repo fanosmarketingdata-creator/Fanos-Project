@@ -999,6 +999,13 @@ export const ID_EN: Record<string, string> = {
   'Selesai': 'Completed',
   'Buka': 'Open',
   'Kumulatif per hari': 'Cumulative by day',
+  'Berjalan': 'Ongoing',
+  'Prospek': 'Prospect',
+  'Memuat project...': 'Loading projects...',
+  'Belum ada project untuk client ini.': 'This client has no projects yet.',
+  'Product Baru': 'New Product',
+  'Data Product berhasil ditambahkan': 'Product added successfully',
+  'Produk gagal disimpan.': 'Product could not be saved.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

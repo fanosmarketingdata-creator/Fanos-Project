@@ -26,7 +26,7 @@ function emptyArea(): BOQAreaInput {
 
 export default function BOQProjectForm({
   clients,
-  products,
+  products: productsProp,
   initial,
 }: {
   clients: ClientOption[];
@@ -36,6 +36,8 @@ export default function BOQProjectForm({
   const router = useRouter();
   const toast = useToast();
   const [saving, setSaving] = useState(false);
+  const [extraProducts, setExtraProducts] = useState<ProductOption[]>([]);
+  const products = [...productsProp, ...extraProducts];
 
   const [projectName, setProjectName] = useState(initial?.project_name ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
@@ -205,7 +207,7 @@ export default function BOQProjectForm({
                       {sub.items.map((item, ii) => (
                         <div key={ii} className="fv2-item-row">
                           <div style={{ flex: 2 }}>
-                            <ProductPickButton products={products} value={item.sku} onSelect={(p) => updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })} />
+                            <ProductPickButton products={products} onCreated={(p) => setExtraProducts((prev) => [...prev, p])} value={item.sku} onSelect={(p) => updateItem(ai, si, ii, { product_id: p.id, sku: p.sku, uom: p.uom })} />
                           </div>
                           <input type="number" style={{ width: 80, flex: 'none' }} value={item.qty} onChange={(e) => updateItem(ai, si, ii, { qty: parseFloat(e.target.value) || 0 })} placeholder="Qty" />
                           <input style={{ width: 80, flex: 'none' }} value={item.uom} onChange={(e) => updateItem(ai, si, ii, { uom: e.target.value })} placeholder="UOM" />
