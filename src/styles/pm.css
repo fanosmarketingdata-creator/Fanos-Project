@@ -3,7 +3,9 @@
 .pm-title { font-size: 26px; font-weight: 800; color: #0f172a; line-height: 1.2; }
 .pm-sub { font-size: 13.5px; color: #64748b; margin-top: 4px; max-width: 640px; }
 .pm-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; margin-bottom: 16px; }
-.pm-toolbar .left, .pm-toolbar .right { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pm-toolbar .left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.pm-toolbar .right { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
+@media (max-width: 900px) { .pm-toolbar .right { flex-wrap: wrap; } }
 .pm-search { position: relative; width: 260px; max-width: 100%; }
 .pm-search i { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #94a3b8; font-size: 13px; }
 .pm-search input { width: 100%; height: 38px; padding: 0 14px 0 34px; border: 1px solid #dfe5ef; border-radius: 999px; background: #fff; font-size: 13px; }
@@ -71,8 +73,8 @@
 .pm-meta { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-top: 10px; font-size: 12.5px; color: #475569; }
 .pm-meta .it { display: inline-flex; align-items: center; gap: 6px; }
 .pm-meta .sep { width: 1px; height: 14px; background: #dbe1ec; }
-.pm-tabs { display: flex; gap: 22px; border-bottom: 1px solid #e8ecf4; margin: 18px 0 16px; overflow-x: auto; }
-.pm-tab { padding: 10px 2px; border: 0; background: none; font-size: 13.5px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -1px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
+.pm-tabs { display: flex; gap: 22px; border-bottom: 1px solid #e8ecf4; margin: 18px 0 16px; overflow: visible; flex-wrap: wrap; }
+.pm-tab { padding: 10px 2px; border: 0; background: none; font-size: 13.5px; font-weight: 600; color: #64748b; cursor: pointer; border-bottom: 2px solid transparent; position: relative; top: 1px; white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; }
 .pm-tab:hover { color: #0f172a; }
 .pm-tab.on { color: #3563e9; border-bottom-color: #3563e9; }
 .pm-tab .n { font-size: 10.5px; font-weight: 700; background: #e8efff; color: #3563e9; border-radius: 6px; padding: 1px 6px; }
@@ -180,5 +182,5 @@
 .pm-sel .ui-select-trigger { height: 36px; border-radius: 10px; font-size: 12.5px; font-weight: 600; padding: 0 12px; }
 .pm-sel .pm-dot { position: absolute; right: 38px; top: 50%; transform: translateY(-50%); pointer-events: none; }
 .pm-date { height: 36px; border: 1px solid #dfe5ef; border-radius: 10px; padding: 0 10px; font-size: 12.5px; font-weight: 600; color: #0f172a; background: #fff; }
-.pm-toolbar .ui-select-trigger { height: 38px; border-radius: 999px; font-size: 12.5px; font-weight: 600; padding: 0 14px; min-width: 150px; background: #fff; }
+.pm-toolbar .ui-select-trigger { height: 38px; border-radius: 999px; font-size: 12.5px; font-weight: 600; padding: 0 14px; width: auto; flex: 0 0 auto; min-width: 150px; max-width: 200px; background: #fff; }
 .pm-pill-btn { white-space: nowrap; }
