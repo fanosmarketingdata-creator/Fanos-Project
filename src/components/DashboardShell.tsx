@@ -342,9 +342,9 @@ export default function DashboardShell({
                 {open && (
                   <div
                     role="menu"
-                    className="nav-pop absolute left-0 top-full z-[600] min-w-[200px] pt-2"
+                    className="nav-pop absolute left-0 top-full z-[600] min-w-[200px] pt-3.5"
                   >
-                    <div className="rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+                    <div className="rounded-xl border border-slate-100 bg-white p-2.5 shadow-xl">
                       {group.items.map((item) => {
                         if (item.children) return <Flyout key={item.href} item={item} pathname={pathname} />;
                         const active = isActive(pathname, item.href);

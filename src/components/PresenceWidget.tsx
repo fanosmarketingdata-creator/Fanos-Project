@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 
 type Person = { id: string; full_name: string; photo_url: string | null; role: string };
@@ -15,6 +15,24 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const [people, setPeople] = useState<Person[]>([]);
   const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
+  const boxRef = useRef<HTMLDivElement>(null);
+
+  // Klik / tap di luar panel menutupnya (overlay fixed tidak andal di dalam header ber-backdrop-blur).
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: Event) => {
+      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('touchstart', onDown);
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('touchstart', onDown);
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [open]);
 
   useEffect(() => {
     supabase
@@ -64,7 +82,7 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const remaining = others.length - shown.length;
 
   return (
-    <div className="relative">
+    <div className="relative" ref={boxRef}>
       <button onClick={() => setOpen((v) => !v)} className="flex items-center pl-2" title="Lihat pengguna yang sedang aktif">
         {shown.map((p, i) => (
           <Avatar
@@ -83,7 +101,6 @@ export default function PresenceWidget({ meId }: { meId: string }) {
       </button>
       {open && (
         <>
-          <div className="fixed inset-0 z-[900]" onClick={() => setOpen(false)} />
           <div className="absolute right-0 top-11 z-[950] max-h-80 w-60 overflow-y-auto rounded-xl border border-slate-100 bg-white p-2.5 shadow-xl">
             {online.length > 0 && <Section title={`Aktif (${online.length})`} people={online} active />}
             {offline.length > 0 && <Section title={`Tidak Aktif (${offline.length})`} people={offline} />}
