@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import Select from '@/components/ui/Select';
@@ -54,17 +54,39 @@ function ColumnMenu({ col, first, last, onRename, onColor, onToggleDone, onShift
 }) {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
+  const btnRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const [pos, setPos] = useState<{ top: number; left: number } | null>(null);
   useEffect(() => {
     if (!open) return;
     const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false); };
+    const close = () => setOpen(false);
     document.addEventListener('mousedown', h);
-    return () => document.removeEventListener('mousedown', h);
+    window.addEventListener('scroll', close, true);
+    window.addEventListener('resize', close);
+    return () => {
+      document.removeEventListener('mousedown', h);
+      window.removeEventListener('scroll', close, true);
+      window.removeEventListener('resize', close);
+    };
+  }, [open]);
+  // Menu dipasang fixed supaya tidak terpotong area scroll papan; posisi dihitung dari tombol.
+  useLayoutEffect(() => {
+    if (!open || !btnRef.current) { setPos(null); return; }
+    const b = btnRef.current.getBoundingClientRect();
+    const m = menuRef.current?.getBoundingClientRect();
+    const w = m?.width ?? 240, h = m?.height ?? 300;
+    let left = b.right - w;
+    left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+    let top = b.bottom + 6;
+    if (top + h > window.innerHeight - 8) top = Math.max(8, b.top - h - 6);
+    setPos({ top, left });
   }, [open]);
   return (
     <div className="pm-dots" ref={ref}>
-      <button type="button" onClick={() => setOpen((v) => !v)} aria-label="Menu board">⋮</button>
+      <button type="button" ref={btnRef} onClick={() => setOpen((v) => !v)} aria-label="Menu board">⋮</button>
       {open && (
-        <div className="pm-menu" style={{ minWidth: 190 }}>
+        <div className="pm-menu" ref={menuRef} style={{ position: 'fixed', right: 'auto', top: pos?.top ?? -9999, left: pos?.left ?? -9999, minWidth: 240, zIndex: 1300, visibility: pos ? 'visible' : 'hidden' }}>
           <button type="button" onClick={() => { setOpen(false); onRename(); }}><i className="fi fi-rr-pencil" /> Ubah nama board</button>
           <div style={{ padding: '6px 10px' }}>
             <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginBottom: 6 }}>Warna board</div>
