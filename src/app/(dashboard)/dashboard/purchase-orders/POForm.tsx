@@ -52,9 +52,7 @@ export default function POForm({
       const list = await getSOItemsForPO(id);
       if (list.length === 0) return toast('Sales Order ini tidak memiliki item', 'error');
       setItems(list);
-      const label = salesOrders.find((s) => s.id === id)?.label.split(' · ')[0];
-      if (label && !notes) setNotes(`Berdasarkan Sales Order ${label}`);
-      toast('Item dari Sales Order dimuat. Harga beli diambil dari Product Catalogue, silakan sesuaikan.', 'success');
+      toast('Item berhasil dimuat', 'success');
     } catch (e) {
       toast('Item Sales Order gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {

@@ -106,19 +106,16 @@ export default function ProjectListClient({ rows, members }: { rows: PmProjectRo
 
   return (
     <div>
-      <div className="pm-head">
-        <div>
-          <div className="pm-title">All Projects</div>
-          <div className="pm-sub">Kelola semua project dalam satu tempat. Pantau progres dan prioritas dari perencanaan sampai selesai.</div>
+      <div className="card-header">
+        <h3><i className="fi fi-rr-chart-tree" style={{ fontSize: 16, color: '#2563eb' }} /> Project Management</h3>
+        <div className="flex-wrap">
+          <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari project..." value={q} onChange={(e) => setQ(e.target.value)} /></div>
+          <button type="button" className="btn btn-primary" onClick={() => setForm({ ...empty })}><i className="fi fi-rr-plus" /> New Project</button>
         </div>
-        <button type="button" className="pm-primary" onClick={() => setForm({ ...empty })}><i className="fi fi-rr-plus" /> New Project</button>
       </div>
 
       <div className="pm-toolbar">
         <div className="left">
-          <div className="pm-search"><i className="fi fi-rr-search" /><input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Cari project..." /></div>
-        </div>
-        <div className="right">
           <Select value={sort} onChange={(e) => setSort(e.target.value)}>
             <option value="added">Terbaru Ditambahkan</option>
             <option value="name">Nama A–Z</option>
@@ -133,6 +130,8 @@ export default function ProjectListClient({ rows, members }: { rows: PmProjectRo
             <option value="">Semua Prioritas</option>
             {PRIORITIES.map((s) => <option key={s} value={s}>{s}</option>)}
           </Select>
+        </div>
+        <div className="right">
           <div className="pm-viewtoggle">
             <button type="button" className={view === 'grid' ? 'on' : ''} onClick={() => setView('grid')} title="Grid"><i className="fi fi-rr-apps" /></button>
             <button type="button" className={view === 'list' ? 'on' : ''} onClick={() => setView('list')} title="List"><i className="fi fi-rr-list" /></button>
