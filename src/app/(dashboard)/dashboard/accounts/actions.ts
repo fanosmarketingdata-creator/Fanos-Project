@@ -37,6 +37,14 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
   const me = await getSuperuserOrNull();
   if (!me) return { error: NOT_SUPERUSER_ERROR };
 
+  // Akun yang tertaut ke Team Member memakai identitas dari Master Team Member (tidak diinput dua kali).
+  if (input.team_member_id) {
+    const { data: tm } = await createClient().from('team_members').select('name, email, phone').eq('id', input.team_member_id).maybeSingle();
+    if (tm) {
+      input = { ...input, full_name: tm.name || input.full_name, phone: tm.phone || input.phone, email: input.id ? input.email : tm.email || input.email };
+    }
+  }
+
   // 2) Validasi input
   if (!input.full_name?.trim()) return { error: 'Kolom Nama lengkap wajib diisi.' };
   if (!input.role) return { error: 'Mohon pilih Role terlebih dahulu.' };

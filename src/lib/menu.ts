@@ -150,7 +150,7 @@ export const NAV_ID: Record<string, string> = {
   'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Cashback: 'Cashback', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak', 'Credit Limit': 'Batas Kredit',
   Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
   'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
-  Language: 'Bahasa', 'Log out': 'Keluar',
+  Language: 'Bahasa', 'Log out': 'Keluar', 'Edit Profile': 'Edit Profil',
 };
 
 export const navLabel = (lang: string, l: string) => (lang === 'id' ? NAV_ID[l] ?? l : l);

@@ -47,7 +47,7 @@ export default function AccountsTable({
   currentUserId: string;
   initialRows: AccountRow[];
   roles: string[];
-  teamMembers: { id: string; name: string }[];
+  teamMembers: { id: string; name: string; email?: string | null; phone?: string | null }[];
 }) {
   const toast = useToast();
   const supabase = createClient();
@@ -78,6 +78,20 @@ export default function AccountsTable({
   }, [initialRows, teamMembers, form.id]);
 
   const editingSelf = form.id === currentUserId;
+  // Data identitas (nama, email, telepon) diambil dari Master Team Member agar tidak diinput dua kali.
+  const linked = teamMembers.find((m) => m.id === form.team_member_id) || null;
+
+  function pickMember(id: string) {
+    const m = teamMembers.find((x) => x.id === id);
+    if (!m) return setForm((f) => ({ ...f, team_member_id: '' }));
+    setForm((f) => ({
+      ...f,
+      team_member_id: id,
+      full_name: m.name,
+      phone: m.phone || '',
+      email: f.id ? f.email : m.email || f.email,
+    }));
+  }
 
   function openAdd() {
     setForm(emptyForm());
@@ -309,17 +323,43 @@ export default function AccountsTable({
                 className="hidden"
                 onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
               />
+              {form.photo_url && !uploading && (
+                <button
+                  type="button"
+                  onClick={() => setForm({ ...form, photo_url: '' })}
+                  className="mt-2 flex w-28 items-center justify-center gap-1.5 rounded-lg bg-red-50 px-2 py-1.5 text-[11px] font-semibold text-red-600 hover:bg-red-100"
+                >
+                  <i className="fi fi-rr-trash text-[11px]" /> Hapus Foto
+                </button>
+              )}
               <p className="mt-1.5 w-28 text-center text-[10px] leading-snug text-slate-400">
                 JPG/PNG/WebP, maks 2MB. Disarankan foto wajah persegi.
               </p>
             </div>
 
             <div className="w-full min-w-0 flex-1 space-y-3">
-              <Field label="Nama Lengkap *" value={form.full_name} onChange={(v) => setForm({ ...form, full_name: v })} />
+              {!form.id && (
+                <div>
+                  <label className="mb-1 block text-xs font-semibold text-slate-500">Pilih Team Member (isi otomatis)</label>
+                  <Select
+                    value={form.team_member_id || ''}
+                    onChange={(e) => pickMember(e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
+                  >
+                    <option value="">-- Isi manual / tidak ditautkan --</option>
+                    {availableMembers.map((m) => (
+                      <option key={m.id} value={m.id}>
+                        {m.name}
+                      </option>
+                    ))}
+                  </Select>
+                </div>
+              )}
+              <Field label="Nama Lengkap *" value={form.full_name} disabled={!!linked} onChange={(v) => setForm({ ...form, full_name: v })} />
               <Field
                 label="Email (untuk login) *"
                 value={form.email}
-                disabled={!!form.id}
+                disabled={!!form.id || !!(linked && linked.email)}
                 onChange={(v) => setForm({ ...form, email: v })}
               />
               <Field
@@ -360,11 +400,12 @@ export default function AccountsTable({
                 <option value="Inactive">Inactive</option>
               </Select>
             </div>
+            {form.id && (
             <div>
               <label className="mb-1 block text-xs font-semibold text-slate-500">Team Member</label>
               <Select
                 value={form.team_member_id || ''}
-                onChange={(e) => setForm({ ...form, team_member_id: e.target.value })}
+                onChange={(e) => pickMember(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500"
               >
                 <option value="">-- Tidak ditautkan --</option>
@@ -375,7 +416,8 @@ export default function AccountsTable({
                 ))}
               </Select>
             </div>
-            <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
+            )}
+            <Field label="Phone" value={form.phone || ''} disabled={!!linked} onChange={(v) => setForm({ ...form, phone: v })} />
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-semibold text-slate-500">Warna Kursor</label>
               <div className="flex flex-wrap items-center gap-2">

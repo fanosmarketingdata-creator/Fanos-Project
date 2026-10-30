@@ -13,6 +13,7 @@ import PushPrompt from '@/components/PushPrompt';
 import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
+import ProfileModal, { type MyProfile } from '@/components/ProfileModal';
 
 type Profile = {
   id: string;
@@ -20,6 +21,8 @@ type Profile = {
   role: string;
   photo_url: string | null;
   cursor_color?: string;
+  phone?: string | null;
+  email?: string | null;
 };
 
 const LOGO_URL = 'https://raw.githubusercontent.com/Fouralist/picture/refs/heads/main/LOGO.ico';
@@ -84,11 +87,12 @@ function isActive(pathname: string | null, href: string) {
   return !ALL_MENU_KEYS.some((k) => k.length > href.length && k.startsWith(href) && pathname.startsWith(k));
 }
 
-function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: string; role: string; photo_url?: string | null }; onLogout: () => void }) {
+function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: string; role: string; photo_url?: string | null; phone?: string | null; email?: string | null }; onLogout: () => void }) {
   const showPresence = profile.role !== 'Superuser' && !!profile.id;
   const lang = useLang();
   const nl = useNavLabel();
   const [open, setOpen] = useState(false);
+  const [editProfile, setEditProfile] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -139,6 +143,17 @@ function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: st
             <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
             <div className="text-[10px] text-slate-400">{profile.role}</div>
           </div>
+          {profile.id && (
+            <button
+              type="button"
+              role="menuitem"
+              onClick={() => { setOpen(false); setEditProfile(true); }}
+              className="mt-1 flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-slate-600 transition hover:bg-slate-50"
+            >
+              <i className="fi fi-rr-user text-[13px] leading-none" />
+              <span className="flex-1">{nl('Edit Profile')}</span>
+            </button>
+          )}
           <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
             <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
           </div>
@@ -173,6 +188,7 @@ function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: st
           </button>
         </div>
       )}
+      {editProfile && profile.id && <ProfileModal profile={profile as MyProfile} onClose={() => setEditProfile(false)} />}
     </div>
   );
 }

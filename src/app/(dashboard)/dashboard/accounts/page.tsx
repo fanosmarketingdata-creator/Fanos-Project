@@ -12,7 +12,7 @@ export default async function AccountsPage() {
       .select('id, full_name, email, role, status, phone, photo_url, cursor_color, team_member_id, team_members(name)')
       .order('full_name'),
     supabase.from('roles').select('name').order('name'),
-    supabase.from('team_members').select('id, name').order('name'),
+    supabase.from('team_members').select('id, name, email, phone').order('name'),
   ]);
 
   const rows = (profiles ?? []).map((p) => {
