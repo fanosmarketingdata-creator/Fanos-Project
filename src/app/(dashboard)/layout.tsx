@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import DashboardShell from '@/components/DashboardShell';
 import InactiveNotice from '@/components/InactiveNotice';
 import NoAccess from '@/components/NoAccess';
+import { PermProvider } from '@/components/PermProvider';
 import { canAccessPath, canDo, menuKeyForPath, type RoleActions } from '@/lib/menu';
 
 // Server Component: profil (termasuk role) diambil di server SEBELUM
@@ -73,7 +74,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
           data-no-edit={can('edit') ? undefined : '1'}
           data-no-delete={can('delete') ? undefined : '1'}
         >
-          {children}
+          <PermProvider value={{ create: can('create'), edit: can('edit'), delete: can('delete') }}>{children}</PermProvider>
         </div>
       )}
     </DashboardShell>

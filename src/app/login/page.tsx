@@ -55,15 +55,9 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="login-page">
+    <div className="login-page login-split">
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
-      <div className="login-aurora" aria-hidden="true">
-        <span className="a1" />
-        <span className="a2" />
-        <span className="a3" />
-        <span className="a4" />
-      </div>
       {loading && (
         <div className="login-overlay">
           <div className="spinner" />
@@ -72,12 +66,21 @@ export default function LoginPage() {
         </div>
       )}
 
-      <div className="login-container">
-        <div className="login-image">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="https://drive.google.com/thumbnail?id=1Rmp8UB-1AVV5CAdfhl-kGSqAa65wINXT" alt="Logo" />
+      <div className="login-left">
+        <div className="login-aurora" aria-hidden="true">
+          <span className="a1" />
+          <span className="a2" />
+          <span className="a3" />
+          <span className="a4" />
         </div>
-        <div className="login-content">
+        <div className="login-container">
+          <div className="login-image">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-fanos-wordmark.png" alt="Fanos" />
+          </div>
+          <h1 className="login-title">Selamat Datang</h1>
+          <p className="login-sub">Silakan masuk dengan email dan kata sandi Anda</p>
+          <div className="login-content">
           {info && <p className="login-info">{info}</p>}
           <form onSubmit={handleLogin} noValidate>
             <div className="login-required">
@@ -124,7 +127,11 @@ export default function LoginPage() {
             {' | '}
             <button type="button" onClick={() => setLang('id')} style={{ fontWeight: lang === 'id' ? 700 : 400, opacity: lang === 'id' ? 1 : 0.7 }}>Bahasa Indonesia</button>
           </div>
+          </div>
         </div>
+      </div>
+      <div className="login-right" aria-hidden="true">
+        <div className="login-right-shade" />
       </div>
     </div>
   );

@@ -20,7 +20,7 @@ export default async function DashboardPage() {
   const from12 = iso(new Date(now.getFullYear(), now.getMonth() - 11, 1));
   const from30 = iso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29));
 
-  const [inv, pay, pinv, ppay, quo, so, po, openInv, openPinv, pmp, pmt, pmc, rem] = await Promise.all([
+  const [inv, pay, pinv, ppay, quo, so, po, openInv, openPinv, pmp, tmem, pmt, pmc, rem] = await Promise.all([
     supabase.from('invoices').select('inv_date, grand_total, total_paid, status').gte('inv_date', from12),
     supabase.from('payments').select('pay_date, amount').gte('pay_date', from12),
     supabase.from('purchase_invoices').select('inv_date, grand_total').gte('inv_date', from12),
@@ -30,7 +30,8 @@ export default async function DashboardPage() {
     supabase.from('purchase_orders').select('po_date, status').gte('po_date', from12),
     supabase.from('invoices').select('id, doc_no, remaining, inv_date, clients(company, project_name)').gt('remaining', 0).order('remaining', { ascending: false }).limit(200),
     supabase.from('purchase_invoices').select('remaining').gt('remaining', 0),
-    supabase.from('pm_projects').select('id, name, status, priority, start_date, end_date, owner_id, team_members(name)').order('created_at', { ascending: false }),
+    supabase.from('pm_projects').select('id, name, status, priority, start_date, end_date, owner_id').order('created_at', { ascending: false }),
+    supabase.from('team_members').select('id, name'),
     supabase.from('pm_tasks').select('project_id, column_id, status, due_date'),
     supabase.from('pm_columns').select('id, is_done'),
     supabase.from('reminders').select('id, title, due_date').eq('is_done', false).lte('due_date', today).order('due_date').limit(8),
@@ -114,6 +115,7 @@ export default async function DashboardPage() {
   const doneCols = new Set((pmc.data ?? []).filter((c) => c.is_done).map((c) => c.id as string));
   const isDone = (t: { column_id: unknown; status: unknown }) => (t.column_id ? doneCols.has(t.column_id as string) : t.status === 'Completed');
   const tasks = pmt.data ?? [];
+  const owners = new Map((tmem.data ?? []).map((t) => [t.id as string, t.name as string]));
   const projects = (pmp.data ?? []).map((p) => {
     const ts = tasks.filter((t) => t.project_id === p.id);
     const done = ts.filter(isDone).length;
@@ -124,7 +126,7 @@ export default async function DashboardPage() {
       status: p.status as string,
       priority: p.priority as string,
       end_date: (p.end_date as string | null) ?? null,
-      owner: (p.team_members as unknown as { name: string } | null)?.name ?? '-',
+      owner: owners.get(p.owner_id as string) ?? '-',
       total: ts.length,
       done,
       overdueTasks,

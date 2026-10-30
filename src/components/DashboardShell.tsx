@@ -315,7 +315,7 @@ export default function DashboardShell({
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 whitespace-nowrap rounded-lg px-2.5 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 lg:gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${
               groupActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                 : openId === group.id
@@ -326,7 +326,7 @@ export default function DashboardShell({
             if (group.direct) {
               return (
                 <Link key={group.id} href={group.items[0].href} className={btnClass}>
-                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 xl:inline`} />
+                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
                   <span>{nl(group.label)}</span>
                 </Link>
               );
@@ -350,7 +350,7 @@ export default function DashboardShell({
                   onClick={() => (canHover() ? openMenu(group.id) : open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
-                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 xl:inline`} />
+                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
                   <span>{nl(group.label)}</span>
                   <i className={`fi fi-rr-angle-small-down hidden text-[10px] leading-none transition-transform xl:inline ${open ? 'rotate-180' : ''}`} />
                 </button>

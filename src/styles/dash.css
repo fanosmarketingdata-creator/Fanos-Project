@@ -159,3 +159,6 @@
   .dx-snap { grid-template-columns: 1fr; }
 }
 .dx-legend .dx-cap { margin-left: auto; color: #94a3b8; font-weight: 500; }
+.r-4-4-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+@media (max-width: 1200px) { .r-4-4-4 { grid-template-columns: 1fr 1fr; } .r-4-4-4 > :last-child { grid-column: 1 / -1; } }
+@media (max-width: 900px) { .r-4-4-4 { grid-template-columns: 1fr; } }

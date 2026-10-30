@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { usePagePerm } from '@/components/PermProvider';
 import { useToast } from '@/components/Toast';
 import Select from '@/components/ui/Select';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
@@ -52,6 +53,7 @@ function ColumnMenu({ col, first, last, onRename, onColor, onToggleDone, onShift
   col: ColumnRow; first: boolean; last: boolean; onRename: () => void; onColor: (c: string) => void;
   onToggleDone: () => void; onShift: (d: -1 | 1) => void; onDelete: () => void;
 }) {
+  const perm = usePagePerm();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const btnRef = useRef<HTMLButtonElement>(null);
@@ -82,11 +84,14 @@ function ColumnMenu({ col, first, last, onRename, onColor, onToggleDone, onShift
     if (top + h > window.innerHeight - 8) top = Math.max(8, b.top - h - 6);
     setPos({ top, left });
   }, [open]);
+  if (!perm.edit && !perm.delete) return null;
   return (
     <div className="pm-dots" ref={ref}>
       <button type="button" ref={btnRef} onClick={() => setOpen((v) => !v)} aria-label="Menu board">⋮</button>
       {open && (
         <div className="pm-menu" ref={menuRef} style={{ position: 'fixed', right: 'auto', top: pos?.top ?? -9999, left: pos?.left ?? -9999, minWidth: 240, zIndex: 1300, visibility: pos ? 'visible' : 'hidden' }}>
+          {perm.edit && (
+            <>
           <button type="button" onClick={() => { setOpen(false); onRename(); }}><i className="fi fi-rr-pencil" /> Ubah nama board</button>
           <div style={{ padding: '6px 10px' }}>
             <div style={{ fontSize: 11, color: '#94a3b8', fontWeight: 600, marginBottom: 6 }}>Warna board</div>
@@ -95,7 +100,9 @@ function ColumnMenu({ col, first, last, onRename, onColor, onToggleDone, onShift
           <button type="button" onClick={() => { setOpen(false); onToggleDone(); }}><i className="fi fi-rr-check" /> {col.is_done ? 'Bukan board selesai' : 'Tandai sebagai board selesai'}</button>
           {!first && <button type="button" onClick={() => { setOpen(false); onShift(-1); }}><i className="fi fi-rr-arrow-left" /> Geser ke kiri</button>}
           {!last && <button type="button" onClick={() => { setOpen(false); onShift(1); }}><i className="fi fi-rr-arrow-right" /> Geser ke kanan</button>}
-          <button type="button" className="danger" onClick={() => { setOpen(false); onDelete(); }}><i className="fi fi-rr-trash" /> Hapus board</button>
+            </>
+          )}
+          {perm.delete && <button type="button" className="danger" onClick={() => { setOpen(false); onDelete(); }}><i className="fi fi-rr-trash" /> Hapus board</button>}
         </div>
       )}
     </div>

@@ -4,6 +4,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Select from '@/components/ui/Select';
+import { pmHealth } from '@/lib/pm-health';
 import '@/styles/dash.css';
 
 export type DashData = {
@@ -200,8 +201,6 @@ export default function DashboardClient({ data }: { data: DashData }) {
   const [pipeMonth, setPipeMonth] = useState<'cur' | 'prev'>('cur');
   const [snapMonth, setSnapMonth] = useState<'cur' | 'prev'>('cur');
   const [cashRange, setCashRange] = useState('14');
-  const [projFilter, setProjFilter] = useState<'all' | 'track' | 'risk' | 'overdue' | 'done'>('all');
-  const [sort, setSort] = useState<{ k: 'name' | 'progress' | 'end'; dir: 1 | -1 }>({ k: 'end', dir: 1 });
   const [wk, setWk] = useState<number | null>(null);
   const [seg, setSeg] = useState<string | null>(null);
 
@@ -221,7 +220,7 @@ export default function DashboardClient({ data }: { data: DashData }) {
 
   /* ---- KPI ---- */
   const activeProjects = data.projects.filter((p) => p.status === 'In Progress').length;
-  const overdueProjects = data.projects.filter((p) => health(p, data.today) === 'overdue').length;
+  const overdueProjects = data.projects.filter((p) => pmHealth({ status: p.status, end_date: p.end_date, total: p.total, done: p.done, overdueTasks: p.overdueTasks }, data.today) === 'overdue').length;
 
   /* ---- kinerja bisnis ---- */
   const rangeN = Number(perfRange);
@@ -246,29 +245,6 @@ export default function DashboardClient({ data }: { data: DashData }) {
   const sp = snapMonth === 'cur' ? prev : prev2;
   const net = sm.cashIn - sm.cashOut;
   const netPrev = sp.cashIn - sp.cashOut;
-
-  /* ---- project ---- */
-  const counts = useMemo(() => {
-    const c = { all: data.projects.length, track: 0, risk: 0, overdue: 0, done: 0 };
-    data.projects.forEach((p) => {
-      const h = health(p, data.today);
-      if (h === 'track') c.track++;
-      else if (h === 'risk') c.risk++;
-      else if (h === 'overdue') c.overdue++;
-      else if (h === 'done') c.done++;
-    });
-    return c;
-  }, [data.projects, data.today]);
-  const projRows = useMemo(() => {
-    const rows = data.projects.filter((p) => projFilter === 'all' || health(p, data.today) === projFilter);
-    const prog = (p: (typeof rows)[0]) => (p.total ? p.done / p.total : 0);
-    return [...rows].sort((a, b) => {
-      if (sort.k === 'name') return a.name.localeCompare(b.name) * sort.dir;
-      if (sort.k === 'progress') return (prog(a) - prog(b)) * sort.dir;
-      return ((a.end_date ?? '9999') < (b.end_date ?? '9999') ? -1 : 1) * sort.dir;
-    });
-  }, [data.projects, data.today, projFilter, sort]);
-  const setSortK = (k: 'name' | 'progress' | 'end') => setSort((s) => (s.k === k ? { k, dir: (s.dir * -1) as 1 | -1 } : { k, dir: 1 }));
 
   /* ---- produktivitas ---- */
   const wTotal = data.weeks.reduce((s, w) => s + w.total, 0);
@@ -394,58 +370,8 @@ export default function DashboardClient({ data }: { data: DashData }) {
         </Panel>
       </div>
 
-      {/* Project + Produktivitas */}
-      <div className="dx-row r-8-4">
-        <Panel title="Project Aktif" href="/dashboard/project-management">
-          <div className="dx-tiles">
-            {([
-              ['all', 'Total Project', counts.all, '#0f172a'],
-              ['track', 'On Track', counts.track, GREEN],
-              ['risk', 'At Risk', counts.risk, AMBER],
-              ['overdue', 'Terlambat', counts.overdue, RED],
-            ] as const).map(([k, label, v, c]) => (
-              <button key={k} type="button" className={`dx-tile ${projFilter === k ? 'on' : ''}`} onClick={() => setProjFilter(projFilter === k ? 'all' : k)}>
-                <span>{label}</span><b style={{ color: c }}>{v}</b>
-              </button>
-            ))}
-          </div>
-          {projRows.length === 0 ? (
-            <div className="dx-empty">Tidak ada project pada kategori ini.</div>
-          ) : (
-            <div className="dx-tablewrap">
-              <table className="dx-table">
-                <thead>
-                  <tr>
-                    <th><button type="button" onClick={() => setSortK('name')}>Project {sort.k === 'name' ? (sort.dir === 1 ? '↑' : '↓') : ''}</button></th>
-                    <th>Status</th>
-                    <th><button type="button" onClick={() => setSortK('progress')}>Progres {sort.k === 'progress' ? (sort.dir === 1 ? '↑' : '↓') : ''}</button></th>
-                    <th><button type="button" onClick={() => setSortK('end')}>Deadline {sort.k === 'end' ? (sort.dir === 1 ? '↑' : '↓') : ''}</button></th>
-                    <th>PIC</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {projRows.slice(0, 6).map((p) => {
-                    const h = health(p, data.today);
-                    const pr = p.total ? Math.round((p.done / p.total) * 100) : 0;
-                    return (
-                      <tr key={p.id} onClick={() => router.push(`/dashboard/project-management/${p.id}`)}>
-                        <td className="nm">{p.name}</td>
-                        <td><span className={`dx-pill ${h}`}>{HEALTH_LABEL[h]}</span></td>
-                        <td>
-                          <div className="dx-prog"><div><i style={{ width: `${pr}%`, background: h === 'overdue' ? RED : h === 'risk' ? AMBER : h === 'done' ? GREEN : BLUE }} /></div><b>{pr}%</b></div>
-                        </td>
-                        <td>{fmtDate(p.end_date)}</td>
-                        <td>{p.owner}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-          {projRows.length > 6 && <Link href="/dashboard/project-management" className="dx-more">Lihat semua project <i className="fi fi-rr-arrow-small-right" /></Link>}
-        </Panel>
-
+      {/* Produktivitas + Piutang terbesar + Perlu perhatian */}
+      <div className="dx-row r-4-4-4">
         <Panel title="Produktivitas Task" href="/dashboard/project-management">
           <div className="dx-big">{wPct}<small>%</small></div>
           <p className="dx-muted">
@@ -462,6 +388,40 @@ export default function DashboardClient({ data }: { data: DashData }) {
               );
             })}
           </div>
+        </Panel>
+        <Panel title="Piutang Terbesar" href="/dashboard/outstanding">
+          {data.topOpen.length === 0 ? (
+            <div className="dx-empty">Tidak ada piutang berjalan.</div>
+          ) : (
+            <div className="dx-list">
+              {data.topOpen.map((o) => (
+                <Link key={o.id} href="/dashboard/outstanding" className="dx-li">
+                  <div className="av">{(o.client[0] ?? '?').toUpperCase()}</div>
+                  <div className="tx"><b>{o.client}</b><span>{o.doc_no} · {fmtDate(o.inv_date)}</span></div>
+                  <div className="am">{idr(o.remaining)}</div>
+                </Link>
+              ))}
+            </div>
+          )}
+        </Panel>
+
+        <Panel title="Perlu Perhatian" href="/dashboard/reminders">
+          {data.reminders.length === 0 ? (
+            <div className="dx-empty">Tidak terdapat reminder yang jatuh tempo.</div>
+          ) : (
+            <div className="dx-list">
+              {data.reminders.map((rm) => {
+                const late = rm.due_date < data.today;
+                return (
+                  <Link key={rm.id} href="/dashboard/reminders" className="dx-li">
+                    <div className="av" style={{ background: late ? '#fdeceb' : '#fff4e3', color: late ? RED : AMBER }}><i className="fi fi-rr-bell" /></div>
+                    <div className="tx"><b>{rm.title}</b><span>{fmtDate(rm.due_date)}</span></div>
+                    <span className={`dx-pill ${late ? 'overdue' : 'risk'}`}>{late ? 'Terlambat' : 'Hari ini'}</span>
+                  </Link>
+                );
+              })}
+            </div>
+          )}
         </Panel>
       </div>
 
@@ -529,60 +489,6 @@ export default function DashboardClient({ data }: { data: DashData }) {
           </div>
         </Panel>
       </div>
-
-      {/* Invoice terbesar + Reminder */}
-      <div className="dx-row r-7-5">
-        <Panel title="Piutang Terbesar" href="/dashboard/outstanding">
-          {data.topOpen.length === 0 ? (
-            <div className="dx-empty">Tidak ada piutang berjalan.</div>
-          ) : (
-            <div className="dx-list">
-              {data.topOpen.map((o) => (
-                <Link key={o.id} href="/dashboard/outstanding" className="dx-li">
-                  <div className="av">{(o.client[0] ?? '?').toUpperCase()}</div>
-                  <div className="tx"><b>{o.client}</b><span>{o.doc_no} · {fmtDate(o.inv_date)}</span></div>
-                  <div className="am">{idr(o.remaining)}</div>
-                </Link>
-              ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel title="Perlu Perhatian" href="/dashboard/reminders">
-          {data.reminders.length === 0 ? (
-            <div className="dx-empty">Tidak terdapat reminder yang jatuh tempo.</div>
-          ) : (
-            <div className="dx-list">
-              {data.reminders.map((rm) => {
-                const late = rm.due_date < data.today;
-                return (
-                  <Link key={rm.id} href="/dashboard/reminders" className="dx-li">
-                    <div className="av" style={{ background: late ? '#fdeceb' : '#fff4e3', color: late ? RED : AMBER }}><i className="fi fi-rr-bell" /></div>
-                    <div className="tx"><b>{rm.title}</b><span>{fmtDate(rm.due_date)}</span></div>
-                    <span className={`dx-pill ${late ? 'overdue' : 'risk'}`}>{late ? 'Terlambat' : 'Hari ini'}</span>
-                  </Link>
-                );
-              })}
-            </div>
-          )}
-        </Panel>
-      </div>
     </div>
   );
-}
-
-type PH = 'track' | 'risk' | 'overdue' | 'done' | 'hold';
-const HEALTH_LABEL: Record<PH, string> = { track: 'On Track', risk: 'At Risk', overdue: 'Terlambat', done: 'Selesai', hold: 'Ditahan' };
-
-function health(p: DashData['projects'][0], today: string): PH {
-  if (p.status === 'Completed') return 'done';
-  if (p.status === 'On Hold') return 'hold';
-  if (p.end_date && p.end_date < today) return 'overdue';
-  const pr = p.total ? p.done / p.total : 0;
-  if (p.overdueTasks > 0) return 'risk';
-  if (p.end_date) {
-    const days = (new Date(p.end_date + 'T00:00:00').getTime() - new Date(today + 'T00:00:00').getTime()) / 86400000;
-    if (days <= 7 && pr < 0.7) return 'risk';
-  }
-  return 'track';
 }

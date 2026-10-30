@@ -1033,6 +1033,8 @@ export const ID_EN: Record<string, string> = {
   'Konfirmasi kata sandi baru tidak sama.': 'The new password confirmation does not match.',
   'Pilih Team Member (isi otomatis)': 'Select Team Member (auto-fill)',
   '-- Isi manual / tidak ditautkan --': '-- Fill manually / not linked --',
+  'Selamat Datang': 'Welcome Back',
+  'Silakan masuk dengan email dan kata sandi Anda': 'Please sign in with your email and password',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

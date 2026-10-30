@@ -3,6 +3,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import Link from 'next/link';
+import { usePagePerm } from '@/components/PermProvider';
 
 export type RowAction = {
   label: string;
@@ -12,11 +13,25 @@ export type RowAction = {
   danger?: boolean;
   disabled?: boolean;
   hidden?: boolean;
+  kind?: 'create' | 'edit' | 'delete'; // opsional; bila kosong ditebak dari ikon/label
 };
+
+// Jenis aksi untuk pemeriksaan hak akses CRUD.
+function actionKind(a: RowAction): 'create' | 'edit' | 'delete' | null {
+  if (a.kind) return a.kind;
+  if (a.danger || /trash/.test(a.icon ?? '') || /^(hapus|delete)/i.test(a.label)) return 'delete';
+  if (/pencil|edit/.test(a.icon ?? '') || /^(edit|ubah)/i.test(a.label)) return 'edit';
+  return null;
+}
 
 // Kolom aksi tabel: tombol titik tiga yang membuka daftar aksi.
 export default function RowActions({ actions }: { actions: RowAction[] }) {
-  const items = actions.filter((a) => !a.hidden);
+  const perm = usePagePerm();
+  const items = actions.filter((a) => {
+    if (a.hidden) return false;
+    const k = actionKind(a);
+    return !(k && !perm[k]);
+  });
   const [open, setOpen] = useState(false);
   const [pos, setPos] = useState<{ left: number; top?: number; bottom?: number } | null>(null);
   const btn = useRef<HTMLButtonElement>(null);

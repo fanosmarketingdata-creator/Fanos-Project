@@ -7,12 +7,13 @@ import Select from '@/components/ui/Select';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
 import FvSelect from '@/components/registry/FvSelect';
 import { AvatarStack, Avatar, StatusPill, PriorityPill, Progress, fmtDate, type Member } from './pm-ui';
+import { pmHealth } from '@/lib/pm-health';
 import { savePmProject, deletePmProject, type PmStatus, type PmPriority } from './actions';
 
 export type PmProjectRow = {
   id: string; name: string; description: string; status: PmStatus; priority: PmPriority;
   start_date: string; end_date: string; owner_id: string; created_at: string;
-  task_total: number; task_done: number; member_ids: string[];
+  task_total: number; task_done: number; member_ids: string[]; overdue_tasks: number;
 };
 
 const STATUSES: PmStatus[] = ['Planning', 'In Progress', 'Completed', 'On Hold'];
@@ -42,13 +43,14 @@ function CardMenu({ onEdit, onDelete }: { onEdit: () => void; onDelete: () => vo
   );
 }
 
-export default function ProjectListClient({ rows, members }: { rows: PmProjectRow[]; members: Member[] }) {
+export default function ProjectListClient({ rows, members, today }: { rows: PmProjectRow[]; members: Member[]; today: string }) {
   const router = useRouter();
   const toast = useToast();
   const [q, setQ] = useState('');
   const [fStatus, setFStatus] = useState('');
   const [fPrio, setFPrio] = useState('');
   const [sort, setSort] = useState('added');
+  const [fHealth, setFHealth] = useState<'' | 'track' | 'risk' | 'overdue'>('');
   const [view, setView] = useState<'grid' | 'list'>('grid');
   const [form, setForm] = useState<Form | null>(null);
   const [saving, setSaving] = useState(false);
@@ -57,14 +59,23 @@ export default function ProjectListClient({ rows, members }: { rows: PmProjectRo
 
   const byId = useMemo(() => new Map(members.map((m) => [m.id, m])), [members]);
 
+  const healthOf = (p: PmProjectRow) => pmHealth({ status: p.status, end_date: p.end_date || null, total: p.task_total, done: p.task_done, overdueTasks: p.overdue_tasks }, today);
+  const counts = useMemo(() => {
+    const c = { all: rows.length, track: 0, risk: 0, overdue: 0 };
+    rows.forEach((p) => { const h = healthOf(p); if (h === 'track' || h === 'risk' || h === 'overdue') c[h]++; });
+    return c;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, today]);
+
   const list = useMemo(() => {
     const s = q.trim().toLowerCase();
-    let r = rows.filter((p) => (!s || p.name.toLowerCase().includes(s) || p.description.toLowerCase().includes(s)) && (!fStatus || p.status === fStatus) && (!fPrio || p.priority === fPrio));
+    let r = rows.filter((p) => (!s || p.name.toLowerCase().includes(s) || p.description.toLowerCase().includes(s)) && (!fStatus || p.status === fStatus) && (!fPrio || p.priority === fPrio) && (!fHealth || healthOf(p) === fHealth));
     if (sort === 'name') r = [...r].sort((a, b) => a.name.localeCompare(b.name));
     else if (sort === 'due') r = [...r].sort((a, b) => (a.end_date || '9999').localeCompare(b.end_date || '9999'));
     else if (sort === 'progress') r = [...r].sort((a, b) => (b.task_total ? b.task_done / b.task_total : 0) - (a.task_total ? a.task_done / a.task_total : 0));
     return r;
-  }, [rows, q, fStatus, fPrio, sort]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rows, q, fStatus, fPrio, sort, fHealth, today]);
 
   function openEdit(p: PmProjectRow) {
     setForm({ id: p.id, name: p.name, description: p.description, status: p.status, priority: p.priority, start_date: p.start_date, end_date: p.end_date, owner_id: p.owner_id, member_ids: p.member_ids });
@@ -112,6 +123,19 @@ export default function ProjectListClient({ rows, members }: { rows: PmProjectRo
           <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari project..." value={q} onChange={(e) => setQ(e.target.value)} /></div>
           <button type="button" className="btn btn-primary" onClick={() => setForm({ ...empty })}><i className="fi fi-rr-plus" /> New Project</button>
         </div>
+      </div>
+
+      <div className="pm-tiles">
+        {([
+          ['', 'Total Project', counts.all, '#0f172a'],
+          ['track', 'On Track', counts.track, '#10b981'],
+          ['risk', 'At Risk', counts.risk, '#f59e0b'],
+          ['overdue', 'Terlambat', counts.overdue, '#ef4444'],
+        ] as const).map(([k, label, v, c]) => (
+          <button key={label} type="button" className={`pm-tile ${fHealth === k ? 'on' : ''}`} onClick={() => setFHealth(fHealth === k ? '' : k)}>
+            <span>{label}</span><b style={{ color: c }}>{v}</b>
+          </button>
+        ))}
       </div>
 
       <div className="pm-toolbar">
