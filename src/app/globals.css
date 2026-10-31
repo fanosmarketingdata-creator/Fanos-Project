@@ -696,12 +696,12 @@ html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; o
 .login-sub { align-self: center; text-align: center; font-size: 13.5px; color: #64748b; margin: 0 0 26px; }
 .login-split .login-content { background: transparent; box-shadow: none; border: 0; backdrop-filter: none; padding: 0; border-radius: 0; }
 .login-split .login-required input { background: #fff; }
-/* Label mengambang: separuh atas transparan (di luar kotak), separuh bawah putih (di dalam kotak),
-   sehingga tidak ada blok putih saat latar di belakangnya berwarna/gelap. */
+/* Label mengambang di DALAM kotak (tanpa latar), jadi selalu terbaca di atas latar apa pun. */
+.login-split .login-required input { padding: 22px 16px 8px; }
 .login-split .login-required input:focus + label,
-.login-split .login-required input:not(:placeholder-shown) + label { background: linear-gradient(to bottom, transparent 50%, #fff 50%); line-height: 1.3; }
+.login-split .login-required input:not(:placeholder-shown) + label { top: 9px; left: 12px; transform: none; font-size: 11.5px; line-height: 1; background: transparent; color: #2563eb; font-weight: 600; }
 .login-split .login-required input.warning:focus + label,
-.login-split .login-required input.warning:not(:placeholder-shown) + label { background: linear-gradient(to bottom, transparent 50%, #fef2f2 50%); }
+.login-split .login-required input.warning:not(:placeholder-shown) + label { background: transparent; color: #dc2626; }
 .login-right { position: relative; background: #00157f url('/login-bg.jpg') center / cover no-repeat; }
 .login-right-shade { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(255, 255, 255, .0), rgba(0, 21, 127, .0)); }
 @media (max-width: 900px) {
