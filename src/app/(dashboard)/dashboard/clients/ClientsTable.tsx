@@ -8,6 +8,8 @@ import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/componen
 import FvSelect from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
+import ContactsEditor from '@/components/registry/ContactsEditor';
+import { contactsOf, type ContactInfo } from '@/lib/client-contacts';
 import { saveClient, deleteClient, getClientProjects, type ClientInput, type ClientProjectInfo } from './actions';
 
 export type ClientRow = {
@@ -21,6 +23,7 @@ export type ClientRow = {
   address: string | null;
   credit_limit: number | null;
   status: string | null;
+  contacts?: ContactInfo[] | null;
 };
 
 const STATUSES = ['Active', 'Inactive', 'Blacklist', 'Unverified'] as const;
@@ -45,7 +48,7 @@ function StatusBadge({ status, withLabel }: { status: string | null; withLabel?:
   );
 }
 
-const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified' };
+const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified', contacts: [{ name: '', position: '', phone: '', email: '' }] };
 
 const creditLabel = (n: number | null) =>
   n == null ? '-' : CREDIT_LIMIT_OPTIONS.find((o) => o.value === Number(n))?.label ?? 'Rp ' + Number(n).toLocaleString('id-ID');
@@ -93,6 +96,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       address: c.address || '',
       credit_limit: c.credit_limit == null ? null : Number(c.credit_limit),
       status: c.status || 'Unverified',
+      contacts: contactsOf(c),
     });
     setModalOpen(true);
   }
@@ -158,7 +162,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
                 <div className="sub">{c.client_no || '-'}</div>
               </div>
               <div className="client-card-meta">
-                <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}</div></div>
+                <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}{contactsOf(c).length > 1 ? ` (+${contactsOf(c).length - 1})` : ''}</div></div>
                 <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>
                 <div className="item"><div className="lbl">Email</div><div className="val">{c.email || '-'}</div></div>
                 <div className="item"><div className="lbl">Credit Limit</div><div className="val">{creditLabel(c.credit_limit)}</div></div>
@@ -186,13 +190,18 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
               </div>
             </div>
             <div className="dv2-grid">
-              <DvCard icon="fi fi-rr-user" label="Contact Person" value={detail.contact_name || '-'} />
-              <DvCard icon="fi fi-rr-briefcase" label="Position" value={detail.position || '-'} />
-              <DvCard icon="fi fi-rr-envelope" label="Email" value={detail.email || '-'} />
-              <DvCard icon="fi fi-rr-phone-call" label="Phone" value={detail.phone || '-'} />
               <DvCard icon="fi fi-rr-shield-check" label="Status" value={detail.status || 'Unverified'} color={STATUS_META[detail.status || 'Unverified']?.color} />
               <DvCard icon="fi fi-rr-credit-card" label="Credit Limit" value={creditLabel(detail.credit_limit)} color="#16a34a" />
             </div>
+            <div className="dv2-section-title"><i className="fi fi-rr-user" /> Kontak ({contactsOf(detail).length})</div>
+            {contactsOf(detail).map((c, i) => (
+              <div key={i} className="dv2-grid dv2-contact">
+                <DvCard icon="fi fi-rr-user" label="Contact Person" value={c.name || '-'} />
+                <DvCard icon="fi fi-rr-briefcase" label="Position" value={c.position || '-'} />
+                <DvCard icon="fi fi-rr-envelope" label="Email" value={c.email || '-'} />
+                <DvCard icon="fi fi-rr-phone-call" label="Phone" value={c.phone || '-'} />
+              </div>
+            ))}
             <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Company Address</div>
             <div className="dv2-card">
               <div className="dv2-card-icon"><i className="fi fi-rr-home" /></div>
@@ -271,23 +280,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
               </FvField>
             </div>
           </div>
-          <div className="fv2-section">
-            <div className="fv2-section-title"><i className="fi fi-rr-user" /> Kontak</div>
-            <div className="fv2-grid">
-              <FvField label="Contact Person">
-                <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama penanggung jawab (PIC)" />
-              </FvField>
-              <FvField label="Position">
-                <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Jabatan penanggung jawab" />
-              </FvField>
-              <FvField label="Phone">
-                <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
-              </FvField>
-              <FvField label="Email">
-                <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nama@perusahaan.com" />
-              </FvField>
-            </div>
-          </div>
+          <ContactsEditor value={form.contacts ?? []} onChange={(v) => setForm({ ...form, contacts: v })} />
         </FormModal>
       )}
 

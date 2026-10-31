@@ -1035,6 +1035,12 @@ export const ID_EN: Record<string, string> = {
   '-- Isi manual / tidak ditautkan --': '-- Fill manually / not linked --',
   'Selamat Datang': 'Welcome Back',
   'Silakan masuk dengan email dan kata sandi Anda': 'Please sign in with your email and password',
+  'Tambah Kontak': 'Add Contact',
+  'Hapus kontak': 'Delete contact',
+  'Tambah Brand baru': 'Add new Brand',
+  'Nama brand': 'Brand name',
+  'Brand berhasil ditambahkan': 'Brand added successfully',
+  'Kolom Brand Name wajib diisi.': 'Brand Name is required.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

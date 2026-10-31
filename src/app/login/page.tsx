@@ -73,11 +73,11 @@ export default function LoginPage() {
           <span className="a3" />
           <span className="a4" />
         </div>
+        <div className="login-image login-logo-top">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-fanos-wordmark.png" alt="Fanos" />
+        </div>
         <div className="login-container">
-          <div className="login-image">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/logo-fanos-wordmark.png" alt="Fanos" />
-          </div>
           <h1 className="login-title">Selamat Datang</h1>
           <p className="login-sub">Silakan masuk dengan email dan kata sandi Anda</p>
           <div className="login-content">

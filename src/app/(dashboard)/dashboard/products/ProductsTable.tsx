@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/client';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
+import BrandSelect from '@/components/registry/BrandSelect';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
 import { SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
@@ -39,6 +40,7 @@ const MAX_SIZE = 2 * 1024 * 1024; // 2MB — kriteria sama seperti sistem lama
 const rupiah = (n: number | null) => 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
 
 export default function ProductsTable({ initialProducts, brands }: { initialProducts: ProductRow[]; brands: string[] }) {
+  const [brandList, setBrandList] = useState<string[]>(brands);
   const toast = useToast();
   const supabase = createClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -326,10 +328,11 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama produk" />
               </FvField>
               <FvField label="Brand">
-                <FvSelect
+                <BrandSelect
                   value={form.brand || ''}
                   onChange={(v) => setForm({ ...form, brand: v || 'FANOS' })}
-                  options={toOptions(brands.includes(form.brand || '') ? brands : [...brands, form.brand || 'FANOS'])}
+                  brands={brandList}
+                  onAdded={(n) => { setBrandList((b) => (b.includes(n) ? b : [...b, n].sort())); setForm((f) => ({ ...f, brand: n })); }}
                 />
               </FvField>
               <FvField label="Main Category" required>

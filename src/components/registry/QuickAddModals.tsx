@@ -3,6 +3,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import { FormModal, FvField } from '@/components/registry/RegistryModal';
+import ContactsEditor from '@/components/registry/ContactsEditor';
+import BrandSelect from '@/components/registry/BrandSelect';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
@@ -21,7 +23,7 @@ const STATUSES = ['Active', 'Inactive', 'Blacklist', 'Unverified'];
 // Form tambah Client baru: isinya sama dengan New Client di Master Data.
 export function ClientQuickModal({ onClose, onSaved }: { onClose: () => void; onSaved: (c: { id: string; company: string }) => void }) {
   const toast = useToast();
-  const [form, setForm] = useState<ClientInput>({ company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified' });
+  const [form, setForm] = useState<ClientInput>({ company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified', contacts: [{ name: '', position: '', phone: '', email: '' }] });
   const [saving, setSaving] = useState(false);
 
   async function save() {
@@ -75,23 +77,7 @@ export function ClientQuickModal({ onClose, onSaved }: { onClose: () => void; on
           </FvField>
         </div>
       </div>
-      <div className="fv2-section">
-        <div className="fv2-section-title"><i className="fi fi-rr-user" /> Kontak</div>
-        <div className="fv2-grid">
-          <FvField label="Contact Person">
-            <input value={form.contact_name || ''} onChange={(e) => setForm({ ...form, contact_name: e.target.value })} placeholder="Nama penanggung jawab (PIC)" />
-          </FvField>
-          <FvField label="Position">
-            <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} placeholder="Jabatan penanggung jawab" />
-          </FvField>
-          <FvField label="Phone">
-            <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
-          </FvField>
-          <FvField label="Email">
-            <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} placeholder="nama@perusahaan.com" />
-          </FvField>
-        </div>
-      </div>
+      <ContactsEditor value={form.contacts ?? []} onChange={(v) => setForm({ ...form, contacts: v })} />
     </FormModal>
   );
 }
@@ -307,10 +293,11 @@ export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; o
                 <input value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })} placeholder="Masukkan nama produk" />
               </FvField>
               <FvField label="Brand">
-                <FvSelect
+                <BrandSelect
                   value={form.brand || ''}
                   onChange={(v) => setForm({ ...form, brand: v || 'FANOS' })}
-                  options={toOptions(brands.includes(form.brand || '') ? brands : [...brands, form.brand || 'FANOS'])}
+                  brands={brands}
+                  onAdded={(n) => { setBrands((b) => (b.includes(n) ? b : [...b, n].sort())); setForm((f) => ({ ...f, brand: n })); }}
                 />
               </FvField>
               <FvField label="Main Category" required>

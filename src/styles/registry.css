@@ -1085,3 +1085,17 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .rm-table tr.rm-row:hover td { background: #f8faff; }
 .rm-table input[type='checkbox'] { width: 16px; height: 16px; cursor: pointer; accent-color: #3563e9; }
 .rm-table input[type='checkbox']:disabled { cursor: default; }
+
+/* Kontak client lebih dari satu */
+.ce-item + .ce-item { margin-top: 14px; padding-top: 14px; border-top: 1px dashed #e2e8f0; }
+.ce-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; font-size: 12px; font-weight: 700; color: #475569; }
+.ce-del { display: inline-flex; align-items: center; gap: 5px; border: 0; background: #fee2e2; color: #dc2626; border-radius: 8px; padding: 4px 10px; font-size: 11.5px; font-weight: 700; cursor: pointer; }
+.ce-del:hover { background: #fecaca; }
+.ce-add { margin-top: 14px; display: inline-flex; align-items: center; gap: 6px; border: 1px dashed #93c5fd; background: #eff6ff; color: #2563eb; border-radius: 10px; padding: 8px 14px; font-size: 12.5px; font-weight: 700; cursor: pointer; }
+.ce-add:hover { background: #dbeafe; }
+.dv2-contact + .dv2-contact { margin-top: 10px; }
+/* Brand + tombol tambah */
+.bs-row { display: flex; align-items: center; gap: 6px; }
+.bs-sel { flex: 1; min-width: 0; }
+.bs-add { flex-shrink: 0; width: 38px; height: 38px; border-radius: 10px; border: 1px solid #bfdbfe; background: #eff6ff; color: #2563eb; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
+.bs-add:hover { background: #dbeafe; }

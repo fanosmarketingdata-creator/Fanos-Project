@@ -3,6 +3,7 @@
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { contactFilled, type ContactInfo } from '@/lib/client-contacts';
 
 export type ClientInput = {
   id?: string;
@@ -14,6 +15,7 @@ export type ClientInput = {
   address?: string;
   credit_limit?: number | null;
   status?: string;
+  contacts?: ContactInfo[];
 };
 
 export async function saveClient(input: ClientInput) {
@@ -24,25 +26,34 @@ export async function saveClient(input: ClientInput) {
 
   const supabase = createClient();
   // Client No (AUTOGENERATE) dibuat oleh database; project_name disinkronkan dari company oleh trigger.
-  const payload = {
+  const contacts = (input.contacts ?? []).filter(contactFilled).map((c) => ({ name: c.name.trim(), position: c.position.trim(), phone: c.phone.trim(), email: c.email.trim() }));
+  const first = contacts[0] ?? { name: input.contact_name || '', position: input.position || '', phone: input.phone || '', email: input.email || '' };
+  const base = {
     company: input.company.trim(),
-    contact_name: input.contact_name || null,
-    position: input.position || null,
-    phone: input.phone || null,
-    email: input.email || null,
+    contact_name: first.name || null,
+    position: first.position || null,
+    phone: first.phone || null,
+    email: first.email || null,
     address: input.address || null,
     credit_limit: input.credit_limit ?? null,
     status: ['Active', 'Inactive', 'Blacklist', 'Unverified'].includes(input.status || '') ? input.status : 'Unverified',
   };
 
+  const payload = base;
+  const withContacts = { ...base, contacts };
+  const missingCol = (m: string) => /contacts/i.test(m) && /column|schema/i.test(m);
+
   let id = input.id;
   if (id) {
-    const { error } = await supabase.from('clients').update(payload).eq('id', id);
+    let { error } = await supabase.from('clients').update(withContacts).eq('id', id);
+    // Kolom contacts belum ada (migrasi 0035 belum dijalankan): simpan kontak utama saja.
+    if (error && missingCol(error.message)) ({ error } = await supabase.from('clients').update(payload).eq('id', id));
     if (error) return { error: error.message };
   } else {
-    const { data, error } = await supabase.from('clients').insert(payload).select('id').single();
-    if (error) return { error: error.message };
-    id = data.id as string;
+    let r = await supabase.from('clients').insert(withContacts).select('id').single();
+    if (r.error && missingCol(r.error.message)) r = await supabase.from('clients').insert(payload).select('id').single();
+    if (r.error) return { error: r.error.message };
+    id = r.data.id as string;
   }
 
   revalidatePath('/dashboard/clients');
