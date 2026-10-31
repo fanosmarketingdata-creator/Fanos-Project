@@ -691,7 +691,7 @@ html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; o
 .login-split .login-container { max-width: 400px; padding: 24px; }
 .login-split .login-image { margin-bottom: 0; align-self: center; text-align: center; }
 .login-split .login-logo-top { position: absolute; top: clamp(24px, 7vh, 56px); left: 0; right: 0; z-index: 1; display: flex; justify-content: center; }
-.login-split .login-image img { width: 168px; filter: none; }
+.login-split .login-image img { width: 110px; filter: none; }
 .login-title { align-self: center; text-align: center; font-size: 28px; font-weight: 800; color: #0f172a; line-height: 1.2; margin: 0 0 6px; }
 .login-sub { align-self: center; text-align: center; font-size: 13.5px; color: #64748b; margin: 0 0 26px; }
 .login-split .login-content { background: transparent; box-shadow: none; border: 0; backdrop-filter: none; padding: 0; border-radius: 0; }

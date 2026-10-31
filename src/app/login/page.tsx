@@ -90,6 +90,7 @@ export default function LoginPage() {
                 placeholder=" "
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                className={error ? 'warning' : ''}
                 autoComplete="username"
                 autoFocus
               />
