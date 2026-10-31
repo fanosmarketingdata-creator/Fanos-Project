@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import OutstandingTable from './OutstandingTable';
+import { orThrow } from '@/lib/query';
 
 export default async function OutstandingPage() {
   const supabase = createClient();
-  const { data: invoices } = await supabase
+  const { data: invoices } = orThrow(await supabase
     .from('invoices')
     .select('id, doc_no, inv_date, status, grand_total, total_paid, paid_discount, credit_applied, remaining, clients(project_name)')
     .gt('remaining', 0)
-    .order('inv_date', { ascending: true });
+    .order('inv_date', { ascending: true }));
 
   const rows = (invoices ?? []).map((inv) => ({
     id: inv.id,

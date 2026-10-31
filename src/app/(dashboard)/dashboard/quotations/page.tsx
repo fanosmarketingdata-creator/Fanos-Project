@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import QuotationListTable from './QuotationListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function QuotationsPage() {
   const supabase = createClient();
-  const { data: quotes } = await supabase
+  const { data: quotes } = orThrow(await supabase
     .from('quotations')
     .select('id, doc_no, quote_date, status, total_amount, clients(project_name)')
-    .order('quote_date', { ascending: false });
+    .order('quote_date', { ascending: false }));
 
   const rows = (quotes ?? []).map((q) => ({
     id: q.id,

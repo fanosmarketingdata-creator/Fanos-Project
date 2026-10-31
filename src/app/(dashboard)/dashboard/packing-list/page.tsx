@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import PackingListTable from './PackingListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function PackingListPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data } = orThrow(await supabase
     .from('packing_lists')
     .select('id, doc_no, pl_date, status, clients(project_name), sales_orders(doc_no), packing_list_items(qty, colli, gross_weight)')
-    .order('pl_date', { ascending: false });
+    .order('pl_date', { ascending: false }));
   const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v as T)) ?? null;
   const rows = (data ?? []).map((p) => {
     const items = (p.packing_list_items as unknown as { qty: number; colli: number; gross_weight: number }[]) ?? [];

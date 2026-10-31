@@ -1044,6 +1044,14 @@ export const ID_EN: Record<string, string> = {
   'Produk berikut belum masuk Price List': 'These products are not in the Price List yet',
   'Buka Price List': 'Open Price List',
   'Jadikan Price List terlebih dahulu (menu Price List, atur harga produknya), lalu pilih ulang BOQ ini.': 'Add them to the Price List first (Price List menu, set their prices), then select this BOQ again.',
+  'Halaman gagal dimuat': 'Page failed to load',
+  'Terjadi kendala saat mengambil data. Periksa koneksi Anda lalu coba lagi. Jika terus berulang, hubungi admin sistem.': 'Something went wrong while fetching data. Check your connection and try again. If it keeps happening, contact your system admin.',
+  'Coba lagi': 'Try again',
+  'Ke Dashboard': 'Go to Dashboard',
+  'Data tidak ditemukan': 'Data not found',
+  'Halaman atau dokumen yang Anda cari tidak ada, atau sudah dihapus.': 'The page or document you are looking for does not exist or has been deleted.',
+  'Halaman tidak ditemukan': 'Page not found',
+  'Alamat yang Anda buka tidak tersedia.': 'The address you opened is not available.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

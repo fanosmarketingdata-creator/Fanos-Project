@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import ReceiptTable from './ReceiptTable';
+import { orThrow } from '@/lib/query';
 
 export default async function PurchaseDeliveryPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data } = orThrow(await supabase
     .from('purchase_deliveries')
     .select('id, doc_no, gr_date, vendor_do_no, purchase_orders(doc_no), vendors(company), warehouses(name), purchase_delivery_items(qty_received)')
     .order('gr_date', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
   const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v as T)) ?? null;
   const rows = (data ?? []).map((g) => {
     const items = (g.purchase_delivery_items as unknown as { qty_received: number }[]) ?? [];

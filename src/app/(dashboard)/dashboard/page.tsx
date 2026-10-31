@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/auth';
 import DashboardClient, { type DashData } from './DashboardClient';
+import { orThrowAll } from '@/lib/query';
 
 function iso(d: Date) {
   const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
@@ -20,7 +21,7 @@ export default async function DashboardPage() {
   const from12 = iso(new Date(now.getFullYear(), now.getMonth() - 11, 1));
   const from30 = iso(new Date(now.getFullYear(), now.getMonth(), now.getDate() - 29));
 
-  const [inv, pay, pinv, ppay, quo, so, po, openInv, openPinv, pmp, tmem, pmt, pmc, rem] = await Promise.all([
+  const [inv, pay, pinv, ppay, quo, so, po, openInv, openPinv, pmp, tmem, pmt, pmc, rem] = orThrowAll(await Promise.all([
     supabase.from('invoices').select('inv_date, grand_total, total_paid, status').gte('inv_date', from12),
     supabase.from('payments').select('pay_date, amount').gte('pay_date', from12),
     supabase.from('purchase_invoices').select('inv_date, grand_total').gte('inv_date', from12),
@@ -35,7 +36,7 @@ export default async function DashboardPage() {
     supabase.from('pm_tasks').select('project_id, column_id, status, due_date'),
     supabase.from('pm_columns').select('id, is_done'),
     supabase.from('reminders').select('id, title, due_date').eq('is_done', false).lte('due_date', today).order('due_date').limit(8),
-  ]);
+  ]));
 
   // ---- 12 bulan ----
   const months = Array.from({ length: 12 }, (_, i) => {

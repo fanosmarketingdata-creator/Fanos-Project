@@ -1,19 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireSuperuser } from '@/lib/auth';
 import AccountsTable from './AccountsTable';
+import { orThrowAll } from '@/lib/query';
 
 export default async function AccountsPage() {
   const me = await requireSuperuser();
 
   const supabase = createClient();
-  const [{ data: profiles }, { data: roles }, { data: members }] = await Promise.all([
+  const [{ data: profiles }, { data: roles }, { data: members }] = orThrowAll(await Promise.all([
     supabase
       .from('profiles')
       .select('id, full_name, email, role, status, phone, photo_url, cursor_color, team_member_id, team_members(name)')
       .order('full_name'),
     supabase.from('roles').select('name').order('name'),
     supabase.from('team_members').select('id, name, email, phone').order('name'),
-  ]);
+  ]));
 
   const rows = (profiles ?? []).map((p) => {
     const tm = p.team_members as unknown as { name: string } | { name: string }[] | null;

@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import BOQProjectListTable from './BOQProjectListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function BOQProjectPage() {
   const supabase = createClient();
-  const { data: boqs } = await supabase
+  const { data: boqs } = orThrow(await supabase
     .from('boq_projects')
     .select('id, doc_no, project_name, boq_date, status, progress, clients(project_name), boq_project_items(count)')
-    .order('boq_date', { ascending: false });
+    .order('boq_date', { ascending: false }));
 
   const rows = (boqs ?? []).map((b) => ({
     id: b.id,

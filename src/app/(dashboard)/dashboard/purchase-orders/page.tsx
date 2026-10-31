@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import POListTable from './POListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function PurchaseOrdersPage() {
   const supabase = createClient();
-  const { data: pos } = await supabase
+  const { data: pos } = orThrow(await supabase
     .from('purchase_orders')
     .select('id, doc_no, po_date, status, vendors(company), purchase_order_items(subtotal)')
-    .order('po_date', { ascending: false });
+    .order('po_date', { ascending: false }));
 
   const rows = (pos ?? []).map((p) => ({
     id: p.id,

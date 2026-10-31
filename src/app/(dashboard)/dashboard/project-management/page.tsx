@@ -1,19 +1,20 @@
 import { createClient } from '@/lib/supabase/server';
 import ProjectListClient, { type PmProjectRow } from './ProjectListClient';
 import type { Member } from './pm-ui';
+import { orThrowAll } from '@/lib/query';
 
 export default async function ProjectManagementPage() {
   const supabase = createClient();
   const zn = new Date();
   const today = new Date(zn.getTime() - zn.getTimezoneOffset() * 60000).toISOString().split('T')[0];
-  const [{ data: projects }, { data: tasks }, { data: pmm }, { data: tm }, { data: prof }, { data: cols }] = await Promise.all([
+  const [{ data: projects }, { data: tasks }, { data: pmm }, { data: tm }, { data: prof }, { data: cols }] = orThrowAll(await Promise.all([
     supabase.from('pm_projects').select('id, name, description, status, priority, start_date, end_date, owner_id, created_at').order('created_at', { ascending: false }),
     supabase.from('pm_tasks').select('project_id, status, column_id, due_date'),
     supabase.from('pm_project_members').select('project_id, team_member_id'),
     supabase.from('team_members').select('id, name, role_title').order('name'),
     supabase.from('profiles').select('team_member_id, photo_url').not('team_member_id', 'is', null),
     supabase.from('pm_columns').select('id, is_done'),
-  ]);
+  ]));
   const doneCols = new Set((cols ?? []).filter((c) => c.is_done).map((c) => c.id as string));
   const photo = new Map((prof ?? []).map((p) => [p.team_member_id as string, p.photo_url as string | null]));
   const members: Member[] = (tm ?? []).map((m) => ({ id: m.id as string, name: m.name as string, role_title: (m.role_title as string | null) ?? null, photo_url: photo.get(m.id as string) ?? null }));

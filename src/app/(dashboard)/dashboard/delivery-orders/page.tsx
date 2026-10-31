@@ -2,13 +2,14 @@ import ClickRow from '@/components/registry/ClickRow';
 import Link from 'next/link';
 import RowActions from '@/components/ui/RowActions';
 import { createClient } from '@/lib/supabase/server';
+import { orThrow } from '@/lib/query';
 
 export default async function DeliveryOrdersPage() {
   const supabase = createClient();
-  const { data: dos } = await supabase
+  const { data: dos } = orThrow(await supabase
     .from('delivery_orders')
     .select('id, doc_no, do_date, status, client_id, clients(project_name), sales_orders(id, clients(project_name)), delivery_order_items(count)')
-    .order('do_date', { ascending: false });
+    .order('do_date', { ascending: false }));
 
   const rows = (dos ?? []).map((d) => {
     const so = d.sales_orders as unknown as { id: string; clients: { project_name: string } | null } | null;

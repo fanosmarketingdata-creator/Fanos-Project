@@ -1,15 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import CurrentStockTable from './CurrentStockTable';
+import { orThrowAll } from '@/lib/query';
 
 // Informasi stok saja (read-only): perubahan stok hanya lewat Stock Adjustment, Stock Transfer, atau transaksi lain.
 export default async function CurrentStockPage() {
   const supabase = createClient();
-  const [{ data: whs }, { data: prods }, { data: stock }, { data: transit }] = await Promise.all([
+  const [{ data: whs }, { data: prods }, { data: stock }, { data: transit }] = orThrowAll(await Promise.all([
     supabase.from('warehouses').select('id, name').eq('is_active', true).order('created_at'),
     supabase.from('products').select('sku, name, brand, uom, category').eq('is_active', true).order('sku'),
     supabase.from('v_current_stock').select('warehouse_id, sku, qty'),
     supabase.from('stock_transfers').select('stock_transfer_items(sku, qty)').eq('status', 'SHIPPED'),
-  ]);
+  ]));
   const onHand: Record<string, Record<string, number>> = {};
   (stock ?? []).forEach((s) => {
     const sku = s.sku as string;

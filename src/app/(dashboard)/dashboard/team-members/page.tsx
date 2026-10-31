@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireSuperuser } from '@/lib/auth';
 import TeamMembersTable from './TeamMembersTable';
+import { orThrow } from '@/lib/query';
 
 type LinkedProfile = { photo_url: string | null; email: string | null };
 
@@ -8,10 +9,10 @@ export default async function TeamMembersPage() {
   await requireSuperuser();
 
   const supabase = createClient();
-  const { data: members } = await supabase
+  const { data: members } = orThrow(await supabase
     .from('team_members')
     .select('id, name, role_title, email, phone, profiles(photo_url, email)')
-    .order('name');
+    .order('name'));
 
   const rows = (members ?? []).map((m) => {
     // profiles.team_member_id bersifat unik, jadi hasilnya objek tunggal

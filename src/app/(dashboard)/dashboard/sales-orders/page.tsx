@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import SalesOrderListTable from './SalesOrderListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function SalesOrdersPage() {
   const supabase = createClient();
-  const { data: sos } = await supabase
+  const { data: sos } = orThrow(await supabase
     .from('sales_orders')
     .select('id, doc_no, so_date, status, total_amount, clients(project_name)')
-    .order('so_date', { ascending: false });
+    .order('so_date', { ascending: false }));
 
   const rows = (sos ?? []).map((s) => ({
     id: s.id,

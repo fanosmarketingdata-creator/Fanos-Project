@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import AdjustmentTable from './AdjustmentTable';
+import { orThrow } from '@/lib/query';
 
 export default async function StockAdjustmentPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data } = orThrow(await supabase
     .from('stock_adjustments')
     .select('id, doc_no, adj_date, adj_type, reason, warehouses(name), stock_adjustment_items(diff)')
     .order('adj_date', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
   const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v as T)) ?? null;
   const rows = (data ?? []).map((a) => {
     const items = (a.stock_adjustment_items as unknown as { diff: number }[]) ?? [];

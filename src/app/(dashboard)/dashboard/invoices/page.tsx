@@ -1,12 +1,13 @@
 import { createClient } from '@/lib/supabase/server';
 import InvoiceListTable from './InvoiceListTable';
+import { orThrow } from '@/lib/query';
 
 export default async function InvoicesPage() {
   const supabase = createClient();
-  const { data: invoices } = await supabase
+  const { data: invoices } = orThrow(await supabase
     .from('invoices')
     .select('id, doc_no, inv_date, status, grand_total, total_paid, remaining, clients(project_name)')
-    .order('inv_date', { ascending: false });
+    .order('inv_date', { ascending: false }));
 
   const rows = (invoices ?? []).map((inv) => ({
     id: inv.id,

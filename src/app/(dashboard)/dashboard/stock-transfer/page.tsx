@@ -1,13 +1,14 @@
 import { createClient } from '@/lib/supabase/server';
 import TransferTable from './TransferTable';
+import { orThrow } from '@/lib/query';
 
 export default async function StockTransferPage() {
   const supabase = createClient();
-  const { data } = await supabase
+  const { data } = orThrow(await supabase
     .from('stock_transfers')
     .select('id, doc_no, transfer_date, received_date, status, from:warehouses!stock_transfers_from_warehouse_id_fkey(name), to:warehouses!stock_transfers_to_warehouse_id_fkey(name), stock_transfer_items(qty)')
     .order('transfer_date', { ascending: false })
-    .order('created_at', { ascending: false });
+    .order('created_at', { ascending: false }));
   const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v as T)) ?? null;
   const rows = (data ?? []).map((t) => {
     const items = (t.stock_transfer_items as unknown as { qty: number }[]) ?? [];
