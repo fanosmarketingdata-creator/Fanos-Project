@@ -115,7 +115,14 @@ export async function getBOQItemsForQuote(boqProjectId: string) {
     if (cur) cur.qty += Number(it.qty) || 0;
     else by.set(key, { sku: it.sku as string, qty: Number(it.qty) || 0, uom: (it.uom as string | null) ?? null, product_id: (it.product_id as string | null) ?? null });
   });
-  return { items: Array.from(by.values()), clientId: boq?.client_id ?? '' };
+  const merged = Array.from(by.values());
+  // BOQ memilih produk dari Product Catalogue, jadi sebagian item bisa belum masuk Price List.
+  const skus = Array.from(new Set(merged.map((m) => m.sku)));
+  const { data: prods } = skus.length
+    ? await supabase.from('products').select('sku, name, price_listed').in('sku', skus)
+    : { data: [] as { sku: string; name: string; price_listed: boolean }[] };
+  const unlisted = (prods ?? []).filter((p) => !p.price_listed).map((p) => ({ sku: p.sku as string, name: p.name as string }));
+  return { items: merged, clientId: boq?.client_id ?? '', unlisted };
 }
 
 export async function deleteQuotation(id: string) {

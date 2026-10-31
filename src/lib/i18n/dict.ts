@@ -1041,6 +1041,9 @@ export const ID_EN: Record<string, string> = {
   'Nama brand': 'Brand name',
   'Brand berhasil ditambahkan': 'Brand added successfully',
   'Kolom Brand Name wajib diisi.': 'Brand Name is required.',
+  'Produk berikut belum masuk Price List': 'These products are not in the Price List yet',
+  'Buka Price List': 'Open Price List',
+  'Jadikan Price List terlebih dahulu (menu Price List, atur harga produknya), lalu pilih ulang BOQ ini.': 'Add them to the Price List first (Price List menu, set their prices), then select this BOQ again.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

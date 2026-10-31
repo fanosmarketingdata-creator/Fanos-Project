@@ -38,6 +38,7 @@ export default function QuotationForm({
   const toast = useToast();
   const [saving, setSaving] = useState(false);
   const [loadingBOQ, setLoadingBOQ] = useState(false);
+  const [unlisted, setUnlisted] = useState<{ sku: string; name: string }[]>([]);
 
   const [mode, setMode] = useState<'boq' | 'manual'>(initial?.mode ?? 'boq');
   const [quoteDate, setQuoteDate] = useState(initial?.quote_date ?? new Date().toISOString().split('T')[0]);
@@ -51,10 +52,12 @@ export default function QuotationForm({
 
   async function handlePickBOQ(id: string) {
     setBoqProjectId(id);
+    setUnlisted([]);
     if (!id) return;
     setLoadingBOQ(true);
-    const { items: boqItems, clientId: boqClientId } = await getBOQItemsForQuote(id);
+    const { items: boqItems, clientId: boqClientId, unlisted: ul } = await getBOQItemsForQuote(id);
     setLoadingBOQ(false);
+    setUnlisted(ul);
     setClientId(boqClientId);
     setItems(
       boqItems.map((it) => {
@@ -90,6 +93,7 @@ export default function QuotationForm({
 
   async function handleSave() {
     if (mode === 'manual' && !projectName.trim()) return toast('Nama Project wajib diisi.', 'error');
+    if (mode === 'boq' && unlisted.length > 0) return toast(`Ada ${unlisted.length} produk dari BOQ yang belum masuk Price List. Jadikan Price List terlebih dahulu.`, 'error');
     setSaving(true);
     const result = await saveQuotation({
       id: initial?.id,
@@ -160,6 +164,16 @@ export default function QuotationForm({
       </Sec>
 
       <Sec title="Daftar Item" icon="fi fi-rr-list">
+        {mode === 'boq' && unlisted.length > 0 && (
+          <div style={{ background: '#fffbeb', border: '1px solid #fcd34d', color: '#92400e', borderRadius: 12, padding: '12px 14px', marginBottom: 12, fontSize: 13 }}>
+            <div style={{ fontWeight: 700, marginBottom: 6 }}><i className="fi fi-rr-exclamation" /> Produk berikut belum masuk Price List</div>
+            <div style={{ marginBottom: 6 }}>Jadikan Price List terlebih dahulu (menu Price List, atur harga produknya), lalu pilih ulang BOQ ini.</div>
+            <ul style={{ margin: 0, paddingLeft: 18 }}>
+              {unlisted.map((u) => <li key={u.sku}><b>{u.sku}</b> — {u.name}</li>)}
+            </ul>
+            <a href="/dashboard/products/price-list" target="_blank" rel="noreferrer" style={{ display: 'inline-block', marginTop: 8, fontWeight: 700, color: '#b45309', textDecoration: 'underline' }}>Buka Price List</a>
+          </div>
+        )}
         {loadingBOQ && <p style={{ fontSize: 12, color: '#9ca3af', marginBottom: 8 }}>Memuat item dari BOQ Project...</p>}
         <div className="fv2-scroll-x">
           <div style={{ minWidth: 700 }}>
