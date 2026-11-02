@@ -138,7 +138,7 @@ function Section({ title, people, active }: { title: string; people: Person[]; a
 
 function Avatar({ person, className }: { person: Person; className: string }) {
   return (
-    <div className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-[11px] font-bold text-slate-500 ${className}`}>
+    <div className={`flex shrink-0 items-center justify-center overflow-hidden rounded-full bg-slate-200 text-[11px] font-bold text-slate-500 outline outline-1 -outline-offset-0 outline-slate-300 ${className}`}>
       {person.photo_url ? (
         // eslint-disable-next-line @next/next/no-img-element
         <img src={person.photo_url} alt="" className="h-full w-full object-cover" />

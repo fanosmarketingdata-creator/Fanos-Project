@@ -124,7 +124,7 @@ function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: st
         className="flex items-center gap-2 rounded-full py-0.5 pl-0.5 pr-1.5 transition hover:bg-slate-100"
       >
         <span className="relative">
-          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 text-brand-500">
+          <span className="flex h-7 w-7 items-center justify-center overflow-hidden rounded-full bg-brand-500/10 ring-1 ring-slate-300 text-brand-500">
             {profile.photo_url ? (
               // eslint-disable-next-line @next/next/no-img-element
               <img src={profile.photo_url} alt="" className="h-full w-full object-cover" />
