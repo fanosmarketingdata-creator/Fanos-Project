@@ -63,7 +63,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
                   href={c.href}
                   role="menuitem"
                   className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
-                    a ? 'bg-blue-50 text-blue-600 ring-1 ring-blue-100' : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
+                    a ? "relative bg-brand-50 font-semibold text-brand-600 before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-500 before:content-['']" : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
                   }`}
                 >
                   <i className={`${c.icon} w-4 text-center text-[13px] leading-none`} />
@@ -371,7 +371,7 @@ export default function DashboardShell({
                             role="menuitem"
                             className={`flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-[12px] font-medium transition ${
                               active
-                                ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
+                                ? "relative bg-brand-50 font-semibold text-brand-600 before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-500 before:content-['']"
                                 : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
                             }`}
                           >
@@ -429,7 +429,7 @@ export default function DashboardShell({
                         const linkCls = (href: string, pad: string) =>
                           `flex items-center gap-2.5 rounded-lg py-2 pr-3 text-[13px] font-medium ${pad} ${
                             isActive(pathname, href)
-                              ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white'
+                              ? "relative bg-brand-50 font-semibold text-brand-600 before:absolute before:left-0 before:top-1/2 before:h-4 before:w-[3px] before:-translate-y-1/2 before:rounded-full before:bg-brand-500 before:content-['']"
                               : 'text-slate-600 active:bg-brand-50'
                           }`;
                         if (!item.children) {
