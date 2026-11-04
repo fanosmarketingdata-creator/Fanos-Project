@@ -179,7 +179,7 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
             <FvSelect value={fCat} onChange={(v) => { setFCat(v); setFSub(''); }} options={toOptions(Object.keys(PRODUCT_CATEGORIES))} placeholder="Semua Main Category" />
           </div>
           <div style={{ width: 170 }}>
-            <FvSelect value={fSub} onChange={setFSub} options={toOptions(PRODUCT_CATEGORIES[fCat] ?? [])} placeholder="Semua Subcategory" disabled={!fCat} />
+            <FvSelect value={fSub} onChange={setFSub} options={toOptions(fCat ? PRODUCT_CATEGORIES[fCat] ?? [] : Array.from(new Set(Object.values(PRODUCT_CATEGORIES).flat())))} placeholder="Semua Subcategory" />
           </div>
           {filtering && (
             <button type="button" className="btn btn-secondary" onClick={() => { setFBrand(''); setFCat(''); setFSub(''); }}>
