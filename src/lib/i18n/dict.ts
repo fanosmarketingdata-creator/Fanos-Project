@@ -1076,6 +1076,13 @@ export const ID_EN: Record<string, string> = {
   'BOQ ini sudah memiliki Lighting Specification.': 'This BOQ already has a Lighting Specification.',
   'Item BOQ gagal dimuat.': 'Failed to load BOQ items.',
   'Perlu update': 'Needs update',
+  'Semua Brand': 'All Brands',
+  'Semua Main Category': 'All Main Categories',
+  'Semua Subcategory': 'All Subcategories',
+  'Warna Reflector': 'Reflector Color',
+  'Warna Badan Lampu': 'Body Color',
+  'Dimensi': 'Dimensions',
+  'Cut Out': 'Cut Out',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

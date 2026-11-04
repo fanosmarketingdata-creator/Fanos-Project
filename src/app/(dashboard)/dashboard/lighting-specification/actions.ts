@@ -3,10 +3,13 @@
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { guard } from '@/lib/permissions';
+import { productInfoBySku } from '@/lib/spec-info';
 
 const HREF = '/dashboard/lighting-specification';
 
 export type SpecItemInput = { product_id: string | null; sku: string; uom: string; qty: number; drawing_code: string; name?: string };
+
+
 export type SpecInput = { id?: string; boq_project_id: string; notes?: string; items: SpecItemInput[] };
 
 export const specKey = (it: { product_id?: string | null; sku: string; uom?: string | null }) =>
@@ -31,12 +34,9 @@ async function synthesize(supabase: Supa, boqId: string) {
   });
   const list = Array.from(by.values());
   const skus = Array.from(new Set(list.map((l) => l.sku)));
-  if (skus.length) {
-    const { data: prods } = await supabase.from('products').select('sku, name').in('sku', skus);
-    const nm = new Map((prods ?? []).map((p) => [p.sku as string, p.name as string]));
-    list.forEach((l) => (l.name = nm.get(l.sku) ?? ''));
-  }
-  return list;
+  const info = await productInfoBySku(supabase, skus);
+  const full = list.map((l) => ({ ...l, name: info.get(l.sku)?.name ?? '', image_url: info.get(l.sku)?.image_url ?? null, spec: info.get(l.sku)?.spec ?? [] }));
+  return full;
 }
 
 // Dipakai form: item BOQ (belum disimpan) saat BOQ dipilih. BOQ berstatus DRAFT pun boleh.

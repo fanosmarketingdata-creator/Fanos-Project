@@ -5,10 +5,19 @@ export const SPEC_KEYS = [
   'wattage', 'input_voltage', 'power_factor', 'cct', 'cri', 'beam_angle', 'lumen',
   'ip_rating', 'ik_rating', 'dimming', 'driver_type', 'control_protocol',
   'installation_type', 'housing_material', 'finish', 'warranty',
+  'ampere', 'reflector_color', 'body_color', 'dimension', 'cut_out',
 ] as const;
 export type SpecKey = (typeof SPEC_KEYS)[number];
 
 export type SpecField = { key: SpecKey; label: string; placeholder: string; icon: string };
+
+// Field tambahan di bagian Product Information (bukan di grup spesifikasi).
+export const INFO_FIELDS: SpecField[] = [
+  { key: 'reflector_color', label: 'Warna Reflector', placeholder: 'Silver / Putih', icon: 'fi fi-rr-palette' },
+  { key: 'body_color', label: 'Warna Badan Lampu', placeholder: 'Hitam / Putih', icon: 'fi fi-rr-fill' },
+  { key: 'dimension', label: 'Dimensi', placeholder: 'Ø90 x 60 mm', icon: 'fi fi-rr-ruler-combined' },
+  { key: 'cut_out', label: 'Cut Out', placeholder: 'Ø75 mm', icon: 'fi fi-rr-scissors' },
+];
 
 export const SPEC_GROUPS: { title: string; icon: string; fields: SpecField[] }[] = [
   {
@@ -18,6 +27,7 @@ export const SPEC_GROUPS: { title: string; icon: string; fields: SpecField[] }[]
       { key: 'wattage', label: 'Wattage (W)', placeholder: '12', icon: 'fi fi-rr-bolt' },
       { key: 'input_voltage', label: 'Input Voltage', placeholder: 'AC 220-240V', icon: 'fi fi-rr-plug' },
       { key: 'power_factor', label: 'Power Factor', placeholder: '> 0.9', icon: 'fi fi-rr-chart-line-up' },
+      { key: 'ampere', label: 'Ampere (A)', placeholder: '0.35', icon: 'fi fi-rr-bolt' },
       { key: 'driver_type', label: 'Driver Type', placeholder: 'Constant Current', icon: 'fi fi-rr-microchip' },
     ],
   },
@@ -56,3 +66,15 @@ export const SPEC_GROUPS: { title: string; icon: string; fields: SpecField[] }[]
 // Data pengemasan (numerik + jenis kemasan) untuk Packing List.
 export const PACK_NUM_KEYS = ['units_per_package', 'net_weight', 'gross_weight', 'pkg_length_cm', 'pkg_width_cm', 'pkg_height_cm'] as const;
 export type PackNumKey = (typeof PACK_NUM_KEYS)[number];
+
+// Gabungan spesifikasi (Elektrikal, Cahaya, Proteksi & Kontrol, Fisik & Instalasi) menjadi baris "Label: nilai".
+// Field yang kosong dilewati, tidak ditulis "-".
+export function specLines(p: Partial<Record<SpecKey, string | null>> | null | undefined): string[] {
+  if (!p) return [];
+  const out: string[] = [];
+  for (const g of SPEC_GROUPS) for (const f of g.fields) {
+    const v = (p[f.key] ?? '').toString().trim();
+    if (v) out.push(`${f.label}: ${v}`);
+  }
+  return out;
+}

@@ -17,6 +17,8 @@ export type SpecItemRow = {
   boq_qty: number | null;
   drawing_code: string;
   flag: 'new' | 'qty' | 'removed' | null;
+  image_url: string | null;
+  spec: string[];
 };
 export type SpecRow = {
   id: string;
@@ -85,7 +87,7 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
     setLoadingBoq(true);
     try {
       const list = await getBOQSynthesis(id);
-      setItems(list.map((l) => ({ key: '', product_id: l.product_id, sku: l.sku, name: l.name, uom: l.uom, qty: l.qty, boq_qty: l.qty, drawing_code: '', flag: null })));
+      setItems(list.map((l) => ({ key: '', product_id: l.product_id, sku: l.sku, name: l.name, uom: l.uom, qty: l.qty, boq_qty: l.qty, drawing_code: '', flag: null, image_url: l.image_url, spec: l.spec })));
       if (!list.length) toast('BOQ ini belum memiliki item.', 'error');
     } catch {
       toast('Item BOQ gagal dimuat.', 'error');
@@ -244,19 +246,21 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
           )}
 
           <div className="fv2-section">
-            <div className="fv2-section-title"><i className="fi fi-rr-list" /> Item Specification {items.length > 0 && <span style={{ fontWeight: 500, color: '#64748b' }}>({filled}/{items.filter((i) => i.flag !== 'removed').length} kode gambar terisi)</span>}</div>
+            <div className="fv2-section-title"><i className="fi fi-rr-list" /> Item Specification {items.length > 0 && <span style={{ fontWeight: 500, color: '#64748b' }}>({filled}/{items.filter((i) => i.flag !== 'removed').length} <span>Kode Gambar</span>)</span>}</div>
             {loadingBoq && <p style={{ fontSize: 12, color: '#94a3b8' }}>Memuat item dari BOQ Project...</p>}
             {!loadingBoq && items.length === 0 && <p style={{ fontSize: 13, color: '#94a3b8' }}>Pilih BOQ Project untuk memuat item.</p>}
             {items.length > 0 && (
               <div style={{ overflowX: 'auto' }}>
-                <table className="dv2-table" style={{ minWidth: 760 }}>
+                <table className="dv2-table" style={{ minWidth: 1000 }}>
                   <thead>
                     <tr>
                       <th style={{ width: 40 }}>No</th>
                       <th>SKU</th>
-                      <th>Product</th>
-                      <th>UOM</th>
+                      <th style={{ width: 76 }}>Image</th>
+                      <th style={{ textAlign: 'left' }}>Product</th>
+                      <th style={{ minWidth: 260, textAlign: 'left' }}>Specification</th>
                       <th style={{ textAlign: 'right' }}>Qty</th>
+                      <th>UOM</th>
                       <th style={{ minWidth: 170 }}>Drawing Code</th>
                       <th>Status</th>
                     </tr>
@@ -266,20 +270,31 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                       <tr key={it.key + it.sku + i} style={it.flag === 'removed' ? { opacity: 0.55 } : undefined}>
                         <td>{i + 1}</td>
                         <td style={{ fontWeight: 600 }}>{it.sku}</td>
-                        <td>{it.name || '-'}</td>
-                        <td>{it.uom || '-'}</td>
+                        <td>
+                          {it.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={it.image_url} alt={it.sku} style={{ width: 56, height: 56, objectFit: 'contain', borderRadius: 8, border: '1px solid #e8ecf4', background: '#fff' }} />
+                          ) : (
+                            <div style={{ width: 56, height: 56, borderRadius: 8, border: '1px dashed #e2e8f0', background: '#f8fafc' }} />
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'left' }}>{it.name || '-'}</td>
+                        <td style={{ fontSize: 12, lineHeight: 1.5, color: '#475569', textAlign: 'left' }}>
+                          {it.spec.map((l, k) => <div key={k}>{l}</div>)}
+                        </td>
                         <td style={{ textAlign: 'right' }}>
                           {it.flag === 'qty' || it.flag === 'new'
                             ? <><s style={{ color: '#94a3b8' }}>{it.flag === 'qty' ? it.qty : ''}</s> <b>{it.boq_qty}</b></>
                             : it.qty}
                         </td>
+                        <td>{it.uom || '-'}</td>
                         <td>
                           <input
                             value={it.drawing_code}
                             onChange={(e) => setCode(i, e.target.value)}
                             placeholder="Kode gambar"
                             disabled={it.flag === 'removed'}
-                            style={{ width: '100%', minWidth: 150 }}
+                            style={{ width: '100%', minWidth: 150, border: '1px solid #e2e8f0', borderRadius: 8, padding: '7px 10px', fontSize: 13, background: '#fff' }}
                           />
                         </td>
                         <td><FlagBadge flag={it.flag} /></td>

@@ -11,6 +11,7 @@ export default function RegistryCard({
   addLabel,
   addIcon,
   onAdd,
+  filters,
   children,
   footer,
 }: {
@@ -22,6 +23,7 @@ export default function RegistryCard({
   addLabel?: string;
   addIcon?: string;
   onAdd?: () => void;
+  filters?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -32,6 +34,7 @@ export default function RegistryCard({
           <i className={icon} style={{ fontSize: 16, color: '#2563eb' }} /> {title}
         </h3>
         <div className="flex-wrap">
+          {filters}
           <div className="search-box">
             <span className="search-icon">
               <i className="fa-solid fa-search" />

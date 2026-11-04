@@ -13,7 +13,7 @@ import { saveProject, type ProjectInput } from '@/app/(dashboard)/dashboard/proj
 import { getProjectClientLookups, getBrandNames } from '@/lib/quick-add-actions';
 import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
-import { SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from '@/app/(dashboard)/dashboard/products/fields';
+import { INFO_FIELDS, SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from '@/app/(dashboard)/dashboard/products/fields';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, type ProductInput } from '@/app/(dashboard)/dashboard/products/actions';
 import type { ProductOption } from '@/components/ProductPicker';
@@ -331,6 +331,11 @@ export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; o
                   placeholder="Pcs"
                 />
               </FvField>
+              {INFO_FIELDS.map((f) => (
+                <FvField key={f.key} label={f.label}>
+                  <input value={form[f.key] || ''} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} />
+                </FvField>
+              ))}
             </div>
           </div>
 

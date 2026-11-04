@@ -1,5 +1,6 @@
 import { createClient } from '@/lib/supabase/server';
 import { orThrow } from '@/lib/query';
+import { productInfoBySku } from '@/lib/spec-info';
 import LightingSpecTable, { type SpecRow, type SpecItemRow, type BoqOption } from './LightingSpecTable';
 
 const specKey = (it: { product_id?: string | null; sku: string; uom?: string | null }) =>
@@ -33,11 +34,9 @@ export default async function LightingSpecificationPage() {
   const boqItems = (boqItemsRes.data ?? []) as BoqItem[];
 
   const skus = Array.from(new Set([...items.map((i) => i.sku), ...boqItems.map((i) => i.sku)]));
-  const names = new Map<string, string>();
-  if (skus.length) {
-    const { data: prods } = await supabase.from('products').select('sku, name').in('sku', skus);
-    (prods ?? []).forEach((p) => names.set(p.sku as string, p.name as string));
-  }
+  const info = await productInfoBySku(supabase, skus);
+  const names = { get: (sku: string) => info.get(sku)?.name };
+  const extra = (sku: string) => ({ image_url: info.get(sku)?.image_url ?? null, spec: info.get(sku)?.spec ?? [] });
 
   const rows: SpecRow[] = specs.map((s) => {
     const boq = s.boq_projects as unknown as { project_name: string; status: string; clients: { company: string | null; project_name: string } | null } | null;
@@ -57,10 +56,10 @@ export default async function LightingSpecificationPage() {
       seen.add(k);
       const l = live.get(k);
       const flag: SpecItemRow['flag'] = !l ? 'removed' : Number(l.qty) !== Number(i.qty) ? 'qty' : null;
-      return { key: k, product_id: i.product_id, sku: i.sku, name: names.get(i.sku) ?? '', uom: i.uom ?? '', qty: Number(i.qty), boq_qty: l ? l.qty : null, drawing_code: i.drawing_code ?? '', flag };
+      return { key: k, product_id: i.product_id, sku: i.sku, name: names.get(i.sku) ?? '', uom: i.uom ?? '', qty: Number(i.qty), boq_qty: l ? l.qty : null, drawing_code: i.drawing_code ?? '', flag, ...extra(i.sku) };
     });
     live.forEach((l, k) => {
-      if (!seen.has(k)) out.push({ key: k, product_id: l.product_id, sku: l.sku, name: names.get(l.sku) ?? '', uom: l.uom, qty: 0, boq_qty: l.qty, drawing_code: '', flag: 'new' });
+      if (!seen.has(k)) out.push({ key: k, product_id: l.product_id, sku: l.sku, name: names.get(l.sku) ?? '', uom: l.uom, qty: 0, boq_qty: l.qty, drawing_code: '', flag: 'new', ...extra(l.sku) });
     });
     return {
       id: s.id as string,

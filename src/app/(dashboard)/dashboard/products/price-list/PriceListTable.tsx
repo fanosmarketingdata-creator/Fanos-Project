@@ -6,7 +6,7 @@ import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
-import { SPEC_GROUPS, type SpecKey } from '../fields';
+import { INFO_FIELDS, SPEC_GROUPS, type SpecKey } from '../fields';
 import { savePrices, removeFromPriceList } from '../actions';
 
 export type PriceRow = {
@@ -151,6 +151,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
               <DvCard icon="fi fi-rr-apps-add" label="Subcategory" value={detail.subcategory || '-'} />
               <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
               <DvCard icon="fi fi-rr-building" label="Application" value={detail.application || '-'} />
+              {INFO_FIELDS.map((f) => <DvCard key={f.key} icon={f.icon} label={f.label} value={detail[f.key] || '-'} />)}
             </div>
             {SPEC_GROUPS.map((g) => (
               <div key={g.title}>

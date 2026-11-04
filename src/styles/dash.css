@@ -162,3 +162,11 @@
 .r-4-4-4 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 @media (max-width: 1200px) { .r-4-4-4 { grid-template-columns: 1fr 1fr; } .r-4-4-4 > :last-child { grid-column: 1 / -1; } }
 @media (max-width: 900px) { .r-4-4-4 { grid-template-columns: 1fr; } }
+
+/* Tautan ke menu yang tidak boleh diakses role ini: tampil biasa tapi tidak bisa diklik. */
+.dx-locked { cursor: default; }
+.dx-kpi.dx-locked:hover { transform: none; box-shadow: none; border-color: #e8ecf4; }
+.dx-stat.dx-locked:hover { background: #f6f8fc; border-color: transparent; }
+.dx-li.dx-locked:hover { background: transparent; }
+.dx-seg .dx-locked { display: block; min-width: 4px; transition: opacity .15s, transform .15s; }
+.dx-seg .dx-locked.dim { opacity: .35; }

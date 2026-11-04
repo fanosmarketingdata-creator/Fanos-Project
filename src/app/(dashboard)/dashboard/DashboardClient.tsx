@@ -2,6 +2,8 @@
 
 import { useEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { createContext, useContext } from 'react';
+import { canAccessPath } from '@/lib/menu';
 import { useRouter } from 'next/navigation';
 import Select from '@/components/ui/Select';
 import { pmHealth } from '@/lib/pm-health';
@@ -66,6 +68,23 @@ function Trend({ value, invert = false }: { value: number | null; invert?: boole
   );
 }
 
+// Menu yang boleh dibuka role ini (null = semua). Tautan ke menu tanpa akses dibuat tidak bisa diklik.
+const AllowCtx = createContext<string[] | null>(null);
+
+function DLink({ href, className, style, title, onMouseEnter, children }: { href: string; className?: string; style?: React.CSSProperties; title?: string; onMouseEnter?: () => void; children?: React.ReactNode }) {
+  const allowed = useContext(AllowCtx);
+  if (!canAccessPath(allowed, href)) {
+    return <div className={`${className ?? ''} dx-locked`} style={style} title={title} onMouseEnter={onMouseEnter}>{children}</div>;
+  }
+  return <Link href={href} className={className} style={style} title={title} onMouseEnter={onMouseEnter}>{children}</Link>;
+}
+
+function GoLink({ href }: { href: string }) {
+  const allowed = useContext(AllowCtx);
+  if (!canAccessPath(allowed, href)) return null;
+  return <Link href={href} className="dx-go" title="Buka"><i className="fi fi-rr-arrow-up-right" /></Link>;
+}
+
 function Panel({ title, right, href, children, className = '' }: { title: string; right?: React.ReactNode; href?: string; children: React.ReactNode; className?: string }) {
   return (
     <section className={`dx-panel ${className}`}>
@@ -73,7 +92,7 @@ function Panel({ title, right, href, children, className = '' }: { title: string
         <h3>{title}</h3>
         <div className="dx-ph-r">
           {right}
-          {href && <Link href={href} className="dx-go" title="Buka"><i className="fi fi-rr-arrow-up-right" /></Link>}
+          {href && <GoLink href={href} />}
         </div>
       </div>
       {children}
@@ -192,7 +211,7 @@ function LineChart({ labels, series, H = 180, axis = true, fill = false, tickEve
   );
 }
 
-export default function DashboardClient({ data }: { data: DashData }) {
+export default function DashboardClient({ data, allowed = null }: { data: DashData; allowed?: string[] | null }) {
   const router = useRouter();
   const [mounted] = useState(() => Date.now());
   const [ago, setAgo] = useState(0);
@@ -263,6 +282,7 @@ export default function DashboardClient({ data }: { data: DashData }) {
   const collectedPct = r.billed ? Math.round((r.collected / r.billed) * 100) : 0;
 
   return (
+    <AllowCtx.Provider value={allowed}>
     <div className="dx">
       <div className="dx-head">
         <div>
@@ -278,38 +298,38 @@ export default function DashboardClient({ data }: { data: DashData }) {
 
       {/* KPI */}
       <div className="dx-kpis">
-        <Link href="/dashboard/invoices" className="dx-kpi">
+        <DLink href="/dashboard/invoices" className="dx-kpi">
           <div className="dx-ki" style={{ background: '#e8f7f1', color: GREEN }}><i className="fi fi-rr-chart-histogram" /></div>
           <div className="dx-kb">
             <span className="dx-kl">Penjualan Bulan Ini</span>
             <b className="dx-kv" title={idr(cur.sales)}>{idr(cur.sales)}</b>
             <div className="dx-kt"><Trend value={pct(cur.sales, prev.sales)} /><span>vs bulan lalu</span></div>
           </div>
-        </Link>
-        <Link href="/dashboard/outstanding" className="dx-kpi">
+        </DLink>
+        <DLink href="/dashboard/outstanding" className="dx-kpi">
           <div className="dx-ki" style={{ background: '#fdeceb', color: RED }}><i className="fi fi-rr-receipt" /></div>
           <div className="dx-kb">
             <span className="dx-kl">Total Piutang</span>
             <b className="dx-kv" title={idr(r.total)}>{idr(r.total)}</b>
             <div className="dx-kt"><span className="dx-n">{r.count}</span><span>invoice belum lunas</span></div>
           </div>
-        </Link>
-        <Link href="/dashboard/purchase-invoice" className="dx-kpi">
+        </DLink>
+        <DLink href="/dashboard/purchase-invoice" className="dx-kpi">
           <div className="dx-ki" style={{ background: '#eaf1ff', color: BLUE }}><i className="fi fi-rr-money-bill-wave" /></div>
           <div className="dx-kb">
             <span className="dx-kl">Total Utang Vendor</span>
             <b className="dx-kv" title={idr(r.payable)}>{idr(r.payable)}</b>
             <div className="dx-kt"><Trend value={pct(cur.purchases, prev.purchases)} invert /><span>pembelian vs bulan lalu</span></div>
           </div>
-        </Link>
-        <Link href="/dashboard/project-management" className="dx-kpi">
+        </DLink>
+        <DLink href="/dashboard/project-management" className="dx-kpi">
           <div className="dx-ki" style={{ background: '#fff4e3', color: AMBER }}><i className="fi fi-rr-chart-tree" /></div>
           <div className="dx-kb">
             <span className="dx-kl">Project Aktif</span>
             <b className="dx-kv">{activeProjects}</b>
             <div className="dx-kt">{overdueProjects > 0 ? <><span className="dx-n bad">{overdueProjects}</span><span>project terlambat</span></> : <span>Semua sesuai jadwal</span>}</div>
           </div>
-        </Link>
+        </DLink>
       </div>
 
       {/* Kinerja + Pipeline */}
@@ -340,16 +360,16 @@ export default function DashboardClient({ data }: { data: DashData }) {
         >
           <div className="dx-pipe">
             <div className="dx-pipe-l">
-              <Link href="/dashboard/sales-orders" className="dx-stat">
+              <DLink href="/dashboard/sales-orders" className="dx-stat">
                 <b>{pp.soN}</b><span>Sales Order Berjalan</span>
-              </Link>
-              <Link href="/dashboard/quotations" className="dx-stat">
+              </DLink>
+              <DLink href="/dashboard/quotations" className="dx-stat">
                 <b>{pp.quoteN}</b><span>Quotation Terbuka</span>
                 <em>{idr(pp.quoteV)}</em>
-              </Link>
-              <Link href="/dashboard/purchase-orders" className="dx-stat">
+              </DLink>
+              <DLink href="/dashboard/purchase-orders" className="dx-stat">
                 <b>{pp.poN}</b><span>PO Belum Diterima</span>
-              </Link>
+              </DLink>
             </div>
             <div className="dx-pipe-r">
               <div className="dx-pv"><span>Nilai SO Berjalan</span><b>{idr(pp.soV)}</b></div>
@@ -395,11 +415,11 @@ export default function DashboardClient({ data }: { data: DashData }) {
           ) : (
             <div className="dx-list">
               {data.topOpen.map((o) => (
-                <Link key={o.id} href="/dashboard/outstanding" className="dx-li">
+                <DLink key={o.id} href="/dashboard/outstanding" className="dx-li">
                   <div className="av">{(o.client[0] ?? '?').toUpperCase()}</div>
                   <div className="tx"><b>{o.client}</b><span>{o.doc_no} · {fmtDate(o.inv_date)}</span></div>
                   <div className="am">{idr(o.remaining)}</div>
-                </Link>
+                </DLink>
               ))}
             </div>
           )}
@@ -413,11 +433,11 @@ export default function DashboardClient({ data }: { data: DashData }) {
               {data.reminders.map((rm) => {
                 const late = rm.due_date < data.today;
                 return (
-                  <Link key={rm.id} href="/dashboard/reminders" className="dx-li">
+                  <DLink key={rm.id} href="/dashboard/reminders" className="dx-li">
                     <div className="av" style={{ background: late ? '#fdeceb' : '#fff4e3', color: late ? RED : AMBER }}><i className="fi fi-rr-bell" /></div>
                     <div className="tx"><b>{rm.title}</b><span>{fmtDate(rm.due_date)}</span></div>
                     <span className={`dx-pill ${late ? 'overdue' : 'risk'}`}>{late ? 'Terlambat' : 'Hari ini'}</span>
-                  </Link>
+                  </DLink>
                 );
               })}
             </div>
@@ -475,7 +495,7 @@ export default function DashboardClient({ data }: { data: DashData }) {
             </div>
             <div className="dx-seg" onMouseLeave={() => setSeg(null)}>
               {segs.map((s) => (
-                <Link key={s.k} href="/dashboard/outstanding" onMouseEnter={() => setSeg(s.k)} className={seg && seg !== s.k ? 'dim' : ''} style={{ width: `${(s.v / segTotal) * 100}%`, background: s.color }} title={`${s.label}: ${idr(s.v)}`} />
+                <DLink key={s.k} href="/dashboard/outstanding" onMouseEnter={() => setSeg(s.k)} className={seg && seg !== s.k ? 'dim' : ''} style={{ width: `${(s.v / segTotal) * 100}%`, background: s.color }} title={`${s.label}: ${idr(s.v)}`} />
               ))}
             </div>
             <div className="dx-segl">
@@ -490,5 +510,6 @@ export default function DashboardClient({ data }: { data: DashData }) {
         </Panel>
       </div>
     </div>
+    </AllowCtx.Provider>
   );
 }

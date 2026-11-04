@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/auth';
+import { loadPermissions } from '@/lib/permissions';
 import DashboardClient, { type DashData } from './DashboardClient';
 import { orThrowAll } from '@/lib/query';
 
@@ -159,5 +160,6 @@ export default async function DashboardPage() {
     reminders: (rem.data ?? []).map((r) => ({ id: r.id as string, title: r.title as string, due_date: r.due_date as string })),
   };
 
-  return <DashboardClient data={data} />;
+  const { allowed } = await loadPermissions();
+  return <DashboardClient data={data} allowed={allowed} />;
 }

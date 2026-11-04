@@ -9,7 +9,7 @@ import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/componen
 import BrandSelect from '@/components/registry/BrandSelect';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
-import { SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
+import { INFO_FIELDS, SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
 
@@ -46,6 +46,9 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [search, setSearch] = useState('');
+  const [fBrand, setFBrand] = useState('');
+  const [fCat, setFCat] = useState('');
+  const [fSub, setFSub] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
   const [form, setForm] = useState<ProductInput>(emptyForm);
   const [skuView, setSkuView] = useState('');
@@ -58,17 +61,19 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
   // Urut kategori lalu SKU.
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
+    const base = initialProducts.filter((p) => (!fBrand || p.brand === fBrand) && (!fCat || p.category === fCat) && (!fSub || p.subcategory === fSub));
     const rows = q
-      ? initialProducts.filter((p) =>
+      ? base.filter((p) =>
           [p.sku, p.name, p.category, p.subcategory, p.application, p.wattage, p.cct, p.ip_rating].some((v) =>
             (v || '').toLowerCase().includes(q)
           )
         )
-      : initialProducts;
+      : base;
     return rows.slice().sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.sku || '').localeCompare(b.sku || ''));
-  }, [initialProducts, search]);
+  }, [initialProducts, search, fBrand, fCat, fSub]);
 
-  const paged = usePaged(filtered, search, 24);
+  const paged = usePaged(filtered, search + '|' + fBrand + '|' + fCat + '|' + fSub, 24);
+  const filtering = !!(fBrand || fCat || fSub);
 
   function openAdd() {
     setForm(emptyForm);
@@ -164,7 +169,25 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
       icon="fa-solid fa-boxes-stacked"
       search={search}
       onSearch={setSearch}
-      info={search.trim() ? `${filtered.length} hasil` : undefined}
+      info={search.trim() || filtering ? `${filtered.length} hasil` : undefined}
+      filters={
+        <>
+          <div style={{ width: 150 }}>
+            <FvSelect value={fBrand} onChange={setFBrand} options={toOptions(brandList)} placeholder="Semua Brand" />
+          </div>
+          <div style={{ width: 170 }}>
+            <FvSelect value={fCat} onChange={(v) => { setFCat(v); setFSub(''); }} options={toOptions(Object.keys(PRODUCT_CATEGORIES))} placeholder="Semua Main Category" />
+          </div>
+          <div style={{ width: 170 }}>
+            <FvSelect value={fSub} onChange={setFSub} options={toOptions(PRODUCT_CATEGORIES[fCat] ?? [])} placeholder="Semua Subcategory" disabled={!fCat} />
+          </div>
+          {filtering && (
+            <button type="button" className="btn btn-secondary" onClick={() => { setFBrand(''); setFCat(''); setFSub(''); }}>
+              <i className="fi fi-rr-cross-small" /> Reset
+            </button>
+          )}
+        </>
+      }
       addLabel="New Product"
       addIcon="fa-solid fa-box-open"
       onAdd={openAdd}
@@ -241,6 +264,7 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
               <DvCard icon="fi fi-rr-building" label="Application" value={detail.application || '-'} />
               <DvCard icon="fi fi-rr-box" label="UOM" value={detail.uom || 'Pcs'} />
               <DvCard icon="fi fi-rr-award" label="Brand" value={detail.brand || '-'} />
+              {INFO_FIELDS.map((f) => <DvCard key={f.key} icon={f.icon} label={f.label} value={detail[f.key] || '-'} />)}
             </div>
             {SPEC_GROUPS.map((g) => (
               <div key={g.title}>
@@ -366,6 +390,11 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
                   placeholder="Pcs"
                 />
               </FvField>
+              {INFO_FIELDS.map((f) => (
+                <FvField key={f.key} label={f.label}>
+                  <input value={form[f.key] || ''} onChange={(e) => setForm({ ...form, [f.key]: e.target.value })} placeholder={f.placeholder} />
+                </FvField>
+              ))}
             </div>
           </div>
 
