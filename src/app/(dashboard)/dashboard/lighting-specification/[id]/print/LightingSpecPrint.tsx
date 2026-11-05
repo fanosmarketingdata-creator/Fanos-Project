@@ -32,30 +32,30 @@ export default function LightingSpecPrint(p: {
     <div className="ls" style={{ fontFamily: "'Outfit', 'Segoe UI', Arial, sans-serif" }}>
       <style dangerouslySetInnerHTML={{ __html: `
         .ls, .ls * { font-family: 'Outfit', 'Segoe UI', Arial, sans-serif !important; }
-        @page { size: A4 landscape; margin: 10mm 12mm 14mm; @bottom-left { content: "PT Fanosindo Internusa — Lighting & Electrical Consultant"; font: 8px 'Outfit', sans-serif; color: #888; }
+        @page { size: A4 portrait; margin: 10mm 12mm 14mm; @bottom-left { content: "PT Fanosindo Internusa — Lighting & Electrical Consultant"; font: 8px 'Outfit', sans-serif; color: #888; }
           @bottom-right { content: "${p.project.replace(/"/g, '')} | ${t.page} " counter(page) " ${t.of} " counter(pages); font: 8px 'Outfit', sans-serif; color: #888; } }
-        .ls-sheet { max-width: 297mm; margin: 0 auto; background: #fff; padding: 10mm 12mm; box-shadow: 0 1px 8px rgba(0,0,0,.12); font-size: 11.5px; color: #000; line-height: 1.5; }
+        .ls-sheet { max-width: 210mm; margin: 0 auto; background: #fff; padding: 10mm 12mm; box-shadow: 0 1px 8px rgba(0,0,0,.12); font-size: 11.5px; color: #000; line-height: 1.5; }
         .ls-sheet table.layout { width: 100%; border-collapse: collapse; }
         .ls-sheet table.items { width: 100%; border-collapse: collapse; font-size: 11px; table-layout: fixed; }
         .ls-sheet table.items thead { display: table-header-group; }
         .ls-sheet table.items th { background: ${NAVY}; color: #fff; padding: 6px; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .ls-sheet table.items td { border: 1px solid #d4d4d8; padding: 6px 8px; vertical-align: middle; }
         .ls-sheet table.items tr { break-inside: avoid; page-break-inside: avoid; }
-        .ls-img { width: 100%; height: 42mm; object-fit: contain; display: block; }
-        .ls-noimg { width: 100%; height: 42mm; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
+        .ls-img { width: 100%; height: 56mm; object-fit: contain; display: block; }
+        .ls-noimg { width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
         .ls-spec div { padding: 1px 0; }
         .ls-sign { display: flex; gap: 40px; margin-top: 22px; break-inside: avoid; }
-        .ls-sign > div { width: 200px; text-align: center; font-size: 11px; }
+        .ls-sign > div { width: 180px; text-align: center; font-size: 11px; }
         .ls-sign .box { height: 62px; border-bottom: 1px solid #111; margin-bottom: 4px; }
         .ls-foot { display: flex; justify-content: space-between; margin-top: 16px; padding-top: 4px; border-top: 1px solid #e5e5e5; font-size: 9px; color: #888; }
         @media print {
           html, body, main { background: #fff !important; }
           .ls-sheet { box-shadow: none; padding: 0; max-width: none; }
-          .ls-foot { display: none !important; }
+          .ls-foot, .ls-toolbar { display: none !important; }
         }
       ` }} />
 
-      <div className="mx-auto mb-4 flex w-full max-w-[297mm] flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 print:hidden" data-no-cards data-no-i18n>
+      <div className="ls-toolbar mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 print:hidden" data-no-cards data-no-i18n>
         <Link href="/dashboard/lighting-specification" className="text-sm font-medium text-slate-500 hover:text-slate-700">← Kembali</Link>
         <div className="flex items-center gap-2">
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-sm font-semibold">
@@ -108,8 +108,8 @@ export default function LightingSpecPrint(p: {
 
               <table className="items">
                 <colgroup>
-                  <col style={{ width: '4%' }} /><col style={{ width: '13%' }} /><col style={{ width: '16%' }} /><col style={{ width: '27%' }} />
-                  <col style={{ width: '25%' }} /><col style={{ width: '6%' }} /><col style={{ width: '9%' }} />
+                  <col style={{ width: '5%' }} /><col style={{ width: '9%' }} /><col style={{ width: '14%' }} /><col style={{ width: '21%' }} />
+                  <col style={{ width: '37%' }} /><col style={{ width: '6%' }} /><col style={{ width: '8%' }} />
                 </colgroup>
                 <thead>
                   <tr>{t.cols.map((c, i) => <th key={c} style={{ textAlign: i === 2 || i === 3 ? 'left' : 'center' }}>{c}</th>)}</tr>
@@ -124,7 +124,7 @@ export default function LightingSpecPrint(p: {
                       <td>
                         {r.image_url
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img className="ls-img" src={r.image_url} alt={r.name} />
+                          ? <img className="ls-img" src={r.image_url} alt={r.name} loading="eager" decoding="async" />
                           : <div className="ls-noimg">—</div>}
                       </td>
                       <td style={{ textAlign: 'center' }}>{fmtQty(r.qty)}</td>
@@ -133,12 +133,6 @@ export default function LightingSpecPrint(p: {
                   ))}
                 </tbody>
               </table>
-              <div style={{ marginTop: 6, fontSize: 10.5, color: '#555' }}>{t.total}: {p.rows.length}</div>
-
-              <div className="ls-sign">
-                <div><div className="box" />{t.madeBy}<br /><b>{p.signerName}</b>{p.signerRole ? <div style={{ fontSize: 10, color: '#555' }}>{p.signerRole}</div> : null}</div>
-                <div><div className="box" />{t.approvedBy}</div>
-              </div>
             </td></tr>
           </tbody>
         </table>
