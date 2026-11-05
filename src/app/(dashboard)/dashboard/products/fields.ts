@@ -69,12 +69,16 @@ export type PackNumKey = (typeof PACK_NUM_KEYS)[number];
 
 // Gabungan spesifikasi (Elektrikal, Cahaya, Proteksi & Kontrol, Fisik & Instalasi) menjadi baris "Label: nilai".
 // Field yang kosong dilewati, tidak ditulis "-".
+// Nilai yang dianggap "kosong": teks kosong, strip ("-", "–", "—"), n/a, atau angka nol saja.
+export const isBlankSpec = (v: string) => !v || /^[-–—.\s]+$/.test(v) || /^(n\/a|na|null|none)$/i.test(v) || /^0+([.,]0+)?$/.test(v);
+
 export function specLines(p: Partial<Record<SpecKey, string | null>> | null | undefined): string[] {
   if (!p) return [];
   const out: string[] = [];
   for (const g of SPEC_GROUPS) for (const f of g.fields) {
     const v = (p[f.key] ?? '').toString().trim();
-    if (v) out.push(`${f.label}: ${v}`);
+    if (isBlankSpec(v)) continue;
+    out.push(`${f.label}: ${v}`);
   }
   return out;
 }

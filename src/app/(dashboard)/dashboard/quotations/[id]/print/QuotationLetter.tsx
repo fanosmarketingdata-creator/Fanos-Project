@@ -119,7 +119,7 @@ export default function QuotationLetter(p: {
   const roCls = inputCls + ' bg-slate-100 text-slate-500';
 
   const Head = () => (
-    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 14 }}>
+    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', paddingBottom: 8, borderBottom: "2px solid #000", marginBottom: 14 }}>
       <div>
         <div style={{ fontSize: 24, fontWeight: 700, color: NAVY, letterSpacing: '-0.3px', lineHeight: 1.1 }}>PT Fanosindo Internusa</div>
         <div style={{ fontSize: 9.5, color: '#555', marginTop: 4, lineHeight: 1.5 }}>

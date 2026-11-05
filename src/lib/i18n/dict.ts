@@ -1094,6 +1094,7 @@ export const ID_EN: Record<string, string> = {
   'dilewati': 'skipped',
   'baris': 'rows',
   'Baris berikut tidak akan diimpor. Perbaiki di file lalu unggah ulang, atau lanjutkan untuk mengimpor baris yang valid saja.': 'The rows below will not be imported. Fix them in the file and upload again, or continue to import only the valid rows.',
+
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

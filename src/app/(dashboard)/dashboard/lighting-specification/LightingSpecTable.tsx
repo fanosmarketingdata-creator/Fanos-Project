@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import Link from 'next/link';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
@@ -161,45 +162,56 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
       addIcon="fi fi-rr-plus"
       onAdd={openAdd}
     >
-      <div className="product-grid-wrap">
-        <div className="client-card-list">
-          {filtered.length === 0 && <div className="no-data-grid">Belum terdapat data lighting specification</div>}
-          {filtered.map((r) => {
-            const changed = r.items.filter((i) => i.flag).length;
-            return (
-              <div key={r.id} className="client-card" onClick={() => openEdit(r)}>
-                <div className="client-card-avatar"><i className="fi fi-rr-bulb" /></div>
-                <div className="client-card-main">
-                  <div className="name">{r.project_name}</div>
-                  <div className="sub">{r.client}</div>
-                </div>
-                <div className="client-card-meta">
-                  <div className="item"><div className="lbl">Item</div><div className="val">{r.items.filter((i) => i.flag !== 'new').length}</div></div>
-                  <div className="item">
-                    <div className="lbl">Kode Gambar</div>
-                    <div className="val">{r.items.filter((i) => i.drawing_code).length} / {r.items.filter((i) => i.flag !== 'new').length}</div>
-                  </div>
-                  <div className="item">
-                    <div className="lbl">Status</div>
-                    <div className="val">
-                      {r.outdated
-                        ? <span style={{ background: '#fef3c7', color: '#92400e', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 700 }}><i className="fi fi-rr-refresh" /> <span>Perlu update</span> ({changed})</span>
-                        : <span style={{ background: '#dcfce7', color: '#166534', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 700 }}>Sesuai BOQ</span>}
+      <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
+        <table className="w-full min-w-[760px] text-left text-sm">
+          <thead>
+            <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
+              <th className="w-12 px-4 py-3 font-semibold">No</th>
+              <th className="px-4 py-3 font-semibold">Project</th>
+              <th className="px-4 py-3 font-semibold">Client</th>
+              <th className="px-4 py-3 text-center font-semibold">Item</th>
+              <th className="px-4 py-3 text-center font-semibold">Drawing Code</th>
+              <th className="px-4 py-3 font-semibold">Status</th>
+              <th className="px-4 py-3 text-right font-semibold">Aksi</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.length === 0 && (
+              <tr><td colSpan={7} className="px-4 py-10 text-center text-slate-400">Belum terdapat data lighting specification</td></tr>
+            )}
+            {filtered.map((r, idx) => {
+              const changed = r.items.filter((i) => i.flag).length;
+              const count = r.items.filter((i) => i.flag !== 'new').length;
+              return (
+                <tr key={r.id} className="cursor-pointer border-b border-slate-50 last:border-0 hover:bg-slate-50/60" onClick={() => openEdit(r)}>
+                  <td className="px-4 py-3 text-slate-500">{idx + 1}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-800">{r.project_name}</td>
+                  <td className="px-4 py-3 text-slate-600">{r.client}</td>
+                  <td className="px-4 py-3 text-center text-slate-700">{count}</td>
+                  <td className="px-4 py-3 text-center text-slate-700">{r.items.filter((i) => i.drawing_code).length} / {count}</td>
+                  <td className="px-4 py-3">
+                    {r.outdated
+                      ? <span style={{ background: '#fef3c7', color: '#92400e', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}><i className="fi fi-rr-refresh" /> <span>Perlu update</span> ({changed})</span>
+                      : <span style={{ background: '#dcfce7', color: '#166534', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>Sesuai BOQ</span>}
+                  </td>
+                  <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                    <div className="flex justify-end gap-1.5">
+                      <Link href={`/dashboard/lighting-specification/${r.id}/print`} className="btn-action-icon btn-print btn-xs" title="Cetak">
+                        <i className="fi fi-rr-print" />
+                      </Link>
+                      <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(r)} title="Edit">
+                        <i className="fi fi-rr-pencil" />
+                      </button>
+                      <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(r)} title="Hapus">
+                        <i className="fi fi-rr-trash" />
+                      </button>
                     </div>
-                  </div>
-                </div>
-                <div className="client-card-actions" onClick={(e) => e.stopPropagation()}>
-                  <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(r)} title="Edit">
-                    <i className="fi fi-rr-pencil" />
-                  </button>
-                  <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(r)} title="Hapus">
-                    <i className="fi fi-rr-trash" />
-                  </button>
-                </div>
-              </div>
-            );
-          })}
-        </div>
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
       </div>
 
       {modalOpen && (
@@ -255,13 +267,12 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                   <thead>
                     <tr>
                       <th style={{ width: 40 }}>No</th>
-                      <th>SKU</th>
-                      <th style={{ width: 76 }}>Image</th>
+                      <th style={{ minWidth: 170 }}>Drawing Code</th>
                       <th style={{ textAlign: 'left' }}>Product</th>
                       <th style={{ minWidth: 260, textAlign: 'left' }}>Specification</th>
+                      <th style={{ width: 116 }}>Picture Reference</th>
                       <th style={{ textAlign: 'right' }}>Qty</th>
                       <th>UOM</th>
-                      <th style={{ minWidth: 170 }}>Drawing Code</th>
                       <th>Status</th>
                     </tr>
                   </thead>
@@ -269,25 +280,6 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                     {items.map((it, i) => (
                       <tr key={it.key + it.sku + i} style={it.flag === 'removed' ? { opacity: 0.55 } : undefined}>
                         <td>{i + 1}</td>
-                        <td style={{ fontWeight: 600 }}>{it.sku}</td>
-                        <td>
-                          {it.image_url ? (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={it.image_url} alt={it.sku} style={{ width: 56, height: 56, objectFit: 'contain', borderRadius: 8, border: '1px solid #e8ecf4', background: '#fff' }} />
-                          ) : (
-                            <div style={{ width: 56, height: 56, borderRadius: 8, border: '1px dashed #e2e8f0', background: '#f8fafc' }} />
-                          )}
-                        </td>
-                        <td style={{ textAlign: 'left' }}>{it.name || '-'}</td>
-                        <td style={{ fontSize: 12, lineHeight: 1.5, color: '#475569', textAlign: 'left' }}>
-                          {it.spec.map((l, k) => <div key={k}>{l}</div>)}
-                        </td>
-                        <td style={{ textAlign: 'right' }}>
-                          {it.flag === 'qty' || it.flag === 'new'
-                            ? <><s style={{ color: '#94a3b8' }}>{it.flag === 'qty' ? it.qty : ''}</s> <b>{it.boq_qty}</b></>
-                            : it.qty}
-                        </td>
-                        <td>{it.uom || '-'}</td>
                         <td>
                           <input
                             value={it.drawing_code}
@@ -297,6 +289,27 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                             style={{ width: '100%', minWidth: 150, border: '1px solid #e2e8f0', borderRadius: 8, padding: '7px 10px', fontSize: 13, background: '#fff' }}
                           />
                         </td>
+                        <td style={{ textAlign: 'left' }}>
+                          <div style={{ fontWeight: 700 }}>{it.sku}</div>
+                          <div>{it.name || '-'}</div>
+                        </td>
+                        <td style={{ fontSize: 12, lineHeight: 1.5, color: '#475569', textAlign: 'left' }}>
+                          {it.spec.map((l, k) => <div key={k}>{l}</div>)}
+                        </td>
+                        <td>
+                          {it.image_url ? (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={it.image_url} alt={it.sku} style={{ width: 96, height: 96, objectFit: 'contain', borderRadius: 8, border: '1px solid #e8ecf4', background: '#fff' }} />
+                          ) : (
+                            <div style={{ width: 96, height: 96, borderRadius: 8, border: '1px dashed #e2e8f0', background: '#f8fafc' }} />
+                          )}
+                        </td>
+                        <td style={{ textAlign: 'right' }}>
+                          {it.flag === 'qty' || it.flag === 'new'
+                            ? <><s style={{ color: '#94a3b8' }}>{it.flag === 'qty' ? it.qty : ''}</s> <b>{it.boq_qty}</b></>
+                            : it.qty}
+                        </td>
+                        <td>{it.uom || '-'}</td>
                         <td><FlagBadge flag={it.flag} /></td>
                       </tr>
                     ))}
