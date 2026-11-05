@@ -226,6 +226,11 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                   <i className="fi fi-rr-refresh" /> {syncing ? 'Memperbarui...' : 'Update dari BOQ'}
                 </button>
               )}
+              {editId && (
+                <a className="btn btn-secondary" href={`/dashboard/lighting-specification/${editId}/print`} target="_blank" rel="noreferrer">
+                  <i className="fi fi-rr-print" /> Cetak
+                </a>
+              )}
               <button type="button" className="btn btn-secondary" onClick={() => setModalOpen(false)}>Batal</button>
             </>
           }
