@@ -45,6 +45,7 @@ export function projectColumns(classifications: string[]): ImportColumn[] {
 const specCols: ImportColumn[] = SPEC_GROUPS.flatMap((g) => g.fields.map((f) => ({ key: f.key, label: f.label, example: f.placeholder, note: g.title })));
 
 export const PRODUCT_COLUMNS: ImportColumn[] = [
+  { key: 'sku', label: 'SKU No', note: 'KOSONGKAN. Dibuat otomatis oleh sistem: 3 huruf depan Brand + nomor urut yang melanjutkan SKU yang sudah ada (mis. FAN-00123).' },
   { key: 'name', label: 'Product Name', required: true, example: 'Downlight Recessed 12W', note: 'Kombinasi nama + brand tidak boleh sama dengan produk yang sudah ada. SKU dibuat otomatis oleh sistem.' },
   { key: 'brand', label: 'Brand', example: 'FANOS', note: 'Kosong = FANOS. Brand yang belum ada akan dibuat otomatis.' },
   { key: 'category', label: 'Main Category', required: true, options: Object.keys(PRODUCT_CATEGORIES), example: Object.keys(PRODUCT_CATEGORIES)[0] },
@@ -64,7 +65,7 @@ export const PRODUCT_COLUMNS: ImportColumn[] = [
 ];
 
 export const PRICE_COLUMNS: ImportColumn[] = [
-  { key: 'sku', label: 'SKU', required: true, example: 'FNS-DL-0012', note: 'Harus sudah ada di Product Catalogue. Jangan diubah.' },
+  { key: 'sku', label: 'SKU', required: true, example: 'FAN-00012', note: 'Harus sudah ada di Product Catalogue. Jangan diubah.' },
   { key: 'name', label: 'Product Name (info)', note: 'Hanya informasi, tidak diimpor.' },
   { key: 'cost_price', label: 'Cost Price', required: true, example: '85000', note: 'Angka rupiah per UOM.' },
   { key: 'price', label: 'Selling Price', required: true, example: '125000', note: 'Standard Selling Price, angka rupiah per UOM.' },

@@ -17,12 +17,13 @@ export async function importProducts(rows: ImportRow[], commit: boolean): Promis
   const supabase = createClient();
   const [{ data: brandRows }, { data: existing }] = await Promise.all([
     supabase.from('brands').select('name'),
-    supabase.from('products').select('name, brand'),
+    supabase.from('products').select('name, brand, sku'),
   ]);
   const brands = (brandRows ?? []).map((b) => b.name as string);
   const newBrands = new Set<string>();
   const seen = new Set((existing ?? []).map((p) => `${String(p.name).trim().toLowerCase()}|${String(p.brand ?? '').toLowerCase()}`));
   const cats = Object.keys(PRODUCT_CATEGORIES);
+  const skus = new Set((existing ?? []).map((p) => String(p.sku ?? '').toLowerCase()).filter(Boolean));
 
   const errors: ImportResult['errors'] = [];
   const good: Record<string, unknown>[] = [];
@@ -30,6 +31,13 @@ export async function importProducts(rows: ImportRow[], commit: boolean): Promis
     const err = (m: string) => errors.push({ row: r._row, message: m });
     const name = s(r.name);
     if (!name) { err('Product Name wajib diisi.'); continue; }
+
+    // SKU: kosong = dibuat otomatis (3 huruf brand + nomor lanjutan). Bila diisi manual harus unik.
+    const skuIn = s(r.sku);
+    if (skuIn) {
+      if (skus.has(skuIn.toLowerCase())) { err(`SKU "${skuIn}" sudah dipakai atau duplikat di file. Kosongkan kolom SKU agar dibuat otomatis.`); continue; }
+      skus.add(skuIn.toLowerCase());
+    }
 
     const category = pickOption(r.category, cats);
     if (!s(r.category)) { err('Main Category wajib diisi.'); continue; }
@@ -82,7 +90,7 @@ export async function importProducts(rows: ImportRow[], commit: boolean): Promis
     for (const k of SPEC_KEYS) specs[k] = s(r[k]) || null;
 
     good.push({
-      name, brand, category, subcategory, application, uom, package_type: packageType,
+      sku: skuIn || null, name, brand, category, subcategory, application, uom, package_type: packageType,
       notes: s(r.notes) || null, image_url: null, ...pack, ...specs,
     });
   }
