@@ -1,7 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import Link from 'next/link';
+import RowActions from '@/components/ui/RowActions';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
@@ -195,17 +195,13 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                       : <span style={{ background: '#dcfce7', color: '#166534', borderRadius: 999, padding: '2px 9px', fontSize: 11, fontWeight: 700, whiteSpace: 'nowrap' }}>Sesuai BOQ</span>}
                   </td>
                   <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-                    <div className="flex justify-end gap-1.5">
-                      <Link href={`/dashboard/lighting-specification/${r.id}/print`} className="btn-action-icon btn-print btn-xs" title="Cetak">
-                        <i className="fi fi-rr-print" />
-                      </Link>
-                      <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => openEdit(r)} title="Edit">
-                        <i className="fi fi-rr-pencil" />
-                      </button>
-                      <button type="button" className="btn-action-icon btn-delete btn-xs" onClick={() => setDeleteTarget(r)} title="Hapus">
-                        <i className="fi fi-rr-trash" />
-                      </button>
-                    </div>
+                    <RowActions
+                      actions={[
+                        { label: 'Cetak', icon: 'fi fi-rr-print', href: `/dashboard/lighting-specification/${r.id}/print` },
+                        { label: 'Edit', icon: 'fi fi-rr-pencil', onClick: () => openEdit(r) },
+                        { label: 'Hapus', icon: 'fi fi-rr-trash', danger: true, onClick: () => setDeleteTarget(r) },
+                      ]}
+                    />
                   </td>
                 </tr>
               );
