@@ -227,7 +227,7 @@ export default function LightingSpecTable({ initialRows, boqOptions }: { initial
                 </button>
               )}
               {editId && (
-                <a className="btn btn-secondary" href={`/dashboard/lighting-specification/${editId}/print`} target="_blank" rel="noreferrer">
+                <a className="btn btn-secondary" href={`/dashboard/lighting-specification/${editId}/print`}>
                   <i className="fi fi-rr-print" /> Cetak
                 </a>
               )}
