@@ -1083,6 +1083,17 @@ export const ID_EN: Record<string, string> = {
   'Warna Badan Lampu': 'Body Color',
   'Dimensi': 'Dimensions',
   'Cut Out': 'Cut Out',
+  'Unduh template': 'Download template',
+  'Isi data sesuai format. Sheet “Petunjuk” menjelaskan setiap kolom dan pilihan nilainya.': 'Fill in the data using the format. The “Petunjuk” (Instructions) sheet explains each column and its allowed values.',
+  'Unggah file yang sudah diisi': 'Upload the completed file',
+  'Format .xlsx, .xls atau .csv. Data diperiksa dulu sebelum disimpan.': '.xlsx, .xls or .csv format. Data is checked before it is saved.',
+  'Klik untuk memilih file': 'Click to choose a file',
+  'Memeriksa data...': 'Checking data...',
+  'Hasil pemeriksaan': 'Check results',
+  'siap diimpor': 'ready to import',
+  'dilewati': 'skipped',
+  'baris': 'rows',
+  'Baris berikut tidak akan diimpor. Perbaiki di file lalu unggah ulang, atau lanjutkan untuk mengimpor baris yang valid saja.': 'The rows below will not be imported. Fix them in the file and upload again, or continue to import only the valid rows.',
 };
 
 // Frasa Indonesia -> Inggris untuk bagian dinamis pada kalimat pola.

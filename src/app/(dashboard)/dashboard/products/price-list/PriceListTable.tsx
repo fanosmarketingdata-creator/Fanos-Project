@@ -8,6 +8,9 @@ import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import { INFO_FIELDS, SPEC_GROUPS, type SpecKey } from '../fields';
 import { savePrices, removeFromPriceList } from '../actions';
+import BulkImportButton from '@/components/registry/BulkImportButton';
+import { PRICE_COLUMNS } from '@/lib/import-columns';
+import { importPriceList } from './import-actions';
 
 export type PriceRow = {
   id: string; sku: string | null; name: string; brand: string | null; uom: string;
@@ -107,6 +110,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
       addLabel="New Price List"
       addIcon="fi fi-rr-plus"
       onAdd={openNew}
+      extra={<BulkImportButton kind="edit" title="Import Price List" fileName="template-import-price-list" columns={PRICE_COLUMNS} run={importPriceList} templateRows={initialRows.map((r) => ({ sku: r.sku ?? '', name: r.name, cost_price: r.price_listed ? String(Number(r.cost_price) || 0) : '', price: r.price_listed ? String(Number(r.price) || 0) : '' }))} notes={['Template ini sudah berisi seluruh SKU di Product Catalogue. Isi Cost Price dan Selling Price; baris yang kosong akan dilewati/ditolak.']} />}
       footer={<Pagination total={paged.total} page={paged.page} totalPages={paged.totalPages} rowsPerPage={paged.rowsPerPage} onPage={paged.setPage} onRows={paged.setRowsPerPage} />}
     >
       <div className="product-grid-wrap">

@@ -12,6 +12,9 @@ import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/
 import { INFO_FIELDS, SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
+import BulkImportButton from '@/components/registry/BulkImportButton';
+import { PRODUCT_COLUMNS } from '@/lib/import-columns';
+import { importProducts } from './import-actions';
 
 export type ProductRow = {
   id: string;
@@ -188,6 +191,7 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
           )}
         </>
       }
+      extra={<BulkImportButton title="Import Product" fileName="template-import-product-catalogue" columns={PRODUCT_COLUMNS} run={importProducts} />}
       addLabel="New Product"
       addIcon="fa-solid fa-box-open"
       onAdd={openAdd}

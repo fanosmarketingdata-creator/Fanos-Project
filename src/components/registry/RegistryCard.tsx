@@ -12,6 +12,7 @@ export default function RegistryCard({
   addIcon,
   onAdd,
   filters,
+  extra,
   children,
   footer,
 }: {
@@ -24,6 +25,7 @@ export default function RegistryCard({
   addIcon?: string;
   onAdd?: () => void;
   filters?: React.ReactNode;
+  extra?: React.ReactNode;
   children: React.ReactNode;
   footer?: React.ReactNode;
 }) {
@@ -42,6 +44,7 @@ export default function RegistryCard({
             <input type="text" placeholder="Cari..." value={search} onChange={(e) => onSearch(e.target.value)} />
           </div>
           {info && <span className="search-info">{info}</span>}
+          {extra}
           {onAdd && (
             <button type="button" className="btn btn-primary" onClick={onAdd}>
               <i className={addIcon} /> {addLabel}

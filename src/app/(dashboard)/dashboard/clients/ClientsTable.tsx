@@ -11,6 +11,9 @@ import { CREDIT_LIMIT_OPTIONS } from '@/lib/master-options';
 import ContactsEditor from '@/components/registry/ContactsEditor';
 import { contactsOf, type ContactInfo } from '@/lib/client-contacts';
 import { saveClient, deleteClient, getClientProjects, type ClientInput, type ClientProjectInfo } from './actions';
+import BulkImportButton from '@/components/registry/BulkImportButton';
+import { CLIENT_COLUMNS } from '@/lib/import-columns';
+import { importClients } from './import-actions';
 
 export type ClientRow = {
   id: string;
@@ -140,6 +143,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       addLabel="New Client"
       addIcon="fa-solid fa-user-plus"
       onAdd={openAdd}
+      extra={<BulkImportButton title="Import Client" fileName="template-import-client" columns={CLIENT_COLUMNS} run={importClients} />}
       footer={
         <Pagination
           total={paged.total}

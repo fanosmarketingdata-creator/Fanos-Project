@@ -9,6 +9,9 @@ import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
 import { saveProject, deleteProject, type ProjectInput } from './actions';
+import BulkImportButton from '@/components/registry/BulkImportButton';
+import { projectColumns } from '@/lib/import-columns';
+import { importProjects } from './import-actions';
 
 export type ProjectRow = {
   id: string;
@@ -117,6 +120,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
       addLabel="New Project"
       addIcon="fa-solid fa-folder-plus"
       onAdd={openAdd}
+      extra={<BulkImportButton title="Import Project" fileName="template-import-project" columns={projectColumns(classifications)} run={importProjects} />}
       footer={
         <Pagination
           total={paged.total}
