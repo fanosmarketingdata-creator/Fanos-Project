@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { createClient } from '@/lib/supabase/client';
 
 type Person = { id: string; full_name: string; photo_url: string | null; role: string };
@@ -15,22 +16,20 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const [people, setPeople] = useState<Person[]>([]);
   const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set());
   const [open, setOpen] = useState(false);
-  const boxRef = useRef<HTMLDivElement>(null);
+  const [q, setQ] = useState('');
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
-  // Klik / tap di luar panel menutupnya (overlay fixed tidak andal di dalam header ber-backdrop-blur).
+  // Esc menutup panel; body tidak ikut scroll saat panel terbuka.
   useEffect(() => {
     if (!open) return;
-    const onDown = (e: Event) => {
-      if (boxRef.current && !boxRef.current.contains(e.target as Node)) setOpen(false);
-    };
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
-    document.addEventListener('mousedown', onDown);
-    document.addEventListener('touchstart', onDown);
     document.addEventListener('keydown', onKey);
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
     return () => {
-      document.removeEventListener('mousedown', onDown);
-      document.removeEventListener('touchstart', onDown);
       document.removeEventListener('keydown', onKey);
+      document.body.style.overflow = prev;
     };
   }, [open]);
 
@@ -72,8 +71,11 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
   if (sorted.length <= 1) return null; // sendirian: tidak ada yang perlu ditampilkan
 
-  const online = sorted.filter((p) => onlineIds.has(p.id));
-  const offline = sorted.filter((p) => !onlineIds.has(p.id));
+  const needle = q.trim().toLowerCase();
+  const match = (p: Person) => !needle || p.full_name.toLowerCase().includes(needle) || p.role.toLowerCase().includes(needle);
+  const online = sorted.filter((p) => onlineIds.has(p.id) && match(p));
+  const offline = sorted.filter((p) => !onlineIds.has(p.id) && match(p));
+  const totalOnline = sorted.filter((p) => onlineIds.has(p.id)).length;
 
   // Avatar bertumpuk tidak menyertakan user yang sedang login (sudah punya dot hijau di profilnya);
   // panel yang terbuka tetap menampilkan semua user termasuk dirinya.
@@ -82,7 +84,7 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const remaining = others.length - shown.length;
 
   return (
-    <div className="relative" ref={boxRef}>
+    <div className="relative">
       <button onClick={() => setOpen((v) => !v)} className="flex items-center pl-2" title="Lihat pengguna yang sedang aktif">
         {shown.map((p, i) => (
           <Avatar
@@ -99,13 +101,57 @@ export default function PresenceWidget({ meId }: { meId: string }) {
           </span>
         )}
       </button>
-      {open && (
-        <>
-          <div className="absolute right-0 top-11 z-[950] max-h-80 w-60 overflow-y-auto rounded-xl border border-slate-100 bg-white p-2.5 shadow-xl">
-            {online.length > 0 && <Section title={`Aktif (${online.length})`} people={online} active />}
-            {offline.length > 0 && <Section title={`Tidak Aktif (${offline.length})`} people={offline} />}
-          </div>
-        </>
+      {open && mounted && createPortal(
+        <div className="fixed inset-0 z-[1000]" data-perm-ignore>
+          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[1px]" onClick={() => setOpen(false)} />
+          <aside
+            role="dialog"
+            aria-label="Pengguna Aktif"
+            className="absolute right-0 top-0 flex h-full w-[380px] max-w-full flex-col rounded-l-2xl bg-white shadow-2xl"
+          >
+            <div className="flex items-center justify-between px-6 pb-3 pt-5">
+              <h2 className="text-xl font-bold text-slate-900">Pengguna Aktif</h2>
+              <button
+                type="button"
+                onClick={() => setOpen(false)}
+                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+                aria-label="Tutup"
+              >
+                <i className="fa-solid fa-xmark" />
+              </button>
+            </div>
+
+            <div className="mx-6 flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
+              <div className="flex">
+                {sorted.slice(0, 4).map((p, i) => (
+                  <Avatar key={p.id} person={p} className={`${i > 0 ? '-ml-3' : ''} h-10 w-10 border-2 border-white`} />
+                ))}
+              </div>
+              <div className="leading-tight">
+                <div className="text-sm font-bold text-slate-800">{totalOnline} <span className="font-semibold text-emerald-600">Aktif</span></div>
+                <div className="text-[11px] text-slate-500">{sorted.length} <span>Pengguna</span></div>
+              </div>
+            </div>
+
+            <div className="px-6 pt-4">
+              <input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Cari pengguna..."
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500"
+              />
+            </div>
+
+            <div className="mt-2 flex-1 overflow-y-auto px-6 pb-6">
+              {online.length > 0 && <Section title="Aktif" people={online} active />}
+              {offline.length > 0 && <Section title="Tidak Aktif" people={offline} />}
+              {online.length === 0 && offline.length === 0 && (
+                <div className="py-10 text-center text-sm text-slate-400">Pengguna tidak ditemukan</div>
+              )}
+            </div>
+          </aside>
+        </div>,
+        document.body
       )}
     </div>
   );
@@ -113,22 +159,22 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
 function Section({ title, people, active }: { title: string; people: Person[]; active?: boolean }) {
   return (
-    <div className="mb-1">
-      <div className="px-1.5 py-1 text-[10px] font-bold uppercase text-slate-400">{title}</div>
+    <div className="mt-4">
+      <div className="mb-2 flex items-center justify-between border-b border-slate-100 pb-2">
+        <span className="text-sm font-bold text-slate-800">{title}</span>
+        <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{people.length}</span>
+      </div>
       {people.map((p) => (
-        <div key={p.id} className="flex items-center gap-2 rounded-lg px-1.5 py-1.5 hover:bg-slate-50">
+        <div key={p.id} className="flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-slate-50">
           <div className="relative">
-            <Avatar person={p} className="h-7 w-7" />
-            {/* titik status di luar lapisan yang di-clip (overflow-hidden) supaya tetap bulat sempurna */}
+            <Avatar person={p} className="h-11 w-11 text-sm" />
             <span
-              className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${
-                active ? 'bg-emerald-500' : 'bg-slate-400'
-              }`}
+              className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${active ? 'bg-emerald-500' : 'bg-slate-400'}`}
             />
           </div>
-          <div className="leading-tight">
-            <div className="text-[12.5px] font-semibold text-slate-800">{p.full_name}</div>
-            <div className="text-[10px] text-slate-400">{p.role}</div>
+          <div className="min-w-0 flex-1 leading-tight">
+            <div className="truncate text-[14px] font-semibold text-slate-800">{p.full_name}</div>
+            <div className="truncate text-[12px] text-slate-500">{p.role}</div>
           </div>
         </div>
       ))}
