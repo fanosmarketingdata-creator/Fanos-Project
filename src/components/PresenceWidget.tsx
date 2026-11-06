@@ -15,7 +15,18 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const supabase = useMemo(() => createClient(), []);
   const [people, setPeople] = useState<Person[]>([]);
   const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set());
-  const [open, setOpen] = useState(false);
+  const [open, setOpenRaw] = useState(false); // panel dirender
+  const [visible, setVisible] = useState(false); // sedang tampil (untuk animasi masuk/keluar)
+  const setOpen = (v: boolean | ((x: boolean) => boolean)) => {
+    const next = typeof v === 'function' ? v(open) : v;
+    if (next) {
+      setOpenRaw(true);
+      requestAnimationFrame(() => requestAnimationFrame(() => setVisible(true)));
+    } else {
+      setVisible(false);
+      setTimeout(() => setOpenRaw(false), 280);
+    }
+  };
   const [q, setQ] = useState('');
   const [mounted, setMounted] = useState(false);
   useEffect(() => setMounted(true), []);
@@ -75,7 +86,6 @@ export default function PresenceWidget({ meId }: { meId: string }) {
   const match = (p: Person) => !needle || p.full_name.toLowerCase().includes(needle) || p.role.toLowerCase().includes(needle);
   const online = sorted.filter((p) => onlineIds.has(p.id) && match(p));
   const offline = sorted.filter((p) => !onlineIds.has(p.id) && match(p));
-  const totalOnline = sorted.filter((p) => onlineIds.has(p.id)).length;
 
   // Avatar bertumpuk tidak menyertakan user yang sedang login (sudah punya dot hijau di profilnya);
   // panel yang terbuka tetap menampilkan semua user termasuk dirinya.
@@ -103,11 +113,11 @@ export default function PresenceWidget({ meId }: { meId: string }) {
       </button>
       {open && mounted && createPortal(
         <div className="fixed inset-0 z-[1000]" data-perm-ignore>
-          <div className="absolute inset-0 bg-slate-900/30 backdrop-blur-[1px]" onClick={() => setOpen(false)} />
+          <div className={`absolute inset-0 bg-slate-900/30 backdrop-blur-[1px] transition-opacity duration-300 ${visible ? 'opacity-100' : 'opacity-0'}`} onClick={() => setOpen(false)} />
           <aside
             role="dialog"
             aria-label="Pengguna Aktif"
-            className="absolute right-0 top-0 flex h-full w-[380px] max-w-full flex-col rounded-l-2xl bg-white shadow-2xl"
+            className={`absolute right-0 top-0 flex h-full w-[380px] max-w-full flex-col rounded-l-2xl bg-white shadow-2xl transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
           >
             <div className="flex items-center justify-between px-6 pb-3 pt-5">
               <h2 className="text-xl font-bold text-slate-900">Pengguna Aktif</h2>
@@ -119,18 +129,6 @@ export default function PresenceWidget({ meId }: { meId: string }) {
               >
                 <i className="fa-solid fa-xmark" />
               </button>
-            </div>
-
-            <div className="mx-6 flex items-center gap-3 rounded-2xl bg-slate-50 p-3">
-              <div className="flex">
-                {sorted.slice(0, 4).map((p, i) => (
-                  <Avatar key={p.id} person={p} className={`${i > 0 ? '-ml-3' : ''} h-10 w-10 border-2 border-white`} />
-                ))}
-              </div>
-              <div className="leading-tight">
-                <div className="text-sm font-bold text-slate-800">{totalOnline} <span className="font-semibold text-emerald-600">Aktif</span></div>
-                <div className="text-[11px] text-slate-500">{sorted.length} <span>Pengguna</span></div>
-              </div>
             </div>
 
             <div className="px-6 pt-4">
