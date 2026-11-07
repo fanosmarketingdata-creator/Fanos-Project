@@ -183,7 +183,7 @@ export default function AccountsTable({
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-user-lock" style={{ fontSize: 16, color: '#2563eb' }} /> Master Akun</h3>
         <div className="flex-wrap">

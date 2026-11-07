@@ -28,7 +28,7 @@ export default function CurrentStockTable({ warehouses, products, onHand, inTran
   const totalTransit = rows.reduce((s, r) => s + r.transit, 0);
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fa-solid fa-cubes" style={{ fontSize: 16, color: '#2563eb' }} /> Current Stock</h3>
         <div className="flex-wrap">

@@ -88,7 +88,7 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-badge-percent" style={{ fontSize: 16, color: '#2563eb' }} /> Credit Note</h3>
         <div className="flex-wrap"><div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari credit note, client, invoice..." value={search} onChange={(e) => setSearch(e.target.value)} /></div></div>

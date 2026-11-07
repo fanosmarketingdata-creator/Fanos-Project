@@ -53,7 +53,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fa-solid fa-layer-group" style={{ fontSize: 16, color: '#2563eb' }} /> BOQ Project</h3>
         <div className="flex-wrap">

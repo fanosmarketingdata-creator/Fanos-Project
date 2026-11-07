@@ -49,7 +49,7 @@ export default function PaymentListTable({ initialRows }: { initialRows: Payment
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-money-bill-wave" style={{ fontSize: 16, color: '#2563eb' }} /> Payment</h3>
         <div className="flex-wrap">

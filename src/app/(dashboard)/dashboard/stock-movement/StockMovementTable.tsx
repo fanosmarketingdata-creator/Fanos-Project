@@ -20,7 +20,7 @@ export default function StockMovementTable({ rows, warehouses }: { rows: Row[]; 
   const totalOut = filtered.filter((r) => r.qty < 0).reduce((s, r) => s + -r.qty, 0);
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-arrows-repeat" style={{ fontSize: 16, color: '#2563eb' }} /> Stock Movement</h3>
         <div className="flex-wrap">

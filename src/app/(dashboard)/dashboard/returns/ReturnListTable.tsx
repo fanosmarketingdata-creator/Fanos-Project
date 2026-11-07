@@ -49,7 +49,7 @@ export default function ReturnListTable({ kind, rows }: { kind: 'order' | 'invoi
 
   const cols = kind === 'order' ? 8 : 9;
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className={kind === 'order' ? 'fi fi-rr-undo' : 'fi fi-rr-receipt'} style={{ fontSize: 16, color: '#2563eb' }} /> {kind === 'order' ? 'Return Order' : 'Return Invoice'}</h3>
         <div className="flex-wrap">

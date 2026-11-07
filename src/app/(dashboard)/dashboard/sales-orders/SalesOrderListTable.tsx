@@ -72,7 +72,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-shopping-cart" style={{ fontSize: 16, color: '#2563eb' }} /> Sales Orders</h3>
         <div className="flex-wrap">

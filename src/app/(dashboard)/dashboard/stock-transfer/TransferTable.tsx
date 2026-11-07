@@ -43,7 +43,7 @@ export default function TransferTable({ rows }: { rows: TrfRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-exchange" style={{ fontSize: 16, color: '#2563eb' }} /> Stock Transfer</h3>
         <div className="flex-wrap">

@@ -52,7 +52,7 @@ export default function InvoiceListTable({ initialRows }: { initialRows: Invoice
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-receipt" style={{ fontSize: 16, color: '#2563eb' }} /> Invoices</h3>
         <div className="flex-wrap">

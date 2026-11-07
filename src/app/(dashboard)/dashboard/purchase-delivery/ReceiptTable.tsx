@@ -40,7 +40,7 @@ export default function ReceiptTable({ rows }: { rows: GRRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fa-solid fa-dolly" style={{ fontSize: 16, color: '#2563eb' }} /> Purchase Delivery</h3>
         <div className="flex-wrap">

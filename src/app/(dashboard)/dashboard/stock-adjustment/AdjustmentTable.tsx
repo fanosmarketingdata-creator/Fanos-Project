@@ -42,7 +42,7 @@ export default function AdjustmentTable({ rows }: { rows: AdjRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-edit" style={{ fontSize: 16, color: '#2563eb' }} /> Stock Adjustment</h3>
         <div className="flex-wrap">

@@ -30,7 +30,7 @@ export default function RegistryCard({
   footer?: React.ReactNode;
 }) {
   return (
-    <div className="card">
+    <div className="card reg-card">
       <div className="card-header">
         <h3>
           <i className={icon} style={{ fontSize: 16, color: '#2563eb' }} /> {title}
@@ -52,7 +52,7 @@ export default function RegistryCard({
           )}
         </div>
       </div>
-      {children}
+      <div className="reg-body">{children}</div>
       {footer}
     </div>
   );

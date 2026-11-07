@@ -25,7 +25,7 @@ export default async function DeliveryOrdersPage() {
   });
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-shipping-fast" style={{ fontSize: 16, color: '#2563eb' }} /> Delivery Orders</h3>
         <div className="flex-wrap">

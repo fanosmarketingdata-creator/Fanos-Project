@@ -46,7 +46,7 @@ export default function InvoiceTable({ rows }: { rows: PIRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-file-invoice-dollar" style={{ fontSize: 16, color: '#2563eb' }} /> Purchase Invoice</h3>
         <div className="flex-wrap">

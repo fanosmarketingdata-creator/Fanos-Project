@@ -40,7 +40,7 @@ export default function PackingListTable({ rows }: { rows: PLRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-box-open" style={{ fontSize: 16, color: '#2563eb' }} /> Packing List</h3>
         <div className="flex-wrap">

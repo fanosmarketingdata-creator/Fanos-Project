@@ -41,7 +41,7 @@ export default function PaymentTable({ rows }: { rows: PPRow[] }) {
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-wallet" style={{ fontSize: 16, color: '#2563eb' }} /> Purchase Payment</h3>
         <div className="flex-wrap">

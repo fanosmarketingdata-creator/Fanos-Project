@@ -68,7 +68,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
   }
 
   return (
-    <div>
+    <div className="list-page">
       <div className="card-header">
         <h3><i className="fi fi-rr-users-alt" style={{ fontSize: 16, color: '#2563eb' }} /> Master Team Member</h3>
         <div className="flex-wrap">
