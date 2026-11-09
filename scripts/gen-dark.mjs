@@ -121,12 +121,20 @@ function prefixSelector(sel) {
 const out = [];
 function processRule(rule) {
   const decls = [];
+  const shorthands = new Set(); // 'border', 'background', 'outline' yang sudah diemit
   rule.each((n) => {
     if (n.type !== 'decl') return;
-    const k = kindOf(n.prop.toLowerCase());
+    const prop = n.prop.toLowerCase();
+    const k = kindOf(prop);
     if (!k) return;
     const nv = convertValue(k, n.value);
-    if (nv) decls.push(`  ${n.prop}: ${nv}${n.important ? ' !important' : ''};`);
+    if (nv) {
+      decls.push(`  ${n.prop}: ${nv}${n.important ? ' !important' : ''};`);
+      if (prop === 'border' || prop === 'background' || prop === 'outline') shorthands.add(prop);
+    } else if ([...shorthands].some((s) => prop.startsWith(s + '-'))) {
+      // deklarasi sisi/bagian yang ditulis SETELAH shorthand harus tetap menang (mis. border-top biru pada spinner)
+      decls.push(`  ${n.prop}: ${n.value}${n.important ? ' !important' : ''};`);
+    }
   });
   if (!decls.length) return '';
   const sels = rule.selectors.map(prefixSelector).filter(Boolean);

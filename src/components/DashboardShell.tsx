@@ -155,6 +155,7 @@ function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: st
               <span className="flex-1">{nl('Edit Profile')}</span>
             </button>
           )}
+          <ThemeToggle variant="menu" />
           <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
             <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
           </div>
@@ -399,7 +400,6 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3">
-          <ThemeToggle />
           <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 

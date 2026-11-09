@@ -62,3 +62,6 @@ html.dark [style*="#eff6ff" i] { background-color: rgba(47,107,255,.18) !importa
 /* logo */
 html.dark .logo-light { display: none !important; }
 html.dark .logo-dark { display: inline-block !important; }
+
+/* spinner: garis putar putih di dark mode */
+html.dark .login-overlay .spinner, html.dark .dv2-loading .spinner { border-top-color: #fff !important; }

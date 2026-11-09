@@ -660,6 +660,8 @@ export const ID_EN: Record<string, string> = {
   'Pengguna Aktif': 'Active Users',
   'Cari pengguna...': 'Search users...',
   'Pengguna tidak ditemukan': 'No users found',
+  'Mode Gelap': 'Dark Mode',
+  'Mode Terang': 'Light Mode',
   'Tutup': 'Close',
   'Umur': 'Age',
   'Warna Kursor': 'Cursor Color',
