@@ -95,7 +95,7 @@ export default function LightingSpecPrint(p: {
         </div>
       </div>
 
-      <div className="ls-sheet" data-no-cards data-no-i18n>
+      <div className="ls-sheet paper" data-no-cards data-no-i18n>
         <table className="layout">
           <thead>
             <tr><td>

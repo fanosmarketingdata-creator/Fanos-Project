@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import './globals.css';
+import '@/styles/dark.css';
 import { cookies } from 'next/headers';
 import { ToastProvider } from '@/components/Toast';
 import I18nProvider from '@/components/I18nProvider';
@@ -16,6 +17,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     <html lang={lang} data-i18n="pending" suppressHydrationWarning>
       <head>
         {/* Cadangan: jangan biarkan halaman tersembunyi bila penerjemah gagal berjalan */}
+        <script dangerouslySetInnerHTML={{ __html: "try{if(localStorage.getItem('fanos-theme')==='dark')document.documentElement.classList.add('dark')}catch(e){}" }} />
         <script dangerouslySetInnerHTML={{ __html: "setTimeout(function(){document.documentElement.setAttribute('data-i18n','done')},2500)" }} />
         {/* Ikon yang sama dengan sistem lama: Flaticon uicons + Font Awesome */}
         {/* eslint-disable-next-line @next/next/no-page-custom-font */}

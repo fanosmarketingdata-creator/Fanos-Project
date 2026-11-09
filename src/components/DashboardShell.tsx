@@ -11,6 +11,7 @@ import FigmaCursor from '@/components/FigmaCursor';
 import NumberInputFix from '@/components/NumberInputFix';
 import PushPrompt from '@/components/PushPrompt';
 import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
+import ThemeToggle from '@/components/ThemeToggle';
 import PresenceWidget from '@/components/PresenceWidget';
 import ResponsiveTables from '@/components/ResponsiveTables';
 import ProfileModal, { type MyProfile } from '@/components/ProfileModal';
@@ -309,7 +310,8 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className="mr-1 h-[20px] w-auto shrink-0" />
+        <img src={LOGO_URL} alt="Fanos" className="logo-light mr-1 h-[20px] w-auto shrink-0" />
+        <img src="/logo-fanos-dark.png" alt="Fanos" className="logo-dark mr-1 h-[20px] w-auto shrink-0" />
 
         <nav className="hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex">
 
@@ -397,6 +399,7 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3">
+          <ThemeToggle />
           <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 

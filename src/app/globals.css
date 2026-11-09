@@ -708,3 +708,6 @@ html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; o
   .login-page.login-split { grid-template-columns: 1fr; }
   .login-right { display: none; }
 }
+
+/* logo versi gelap hanya tampil di dark mode */
+.logo-dark { display: none; }

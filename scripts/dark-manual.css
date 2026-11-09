@@ -1,0 +1,64 @@
+/* ===== DARK MODE — dasar & variabel (manual) ===== */
+html.dark {
+  color-scheme: dark;
+  --d-bg: #090a10;        /* Midnight Black (60%) */
+  --d-surface: #0f111a;
+  --d-surface-2: #151824;
+  --d-surface-3: #1b1f2e;
+  --d-line: #232838;
+  --d-text: #e8eaf2;
+  --d-muted: #98a0b6;
+  --d-blue: #2f6bff;      /* Electric Blue (30%) */
+  --d-blue-soft: #7aa2ff;
+  --d-accent: #ff4d4f;    /* aksen merah (10%) */
+  /* variabel modal (registry.css) */
+  --f-primary: #4d86ff; --f-primary-d: #2f6bff; --f-tint: rgba(47, 107, 255, 0.16);
+  --f-line: #232838; --f-bg: #0b0d14; --f-ink: #e8eaf2; --f-muted: #98a0b6;
+}
+html.dark body { background: var(--d-bg) !important; color: var(--d-text); }
+html.dark body main:not(.paper *) { background-color: transparent !important; }
+html.dark ::selection { background: rgba(47, 107, 255, 0.45); color: #fff; }
+html.dark input, html.dark select, html.dark textarea {
+  color-scheme: dark;
+}
+html.dark input::placeholder, html.dark textarea::placeholder { color: #6b7389; }
+html.dark ::-webkit-scrollbar-thumb { background: #2a3043; }
+html.dark ::-webkit-scrollbar-track { background: transparent; }
+html.dark img { filter: none; }
+/* aksen merah (pengganti oranye) */
+html.dark .bg-orange-400 { background: var(--d-accent) !important; }
+html.dark .nav-badge, html.dark .badge-count, html.dark .notif-badge { background: var(--d-accent) !important; color: #fff !important; }
+/* kertas dokumen (surat penawaran, packing list, lighting spec) tetap putih */
+.paper { background: #fff; color: #111827; }
+
+/* login */
+html.dark .login-content:not(.paper *), html.dark .login-container:not(.paper *) { background: transparent !important; box-shadow: none !important; }
+
+/* chip/kotak berwarna dengan style inline (hex terang di TSX) -> versi gelap.
+   SSR menyimpan hex apa adanya, elemen yang dibuat di browser memakai rgb(): keduanya didukung. */
+html.dark [style*="rgb(220, 252, 231)"],
+html.dark [style*="#dcfce7" i],
+html.dark [style*="rgb(232, 247, 241)"],
+html.dark [style*="#e8f7f1" i] { background-color: rgba(16,185,129,.18) !important; color: #4ade80 !important; }
+html.dark [style*="rgb(254, 226, 226)"],
+html.dark [style*="#fee2e2" i],
+html.dark [style*="rgb(253, 236, 235)"],
+html.dark [style*="#fdeceb" i] { background-color: rgba(255,77,79,.18) !important; color: #ff8a8c !important; }
+html.dark [style*="rgb(254, 243, 199)"],
+html.dark [style*="#fef3c7" i],
+html.dark [style*="rgb(255, 251, 235)"],
+html.dark [style*="#fffbeb" i],
+html.dark [style*="rgb(255, 244, 227)"],
+html.dark [style*="#fff4e3" i] { background-color: rgba(245,158,11,.16) !important; color: #fbbf24 !important; }
+html.dark [style*="rgb(241, 245, 249)"],
+html.dark [style*="#f1f5f9" i],
+html.dark [style*="rgb(226, 232, 240)"],
+html.dark [style*="#e2e8f0" i] { background-color: #232838 !important; color: #b4bacb !important; }
+html.dark [style*="rgb(234, 241, 255)"],
+html.dark [style*="#eaf1ff" i],
+html.dark [style*="rgb(239, 246, 255)"],
+html.dark [style*="#eff6ff" i] { background-color: rgba(47,107,255,.18) !important; color: #8fb0ff !important; }
+
+/* logo */
+html.dark .logo-light { display: none !important; }
+html.dark .logo-dark { display: inline-block !important; }

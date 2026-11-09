@@ -7,6 +7,7 @@ import UpdateAnnouncementModal from '@/components/UpdateAnnouncementModal';
 import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function LoginPage() {
   const lang = useLang();
@@ -56,6 +57,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page login-split">
+      <div className="fixed right-4 top-4 z-[60]"><ThemeToggle /></div>
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
       {loading && (
@@ -75,7 +77,8 @@ export default function LoginPage() {
         </div>
         <div className="login-image login-logo-top">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-fanos-wordmark.png" alt="Fanos" />
+          <img src="/logo-fanos-wordmark.png" alt="Fanos" className="logo-light" />
+          <img src="/logo-fanos-dark.png" alt="Fanos" className="logo-dark" />
         </div>
         <div className="login-container">
           <h1 className="login-title">Selamat Datang</h1>

@@ -189,7 +189,7 @@ export default function QuotationLetter(p: {
         </div>
       </div>
 
-      <div className="ql-sheet" data-no-cards data-no-i18n>
+      <div className="ql-sheet paper" data-no-cards data-no-i18n>
         {/* Halaman 1: surat + tabel */}
         <table className="layout">
           <thead><tr><td><Head /></td></tr></thead>
