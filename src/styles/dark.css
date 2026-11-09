@@ -117,7 +117,7 @@ html.dark .hover\:bg-blue-100:hover:not(.paper *) { background-color: rgba(47,10
 html.dark .hover\:bg-violet-100:hover:not(.paper *) { background-color: rgba(139,92,246,0.25); }
 html.dark .text-brand-500:not(.paper *) { color: #6f9bff; }
 html.dark .text-brand-600:not(.paper *) { color: #7aa2ff; }
-html.dark .text-brand-900:not(.paper *) { color: #a9c2ff; }
+html.dark .text-brand-900:not(.paper *) { color: #ffffff; }
 html.dark .text-blue-600:not(.paper *) { color: #7aa2ff; }
 html.dark .text-blue-700:not(.paper *) { color: #8fb0ff; }
 html.dark .text-indigo-700:not(.paper *) { color: #a5b4fc; }
@@ -168,7 +168,7 @@ html.dark .login-content:not(.paper *) {
 @media screen {
 html.dark .login-required input:not(.paper *) {
   border: 2px solid #262938;
-  color: #abb9d9;
+  color: #ffffff;
   background: #11131b;
 }
 }
@@ -218,7 +218,7 @@ html.dark .login-overlay .spinner:not(.paper *) {
 }
 @media screen {
 html.dark .login-overlay p:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -242,7 +242,7 @@ html.dark table.cardify td.cardify-actions:not(.paper *) {
 html.dark .ui-select-trigger:not(.paper *) {
   border: 1.5px solid #262938;
   background: #151b22;
-  color: #b2bfd2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -400,7 +400,7 @@ html.dark .ann-num:not(.paper *) {
 }
 @media screen {
 html.dark .ann-body strong:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -457,7 +457,7 @@ html.dark .login-left .login-aurora:not(.paper *) {
 }
 @media screen {
 html.dark .login-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -491,7 +491,7 @@ html.dark .card-header:not(.paper *) {
 }
 @media screen {
 html.dark .card-header h3:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -546,7 +546,7 @@ html.dark .client-card-avatar:not(.paper *) {
 }
 @media screen {
 html.dark .client-card-main .name:not(.paper *) {
-  color: #b2bfd2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -578,7 +578,7 @@ html.dark .product-card-sku:not(.paper *) {
 }
 @media screen {
 html.dark .product-card-brand:not(.paper *) {
-  color: #abb9d9;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -734,7 +734,7 @@ html.dark .modal-delete .modal-icon .fa-solid:not(.paper *) {
 }
 @media screen {
 html.dark .modal-delete .modal-title:not(.paper *) {
-  color: #abb9d9;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -744,7 +744,7 @@ html.dark .modal-delete .modal-subtitle:not(.paper *) {
 }
 @media screen {
 html.dark .modal-delete .modal-item-id:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
   background: #131730;
 }
 }
@@ -783,7 +783,7 @@ html.dark .dv2-topbar:not(.paper *) {
 }
 @media screen {
 html.dark .dv2-topbar-title:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -805,7 +805,7 @@ html.dark .dv2-card-icon:not(.paper *) {
 }
 @media screen {
 html.dark .dv2-card-value:not(.paper *) {
-  color: #b2bfd2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -822,7 +822,7 @@ html.dark .dv2-section-title i:not(.paper *) {
 @media screen {
 html.dark .dv2-summary-grand:not(.paper *) {
   border-top: 1px dashed #2b2f40;
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -919,7 +919,7 @@ html.dark .fv2-item-row input[readonly]:not(.paper *) {
 @media screen {
 html.dark .fv2-add-btn:not(.paper *) {
   background: #131730;
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -965,7 +965,7 @@ html.dark .fv2-select-dropdown:not(.paper *) {
 html.dark .fv2-select-dropdown .opt:not(.paper *) {
   border-bottom: 1px solid #20232f;
   background: #0f1117;
-  color: #b2bfd2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -988,14 +988,14 @@ html.dark .fv2-area-head:not(.paper *) {
 @media screen {
 html.dark .fv2-area-head .ico:not(.paper *) {
   background: #131730;
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
 html.dark .fv2-area-head input:not(.paper *) {
   border: 1.5px solid #262938;
   background: #0f1117;
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1085,12 +1085,12 @@ html.dark .dv2-area-head:not(.paper *) {
 @media screen {
 html.dark .dv2-area-head .ico:not(.paper *) {
   background: #131730;
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
 html.dark .dv2-area-head .nm:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1146,13 +1146,13 @@ html.dark .modal-confirm-green .modal-icon i:not(.paper *) {
 @media screen {
 html.dark .modal:not(.modal-delete) .modal-header:not(.paper *) {
   background: #0f1117;
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom: 1px solid #243246;
 }
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .modal-header h3:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1168,7 +1168,7 @@ html.dark .modal:not(.modal-delete) .modal-close:not(.paper *) {
 @media screen {
 html.dark .modal:not(.modal-delete) .modal-close:hover:not(.paper *) {
   background: #121f2b;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1202,7 +1202,7 @@ html.dark .modal:not(.modal-delete) .fv2-section:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .fv2-section-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom: 1px solid #243246;
 }
 }
@@ -1224,7 +1224,7 @@ html.dark .modal:not(.modal-delete) .fv2-item-row input:not(.paper *),
 html.dark .modal:not(.modal-delete) .fv2-item-row select:not(.paper *) {
   background: #0f1117;
   border: 1px solid #2e3e50;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1295,7 +1295,7 @@ html.dark .modal:not(.modal-delete) .dv2-area-head .ico:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-area-head .nm:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1318,12 +1318,12 @@ html.dark .modal:not(.modal-delete) .dv2-topbar-id:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-topbar-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-topbar-amount .val:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1345,12 +1345,12 @@ html.dark .modal:not(.modal-delete) .dv2-card-label:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-card-value:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-section-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom: 1px solid #243246;
 }
 }
@@ -1361,7 +1361,7 @@ html.dark .modal:not(.modal-delete) .dv2-section-title i:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-summary-grand:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1431,7 +1431,7 @@ html.dark .modal:not(.modal-delete) .fv2-section-title i:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .fv2-field label:not(.paper *) {
-  color: #afbdd5;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1681,7 +1681,7 @@ html.dark .modal:not(.modal-delete) .modal-header:not(.paper *) {
 @media screen {
 html.dark .modal:not(.modal-delete) .modal-header h3:not(.paper *),
 html.dark .modal:not(.modal-delete) .modal-header h3 i:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1698,7 +1698,7 @@ html.dark .modal:not(.modal-delete) .modal-close:not(.paper *) {
 @media screen {
 html.dark .modal:not(.modal-delete) .modal-close:hover:not(.paper *) {
   background: #121f2b;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1719,7 +1719,7 @@ html.dark .modal:not(.modal-delete) .fv2-section:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .fv2-section-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom: 1px solid #1e2640;
 }
 }
@@ -1837,7 +1837,7 @@ html.dark .modal:not(.modal-delete) .dv2-card-label:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .dv2-section-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom-color: #202c44;
 }
 }
@@ -1919,7 +1919,7 @@ html.dark .rm-table th i:not(.paper *) {
 @media screen {
 html.dark .rm-table tr.rm-group td:not(.paper *) {
   background: #10172a;
-  color: #afbdd5;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -1991,7 +1991,7 @@ html.dark .bi-num:not(.paper *) {
 }
 @media screen {
 html.dark .bi-step h4:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2032,7 +2032,7 @@ html.dark .list-page > .overflow-x-auto thead th:not(.paper *) {
 /* ---- dari src/styles/theme.css ---- */
 @media screen {
 html.dark main .page-title:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
   border-bottom: 1.5px solid #272a3a;
 }
 }
@@ -2066,7 +2066,7 @@ html.dark main table tbody td:not(.paper *) {
   border-bottom: 1px solid #212432;
 }
 html.dark main table tbody td:first-child:not(.paper *) {
-  color: #b2bfd2;
+  color: #ffffff;
 }
 html.dark main table tbody tr:hover td:not(.paper *) {
   background: #111c27;
@@ -2106,7 +2106,7 @@ html.dark .dash-kpi-lbl:not(.paper *) {
 }
 @media screen {
 html.dark .dash-section-title:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2122,7 +2122,7 @@ html.dark .dash-panel:not(.paper *) {
 }
 @media screen {
 html.dark .dash-panel-title:not(.paper *) {
-  color: #9ca2e8;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2207,7 +2207,7 @@ html.dark ::-webkit-scrollbar-thumb:hover:not(.paper *) {
 }
 @media screen {
 html.dark .card-header h3:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2266,7 +2266,7 @@ html.dark main .btn-secondary:not(.paper *) {
 }
 @media screen {
 html.dark main .page-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom: 1px solid #243246;
 }
 }
@@ -2317,7 +2317,7 @@ html.dark .dash-activity-icon:not(.paper *) {
 }
 @media screen {
 html.dark .dash-kpi-val:not(.paper *) {
-  color: #a6b7dd !important;
+  color: #ffffff !important;
 }
 }
 @media screen {
@@ -2328,7 +2328,7 @@ html.dark .dash-kpi-lbl:not(.paper *) {
 @media screen {
 html.dark .dash-section-title:not(.paper *),
 html.dark .dash-panel-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2447,7 +2447,7 @@ html.dark main:not(.paper *) {
 @media screen {
 html.dark .card-header h3:not(.paper *),
 html.dark main .page-title:not(.paper *) {
-  color: #a2b7e2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2572,7 +2572,7 @@ html.dark .dash-kpi-icon:not(.paper *) {
 @media screen {
 html.dark .dash-section-title:not(.paper *),
 html.dark .dash-panel-title:not(.paper *) {
-  color: #a2b7e2;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2594,7 +2594,7 @@ html.dark main:not(.paper *) {
 }
 @media screen {
 html.dark .card-header h3:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2609,7 +2609,7 @@ html.dark .card-header:not(.paper *) {
 }
 @media screen {
 html.dark main .page-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
   border-bottom-color: #202b40;
 }
 }
@@ -2662,7 +2662,7 @@ html.dark .dash-kpi-icon:not(.paper *) {
 @media screen {
 html.dark .dash-section-title:not(.paper *),
 html.dark .dash-panel-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2708,7 +2708,7 @@ html.dark .client-card:hover:not(.paper *) {
 /* ---- dari src/styles/dash.css ---- */
 @media screen {
 html.dark .dx-head h1:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2753,7 +2753,7 @@ html.dark .dx-kl:not(.paper *) {
 }
 @media screen {
 html.dark .dx-kv:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2784,7 +2784,7 @@ html.dark .dx-panel:not(.paper *) {
 }
 @media screen {
 html.dark .dx-ph h3:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2827,7 +2827,7 @@ html.dark .dx-stat:hover:not(.paper *) {
 }
 @media screen {
 html.dark .dx-stat b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2847,7 +2847,7 @@ html.dark .dx-pv span:not(.paper *) {
 }
 @media screen {
 html.dark .dx-pv b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2899,7 +2899,7 @@ html.dark .dx-table tbody tr:hover:not(.paper *) {
 }
 @media screen {
 html.dark .dx-table td.nm:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2954,7 +2954,7 @@ html.dark .dx-more:not(.paper *) {
 }
 @media screen {
 html.dark .dx-big:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -2980,7 +2980,7 @@ html.dark .dx-week .t:not(.paper *) {
 }
 @media screen {
 html.dark .dx-week .t b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3000,7 +3000,7 @@ html.dark .dx-snap span:not(.paper *) {
 }
 @media screen {
 html.dark .dx-snap b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3030,7 +3030,7 @@ html.dark .dx-segl span:not(.paper *) {
 }
 @media screen {
 html.dark .dx-segl b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3051,7 +3051,7 @@ html.dark .dx-li .av:not(.paper *) {
 }
 @media screen {
 html.dark .dx-li .tx b:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3073,7 +3073,7 @@ html.dark .dx-stat.dx-locked:hover:not(.paper *) {
 /* ---- dari src/styles/pm.css ---- */
 @media screen {
 html.dark .pm-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3118,7 +3118,7 @@ html.dark .pm-card:hover:not(.paper *) {
 }
 @media screen {
 html.dark .pm-card h3:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3220,7 +3220,7 @@ html.dark .pm-dots > button:not(.paper *) {
 @media screen {
 html.dark .pm-dots > button:hover:not(.paper *) {
   background: #111a2c;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3281,7 +3281,7 @@ html.dark .pm-tab:not(.paper *) {
 }
 @media screen {
 html.dark .pm-tab:hover:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3307,7 +3307,7 @@ html.dark .pm-col.over:not(.paper *) {
 }
 @media screen {
 html.dark .pm-col-head .t:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3340,7 +3340,7 @@ html.dark .pm-task:hover:not(.paper *) {
 }
 @media screen {
 html.dark .pm-task .tt:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3371,7 +3371,7 @@ html.dark .pm-drawer:not(.paper *) {
 @media screen {
 html.dark .pm-drawer-head:not(.paper *) {
   border-bottom: 1px solid #202b40;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3386,7 +3386,7 @@ html.dark .pm-drawer-head button:hover:not(.paper *) {
 }
 @media screen {
 html.dark .pm-drawer-title:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3410,13 +3410,13 @@ html.dark .pm-props .k:not(.paper *) {
 html.dark .pm-props input[type=date]:not(.paper *),
 html.dark .pm-props select:not(.paper *) {
   border: 1px solid #243248;
-  color: #a6b7dd;
+  color: #ffffff;
   background: #0f1117;
 }
 }
 @media screen {
 html.dark .pm-sec-t:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3479,7 +3479,7 @@ html.dark .pm-sub-tabs:not(.paper *) {
 @media screen {
 html.dark .pm-sub-row:not(.paper *) {
   border: 1px solid #202c44;
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3511,7 +3511,7 @@ html.dark .pm-file .ic:not(.paper *) {
 }
 @media screen {
 html.dark .pm-file .nm:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3527,7 +3527,7 @@ html.dark .pm-comment:not(.paper *) {
 }
 @media screen {
 html.dark .pm-comment .who:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3548,7 +3548,7 @@ html.dark .pm-member:not(.paper *) {
 }
 @media screen {
 html.dark .pm-member .nm:not(.paper *) {
-  color: #a6b7dd;
+  color: #ffffff;
 }
 }
 @media screen {
@@ -3602,7 +3602,7 @@ html.dark .pm-col-add:hover:not(.paper *) {
 @media screen {
 html.dark .pm-date:not(.paper *) {
   border: 1px solid #243248;
-  color: #a6b7dd;
+  color: #ffffff;
   background: #0f1117;
 }
 }

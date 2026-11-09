@@ -65,7 +65,8 @@ function mapColor(kind, [r, g, b, a]) {
   } else if (kind === 'text') {
     if (neutral) {
       if (l <= 0.6) { nh = NEUTRAL_H; ns = Math.min(0.2, s + 0.08); nl = 0.93 - l * 0.55; } else return null;
-    } else if (l < 0.62) { nl = l < 0.3 ? 0.76 : Math.max(l, 0.68); ns = Math.min(1, s * 0.95); } else return null;
+    } else if (l < 0.3 && h >= 200 && h <= 270) { return '#ffffff'; } // biru tua/navy (judul, angka) -> putih
+    else if (l < 0.62) { nl = l < 0.3 ? 0.76 : Math.max(l, 0.68); ns = Math.min(1, s * 0.95); } else return null;
   } else if (kind === 'border') {
     if (l >= 0.7) {
       if (neutral) { nh = NEUTRAL_H; ns = 0.2; nl = 0.13 + (1 - l) * 0.6; }

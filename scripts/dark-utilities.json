@@ -41,7 +41,7 @@
   "hover:bg-violet-100": "background-color: rgba(139,92,246,0.25);",
   "text-brand-500": "color: #6f9bff;",
   "text-brand-600": "color: #7aa2ff;",
-  "text-brand-900": "color: #a9c2ff;",
+  "text-brand-900": "color: #ffffff;",
   "text-blue-600": "color: #7aa2ff;",
   "text-blue-700": "color: #8fb0ff;",
   "text-indigo-700": "color: #a5b4fc;",
