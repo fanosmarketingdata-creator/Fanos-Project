@@ -65,3 +65,7 @@ html.dark .logo-dark { display: inline-block !important; }
 
 /* spinner: garis putar putih di dark mode */
 html.dark .login-overlay .spinner, html.dark .dv2-loading .spinner { border-top-color: #fff !important; }
+
+/* judul & sub-judul login: putih di dark mode */
+html.dark .login-title, html.dark .login-sub { color: #fff !important; }
+html.dark .login-sub { opacity: 0.85; }
