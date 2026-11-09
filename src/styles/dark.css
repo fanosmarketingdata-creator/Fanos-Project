@@ -36,7 +36,7 @@ html.dark .nav-badge, html.dark .badge-count, html.dark .notif-badge { backgroun
 .paper { background: #fff; color: #111827; }
 
 /* login */
-html.dark .login-content:not(.paper *), html.dark .login-container:not(.paper *) { background: transparent !important; box-shadow: none !important; }
+html.dark .login-content:not(.paper *), html.dark .login-container:not(.paper *) { background: transparent !important; box-shadow: none !important; border: 0 !important; outline: 0 !important; backdrop-filter: none !important; }
 
 /* chip/kotak berwarna dengan style inline (hex terang di TSX) -> versi gelap.
    SSR menyimpan hex apa adanya, elemen yang dibuat di browser memakai rgb(): keduanya didukung. */
