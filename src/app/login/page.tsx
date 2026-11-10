@@ -57,7 +57,7 @@ export default function LoginPage() {
 
   return (
     <div className="login-page login-split">
-      <div className="fixed right-4 top-4 z-[60]"><ThemeToggle /></div>
+      <ThemeToggle />
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
       {loading && (

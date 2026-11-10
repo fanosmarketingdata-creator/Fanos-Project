@@ -711,3 +711,11 @@ html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; o
 
 /* logo versi gelap hanya tampil di dark mode */
 .logo-dark { display: none; }
+
+/* Animasi pergantian tema (terang <-> gelap) */
+::view-transition-old(root), ::view-transition-new(root) { animation: none; mix-blend-mode: normal; }
+::view-transition-old(root) { z-index: 1; }
+::view-transition-new(root) { z-index: 2; }
+html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
+  transition: background-color .35s ease, color .35s ease, border-color .35s ease, fill .35s ease !important;
+}
