@@ -11,8 +11,9 @@ import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-opti
 import { saveClient, type ClientInput } from '@/app/(dashboard)/dashboard/clients/actions';
 import { saveProject, type ProjectInput } from '@/app/(dashboard)/dashboard/projects/actions';
 import { getProjectClientLookups, getBrandNames } from '@/lib/quick-add-actions';
-import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES as DEFAULT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
 import { createClient as createBrowserClient } from '@/lib/supabase/client';
+import ClientCategorySelect from '@/components/registry/ClientCategorySelect';
 import { INFO_FIELDS, SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from '@/app/(dashboard)/dashboard/products/fields';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, type ProductInput } from '@/app/(dashboard)/dashboard/products/actions';
@@ -66,6 +67,11 @@ export function ClientQuickModal({ onClose, onSaved }: { onClose: () => void; on
         <div style={{ marginTop: 14 }}>
           <FvField label="Company Address">
             <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap perusahaan" />
+          </FvField>
+        </div>
+        <div style={{ marginTop: 14 }}>
+          <FvField label="Category">
+            <ClientCategorySelect value={form.category || ''} onChange={(v) => setForm({ ...form, category: v })} />
           </FvField>
         </div>
         <div className="fv2-grid" style={{ marginTop: 14 }}>
@@ -193,6 +199,12 @@ export function ProductQuickModal({ onClose, onSaved }: { onClose: () => void; o
   const supabase = createBrowserClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [brands, setBrands] = useState<string[]>([]);
+  const [PRODUCT_CATEGORIES, setCats] = useState<Record<string, string[]>>(DEFAULT_CATEGORIES);
+  useEffect(() => {
+    createBrowserClient().from('product_categories').select('name, subcategories').order('sort').order('created_at').then(({ data }) => {
+      if (data && data.length) setCats(Object.fromEntries(data.map((c) => [c.name as string, (c.subcategories as string[] | null) ?? []])));
+    });
+  }, []);
   const [form, setForm] = useState<ProductInput>({ name: '', brand: 'FANOS', image_url: '', category: '', subcategory: '', application: '', uom: 'Pcs', notes: '', ...EMPTY_SPECS, ...EMPTY_PACK });
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);

@@ -10,6 +10,7 @@ import FinanceSelect from '@/components/registry/FinanceSelect';
 import { PROJECT_TRIGGER_OPTIONS, PROJECT_TYPE_OPTIONS } from '@/lib/master-options';
 import { saveProject, deleteProject, type ProjectInput } from './actions';
 import BulkImportButton from '@/components/registry/BulkImportButton';
+import ExportButton from '@/components/registry/ExportButton';
 import { projectColumns } from '@/lib/import-columns';
 import { importProjects } from './import-actions';
 
@@ -120,7 +121,19 @@ export default function ProjectsTable({ initialProjects, clients, classification
       addLabel="New Project"
       addIcon="fa-solid fa-folder-plus"
       onAdd={openAdd}
-      extra={<BulkImportButton title="Import Project" fileName="template-import-project" columns={projectColumns(classifications)} run={importProjects} />}
+      extra={<><ExportButton rows={filtered} fileName="export-project" sheetName="Project" columns={[
+        { label: 'Project ID', get: (r) => r.project_no },
+        { label: 'Project Name', get: (r) => r.name },
+        { label: 'Location', get: (r) => r.location },
+        { label: 'Classification', get: (r) => r.classification },
+        { label: 'Project Type', get: (r) => r.project_type },
+        { label: 'Client Company', get: (r) => r.client_company },
+        { label: 'Trigger', get: (r) => r.trigger_source },
+        { label: 'Triggered By', get: (r) => r.triggered_by },
+        { label: 'TOP', get: (r) => r.top },
+        { label: 'Cashback', get: (r) => r.cashback },
+      ]} />
+      <BulkImportButton title="Import Project" fileName="template-import-project" columns={projectColumns(classifications)} run={importProjects} /></>}
       footer={
         <Pagination
           total={paged.total}

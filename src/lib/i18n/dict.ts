@@ -1293,7 +1293,7 @@ export const EN_ID: Record<string, string> = {
   'Coming Soon': 'Segera Hadir',
   'Search...': 'Cari...',
   Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
-  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk', Catalogue: 'Katalog', 'Price List': 'Daftar Harga',
+  'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk', Catalogue: 'Katalog', 'Price List': 'Daftar Harga', Category: 'Kategori', 'Client Master': 'Master Client', 'Client Category': 'Kategori Client',
   'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek', 'BOQ Project': 'BOQ Proyek',
   'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
   'Purchase Orders': 'Pesanan Pembelian', 'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian',

@@ -8,12 +8,13 @@ import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import BrandSelect from '@/components/registry/BrandSelect';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
-import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import { PRODUCT_APPLICATION_OPTIONS, UOM_OPTIONS } from '@/lib/master-options';
 import { INFO_FIELDS, SPEC_GROUPS, SPEC_KEYS, PACK_NUM_KEYS, type SpecKey, type PackNumKey } from './fields';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { saveProduct, deleteProduct, type ProductInput } from './actions';
 import BulkImportButton from '@/components/registry/BulkImportButton';
-import { PRODUCT_COLUMNS } from '@/lib/import-columns';
+import ExportButton from '@/components/registry/ExportButton';
+import { productColumns } from '@/lib/import-columns';
 import { importProducts } from './import-actions';
 
 export type ProductRow = {
@@ -23,6 +24,7 @@ export type ProductRow = {
   brand: string | null;
   uom: string;
   price: number;
+  price_listed?: boolean | null;
   cost_price: number | null;
   image_url: string | null;
   category: string | null;
@@ -42,7 +44,8 @@ const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const MAX_SIZE = 2 * 1024 * 1024; // 2MB — kriteria sama seperti sistem lama
 const rupiah = (n: number | null) => 'Rp ' + (Number(n) || 0).toLocaleString('id-ID');
 
-export default function ProductsTable({ initialProducts, brands }: { initialProducts: ProductRow[]; brands: string[] }) {
+export default function ProductsTable({ initialProducts, brands, categories: PRODUCT_CATEGORIES }: { initialProducts: ProductRow[]; brands: string[]; categories: Record<string, string[]> }) {
+  const PRODUCT_COLUMNS = useMemo(() => productColumns(PRODUCT_CATEGORIES), [PRODUCT_CATEGORIES]);
   const [brandList, setBrandList] = useState<string[]>(brands);
   const toast = useToast();
   const supabase = createClient();
@@ -191,7 +194,15 @@ export default function ProductsTable({ initialProducts, brands }: { initialProd
           )}
         </>
       }
-      extra={<BulkImportButton title="Import Product" fileName="template-import-product-catalogue" columns={PRODUCT_COLUMNS} run={importProducts} />}
+      extra={<><ExportButton rows={filtered} fileName="export-product-catalogue" sheetName="Product Catalogue" columns={[
+        ...PRODUCT_COLUMNS.map((c) => ({ label: c.label, get: (r: ProductRow) => {
+          const v = (r as unknown as Record<string, string | number | null>)[c.key];
+          // Harga hanya diekspor untuk produk yang sudah masuk Price List (agar bisa diimpor ulang apa adanya)
+          if (c.key === 'cost_price' || c.key === 'price') return r.price_listed ? Number(v) || 0 : '';
+          return v === undefined ? '' : v;
+        } })),
+      ]} />
+      <BulkImportButton title="Import Product" fileName="template-import-product-catalogue" columns={PRODUCT_COLUMNS} run={importProducts} /></>}
       addLabel="New Product"
       addIcon="fa-solid fa-box-open"
       onAdd={openAdd}

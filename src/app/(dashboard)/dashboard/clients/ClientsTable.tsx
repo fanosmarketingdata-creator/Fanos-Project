@@ -12,7 +12,9 @@ import ContactsEditor from '@/components/registry/ContactsEditor';
 import { contactsOf, type ContactInfo } from '@/lib/client-contacts';
 import { saveClient, deleteClient, getClientProjects, type ClientInput, type ClientProjectInfo } from './actions';
 import BulkImportButton from '@/components/registry/BulkImportButton';
-import { CLIENT_COLUMNS } from '@/lib/import-columns';
+import ExportButton from '@/components/registry/ExportButton';
+import { clientColumns } from '@/lib/import-columns';
+import ClientCategorySelect from '@/components/registry/ClientCategorySelect';
 import { importClients } from './import-actions';
 
 export type ClientRow = {
@@ -26,6 +28,7 @@ export type ClientRow = {
   address: string | null;
   credit_limit: number | null;
   status: string | null;
+  category?: string | null;
   contacts?: ContactInfo[] | null;
 };
 
@@ -51,12 +54,13 @@ function StatusBadge({ status, withLabel }: { status: string | null; withLabel?:
   );
 }
 
-const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified', contacts: [{ name: '', position: '', phone: '', email: '' }] };
+const emptyForm: ClientInput = { company: '', contact_name: '', position: '', phone: '', email: '', address: '', credit_limit: null, status: 'Unverified', category: '', contacts: [{ name: '', position: '', phone: '', email: '' }] };
 
 const creditLabel = (n: number | null) =>
   n == null ? '-' : CREDIT_LIMIT_OPTIONS.find((o) => o.value === Number(n))?.label ?? 'Rp ' + Number(n).toLocaleString('id-ID');
 
-export default function ClientsTable({ initialClients }: { initialClients: ClientRow[] }) {
+export default function ClientsTable({ initialClients, categories = [] }: { initialClients: ClientRow[]; categories?: string[] }) {
+  const CLIENT_COLUMNS = useMemo(() => clientColumns(categories), [categories]);
   const toast = useToast();
   const [search, setSearch] = useState('');
   const [modalOpen, setModalOpen] = useState(false);
@@ -99,6 +103,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       address: c.address || '',
       credit_limit: c.credit_limit == null ? null : Number(c.credit_limit),
       status: c.status || 'Unverified',
+      category: c.category || '',
       contacts: contactsOf(c),
     });
     setModalOpen(true);
@@ -143,7 +148,21 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
       addLabel="New Client"
       addIcon="fa-solid fa-user-plus"
       onAdd={openAdd}
-      extra={<BulkImportButton title="Import Client" fileName="template-import-client" columns={CLIENT_COLUMNS} run={importClients} />}
+      extra={<><ExportButton rows={filtered} fileName="export-client" sheetName="Client" columns={[
+        { label: 'Client ID', get: (r) => r.client_no },
+        { label: 'Company Name', get: (r) => r.company },
+        { label: 'Company Address', get: (r) => r.address },
+        { label: 'Category', get: (r) => r.category },
+        { label: 'Status', get: (r) => r.status },
+        { label: 'Credit Limit', get: (r) => (r.credit_limit == null ? '' : Number(r.credit_limit)) },
+        ...Array.from({ length: 2 }).flatMap((_, i) => [
+          { label: i ? `Contact Person ${i + 1}` : 'Contact Person', get: (r: ClientRow) => contactsOf(r)[i]?.name },
+          { label: i ? `Position ${i + 1}` : 'Position', get: (r: ClientRow) => contactsOf(r)[i]?.position },
+          { label: i ? `Phone ${i + 1}` : 'Phone', get: (r: ClientRow) => contactsOf(r)[i]?.phone },
+          { label: i ? `Email ${i + 1}` : 'Email', get: (r: ClientRow) => contactsOf(r)[i]?.email },
+        ]),
+      ]} />
+      <BulkImportButton title="Import Client" fileName="template-import-client" columns={CLIENT_COLUMNS} run={importClients} /></>}
       footer={
         <Pagination
           total={paged.total}
@@ -194,6 +213,7 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
               </div>
             </div>
             <div className="dv2-grid">
+              <DvCard icon="fi fi-rr-apps" label="Category" value={detail.category || '-'} />
               <DvCard icon="fi fi-rr-shield-check" label="Status" value={detail.status || 'Unverified'} color={STATUS_META[detail.status || 'Unverified']?.color} />
               <DvCard icon="fi fi-rr-credit-card" label="Credit Limit" value={creditLabel(detail.credit_limit)} color="#16a34a" />
             </div>
@@ -271,6 +291,11 @@ export default function ClientsTable({ initialClients }: { initialClients: Clien
             <div style={{ marginTop: 14 }}>
               <FvField label="Company Address">
                 <input value={form.address || ''} onChange={(e) => setForm({ ...form, address: e.target.value })} placeholder="Alamat lengkap perusahaan" />
+              </FvField>
+            </div>
+            <div style={{ marginTop: 14 }}>
+              <FvField label="Category">
+                <ClientCategorySelect value={form.category || ''} onChange={(v) => setForm({ ...form, category: v })} />
               </FvField>
             </div>
             <div style={{ marginTop: 14 }}>

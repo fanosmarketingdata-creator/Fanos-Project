@@ -4,8 +4,9 @@ import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import { guard } from '@/lib/permissions';
 import type { ImportResult, ImportRow } from '@/lib/bulk-import';
-import { s, parseNum, pickOption, checkSize } from '@/lib/bulk-server';
-import { PRODUCT_APPLICATION_OPTIONS, PRODUCT_CATEGORIES, UOM_OPTIONS } from '@/lib/master-options';
+import { s, parseNum, pickOption, checkSize, pruneAbsent, inChunks } from '@/lib/bulk-server';
+import { PRODUCT_APPLICATION_OPTIONS, UOM_OPTIONS } from '@/lib/master-options';
+import { loadCategories } from '@/lib/categories';
 import { PACKAGE_TYPES } from '@/lib/packing';
 import { SPEC_KEYS, PACK_NUM_KEYS } from './fields';
 
@@ -17,36 +18,41 @@ export async function importProducts(rows: ImportRow[], commit: boolean): Promis
   const supabase = createClient();
   const [{ data: brandRows }, { data: existing }] = await Promise.all([
     supabase.from('brands').select('name'),
-    supabase.from('products').select('name, brand, sku'),
+    supabase.from('products').select('id, name, brand, sku, category'),
   ]);
   const brands = (brandRows ?? []).map((b) => b.name as string);
   const newBrands = new Set<string>();
-  const seen = new Set((existing ?? []).map((p) => `${String(p.name).trim().toLowerCase()}|${String(p.brand ?? '').toLowerCase()}`));
-  const cats = Object.keys(PRODUCT_CATEGORIES);
-  const skus = new Set((existing ?? []).map((p) => String(p.sku ?? '').toLowerCase()).filter(Boolean));
+  const keyOf = (name: string, brand: string) => `${name.trim().toLowerCase()}|${brand.toLowerCase()}`;
+  const owner = new Map<string, string>((existing ?? []).map((p) => [keyOf(String(p.name), String(p.brand ?? '')), String(p.id)]));
+  const keyById = new Map<string, string>((existing ?? []).map((p) => [String(p.id), keyOf(String(p.name), String(p.brand ?? ''))]));
+  const bySku = new Map((existing ?? []).filter((p) => p.sku).map((p) => [String(p.sku).trim().toLowerCase(), p]));
+  const catMap = await loadCategories(supabase);
+  const cats = Object.keys(catMap);
+  const seenSku = new Set<string>();
 
   const errors: ImportResult['errors'] = [];
-  const good: Record<string, unknown>[] = [];
+  const adds: Record<string, unknown>[] = [];
+  const upds: { id: string; data: Record<string, unknown> }[] = [];
   for (const r of rows) {
     const err = (m: string) => errors.push({ row: r._row, message: m });
     const name = s(r.name);
     if (!name) { err('Product Name wajib diisi.'); continue; }
 
-    // SKU: kosong = dibuat otomatis (3 huruf brand + nomor lanjutan). Bila diisi manual harus unik.
+    // SKU = kunci pencocokan. Sudah ada → data lama ditimpa; kosong → baru (SKU otomatis); belum ada → baru dengan SKU tersebut.
     const skuIn = s(r.sku);
-    if (skuIn) {
-      if (skus.has(skuIn.toLowerCase())) { err(`SKU "${skuIn}" sudah dipakai atau duplikat di file. Kosongkan kolom SKU agar dibuat otomatis.`); continue; }
-      skus.add(skuIn.toLowerCase());
-    }
+    if (skuIn && seenSku.has(skuIn.toLowerCase())) { err(`SKU "${skuIn}" muncul lebih dari sekali di file.`); continue; }
+    const match = skuIn ? bySku.get(skuIn.toLowerCase()) : undefined;
+    const selfId = match ? String(match.id) : '';
 
-    const category = pickOption(r.category, cats);
-    if (!s(r.category)) { err('Main Category wajib diisi.'); continue; }
-    if (!category) { err(`Main Category tidak dikenal: "${s(r.category)}". Pilihan: ${cats.join(', ')}.`); continue; }
+    const catIn = s(r.category) || (match && r.category === undefined ? String(match.category ?? '') : '');
+    const category = pickOption(catIn, cats);
+    if (!catIn) { err('Main Category wajib diisi.'); continue; }
+    if (!category) { err(`Main Category tidak dikenal: "${catIn}". Pilihan: ${cats.join(', ')}.`); continue; }
 
     let subcategory: string | null = null;
     if (s(r.subcategory)) {
-      subcategory = pickOption(r.subcategory, PRODUCT_CATEGORIES[category]);
-      if (!subcategory) { err(`Subcategory "${s(r.subcategory)}" bukan bagian dari ${category}. Pilihan: ${PRODUCT_CATEGORIES[category].join(', ')}.`); continue; }
+      subcategory = pickOption(r.subcategory, catMap[category]);
+      if (!subcategory) { err(`Subcategory "${s(r.subcategory)}" bukan bagian dari ${category}. Pilihan: ${catMap[category].join(', ')}.`); continue; }
     }
     let application: string | null = null;
     if (s(r.application)) {
@@ -79,35 +85,69 @@ export async function importProducts(rows: ImportRow[], commit: boolean): Promis
     }
 
     // Brand: pakai yang sudah ada; bila belum ada akan dibuat otomatis saat impor.
-    const brandIn = s(r.brand) || 'FANOS';
+    const brandIn = s(r.brand) || (match && r.brand === undefined ? String(match.brand ?? 'FANOS') : 'FANOS');
     const brand = pickOption(brandIn, [...brands, ...newBrands]) ?? brandIn;
-    const key = `${name.toLowerCase()}|${brand.toLowerCase()}`;
-    if (seen.has(key)) { err(`Produk "${name}" (brand ${brand}) sudah ada atau duplikat di file.`); continue; }
-    seen.add(key);
+    const key = keyOf(name, brand);
+    const owned = owner.get(key);
+    if (owned && owned !== selfId) { err(`Produk "${name}" (brand ${brand}) sudah ada atau duplikat di file.`); continue; }
     if (!brands.some((b) => b.toLowerCase() === brand.toLowerCase())) newBrands.add(brand);
+
+    // Harga (opsional): bila keduanya diisi, produk otomatis masuk Price List.
+    const costIn = s(r.cost_price), priceIn = s(r.price);
+    let listed = false, costPrice = 0, sellPrice = 0;
+    if (costIn || priceIn) {
+      if (!costIn || !priceIn) { err('Cost Price dan Selling Price harus diisi bersamaan (atau dikosongkan keduanya).'); continue; }
+      const cp = parseNum(costIn), sp = parseNum(priceIn);
+      if (cp == null || sp == null || Number.isNaN(cp) || Number.isNaN(sp) || cp < 0 || sp < 0) { err('Cost Price dan Selling Price harus berupa angka ≥ 0.'); continue; }
+      listed = true; costPrice = cp; sellPrice = sp;
+    }
 
     const specs: Record<string, string | null> = {};
     for (const k of SPEC_KEYS) specs[k] = s(r[k]) || null;
 
-    good.push({
-      sku: skuIn || null, name, brand, category, subcategory, application, uom, package_type: packageType,
-      notes: s(r.notes) || null, image_url: null, ...pack, ...specs,
-    });
+    const base = {
+      name, brand, category, subcategory, application, uom, package_type: packageType,
+      notes: s(r.notes) || null, ...pack, ...specs,
+    };
+    if (skuIn) seenSku.add(skuIn.toLowerCase());
+    const prices = listed ? { cost_price: costPrice, price: sellPrice, price_listed: true } : {};
+    if (match) {
+      const old = keyById.get(selfId);
+      if (old) owner.delete(old);
+      owner.set(key, selfId); keyById.set(selfId, key);
+      const map: Record<string, string[]> = {
+        name: ['name'], brand: ['brand'], category: ['category'], subcategory: ['subcategory'], application: ['application'],
+        uom: ['uom'], package_type: ['package_type'], notes: ['notes'],
+      };
+      for (const k of [...SPEC_KEYS, ...PACK_NUM_KEYS]) map[k] = [k];
+      // Harga: kolom kosong = tidak diubah (tidak mengeluarkan produk dari Price List).
+      upds.push({ id: selfId, data: { ...pruneAbsent(base, r, map), ...prices } });
+    } else {
+      owner.set(key, `new:${r._row}`);
+      adds.push({ sku: skuIn || null, ...base, image_url: null, ...prices });
+    }
   }
 
-  const result: ImportResult = { total: rows.length, valid: good.length, errors };
-  if (!commit || good.length === 0) return result;
+  const result: ImportResult = { total: rows.length, valid: adds.length + upds.length, errors, added: adds.length, updated: upds.length };
+  if (!commit || result.valid === 0) return result;
+  if (adds.length) { const denied = await guard('/dashboard/products', 'create'); if (denied) return { ...result, error: denied }; }
+  if (upds.length) { const denied = await guard('/dashboard/products', 'edit'); if (denied) return { ...result, error: denied }; }
 
   if (newBrands.size) {
     const { error: be } = await supabase.from('brands').insert(Array.from(newBrands).map((name) => ({ name })));
     if (be && be.code !== '23505') return { ...result, error: 'Brand baru gagal dibuat: ' + be.message };
   }
   // Dipecah per 200 baris agar aman untuk batas ukuran request.
-  for (let i = 0; i < good.length; i += 200) {
-    const { error } = await supabase.from('products').insert(good.slice(i, i + 200));
-    if (error) return { ...result, inserted: i, error: `Berhenti di baris data ke-${i + 1}: ${error.message}` };
+  for (let i = 0; i < adds.length; i += 200) {
+    const { error } = await supabase.from('products').insert(adds.slice(i, i + 200));
+    if (error) return { ...result, inserted: i, error: `Berhenti di baris data baru ke-${i + 1}: ${error.message}` };
   }
+  const updErr = await inChunks(upds, 20, async (u) => {
+    const { error } = await supabase.from('products').update(u.data).eq('id', u.id);
+    return error ? error.message : null;
+  });
+  if (updErr) return { ...result, error: 'Sebagian data gagal diperbarui: ' + updErr };
   revalidatePath('/dashboard/products');
   revalidatePath('/dashboard/products/price-list');
-  return { ...result, inserted: good.length };
+  return { ...result, inserted: adds.length + upds.length };
 }

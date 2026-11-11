@@ -9,6 +9,7 @@ import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { TOP_OPTIONS } from '@/lib/master-options';
 import { saveVendor, deleteVendor, type VendorInput } from './actions';
 import BulkImportButton from '@/components/registry/BulkImportButton';
+import ExportButton from '@/components/registry/ExportButton';
 import { VENDOR_COLUMNS } from '@/lib/import-columns';
 import { importVendors } from './import-actions';
 
@@ -101,7 +102,17 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
       addLabel="New Vendor"
       addIcon="fa-solid fa-user-plus"
       onAdd={openAdd}
-      extra={<BulkImportButton title="Import Vendor" fileName="template-import-vendor" columns={VENDOR_COLUMNS} run={importVendors} />}
+      extra={<><ExportButton rows={filtered} fileName="export-vendor" sheetName="Vendor" columns={[
+        { label: 'Vendor ID', get: (r) => r.vendor_no },
+        { label: 'Company Name', get: (r) => r.company },
+        { label: 'Contact Person', get: (r) => r.contact_name },
+        { label: 'Position', get: (r) => r.position },
+        { label: 'TOP', get: (r) => r.top },
+        { label: 'Phone', get: (r) => r.phone },
+        { label: 'Email', get: (r) => r.email },
+        { label: 'Address', get: (r) => r.address },
+      ]} />
+      <BulkImportButton title="Import Vendor" fileName="template-import-vendor" columns={VENDOR_COLUMNS} run={importVendors} /></>}
       footer={
         <Pagination
           total={paged.total}

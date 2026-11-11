@@ -14,6 +14,8 @@ export type ImportResult = {
   total: number;
   valid: number;
   errors: { row: number; message: string }[];
+  added?: number;   // jumlah data baru (ID kosong / ID belum ada)
+  updated?: number; // jumlah data lama yang ditimpa (ID sudah ada)
   inserted?: number;
   error?: string; // kegagalan menyeluruh (mis. tidak punya izin)
 };

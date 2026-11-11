@@ -45,6 +45,7 @@ async function downloadTemplate({ fileName, columns, templateRows, notes }: Prop
     ['2. Kolom bertanda * wajib diisi.'],
     ['3. Kolom yang punya "Pilihan nilai" harus diisi persis salah satu pilihan tersebut.'],
     ['4. Maksimal 1000 baris per sekali impor. Baris kosong dilewati.'],
+    ['5. Kolom ID = kunci pencocokan: ID sudah ada → data lama ditimpa; ID belum ada atau kosong → data baru. Kolom yang dihapus dari file tidak diubah; kolom yang dikosongkan akan mengosongkan data lama.'],
     ...(notes ?? []).map((n) => [n]),
     [],
     ['Kolom', 'Wajib', 'Keterangan', 'Pilihan nilai', 'Contoh'],
@@ -125,7 +126,7 @@ export default function BulkImportButton(props: Props) {
     try {
       const r = await run(rows, true);
       if (r.error) { setFatal(r.error); setResult(r); return; }
-      toast(`${r.inserted ?? r.valid} data berhasil diimpor`, 'success');
+      toast(`Impor selesai: ${r.added ?? 0} data baru, ${r.updated ?? 0} data diperbarui`, 'success');
       close();
     } catch (e) {
       setFatal('Impor gagal: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'));
@@ -170,7 +171,7 @@ export default function BulkImportButton(props: Props) {
             <span className="bi-num">2</span>
             <div style={{ flex: 1, minWidth: 0 }}>
               <h4>Unggah file yang sudah diisi</h4>
-              <p>Format .xlsx, .xls atau .csv. Data diperiksa dulu sebelum disimpan.</p>
+              <p>Format .xlsx, .xls atau .csv. Data diperiksa dulu sebelum disimpan. Untuk update massal: klik Export, ubah datanya, lalu unggah di sini — baris dengan ID yang sudah ada akan ditimpa, ID baru/kosong ditambahkan sebagai data baru.</p>
               <label className="bi-drop">
                 <input type="file" accept=".xlsx,.xls,.csv" style={{ display: 'none' }} onChange={(e) => { onFile(e.target.files?.[0]); e.target.value = ''; }} />
                 <i className="fi fi-rr-cloud-upload" /> {fileName ? fileName : 'Klik untuk memilih file'}
@@ -189,6 +190,8 @@ export default function BulkImportButton(props: Props) {
                 <div className="bi-sum">
                   <span className="bi-chip" style={{ background: '#e2e8f0', color: '#334155' }}>{result.total} baris</span>
                   <span className="bi-chip" style={{ background: '#dcfce7', color: '#166534' }}>{result.valid} siap diimpor</span>
+                  {(result.added ?? 0) > 0 && <span className="bi-chip" style={{ background: '#dbeafe', color: '#1e40af' }}>{result.added} data baru</span>}
+                  {(result.updated ?? 0) > 0 && <span className="bi-chip" style={{ background: '#fef3c7', color: '#92400e' }}>{result.updated} akan menimpa data lama</span>}
                   {skipped > 0 && <span className="bi-chip" style={{ background: '#fee2e2', color: '#991b1b' }}>{skipped} dilewati</span>}
                 </div>
                 {result.errors.length > 0 && (

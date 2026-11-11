@@ -15,6 +15,7 @@ export type ClientInput = {
   address?: string;
   credit_limit?: number | null;
   status?: string;
+  category?: string;
   contacts?: ContactInfo[];
 };
 
@@ -36,22 +37,37 @@ export async function saveClient(input: ClientInput) {
     email: first.email || null,
     address: input.address || null,
     credit_limit: input.credit_limit ?? null,
+    category: input.category?.trim() || null,
     status: ['Active', 'Inactive', 'Blacklist', 'Unverified'].includes(input.status || '') ? input.status : 'Unverified',
   };
 
+  // Kolom baru (contacts = migrasi 0035, category = migrasi 0041) mungkin belum ada: coba lagi tanpa kolom tersebut.
+  const full: Record<string, unknown> = { ...base, contacts };
+  const missingCol = (m: string) => /(contacts|category)/i.test(m) && /column|schema/i.test(m);
+  const dropMissing = (obj: Record<string, unknown>, m: string) => {
+    const copy = { ...obj };
+    if (/contacts/i.test(m)) delete copy.contacts;
+    if (/category/i.test(m)) delete copy.category;
+    return copy;
+  };
   const payload = base;
-  const withContacts = { ...base, contacts };
-  const missingCol = (m: string) => /contacts/i.test(m) && /column|schema/i.test(m);
 
   let id = input.id;
   if (id) {
-    let { error } = await supabase.from('clients').update(withContacts).eq('id', id);
-    // Kolom contacts belum ada (migrasi 0035 belum dijalankan): simpan kontak utama saja.
-    if (error && missingCol(error.message)) ({ error } = await supabase.from('clients').update(payload).eq('id', id));
+    let body = full;
+    let { error } = await supabase.from('clients').update(body).eq('id', id);
+    for (let i = 0; i < 2 && error && missingCol(error.message); i++) {
+      body = dropMissing(body, error.message);
+      ({ error } = await supabase.from('clients').update(body).eq('id', id));
+    }
     if (error) return { error: error.message };
   } else {
-    let r = await supabase.from('clients').insert(withContacts).select('id').single();
-    if (r.error && missingCol(r.error.message)) r = await supabase.from('clients').insert(payload).select('id').single();
+    let body = full;
+    let r = await supabase.from('clients').insert(body).select('id').single();
+    for (let i = 0; i < 2 && r.error && missingCol(r.error.message); i++) {
+      body = dropMissing(body, r.error.message);
+      r = await supabase.from('clients').insert(body).select('id').single();
+    }
     if (r.error) return { error: r.error.message };
     id = r.data.id as string;
   }

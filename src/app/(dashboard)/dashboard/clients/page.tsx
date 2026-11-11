@@ -4,18 +4,19 @@ import ClientsTable from './ClientsTable';
 export default async function ClientsPage() {
   const supabase = createClient();
   const cols = 'id, client_no, company, contact_name, position, phone, email, address, credit_limit, status';
+  // Kolom contacts (0035) & category (0041) mungkin belum ada: coba dari yang terlengkap.
   let clients: unknown[] | null = null;
-  const r1 = await supabase.from('clients').select(cols + ', contacts').order('created_at', { ascending: false });
-  clients = r1.data as unknown[] | null;
-  // Kolom contacts belum ada (migrasi 0035 belum dijalankan): pakai kolom lama.
-  if (r1.error) {
-    const r2 = await supabase.from('clients').select(cols).order('created_at', { ascending: false });
-    clients = r2.data as unknown[] | null;
+  for (const extra of [', contacts, category', ', contacts', '']) {
+    const r = await supabase.from('clients').select(cols + extra).order('created_at', { ascending: false });
+    if (!r.error) { clients = r.data as unknown[] | null; break; }
   }
+
+  const { data: catRows } = await supabase.from('client_categories').select('name').order('name');
+  const categories = (catRows ?? []).map((c) => c.name as string);
 
   return (
     <div>
-      <ClientsTable initialClients={(clients ?? []) as import('./ClientsTable').ClientRow[]} />
+      <ClientsTable categories={categories} initialClients={(clients ?? []) as import('./ClientsTable').ClientRow[]} />
     </div>
   );
 }

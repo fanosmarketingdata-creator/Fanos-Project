@@ -17,7 +17,15 @@ export const NAV_GROUPS: NavGroup[] = [
     label: 'Master Data',
     icon: 'fi fi-rr-database',
     items: [
-      { href: '/dashboard/clients', label: 'Clients', icon: 'fi fi-rr-users' },
+      {
+        href: '#clients',
+        label: 'Clients',
+        icon: 'fi fi-rr-users',
+        children: [
+          { href: '/dashboard/clients', label: 'Client Master', icon: 'fi fi-rr-users' },
+          { href: '/dashboard/client-categories', label: 'Client Category', icon: 'fi fi-rr-apps' },
+        ],
+      },
       {
         href: '#project',
         label: 'Project',
@@ -49,6 +57,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: '/dashboard/products', label: 'Catalogue', icon: 'fi fi-rr-book-alt' },
           { href: '/dashboard/products/price-list', label: 'Price List', icon: 'fi fi-rr-usd-circle' },
           { href: '/dashboard/brands', label: 'Brand', icon: 'fi fi-rr-award' },
+          { href: '/dashboard/product-categories', label: 'Category', icon: 'fi fi-rr-apps' },
         ],
       },
     ],

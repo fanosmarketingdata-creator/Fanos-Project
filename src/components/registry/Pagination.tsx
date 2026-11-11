@@ -47,7 +47,28 @@ export default function Pagination({
     </div>
   );
 
-  if (totalPages <= 1) return <div className="pagination-container">{info}</div>;
+  // Pilihan baris/halaman: selalu sertakan nilai yang sedang dipakai (mis. 24) agar label tidak kosong.
+  const rowOptions = Array.from(new Set([...ROWS_OPTIONS, rowsPerPage])).sort((a, b) => a - b);
+  const rowsSelect = (
+    <Select className="pagination-rows-select" value={rowsPerPage} onChange={(e) => onRows(Number(e.target.value))}>
+      {rowOptions.map((v) => (
+        <option key={v} value={v}>
+          {v}
+        </option>
+      ))}
+    </Select>
+  );
+
+  // Satu halaman saja: tombol halaman disembunyikan, tapi pilihan baris/halaman tetap ada
+  // (supaya user bisa kembali dari 100 ke jumlah yang lebih kecil).
+  if (totalPages <= 1) {
+    return (
+      <div className="pagination-container">
+        {info}
+        {total > Math.min(...rowOptions) && <div className="pagination-controls">{rowsSelect}</div>}
+      </div>
+    );
+  }
 
   const maxPages = 5;
   let startPage = Math.max(1, page - Math.floor(maxPages / 2));
@@ -85,13 +106,7 @@ export default function Pagination({
         <button type="button" disabled={page >= totalPages} onClick={() => onPage(page + 1)}>
           ›
         </button>
-        <Select className="pagination-rows-select" value={rowsPerPage} onChange={(e) => onRows(Number(e.target.value))}>
-          {ROWS_OPTIONS.map((v) => (
-            <option key={v} value={v}>
-              {v}
-            </option>
-          ))}
-        </Select>
+        {rowsSelect}
       </div>
     </div>
   );
