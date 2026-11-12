@@ -11,7 +11,7 @@ export default async function MaintenancePage() {
   return (
     <div>
       <h1 className="page-title"><i className="fi fi-rr-settings" />Maintenance</h1>
-      <p className="mb-6 text-sm text-slate-500">Saat mode maintenance aktif, semua pengguna selain Superuser tidak dapat mengakses sistem dan melihat halaman pemberitahuan. Superuser tetap dapat masuk untuk melakukan perbaikan. Bila Jadwal mulai diisi, semua pengguna melihat peringatan melayang di dashboard dengan hitung mundur (maintenance tetap harus diaktifkan manual pada waktunya).</p>
+      <p className="mb-6 text-sm text-slate-500">Saat mode maintenance aktif, semua pengguna selain Superuser tidak dapat mengakses sistem dan melihat halaman pemberitahuan. Superuser tetap dapat masuk untuk melakukan perbaikan. Bila Jadwal mulai diisi, semua pengguna melihat peringatan dini dengan hitung mundur, dan baru diarahkan ke halaman maintenance saat jadwal tiba (otomatis). Tanpa jadwal, maintenance berlaku langsung.</p>
       <MaintenanceForm initial={m} />
     </div>
   );

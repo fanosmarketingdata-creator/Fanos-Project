@@ -12,6 +12,7 @@ export default async function MaintenancePage() {
     <div className="maint-wrap" style={{ minHeight: '100vh', background: 'radial-gradient(ellipse at top, #e8eefc 0%, #f6f8fc 60%)', padding: 16 }}>
       <MaintenanceIsland
         variant="page"
+        gears
         title="Sistem Sedang Dalam Perbaikan"
         message={m.message || 'Kami sedang melakukan pemeliharaan sistem agar layanan menjadi lebih baik. Mohon coba lagi beberapa saat lagi.'}
         eta={m.eta}

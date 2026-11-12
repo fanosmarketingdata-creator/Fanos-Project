@@ -14,6 +14,7 @@ export default function MaintenanceForm({ initial }: { initial: { on: boolean; m
   const toLocalInput = (iso: string) => { if (!iso) return ''; const d = new Date(iso); const p = (n: number) => String(n).padStart(2, '0'); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`; };
   const [sched, setSched] = useState(toLocalInput(initial.scheduledAt));
   const [busy, setBusy] = useState(false);
+  const future = !!sched && new Date(sched).getTime() > Date.now();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   async function save(nextOn: boolean) {
@@ -22,7 +23,7 @@ export default function MaintenanceForm({ initial }: { initial: { on: boolean; m
     setBusy(false); setConfirmOpen(false);
     if ('error' in res && res.error) { toast(res.error, 'error'); return; }
     setOn(nextOn);
-    toast(nextOn === on ? 'Pengaturan maintenance disimpan' : nextOn ? 'Mode maintenance AKTIF' : 'Mode maintenance dimatikan', 'success');
+    toast(nextOn === on ? 'Pengaturan maintenance disimpan' : nextOn ? (future ? 'Maintenance dijadwalkan' : 'Mode maintenance AKTIF') : 'Mode maintenance dimatikan', 'success');
   }
 
   return (
@@ -30,7 +31,7 @@ export default function MaintenanceForm({ initial }: { initial: { on: boolean; m
       <div className="fv2-section">
         <div className="fv2-section-title"><i className="fi fi-rr-settings" /> Status Maintenance</div>
         <div style={{ marginBottom: 14 }}>
-          <span className="bi-chip" style={{ background: on ? '#fee2e2' : '#dcfce7', color: on ? '#991b1b' : '#166534' }}>{on ? 'Maintenance AKTIF' : 'Sistem normal'}</span>
+          <span className="bi-chip" style={{ background: on ? (future ? '#fef3c7' : '#fee2e2') : '#dcfce7', color: on ? (future ? '#92400e' : '#991b1b') : '#166534' }}>{on ? (future ? 'Maintenance TERJADWAL' : 'Maintenance AKTIF') : 'Sistem normal'}</span>
         </div>
         <div className="fv2-grid cols-1">
           <FvField label="Pesan untuk pengguna (opsional)">
@@ -51,21 +52,18 @@ export default function MaintenanceForm({ initial }: { initial: { on: boolean; m
             <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => save(true)}>Simpan Pesan &amp; Jadwal</button>
           </>
         ) : (
-          <>
-            <button type="button" className="btn btn-primary" disabled={busy} onClick={() => setConfirmOpen(true)}>Aktifkan Maintenance</button>
-            <button type="button" className="btn btn-secondary" disabled={busy} onClick={() => save(false)}>Simpan Jadwal &amp; Pesan</button>
-          </>
+          <button type="button" className="btn btn-primary" disabled={busy} onClick={() => setConfirmOpen(true)}>{future ? 'Jadwalkan Maintenance' : 'Aktifkan Maintenance'}</button>
         )}
       </div>
     {confirmOpen && (
         <ConfirmModal
-          title="Aktifkan Maintenance"
+          title={future ? 'Jadwalkan Maintenance' : 'Aktifkan Maintenance'}
           icon="fi fi-rr-settings"
           tone="blue"
-          question="Aktifkan mode maintenance sekarang?"
+          question={future ? 'Jadwalkan mode maintenance?' : 'Aktifkan mode maintenance sekarang?'}
           itemName="Semua pengguna selain Superuser"
-          note="Mereka akan langsung tidak bisa mengakses sistem sampai maintenance dimatikan."
-          confirmLabel="Ya, Aktifkan"
+          note={future ? 'Mereka melihat peringatan dini dengan hitung mundur, lalu otomatis diarahkan ke halaman maintenance saat jadwal tiba.' : 'Mereka akan langsung tidak bisa mengakses sistem sampai maintenance dimatikan.'}
+          confirmLabel={future ? 'Ya, Jadwalkan' : 'Ya, Aktifkan'}
           busy={busy}
           onConfirm={() => save(true)}
           onClose={() => setConfirmOpen(false)}

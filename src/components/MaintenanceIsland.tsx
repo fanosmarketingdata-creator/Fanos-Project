@@ -7,7 +7,7 @@ type Tone = 'info' | 'danger';
 // "Dynamic island": pill hitam kecil yang melebar jadi kartu. Dipakai di halaman maintenance (otomatis terbuka)
 // dan sebagai peringatan di dashboard (klik untuk membuka/menutup).
 export default function MaintenanceIsland({
-  variant, title, subtitle, message, eta, scheduledAt, tone = 'info', children,
+  variant, title, subtitle, message, eta, scheduledAt, tone = 'info', gears, children,
 }: {
   variant: 'page' | 'notice';
   title: string;
@@ -16,6 +16,7 @@ export default function MaintenanceIsland({
   eta?: string;
   scheduledAt?: string;
   tone?: Tone;
+  gears?: boolean; // ikon roda gigi beranimasi di dalam kartu
   children?: React.ReactNode;
 }) {
   const [open, setOpen] = useState(false);
@@ -37,6 +38,22 @@ export default function MaintenanceIsland({
           {variant === 'notice' && <i className="fi fi-rr-angle-small-down mi-chev" aria-hidden />}
         </div>
         <div className="mi-body"><div className="mi-body-in">
+          {gears && (
+            <div className="mi-gears" aria-hidden>
+              <svg viewBox="0 0 90 64" width="96" height="68">
+                <g transform="translate(30 34)"><g className="mi-gear mi-gear-a">
+                  <circle r="17" fill="none" stroke="#fbbf24" strokeWidth="7" strokeDasharray="5.34 5.34" />
+                  <circle r="13" fill="none" stroke="#fbbf24" strokeWidth="4" />
+                  <circle r="4.5" fill="#fbbf24" />
+                </g></g>
+                <g transform="translate(64 20)"><g className="mi-gear mi-gear-b">
+                  <circle r="11" fill="none" stroke="#9aa4b2" strokeWidth="5" strokeDasharray="4.3 4.3" />
+                  <circle r="8" fill="none" stroke="#9aa4b2" strokeWidth="3" />
+                  <circle r="3" fill="#9aa4b2" />
+                </g></g>
+              </svg>
+            </div>
+          )}
           {message && <p className="mi-msg">{message}</p>}
           {when && <p className="mi-eta">Jadwal: <b data-no-i18n>{when}</b></p>}
           {eta && <p className="mi-eta">Perkiraan selesai: <b data-no-i18n>{eta}</b></p>}

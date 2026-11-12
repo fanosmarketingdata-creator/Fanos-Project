@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
-import { parseMaintenance, type Maintenance } from '@/lib/maintenance';
+import { parseMaintenance, isLocked, type Maintenance } from '@/lib/maintenance';
 import MaintenanceIsland from '@/components/MaintenanceIsland';
 
 function remaining(iso: string, now: number) {
@@ -16,7 +16,7 @@ function remaining(iso: string, now: number) {
 }
 
 // Peringatan dini di dashboard: jadwal maintenance mendatang (semua pengguna) atau status AKTIF (hanya Superuser yang bisa melihatnya).
-export default function MaintenanceNotice() {
+export default function MaintenanceNotice({ isSuperuser }: { isSuperuser: boolean }) {
   const [m, setM] = useState<Maintenance | null>(null);
   const [now, setNow] = useState(() => Date.now());
 
@@ -35,11 +35,17 @@ export default function MaintenanceNotice() {
     return () => { alive = false; clearInterval(a); clearInterval(b); };
   }, []);
 
+  // Waktunya tiba saat pengguna masih membuka dashboard: arahkan non-Superuser ke halaman maintenance.
+  const locked = !!m && isLocked(m, now);
+  useEffect(() => {
+    if (locked && !isSuperuser) window.location.reload();
+  }, [locked, isSuperuser]);
+
   if (!m) return null;
-  if (m.on) {
+  if (locked) {
     return <MaintenanceIsland key="on" variant="notice" tone="danger" title="Maintenance AKTIF" subtitle="Hanya Superuser" message={m.message || 'Pengguna lain tidak dapat mengakses sistem saat ini.'} eta={m.eta} />;
   }
-  if (m.scheduledAt && Date.parse(m.scheduledAt) > now) {
+  if (m.scheduledAt && Date.parse(m.scheduledAt) > now) { // peringatan dini
     return <MaintenanceIsland key="sched" variant="notice" title="Maintenance terjadwal" subtitle={remaining(m.scheduledAt, now)} message={m.message || 'Mohon simpan pekerjaan Anda sebelum jadwal maintenance dimulai.'} scheduledAt={m.scheduledAt} eta={m.eta} />;
   }
   return null;

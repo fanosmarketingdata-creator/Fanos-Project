@@ -1145,3 +1145,11 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .list-page > * { flex-shrink: 0; }
 .list-page > .overflow-x-auto { flex: 0 1 auto; min-height: 0; overflow-y: auto; overscroll-behavior: contain; }
 .list-page > .overflow-x-auto thead th { position: sticky; top: 0; z-index: 2; background: #f8fafc; }
+
+/* Kursor konsisten di form: label = panah biasa, kolom teks = I-beam, kolom tanggal/jam & ikon kalendernya = tangan. */
+.fv2-field label { cursor: default; user-select: none; }
+.fv2-field input, .fv2-field textarea { cursor: text; }
+.fv2-field input[type="date"], .fv2-field input[type="datetime-local"], .fv2-field input[type="time"], .fv2-field input[type="month"] { cursor: pointer; }
+.fv2-field input::-webkit-calendar-picker-indicator { cursor: pointer; }
+.fv2-field select, .fv2-field input[type="checkbox"], .fv2-field input[type="radio"] { cursor: pointer; }
+.fv2-field input[readonly], .fv2-field input:disabled, .fv2-field textarea:disabled { cursor: not-allowed; }

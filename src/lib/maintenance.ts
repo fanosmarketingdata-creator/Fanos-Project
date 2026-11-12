@@ -13,14 +13,23 @@ export function parseMaintenance(v: unknown): Maintenance {
 // Env MAINTENANCE_MODE=1 = saklar darurat (tanpa database). Bila tabel belum ada / gagal dibaca: dianggap mati agar tidak mengunci semua orang.
 export async function getMaintenance(supabase: unknown, fresh = false): Promise<Maintenance> {
   const forced = /^(1|true|on)$/i.test(process.env.MAINTENANCE_MODE ?? '');
-  if (!fresh && cache && Date.now() - cache.at < 5000) return forced ? { ...cache.v, on: true } : cache.v;
+  if (!fresh && cache && Date.now() - cache.at < 5000) return forced ? { ...cache.v, on: true, scheduledAt: '' } : cache.v;
   let v: Maintenance = { on: false, message: '', eta: '', scheduledAt: '' };
   try {
     const { data } = await (supabase as Q).from('app_settings').select('value').eq('key', 'maintenance').maybeSingle();
     if (data) v = parseMaintenance(data.value);
   } catch { /* abaikan */ }
   cache = { at: Date.now(), v };
-  return forced ? { ...v, on: true } : v;
+  return forced ? { ...v, on: true, scheduledAt: '' } : v;
+}
+
+// Terkunci = sudah waktunya: saklar aktif DAN (tanpa jadwal ATAU jadwal sudah lewat).
+// Aktif + jadwal di depan = hanya peringatan dini; pengguna baru diarahkan ke halaman maintenance pada jamnya.
+export function isLocked(m: Maintenance, now = Date.now()) {
+  if (!m.on) return false;
+  if (!m.scheduledAt) return true;
+  const t = Date.parse(m.scheduledAt);
+  return Number.isNaN(t) || t <= now;
 }
 
 export function resetMaintenanceCache() { cache = null; }

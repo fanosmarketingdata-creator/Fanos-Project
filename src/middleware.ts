@@ -1,6 +1,6 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
-import { getMaintenance } from '@/lib/maintenance';
+import { getMaintenance, isLocked } from '@/lib/maintenance';
 
 // Middleware ini menggantikan SELURUH sistem session/redirect manual yang
 // dulu (processLogin/validateSession/logout custom + trik window.top
@@ -48,10 +48,10 @@ export async function middleware(request: NextRequest) {
   // Mode maintenance: semua pengguna selain Superuser melihat halaman pemberitahuan (HTTP 503).
   const maint = await getMaintenance(supabase);
   if (path.startsWith('/maintenance')) {
-    if (!maint.on) { const u = request.nextUrl.clone(); u.pathname = '/dashboard'; return NextResponse.redirect(u); }
+    if (!isLocked(maint)) { const u = request.nextUrl.clone(); u.pathname = '/dashboard'; return NextResponse.redirect(u); }
     return response;
   }
-  if (maint.on && !(isAuthPage && !user)) {
+  if (isLocked(maint) && !(isAuthPage && !user)) {
     let isSuper = false;
     if (user) {
       const { data: prof } = await supabase.from('profiles').select('role').eq('id', user.id).maybeSingle();
