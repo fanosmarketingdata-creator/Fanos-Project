@@ -1,5 +1,5 @@
 // Status mode maintenance (aman dipakai di middleware/edge).
-export type Maintenance = { on: boolean; message: string; eta: string };
+export type Maintenance = { on: boolean; message: string; eta: string; scheduledAt: string }; // scheduledAt: ISO (UTC) atau ''
 
 type Q = { from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => PromiseLike<{ data: { value: unknown } | null }> } } } };
 
@@ -7,14 +7,14 @@ let cache: { at: number; v: Maintenance } | null = null;
 
 export function parseMaintenance(v: unknown): Maintenance {
   const o = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>;
-  return { on: o.on === true, message: typeof o.message === 'string' ? o.message : '', eta: typeof o.eta === 'string' ? o.eta : '' };
+  return { on: o.on === true, message: typeof o.message === 'string' ? o.message : '', eta: typeof o.eta === 'string' ? o.eta : '', scheduledAt: typeof o.scheduledAt === 'string' ? o.scheduledAt : '' };
 }
 
 // Env MAINTENANCE_MODE=1 = saklar darurat (tanpa database). Bila tabel belum ada / gagal dibaca: dianggap mati agar tidak mengunci semua orang.
 export async function getMaintenance(supabase: unknown, fresh = false): Promise<Maintenance> {
   const forced = /^(1|true|on)$/i.test(process.env.MAINTENANCE_MODE ?? '');
   if (!fresh && cache && Date.now() - cache.at < 5000) return forced ? { ...cache.v, on: true } : cache.v;
-  let v: Maintenance = { on: false, message: '', eta: '' };
+  let v: Maintenance = { on: false, message: '', eta: '', scheduledAt: '' };
   try {
     const { data } = await (supabase as Q).from('app_settings').select('value').eq('key', 'maintenance').maybeSingle();
     if (data) v = parseMaintenance(data.value);

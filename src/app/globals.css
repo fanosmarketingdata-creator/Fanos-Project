@@ -719,3 +719,46 @@ html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; o
 html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
   transition: background-color .35s ease, color .35s ease, border-color .35s ease, fill .35s ease !important;
 }
+
+/* ===== Dynamic island (maintenance) ===== */
+.mi { display: flex; justify-content: center; pointer-events: none; }
+.mi-page { min-height: calc(100vh - 32px); align-items: center; }
+/* Peringatan: di bawah tengah layar, sama seperti notifikasi toast (muncul naik dari bawah). */
+.mi-notice { position: fixed; bottom: 22px; left: 0; right: 0; z-index: 2900; align-items: flex-end; }
+.mi-card {
+  pointer-events: auto; background: #0b0b0f; color: #fff; overflow: hidden;
+  width: 210px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.08);
+  transition: width .55s cubic-bezier(.2,.9,.25,1.1), border-radius .55s cubic-bezier(.2,.9,.25,1.1), box-shadow .3s;
+  animation: mi-rise .55s cubic-bezier(.34, 1.45, .5, 1) both; transform-origin: bottom center;
+}
+.mi-open .mi-card { width: min(92vw, 430px); border-radius: 28px; }
+.mi-page .mi-card { width: min(92vw, 190px); }
+.mi-page.mi-open .mi-card { width: min(92vw, 460px); }
+.mi-head { display: flex; align-items: center; gap: 9px; padding: 10px 16px; min-height: 42px; white-space: nowrap; }
+.mi-title { font-weight: 700; font-size: 13px; overflow: hidden; text-overflow: ellipsis; }
+.mi-sub { font-size: 12px; color: #9aa4b2; margin-left: auto; padding-left: 8px; }
+.mi-chev { font-size: 14px; color: #9aa4b2; transition: transform .35s; margin-left: 4px; }
+.mi-open .mi-chev { transform: rotate(180deg); }
+.mi-dot { width: 9px; height: 9px; border-radius: 50%; background: #fbbf24; flex: none; animation: mi-pulse 1.8s ease-in-out infinite; }
+.mi-danger .mi-dot { background: #ef4444; }
+.mi-body { display: grid; grid-template-rows: 0fr; opacity: 0; transition: grid-template-rows .55s cubic-bezier(.2,.9,.25,1), opacity .35s .1s; }
+.mi-open .mi-body { grid-template-rows: 1fr; opacity: 1; }
+.mi-body-in { overflow: hidden; min-height: 0; padding: 0 18px; text-align: left; }
+.mi-open .mi-body-in { padding-bottom: 16px; }
+.mi-page .mi-body-in { text-align: center; }
+.mi-msg { font-size: 13px; line-height: 1.5; color: #d7dde6; margin: 2px 0 8px; }
+.mi-eta { font-size: 13px; color: #fff; margin: 0 0 6px; }
+.mi-eta b { color: #fcd34d; }
+.mi-danger .mi-eta b { color: #fca5a5; }
+.mi-thanks { font-size: 12px; color: #8b95a5; margin: 8px 0 12px; }
+.mi-page .mi-head { justify-content: center; }
+.mi-page.mi-open .mi-head { padding-top: 16px; }
+.mi-page .mi-title { font-size: 14px; }
+@keyframes mi-rise { from { transform: translateY(26px) scale(.6); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes mi-pulse { 0%,100% { box-shadow: 0 0 0 0 rgba(251,191,36,.55); } 50% { box-shadow: 0 0 0 6px rgba(251,191,36,0); } }
+.mi-danger .mi-dot { animation-name: mi-pulse-red; }
+@keyframes mi-pulse-red { 0%,100% { box-shadow: 0 0 0 0 rgba(239,68,68,.6); } 50% { box-shadow: 0 0 0 6px rgba(239,68,68,0); } }
+@media (prefers-reduced-motion: reduce) {
+  .mi-card, .mi-body, .mi-chev { transition: none; animation: none; }
+  .mi-dot { animation: none; }
+}

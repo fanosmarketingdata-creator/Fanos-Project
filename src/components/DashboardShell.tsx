@@ -13,6 +13,7 @@ import PushPrompt from '@/components/PushPrompt';
 import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavItem } from '@/lib/menu';
 import ThemeToggle from '@/components/ThemeToggle';
 import PresenceWidget from '@/components/PresenceWidget';
+import MaintenanceNotice from '@/components/MaintenanceNotice';
 import ResponsiveTables from '@/components/ResponsiveTables';
 import ProfileModal, { type MyProfile } from '@/components/ProfileModal';
 
@@ -294,6 +295,7 @@ export default function DashboardShell({
       <PushPrompt />
       <FigmaCursor name={profile.full_name || 'you'} colour={profile.cursor_color} />
       <IdleLogout />
+      <MaintenanceNotice />
       <ResponsiveTables />
 
       <header ref={headerRef} className="sticky top-0 z-[500] flex items-center gap-2 border-b border-slate-200/80 bg-white/90 px-3 py-2.5 shadow-[0_8px_24px_-20px_rgba(47,107,240,0.5)] backdrop-blur sm:gap-3 sm:px-4 print:hidden">
