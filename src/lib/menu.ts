@@ -142,6 +142,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-id-badge' },
       { href: '/dashboard/accounts', label: 'Master Akun', icon: 'fi fi-rr-user-lock' },
       { href: '/dashboard/roles', label: 'Role Group', icon: 'fi fi-rr-shield-check' },
+      { href: '/dashboard/maintenance', label: 'Maintenance', icon: 'fi fi-rr-settings' },
     ],
   },
 ];
