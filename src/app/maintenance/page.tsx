@@ -14,7 +14,7 @@ export default async function MaintenancePage() {
         variant="page"
         gears
         title="Sistem Sedang Dalam Perbaikan"
-        message={m.message || 'Kami sedang melakukan pemeliharaan sistem agar layanan menjadi lebih baik. Mohon coba lagi beberapa saat lagi.'}
+        message="Kami sedang melakukan peningkatan sistem. Mohon maaf atas ketidaknyamanan ini."
         eta={m.eta}
       >
         <p className="mi-thanks">Terima kasih atas pengertian Anda.</p>

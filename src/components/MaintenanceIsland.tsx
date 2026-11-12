@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { useLang } from '@/components/I18nProvider';
 
 type Tone = 'info' | 'danger';
 
@@ -19,6 +20,7 @@ export default function MaintenanceIsland({
   gears?: boolean; // ikon roda gigi beranimasi di dalam kartu
   children?: React.ReactNode;
 }) {
+  const lang = useLang();
   const [open, setOpen] = useState(false);
   useEffect(() => {
     if (variant !== 'page') return;
@@ -26,7 +28,13 @@ export default function MaintenanceIsland({
     return () => clearTimeout(t);
   }, [variant]);
 
-  const when = scheduledAt ? new Date(scheduledAt).toLocaleString('id-ID', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Jakarta' }) + ' WIB' : '';
+  const fmt = (iso: string) => {
+    const t = Date.parse(iso);
+    if (Number.isNaN(t)) return iso; // data lama: teks bebas
+    return new Date(t).toLocaleString(lang === 'en' ? 'en-US' : 'id-ID', { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Jakarta' }) + ' WIB';
+  };
+  const when = scheduledAt ? fmt(scheduledAt) : '';
+  const etaText = eta ? fmt(eta) : '';
 
   return (
     <div className={`mi mi-${variant} mi-${tone}${open ? ' mi-open' : ''}`} role="status" aria-live="polite">
@@ -56,7 +64,7 @@ export default function MaintenanceIsland({
           )}
           {message && <p className="mi-msg">{message}</p>}
           {when && <p className="mi-eta">Jadwal: <b data-no-i18n>{when}</b></p>}
-          {eta && <p className="mi-eta">Perkiraan selesai: <b data-no-i18n>{eta}</b></p>}
+          {etaText && <p className="mi-eta">Perkiraan selesai: <b data-no-i18n>{etaText}</b></p>}
           {children}
         </div></div>
       </div>
