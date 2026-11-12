@@ -1153,3 +1153,24 @@ tr.clickable-row:hover td { background: #eef2ff !important; }
 .fv2-field input::-webkit-calendar-picker-indicator { cursor: pointer; }
 .fv2-field select, .fv2-field input[type="checkbox"], .fv2-field input[type="radio"] { cursor: pointer; }
 .fv2-field input[readonly], .fv2-field input:disabled, .fv2-field textarea:disabled { cursor: not-allowed; }
+
+/* Kolom tanggal/jam: seluruh bagian (segmen hari-bulan-tahun, ruang kosong, ikon kalender) berkursor tangan, bukan I-beam. */
+input[type="date"], input[type="datetime-local"], input[type="time"], input[type="month"],
+input[type="date"]::-webkit-datetime-edit, input[type="datetime-local"]::-webkit-datetime-edit,
+input[type="time"]::-webkit-datetime-edit, input[type="month"]::-webkit-datetime-edit,
+input[type="date"]::-webkit-datetime-edit-fields-wrapper, input[type="datetime-local"]::-webkit-datetime-edit-fields-wrapper,
+input[type="time"]::-webkit-datetime-edit-fields-wrapper, input[type="month"]::-webkit-datetime-edit-fields-wrapper,
+input[type="date"]::-webkit-datetime-edit-text, input[type="datetime-local"]::-webkit-datetime-edit-text,
+input[type="time"]::-webkit-datetime-edit-text, input[type="month"]::-webkit-datetime-edit-text,
+input[type="date"]::-webkit-datetime-edit-day-field, input[type="datetime-local"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-month-field, input[type="datetime-local"]::-webkit-datetime-edit-month-field,
+input[type="month"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-year-field, input[type="datetime-local"]::-webkit-datetime-edit-year-field,
+input[type="month"]::-webkit-datetime-edit-year-field,
+input[type="datetime-local"]::-webkit-datetime-edit-hour-field, input[type="time"]::-webkit-datetime-edit-hour-field,
+input[type="datetime-local"]::-webkit-datetime-edit-minute-field, input[type="time"]::-webkit-datetime-edit-minute-field,
+input[type="datetime-local"]::-webkit-datetime-edit-ampm-field, input[type="time"]::-webkit-datetime-edit-ampm-field,
+input[type="date"]::-webkit-calendar-picker-indicator, input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator, input[type="month"]::-webkit-calendar-picker-indicator { cursor: pointer; }
+input[type="date"]::-webkit-calendar-picker-indicator, input[type="datetime-local"]::-webkit-calendar-picker-indicator,
+input[type="time"]::-webkit-calendar-picker-indicator { padding: 6px; margin-right: -4px; }

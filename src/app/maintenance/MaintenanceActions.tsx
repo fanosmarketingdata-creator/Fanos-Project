@@ -8,7 +8,7 @@ const btn = { display: 'inline-block', background: '#fff', color: '#0f172a', bor
 export default function MaintenanceActions() {
   // Cek ulang otomatis tiap 30 detik; begitu maintenance selesai, middleware akan mengarahkan ke dashboard.
   useEffect(() => {
-    const t = setInterval(() => window.location.reload(), 30000);
+    const t = setInterval(() => { fetch('/api/maintenance/tick', { method: 'POST' }).catch(() => {}).finally(() => window.location.reload()); }, 30000);
     return () => clearInterval(t);
   }, []);
   return (

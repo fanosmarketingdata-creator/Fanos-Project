@@ -30,7 +30,8 @@ export default function MaintenanceForm({ initial }: { initial: { on: boolean; m
     if ('error' in res && res.error) { toast(res.error, 'error'); return; }
     setOn(nextOn);
     if (!nextOn) { setSched(''); setEta(''); }
-    toast(nextOn === on ? 'Pengaturan maintenance disimpan' : nextOn ? (future ? 'Maintenance dijadwalkan' : 'Mode maintenance AKTIF') : 'Mode maintenance dimatikan', 'success');
+    toast((nextOn === on ? 'Pengaturan maintenance disimpan' : nextOn ? (future ? 'Maintenance dijadwalkan' : 'Mode maintenance AKTIF') : 'Mode maintenance dimatikan'), 'success');
+    if ('push' in res && res.push && res.push.sent > 0) toast(`Notifikasi terkirim ke ${res.push.sent} perangkat`, 'success');
   }
 
   return (

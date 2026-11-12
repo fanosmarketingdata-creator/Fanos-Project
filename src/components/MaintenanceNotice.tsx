@@ -29,7 +29,12 @@ export default function MaintenanceNotice({ isSuperuser }: { isSuperuser: boolea
     const load = async () => {
       try {
         const { data } = await supabase.from('app_settings').select('value').eq('key', 'maintenance').maybeSingle();
-        if (alive && data) setM(parseMaintenance(data.value));
+        if (alive && data) {
+          const v = parseMaintenance(data.value);
+          setM(v);
+          // Pemicu notifikasi perangkat saat maintenance mulai/selesai (idempoten di server).
+          if (v.on) fetch('/api/maintenance/tick', { method: 'POST' }).catch(() => {});
+        }
       } catch { /* abaikan */ }
     };
     load();

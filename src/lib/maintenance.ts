@@ -1,5 +1,5 @@
 // Status mode maintenance (aman dipakai di middleware/edge).
-export type Maintenance = { on: boolean; message: string; eta: string; scheduledAt: string }; // scheduledAt: ISO (UTC) atau ''
+export type Maintenance = { on: boolean; message: string; eta: string; scheduledAt: string; startNotified?: boolean; endNotified?: boolean }; // scheduledAt: ISO (UTC) atau ''
 
 type Q = { from: (t: string) => { select: (c: string) => { eq: (k: string, v: string) => { maybeSingle: () => PromiseLike<{ data: { value: unknown } | null }> } } } };
 
@@ -7,7 +7,7 @@ let cache: { at: number; v: Maintenance } | null = null;
 
 export function parseMaintenance(v: unknown): Maintenance {
   const o = (v && typeof v === 'object' ? v : {}) as Record<string, unknown>;
-  return { on: o.on === true, message: typeof o.message === 'string' ? o.message : '', eta: typeof o.eta === 'string' ? o.eta : '', scheduledAt: typeof o.scheduledAt === 'string' ? o.scheduledAt : '' };
+  return { on: o.on === true, message: typeof o.message === 'string' ? o.message : '', eta: typeof o.eta === 'string' ? o.eta : '', scheduledAt: typeof o.scheduledAt === 'string' ? o.scheduledAt : '', startNotified: o.startNotified === true, endNotified: o.endNotified === true };
 }
 
 // Env MAINTENANCE_MODE=1 = saklar darurat (tanpa database). Bila tabel belum ada / gagal dibaca: dianggap mati agar tidak mengunci semua orang.
