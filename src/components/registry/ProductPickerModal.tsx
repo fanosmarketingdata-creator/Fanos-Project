@@ -22,12 +22,8 @@ export function ProductPickButton({
   const selected = products.find((p) => p.sku === value);
   return (
     <>
-      <button
-        type="button"
-        onClick={() => setOpen(true)}
-        style={{ width: '100%', textAlign: 'left', display: 'flex', alignItems: 'center', gap: 8, cursor: 'pointer', border: '1.5px solid #e5e7eb', borderRadius: 8, padding: '7px 10px', fontSize: 12.5, background: '#fff', fontFamily: 'inherit', color: value ? '#1f2937' : '#9ca3af' }}
-      >
-        <i className="fi fi-rr-search" style={{ color: '#6b7280' }} />
+      <button type="button" onClick={() => setOpen(true)} className={`pp-trigger${value ? '' : ' is-empty'}`}>
+        <i className="fi fi-rr-search" />
         <span style={{ flex: 1, minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
           {value ? `${value}${selected ? ' — ' + selected.name : ''}` : 'Pilih produk...'}
         </span>

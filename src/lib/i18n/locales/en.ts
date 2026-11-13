@@ -1224,4 +1224,7 @@ export const ID_EN: Record<string, string> = {
   "Pembuka Surat": "Letter Opening",
   "Penutup Surat": "Letter Closing",
   "Apakah Anda yakin ingin menghapus": "Are you sure you want to delete",
+  "Satu baris = satu item. Baris dengan SO No sama digabung menjadi satu Sales Order.": "One row = one item. Rows with the same SO No are merged into one Sales Order.",
+  "Sales Order lama hanya dapat ditimpa bila berstatus DRAFT; Sales Order baru selalu berstatus DRAFT.": "An existing Sales Order can only be overwritten while it is DRAFT; new Sales Orders are always DRAFT.",
+  "Diskon, pajak, dan biaya tambahan tidak diimpor (SO lama tetap memakai yang sudah ada).": "Discounts, taxes and additional charges are not imported (an existing SO keeps what it already has).",
 };

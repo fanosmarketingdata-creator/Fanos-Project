@@ -74,3 +74,20 @@ export function productColumns(categories: Record<string, string[]> = PRODUCT_CA
   ];
 }
 
+
+// Sales Order: SATU BARIS = SATU ITEM. Baris dengan SO No yang sama digabung menjadi satu Sales Order.
+export const SO_COLUMNS: ImportColumn[] = [
+  { key: 'so_no', label: 'SO No', note: 'Kunci pencocokan. SO No sudah ada = Sales Order lama DITIMPA (hanya yang berstatus DRAFT; item lama diganti isi file); SO No belum ada = Sales Order BARU dengan nomor itu; KOSONG = Sales Order baru, nomor dibuat otomatis (baris kosong berurutan dengan Client & Tanggal sama digabung jadi satu SO).', example: '' },
+  { key: 'so_date', label: 'SO Date', required: true, note: 'Format tanggal: 2026-11-13 atau 13/11/2026.', example: '2026-11-13' },
+  { key: 'client_no', label: 'Client ID', note: 'Isi Client ID ATAU Client Name. Pada SO lama, boleh dikosongkan (client tidak berubah).', example: 'CL-0001' },
+  { key: 'client_name', label: 'Client Name', note: 'Nama perusahaan persis seperti di Client Master.', example: 'PT Contoh Sejahtera' },
+  { key: 'global_notes', label: 'Notes', note: 'Catatan Sales Order (cukup di baris pertama tiap SO).', example: '' },
+  { key: 'sku', label: 'SKU', required: true, note: 'SKU produk yang sudah ada di Catalogue.', example: 'FAN-00001' },
+  { key: 'qty', label: 'Qty', required: true, note: 'Jumlah, harus lebih dari 0.', example: '10' },
+  { key: 'unit_price', label: 'Unit Price', note: 'Harga satuan. Kosong = pakai harga jual dari Price List (produk harus sudah ada di Price List).', example: '150000' },
+  { key: 'item_notes', label: 'Item Notes', note: 'Catatan per item.', example: '' },
+  { key: 'product_name', label: 'Product Name', note: 'Informasi saja (hasil Export), diabaikan saat impor.', example: '' },
+  { key: 'item_total', label: 'Item Total', note: 'Informasi saja (hasil Export), diabaikan saat impor.', example: '' },
+  { key: 'status', label: 'Status', note: 'Informasi saja (hasil Export), diabaikan saat impor. SO baru selalu berstatus DRAFT.', example: '' },
+  { key: 'so_total', label: 'SO Total', note: 'Informasi saja (hasil Export): total setelah diskon/pajak/biaya. Dihitung ulang saat impor.', example: '' },
+];

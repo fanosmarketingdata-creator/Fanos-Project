@@ -74,6 +74,64 @@ html.dark .login-overlay .spinner, html.dark .dv2-loading .spinner { border-top-
 html.dark .login-title, html.dark .login-sub { color: #fff !important; }
 html.dark .login-sub { opacity: 0.85; }
 
+/* Kolom form / tombol dengan warna putih yang ditulis inline (style="background:#fff"): gelapkan juga. */
+html.dark :is(input, select, textarea, button)[style*="background: rgb(255, 255, 255)"],
+html.dark :is(input, select, textarea, button)[style*="background:#fff" i],
+html.dark :is(input, select, textarea, button)[style*="background: #fff" i],
+html.dark :is(input, select, textarea, button)[style*="background:#ffffff" i],
+html.dark :is(input, select, textarea, button)[style*="background: white"],
+html.dark :is(input, select, textarea, button)[style*="background:white"] {
+  background-color: var(--d-surface-2) !important;
+  border-color: var(--d-line) !important;
+  color: var(--d-text) !important;
+}
+/* Pemilih produk (tombol "Pilih produk...") */
+.pp-trigger { width: 100%; text-align: left; display: flex; align-items: center; gap: 8px; cursor: pointer; border: 1.5px solid #e5e7eb; border-radius: 8px; padding: 7px 10px; font-size: 12.5px; background: #fff; font-family: inherit; color: #1f2937; }
+.pp-trigger.is-empty { color: #9ca3af; }
+.pp-trigger > i { color: #6b7280; }
+html.dark .pp-trigger { background: var(--d-surface-2); border-color: var(--d-line); color: var(--d-text); }
+html.dark .pp-trigger.is-empty { color: #6b7389; }
+html.dark .pp-trigger > i { color: var(--d-muted); }
+html.dark .pp-trigger:hover { border-color: var(--d-blue); }
+
+/* Latar terang yang ditulis inline pada elemen non-form (kartu info, banner, dsb.) */
+html.dark [style*="background:#f6f8fc" i]:not(.paper *),
+html.dark [style*="background: #f6f8fc" i]:not(.paper *),
+html.dark [style*="background: rgb(246, 248, 252)"]:not(.paper *),
+html.dark [style*="background-color: rgb(246, 248, 252)"]:not(.paper *),
+html.dark [style*="background:#f8fafc" i]:not(.paper *),
+html.dark [style*="background: #f8fafc" i]:not(.paper *),
+html.dark [style*="background: rgb(248, 250, 252)"]:not(.paper *),
+html.dark [style*="background-color: rgb(248, 250, 252)"]:not(.paper *),
+html.dark [style*="background:#f4f4f5" i]:not(.paper *),
+html.dark [style*="background: #f4f4f5" i]:not(.paper *),
+html.dark [style*="background: rgb(244, 244, 245)"]:not(.paper *),
+html.dark [style*="background-color: rgb(244, 244, 245)"]:not(.paper *),
+html.dark [style*="background:#f3f4f6" i]:not(.paper *),
+html.dark [style*="background: #f3f4f6" i]:not(.paper *),
+html.dark [style*="background: rgb(243, 244, 246)"]:not(.paper *),
+html.dark [style*="background-color: rgb(243, 244, 246)"]:not(.paper *),
+html.dark [style*="background:#e2e8f0" i]:not(.paper *),
+html.dark [style*="background: #e2e8f0" i]:not(.paper *),
+html.dark [style*="background: rgb(226, 232, 240)"]:not(.paper *),
+html.dark [style*="background-color: rgb(226, 232, 240)"]:not(.paper *),
+html.dark [style*="background:#e8eaf6" i]:not(.paper *),
+html.dark [style*="background: #e8eaf6" i]:not(.paper *),
+html.dark [style*="background: rgb(232, 234, 246)"]:not(.paper *),
+html.dark [style*="background-color: rgb(232, 234, 246)"]:not(.paper *) { background-color: var(--d-surface-3) !important; color: var(--d-text) !important; }
+html.dark [style*="background:#fffbeb" i]:not(.paper *),
+html.dark [style*="background: #fffbeb" i]:not(.paper *),
+html.dark [style*="background: rgb(255, 251, 235)"]:not(.paper *),
+html.dark [style*="background-color: rgb(255, 251, 235)"]:not(.paper *),
+html.dark [style*="background:#fff4e3" i]:not(.paper *),
+html.dark [style*="background: #fff4e3" i]:not(.paper *),
+html.dark [style*="background: rgb(255, 244, 227)"]:not(.paper *),
+html.dark [style*="background-color: rgb(255, 244, 227)"]:not(.paper *) { background-color: rgba(245, 158, 11, 0.14) !important; color: #fbbf24 !important; }
+html.dark [style*="background:#eaf1ff" i]:not(.paper *),
+html.dark [style*="background: #eaf1ff" i]:not(.paper *),
+html.dark [style*="background: rgb(234, 241, 255)"]:not(.paper *),
+html.dark [style*="background-color: rgb(234, 241, 255)"]:not(.paper *) { background-color: rgba(47, 107, 255, 0.16) !important; color: var(--d-blue-soft) !important; }
+
 /* ---- utility Tailwind ---- */
 html.dark .bg-white:not(.paper *) { background-color: #0f111a; }
 html.dark .bg-white\/90:not(.paper *) { background-color: rgba(9,10,16,0.88); }
@@ -480,6 +538,16 @@ html.dark .login-split .login-required input:not(:placeholder-shown) + label:not
 html.dark .login-split .login-required input.warning:focus + label:not(.paper *),
 html.dark .login-split .login-required input.warning:not(:placeholder-shown) + label:not(.paper *) {
   color: #e57575;
+}
+}
+@media screen {
+html.dark .mi-danger .mi-dot:not(.paper *) {
+  background: #6f2a2a;
+}
+}
+@media screen {
+html.dark .mi-thanks:not(.paper *) {
+  color: #858dae;
 }
 }
 

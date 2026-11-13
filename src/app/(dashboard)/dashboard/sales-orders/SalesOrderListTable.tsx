@@ -8,6 +8,10 @@ import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
 import { ConfirmModal } from '@/components/registry/RegistryModal';
 import { deleteSalesOrder, changeSalesOrderStatus } from './actions';
+import BulkImportButton from '@/components/registry/BulkImportButton';
+import SalesOrderExportButton from '@/components/registry/SalesOrderExportButton';
+import { SO_COLUMNS } from '@/lib/import-columns';
+import { importSalesOrders } from './import-actions';
 
 export type SalesOrderRow = {
   id: string;
@@ -77,6 +81,10 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
         <h3><i className="fi fi-rr-shopping-cart" style={{ fontSize: 16, color: '#2563eb' }} /> Sales Orders</h3>
         <div className="flex-wrap">
         <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari client..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <SalesOrderExportButton ids={filtered.map((r) => r.id)} />
+        <BulkImportButton title="Import Sales Order" fileName="template-import-sales-order" columns={SO_COLUMNS} run={importSalesOrders}
+          notes={['Satu baris = satu item. Baris dengan SO No sama digabung menjadi satu Sales Order.', 'Sales Order lama hanya dapat ditimpa bila berstatus DRAFT; Sales Order baru selalu berstatus DRAFT.', 'Diskon, pajak, dan biaya tambahan tidak diimpor (SO lama tetap memakai yang sudah ada).']}
+          templateRows={[{ so_no: '', so_date: '2026-11-13', client_no: 'CL-0001', client_name: '', global_notes: 'Contoh catatan', sku: 'FAN-00001', qty: '10', unit_price: '150000', item_notes: '' }, { so_no: '', so_date: '2026-11-13', client_no: 'CL-0001', client_name: '', global_notes: '', sku: 'FAN-00002', qty: '5', unit_price: '', item_notes: 'Harga ikut Price List' }]} />
         <Link
           href="/dashboard/sales-orders/new"
           className="btn btn-primary"
