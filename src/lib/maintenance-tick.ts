@@ -8,16 +8,16 @@ const fmt = (iso: string, lang: string) => new Date(iso).toLocaleString(lang, { 
 export async function pushMaintenanceStarted(etaIso: string) {
   const hasEta = !Number.isNaN(Date.parse(etaIso));
   return sendPushToAll({
-    title: 'Maintenance dimulai / Maintenance started',
-    body: `Sistem sedang dalam perbaikan dan sementara tidak dapat diakses.${hasEta ? ` Perkiraan selesai ${fmt(etaIso, 'id-ID')}.` : ''}\nThe system is under maintenance and temporarily unavailable.${hasEta ? ` Estimated completion ${fmt(etaIso, 'en-US')}.` : ''}`,
+    id: { title: 'Maintenance dimulai', body: `Sistem sedang dalam perbaikan dan sementara tidak dapat diakses.${hasEta ? ` Perkiraan selesai ${fmt(etaIso, 'id-ID')}.` : ''}` },
+    en: { title: 'Maintenance started', body: `The system is under maintenance and temporarily unavailable.${hasEta ? ` Estimated completion ${fmt(etaIso, 'en-US')}.` : ''}` },
     tag: 'fanos-maintenance-start',
   });
 }
 
 export async function pushMaintenanceFinished() {
   return sendPushToAll({
-    title: 'Maintenance selesai / Maintenance finished',
-    body: 'Sistem sudah dapat diakses kembali. Terima kasih atas kesabaran Anda.\nThe system is available again. Thank you for your patience.',
+    id: { title: 'Maintenance selesai', body: 'Sistem sudah dapat diakses kembali. Terima kasih atas kesabaran Anda.' },
+    en: { title: 'Maintenance finished', body: 'The system is available again. Thank you for your patience.' },
     tag: 'fanos-maintenance-end',
   });
 }

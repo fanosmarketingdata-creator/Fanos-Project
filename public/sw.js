@@ -9,8 +9,8 @@ self.addEventListener('push', (event) => {
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || '',
-      icon: '/logo-fanos.png',
-      badge: '/logo-fanos.png',
+      icon: '/notif-icon.png',
+      badge: '/notif-badge.png',
       tag: data.tag || 'fanos-announcement',
       data: { url: data.url || '/dashboard' },
     })

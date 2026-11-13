@@ -20,7 +20,7 @@ function b64ToBytes(b64: string) {
 }
 const toB64 = (buf: ArrayBuffer | null) => (buf ? btoa(String.fromCharCode(...Array.from(new Uint8Array(buf)))) : '');
 
-async function subscribe() {
+async function subscribe(lang: string) {
   const reg = await navigator.serviceWorker.register('/sw.js');
   await navigator.serviceWorker.ready;
   let sub = await reg.pushManager.getSubscription();
@@ -31,6 +31,7 @@ async function subscribe() {
     p256dh: json.keys?.p256dh || toB64(sub.getKey('p256dh')),
     auth: json.keys?.auth || toB64(sub.getKey('auth')),
     userAgent: navigator.userAgent,
+    lang,
   });
 }
 
@@ -45,14 +46,14 @@ export default function PushPrompt() {
     if (!VAPID || typeof window === 'undefined') return;
     if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return;
     if (Notification.permission === 'granted') {
-      subscribe().catch(() => {}); // jaga langganan tetap terdaftar
+      subscribe(lang).catch(() => {}); // jaga langganan tetap terdaftar (+ bahasa terbaru)
       return;
     }
     if (Notification.permission === 'denied') return;
     let last = 0;
     try { last = Number(localStorage.getItem(ASKED_KEY) || 0); } catch {}
     if (!last || Date.now() - last > REASK_MS) setOpen(true);
-  }, []);
+  }, [lang]);
 
   function later() {
     try { localStorage.setItem(ASKED_KEY, String(Date.now())); } catch {}
@@ -64,7 +65,7 @@ export default function PushPrompt() {
     const perm = await Notification.requestPermission();
     if (perm === 'granted') {
       setOpen(false);
-      subscribe().catch(() => {});
+      subscribe(lang).catch(() => {});
     } else if (perm === 'denied') {
       setBlocked(true);
     } else {

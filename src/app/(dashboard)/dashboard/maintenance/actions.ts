@@ -27,8 +27,9 @@ export async function saveMaintenance(input: { on: boolean; message: string; eta
   if (value.on && !Number.isNaN(start) && start > Date.now() && (!prev.on || prev.scheduledAt !== value.scheduledAt)) {
     const f = (lang: string) => new Date(start).toLocaleString(lang, { dateStyle: 'full', timeStyle: 'short', timeZone: 'Asia/Jakarta' }) + ' WIB';
     push = await sendPushToAll({
-      title: 'Maintenance terjadwal / Scheduled maintenance',
-      body: `Mulai ${f('id-ID')}. Mohon simpan pekerjaan Anda.\nStarts ${f('en-US')}. Please save your work.`,
+      id: { title: 'Maintenance terjadwal', body: `Mulai ${f('id-ID')}. Mohon simpan pekerjaan Anda.` },
+      en: { title: 'Scheduled maintenance', body: `Starts ${f('en-US')}. Please save your work.` },
+      tag: 'fanos-maintenance-scheduled',
     });
   }
   // Dimatikan manual saat sedang berjalan: kabari bahwa maintenance selesai. Selain itu, cek mulai/selesai sekarang juga.

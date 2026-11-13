@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "i18n:audit": "node scripts/i18n-audit.mjs",
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
