@@ -2,7 +2,6 @@ import { createClient } from '@/lib/supabase/server';
 import { requireSuperuser } from '@/lib/auth';
 import { getMaintenance } from '@/lib/maintenance';
 import { maintenanceTick } from '@/lib/maintenance-tick';
-import { maintenanceTick } from '@/lib/maintenance-tick';
 import MaintenanceForm from './MaintenanceForm';
 
 export const dynamic = 'force-dynamic';
