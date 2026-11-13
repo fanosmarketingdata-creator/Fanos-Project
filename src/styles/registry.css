@@ -1174,3 +1174,21 @@ input[type="date"]::-webkit-calendar-picker-indicator, input[type="datetime-loca
 input[type="time"]::-webkit-calendar-picker-indicator, input[type="month"]::-webkit-calendar-picker-indicator { cursor: pointer; }
 input[type="date"]::-webkit-calendar-picker-indicator, input[type="datetime-local"]::-webkit-calendar-picker-indicator,
 input[type="time"]::-webkit-calendar-picker-indicator { padding: 6px; margin-right: -4px; }
+
+/* Halaman daftar mengisi seluruh sisa layar: pagination selalu menempel di bawah (juga saat data sedikit / kosong). */
+main:has(> .perm-scope > .reg-card), main:has(> .perm-scope > .list-page) {
+  display: flex;
+  flex-direction: column;
+  flex: 0 0 auto; /* menimpa flex-1 bawaan <main> agar tinggi tetap = sisa layar */
+  min-height: 0;
+  height: calc(100dvh - var(--hdr-h, 3.5rem));
+  padding-bottom: 0.75rem;
+}
+main:has(> .perm-scope > .reg-card) > .perm-scope > .reg-card,
+main:has(> .perm-scope > .list-page) > .perm-scope > .list-page {
+  flex: 1 1 auto;
+  max-height: none;
+  min-height: 0;
+}
+.list-page > .overflow-x-auto { flex: 1 1 auto; }
+@media print { main:has(> .perm-scope > .reg-card), main:has(> .perm-scope > .list-page) { display: block; height: auto; } }

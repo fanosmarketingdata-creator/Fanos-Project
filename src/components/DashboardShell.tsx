@@ -247,6 +247,16 @@ export default function DashboardShell({
 
   // Tap di luar header menutup dropdown / panel mobile.
   const headerRef = useRef<HTMLElement>(null);
+  // Tinggi header dibagikan sebagai --hdr-h supaya halaman daftar bisa mengisi sisa layar persis (pagination menempel di bawah).
+  useEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const set = () => document.documentElement.style.setProperty('--hdr-h', `${el.offsetHeight}px`);
+    set();
+    const ro = new ResizeObserver(set);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
   useEffect(() => {
     if (!openId && !mobileOpen) return;
     const onDown = (e: PointerEvent) => {
