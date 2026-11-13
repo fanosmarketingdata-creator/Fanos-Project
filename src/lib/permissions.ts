@@ -1,7 +1,7 @@
 import 'server-only';
 import { cache } from 'react';
 import { createClient } from '@/lib/supabase/server';
-import { canDo, type CrudAction, type RoleActions } from '@/lib/menu';
+import { canDo, withInherited, type CrudAction, type RoleActions } from '@/lib/menu';
 
 type Ctx = { allowed: string[] | null; actions: RoleActions | null };
 
@@ -23,7 +23,7 @@ export const loadPermissions = cache(async (): Promise<Ctx> => {
     row = withActions.data as unknown as RowT | null;
   }
   if (!row) return { allowed: null, actions: null };
-  return { allowed: row.permissions ?? [], actions: row.role_actions ?? null };
+  return { allowed: withInherited(row.permissions ?? []), actions: row.role_actions ?? null };
 });
 
 const LABEL: Record<CrudAction, string> = { create: 'menambah', edit: 'mengubah', delete: 'menghapus' };

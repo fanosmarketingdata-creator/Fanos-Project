@@ -38,16 +38,28 @@ export async function maintenanceTick(): Promise<{ started?: boolean; finished?:
     const begun = !m.scheduledAt || Number.isNaN(startMs) || startMs <= now;
     const out: { started?: boolean; finished?: boolean } = {};
 
-    const needStart = isLocked(m, now) && !m.startNotified;
-    const needEnd = begun && ended && !m.endNotified;
-    if (!needStart && !needEnd) return {};
+    // SELESAI: perkiraan selesai sudah lewat → matikan saklar otomatis (tidak perlu Matikan manual) dan kabari perangkat sekali saja.
+    if (begun && ended) {
+      // Klaim atomik: hanya satu pemanggil yang berhasil mengubah on true -> false, sehingga notifikasi tidak ganda.
+      const { data: claimed } = await admin.from('app_settings')
+        .update({ value: { on: false, message: '', eta: '', scheduledAt: '', startNotified: false, endNotified: false } })
+        .eq('key', 'maintenance').eq('value->>on', 'true').select('key');
+      resetMaintenanceCache();
+      if (claimed && claimed.length > 0) {
+        await pushMaintenanceFinished();
+        out.finished = true;
+      }
+      return out;
+    }
 
-    // Tulis penanda DULU (mencegah kiriman ganda dari panggilan bersamaan), baru kirim.
-    const next = { ...(data.value as object), startNotified: m.startNotified || needStart || needEnd, endNotified: m.endNotified || needEnd };
-    await admin.from('app_settings').update({ value: next }).eq('key', 'maintenance');
-    resetMaintenanceCache();
-    if (needStart) { await pushMaintenanceStarted(m.eta); out.started = true; }
-    if (needEnd) { await pushMaintenanceFinished(); out.finished = true; }
+    // MULAI: sudah waktunya dan belum diberitahukan.
+    if (isLocked(m, now) && !m.startNotified) {
+      const next = { ...(data.value as object), startNotified: true };
+      await admin.from('app_settings').update({ value: next }).eq('key', 'maintenance');
+      resetMaintenanceCache();
+      await pushMaintenanceStarted(m.eta);
+      out.started = true;
+    }
     return out;
   } catch {
     return {};

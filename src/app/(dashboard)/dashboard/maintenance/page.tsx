@@ -1,12 +1,16 @@
 import { createClient } from '@/lib/supabase/server';
 import { requireSuperuser } from '@/lib/auth';
 import { getMaintenance } from '@/lib/maintenance';
+import { maintenanceTick } from '@/lib/maintenance-tick';
+import { maintenanceTick } from '@/lib/maintenance-tick';
 import MaintenanceForm from './MaintenanceForm';
 
 export const dynamic = 'force-dynamic';
 
 export default async function MaintenancePage() {
   await requireSuperuser();
+  await maintenanceTick(); // bila perkiraan selesai sudah lewat: otomatis dimatikan
+  await maintenanceTick(); // bila perkiraan selesai sudah lewat: matikan otomatis + kabari perangkat
   const m = await getMaintenance(createClient(), true);
   return (
     <div>

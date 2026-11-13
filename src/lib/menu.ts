@@ -206,11 +206,23 @@ export function menuKeyForPath(pathname: string): string | null {
   return ALL_MENU_KEYS.filter((k) => pathname === k || pathname.startsWith(k + '/')).sort((a, b) => b.length - a.length)[0] ?? null;
 }
 
+// Menu turunan yang otomatis ikut hak menu induknya (supaya menu baru tidak perlu dicentang ulang satu per satu di Role Group).
+const INHERIT: Record<string, string> = {
+  '/dashboard/client-categories': '/dashboard/clients',
+  '/dashboard/product-categories': '/dashboard/products',
+};
+export function withInherited(allowed: string[] | null): string[] | null {
+  if (allowed === null) return null;
+  const s = new Set(allowed);
+  for (const [child, parent] of Object.entries(INHERIT)) if (s.has(parent)) s.add(child);
+  return Array.from(s);
+}
+
 // allowed === null: akses penuh (Superuser / role tanpa data).
 export function canDo(allowed: string[] | null, roleActions: RoleActions | null, href: string, action: CrudAction): boolean {
   if (allowed === null) return true;
   if (!ALL_MENU_KEYS.includes(href)) return true;
   if (!allowed.includes(href)) return false;
-  const list = roleActions?.[href];
+  const list = roleActions?.[href] ?? (INHERIT[href] ? roleActions?.[INHERIT[href]] : undefined);
   return list ? list.includes(action) : true;
 }

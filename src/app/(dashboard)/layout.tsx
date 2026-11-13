@@ -7,7 +7,7 @@ import DashboardShell from '@/components/DashboardShell';
 import InactiveNotice from '@/components/InactiveNotice';
 import NoAccess from '@/components/NoAccess';
 import { PermProvider } from '@/components/PermProvider';
-import { canAccessPath, canDo, menuKeyForPath, type RoleActions } from '@/lib/menu';
+import { canAccessPath, canDo, menuKeyForPath, withInherited, type RoleActions } from '@/lib/menu';
 
 // Server Component: profil (termasuk role) diambil di server SEBELUM
 // halaman dikirim ke browser. Jadi menu Superuser tidak akan pernah
@@ -50,7 +50,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
       roleRow = r1.data as unknown as RoleRowT | null;
     }
     if (roleRow) {
-      allowed = roleRow.permissions ?? [];
+      allowed = withInherited(roleRow.permissions ?? []);
       roleActions = roleRow.role_actions ?? null;
     }
   }
