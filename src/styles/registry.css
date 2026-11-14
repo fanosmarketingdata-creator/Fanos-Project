@@ -1203,7 +1203,8 @@ main > .perm-scope > div > .reg-card, main > .perm-scope > div > .list-page {
 @media print { main:has(.reg-card), main:has(.list-page) { display: block !important; height: auto !important; } }
 
 /* ---- Header judul kolom yang bisa diklik untuk sorting ---- */
-.sort-header { display: flex; align-items: center; gap: 16px; padding: 6px 18px; margin: 0 4px 2px; }
+.sort-header { display: flex; align-items: center; gap: 16px; padding: 8px 18px; margin: 0 4px 2px; position: sticky; top: 0; z-index: 3; background: #f6f8fc; border-bottom: 1px solid #e5e7eb; border-radius: 10px; }
+html.dark .sort-header { background: var(--d-surface-2); border-bottom-color: var(--d-line); }
 .sort-spacer-av { width: 46px; flex-shrink: 0; }
 .sort-main { flex: 1 1 0; min-width: 0; }
 .sort-meta { flex: 3 1 0; min-width: 0; display: grid; grid-template-columns: 1.15fr 1fr 1.5fr 1fr; gap: 18px; }
