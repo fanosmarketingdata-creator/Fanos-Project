@@ -174,9 +174,9 @@ export function DeleteModal({
 }
 
 // Kartu info kecil di modal detail (dv2Card()).
-export function DvCard({ icon, label, value, color }: { icon: string; label: string; value: React.ReactNode; color?: string }) {
+export function DvCard({ icon, label, value, color, wide }: { icon: string; label: string; value: React.ReactNode; color?: string; wide?: boolean }) {
   return (
-    <div className="dv2-card">
+    <div className={`dv2-card${wide ? ' dv2-card-wide' : ''}`}>
       <div className="dv2-card-icon" style={color ? { background: `${color}1a`, color } : undefined}>
         <i className={icon} />
       </div>

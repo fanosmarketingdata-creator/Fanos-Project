@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
+import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortHeader';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
@@ -57,7 +58,15 @@ export default function ProjectsTable({ initialProjects, clients, classification
     );
   }, [initialProjects, search]);
 
-  const paged = usePaged(filtered, search);
+  const sortCols: SortCol<ProjectRow>[] = [
+    { key: 'name', label: 'Project', get: (p) => p.name },
+    { key: 'client', label: 'Client', get: (p) => p.client_company },
+    { key: 'type', label: 'Type', get: (p) => p.project_type },
+    { key: 'trigger', label: 'Trigger', get: (p) => p.trigger_source },
+    { key: 'top', label: 'TOP', get: (p) => p.top },
+  ];
+  const { sorted, sort, toggle } = useSorted(filtered, sortCols);
+  const paged = usePaged(sorted, search);
   const selectedClient = clients.find((c) => c.id === form.client_id);
 
   function openAdd() {
@@ -146,6 +155,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
       }
     >
       <div className="product-grid-wrap">
+        <SortHeader main={sortCols[0]} cols={sortCols.slice(1)} sort={sort} onSort={toggle} />
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data project</div>}
           {paged.pageItems.map((p) => (
@@ -153,7 +163,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
               <div className="client-card-avatar">{p.name.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
                 <div className="name">{p.name}</div>
-                <div className="sub">{[p.project_no, p.location].filter(Boolean).join(' · ') || '-'}</div>
+                <div className="sub" title={p.location || undefined}>{[p.project_no, p.location].filter(Boolean).join(' · ') || '-'}</div>
               </div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Client</div><div className="val">{p.client_company || '-'}</div></div>
@@ -184,7 +194,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
               </div>
             </div>
             <div className="dv2-grid">
-              <DvCard icon="fi fi-rr-marker" label="Project Location" value={detail.location || '-'} />
+              <DvCard icon="fi fi-rr-marker" label="Project Location" value={detail.location || '-'} wide />
               <DvCard icon="fi fi-rr-tags" label="Classification" value={detail.classification || '-'} />
               <DvCard icon="fi fi-rr-apps" label="Project Type" value={detail.project_type || '-'} />
               <DvCard icon="fi fi-rr-building" label="Client Company" value={detail.client_company || '-'} />
@@ -192,7 +202,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
               <DvCard icon="fi fi-rr-bullseye-arrow" label="Trigger" value={detail.trigger_source || '-'} />
               <DvCard icon="fi fi-rr-user-add" label="Triggered By" value={detail.triggered_by || '-'} />
               <DvCard icon="fi fi-rr-calendar" label="Term of Payment" value={detail.top || '-'} />
-              <DvCard icon="fi fi-rr-money-bill" label="Cashback" value={detail.cashback || '-'} color="#16a34a" />
+              <DvCard icon="fi fi-rr-money-bill-wave" label="Cashback" value={detail.cashback || '-'} color="#16a34a" />
             </div>
           </div>
         </DetailModal>

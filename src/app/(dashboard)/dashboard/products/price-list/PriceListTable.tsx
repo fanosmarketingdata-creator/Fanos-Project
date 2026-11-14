@@ -152,8 +152,8 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
                 <div className="dv2-topbar-id">{detail.sku}</div>
                 <div className="dv2-topbar-title" style={{ marginBottom: 10 }}>{detail.name}</div>
                 <div className="dv2-grid" style={{ gridTemplateColumns: '1fr' }}>
-                  <DvCard icon="fi fi-rr-money-bill" label="Cost Price" value={rupiah(detail.cost_price)} />
-                  <DvCard icon="fi fi-rr-money-bill" label="Standard Selling Price" value={rupiah(detail.price)} color="#16a34a" />
+                  <DvCard icon="fi fi-rr-money-bill-wave" label="Cost Price" value={rupiah(detail.cost_price)} />
+                  <DvCard icon="fi fi-rr-money-bill-wave" label="Standard Selling Price" value={rupiah(detail.price)} color="#16a34a" />
                 </div>
               </div>
               <div className="dv2-product-image-box"><Thumb url={detail.image_url} alt={detail.sku || ''} /></div>
@@ -234,7 +234,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
           )}
           {target && (
             <div className="fv2-section">
-              <div className="fv2-section-title"><i className="fi fi-rr-money-bill" /> Harga</div>
+              <div className="fv2-section-title"><i className="fi fi-rr-money-bill-wave" /> Harga</div>
               <div className="fv2-grid">
                 <FvField label="Cost Price (Rp)">
                   <RupiahInput value={cost} onValue={(n) => setCost(String(n))} />

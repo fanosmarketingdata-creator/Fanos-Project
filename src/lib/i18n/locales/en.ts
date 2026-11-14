@@ -4,6 +4,9 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const ID_EN: Record<string, string> = {
+  'Urut naik (klik untuk turun)': 'Ascending (click for descending)',
+  'Urut turun (klik untuk reset)': 'Descending (click to reset)',
+  'Klik untuk mengurutkan': 'Click to sort',
   "Kelola semua project dalam satu tempat. Pantau progres dan prioritas dari perencanaan sampai selesai.": "Manage all projects in one place. Track progress and priorities from planning to completion.",
   "Cari project...": "Search projects...",
   "Terbaru Ditambahkan": "Last Added",

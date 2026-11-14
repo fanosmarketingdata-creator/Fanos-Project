@@ -4,6 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
+import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortHeader';
 import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import FvSelect from '@/components/registry/FvSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
@@ -86,7 +87,15 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
     );
   }, [initialClients, search]);
 
-  const paged = usePaged(filtered, search);
+  const sortCols: SortCol<ClientRow>[] = [
+    { key: 'company', label: 'Client', get: (c) => c.company },
+    { key: 'contact', label: 'Contact', get: (c) => c.contact_name },
+    { key: 'phone', label: 'Phone', get: (c) => c.phone },
+    { key: 'email', label: 'Email', get: (c) => c.email },
+    { key: 'credit', label: 'Credit Limit', get: (c) => (c.credit_limit == null ? null : Number(c.credit_limit)) },
+  ];
+  const { sorted, sort, toggle } = useSorted(filtered, sortCols);
+  const paged = usePaged(sorted, search);
 
   function openAdd() {
     setForm(emptyForm);
@@ -175,6 +184,7 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
       }
     >
       <div className="product-grid-wrap">
+        <SortHeader main={sortCols[0]} cols={sortCols.slice(1)} sort={sort} onSort={toggle} />
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data client</div>}
           {paged.pageItems.map((c) => (
