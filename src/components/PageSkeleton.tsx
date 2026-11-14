@@ -65,7 +65,7 @@ function Dashboard() {
   );
 }
 
-export default function PageSkeleton({ variant = 'list' }: { variant?: 'list' | 'cards' | 'form' | 'dashboard' }) {
+export default function PageSkeleton({ variant = 'list' }: { variant?: 'list' | 'cards' | 'grid' | 'form' | 'dashboard' }) {
   return (
     <div className="sk-wrap" aria-busy="true" aria-label="Memuat halaman">
       {variant === 'dashboard' && <Dashboard />}
@@ -110,6 +110,29 @@ export default function PageSkeleton({ variant = 'list' }: { variant?: 'list' | 
                 </div>
               </div>
             ))}
+          </div>
+          <Footer />
+        </div>
+      )}
+
+      {variant === 'grid' && (
+        <div className="sk-card">
+          <Toolbar />
+          <div className="sk-body">
+            <div className="sk-grid-cards">
+              {Array.from({ length: 10 }).map((_, i) => (
+                <div key={i} className="sk-pcard">
+                  <Bar className="sk-pimg !rounded-none" />
+                  <div className="p-3">
+                    <Bar className="mb-2 h-2.5 w-1/3" />
+                    <Bar className="mb-2 h-4 w-5/6" />
+                    <Bar className="mb-3 h-3 w-2/3" />
+                    <Bar className="mb-3 h-4 w-1/2" />
+                    <div className="flex gap-1.5"><Bar className="h-7 flex-1 !rounded-lg" /><Bar className="h-7 flex-1 !rounded-lg" /></div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
           <Footer />
         </div>

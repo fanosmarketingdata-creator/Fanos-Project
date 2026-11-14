@@ -1250,3 +1250,8 @@ html.dark .sk { background: var(--d-surface-3); }
 html.dark .sk-card, html.dark .sk-panel { background: var(--d-surface); border-color: var(--d-line); }
 html.dark .sk-row, html.dark .sk-footer { border-color: var(--d-line); }
 html.dark .sk-crow { border-color: var(--d-line); }
+.sk-grid-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 14px; padding: 4px; }
+.sk-pcard { border: 1px solid #e5e7eb; border-radius: 14px; overflow: hidden; background: #fff; }
+.sk-pimg { height: 140px; width: 100%; }
+@media (max-width: 768px) { .sk-grid-cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; } }
+html.dark .sk-pcard { background: var(--d-surface); border-color: var(--d-line); }
