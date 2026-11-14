@@ -128,12 +128,6 @@ export const NAV_GROUPS: NavGroup[] = [
     ],
   },
   {
-    id: 'productivity',
-    label: 'Productivity',
-    icon: 'fi fi-rr-bell',
-    items: [{ href: '/dashboard/reminders', label: 'Reminders', icon: 'fi fi-rr-alarm-clock' }],
-  },
-  {
     id: 'superuser',
     label: 'Superuser',
     icon: 'fa-solid fa-user-shield',
@@ -158,7 +152,7 @@ export const NAV_ID: Record<string, string> = {
   Invoices: 'Faktur', Collection: 'Penagihan', Payment: 'Pembayaran', Return: 'Retur', Order: 'Pesanan', Invoice: 'Faktur', 'Credit Note': 'Nota Kredit',
   Stock: 'Stok', 'Current Stock': 'Stok Saat Ini', 'Stock Adjustment': 'Penyesuaian Stok',
   'Stock Transfer': 'Transfer Stok', 'Stock Movement': 'Pergerakan Stok', Warehouse: 'Gudang', Finance: 'Keuangan', Cashback: 'Cashback', Discount: 'Diskon', 'Payment Method': 'Metode Pembayaran', 'Payment Term': 'Termin Pembayaran', Tax: 'Pajak', 'Credit Limit': 'Batas Kredit',
-  Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit', Productivity: 'Produktivitas', Reminders: 'Pengingat',
+  Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit',
   'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
   Language: 'Bahasa', 'Log out': 'Keluar', 'Edit Profile': 'Edit Profil',
 };

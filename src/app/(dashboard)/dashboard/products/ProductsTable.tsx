@@ -78,7 +78,7 @@ export default function ProductsTable({ initialProducts, brands, categories: PRO
     return rows.slice().sort((a, b) => (a.category || '').localeCompare(b.category || '') || (a.sku || '').localeCompare(b.sku || ''));
   }, [initialProducts, search, fBrand, fCat, fSub]);
 
-  const paged = usePaged(filtered, search + '|' + fBrand + '|' + fCat + '|' + fSub, 24);
+  const paged = usePaged(filtered, search + '|' + fBrand + '|' + fCat + '|' + fSub, 25);
   const filtering = !!(fBrand || fCat || fSub);
 
   function openAdd() {

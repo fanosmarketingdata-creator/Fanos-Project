@@ -20,7 +20,6 @@ export type DashData = {
   topOpen: { id: string; doc_no: string; client: string; remaining: number; inv_date: string }[];
   projects: { id: string; name: string; status: string; priority: string; end_date: string | null; owner: string; total: number; done: number; overdueTasks: number }[];
   weeks: { label: string; total: number; done: number }[];
-  reminders: { id: string; title: string; due_date: string }[];
 };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
@@ -390,8 +389,8 @@ export default function DashboardClient({ data, allowed = null }: { data: DashDa
         </Panel>
       </div>
 
-      {/* Produktivitas + Piutang terbesar + Perlu perhatian */}
-      <div className="dx-row r-4-4-4">
+      {/* Produktivitas + Piutang terbesar */}
+      <div className="dx-row r-6-6">
         <Panel title="Produktivitas Task" href="/dashboard/project-management">
           <div className="dx-big">{wPct}<small>%</small></div>
           <p className="dx-muted">
@@ -421,25 +420,6 @@ export default function DashboardClient({ data, allowed = null }: { data: DashDa
                   <div className="am">{idr(o.remaining)}</div>
                 </DLink>
               ))}
-            </div>
-          )}
-        </Panel>
-
-        <Panel title="Perlu Perhatian" href="/dashboard/reminders">
-          {data.reminders.length === 0 ? (
-            <div className="dx-empty">Tidak terdapat reminder yang jatuh tempo.</div>
-          ) : (
-            <div className="dx-list">
-              {data.reminders.map((rm) => {
-                const late = rm.due_date < data.today;
-                return (
-                  <DLink key={rm.id} href="/dashboard/reminders" className="dx-li">
-                    <div className="av" style={{ background: late ? '#fdeceb' : '#fff4e3', color: late ? RED : AMBER }}><i className="fi fi-rr-bell" /></div>
-                    <div className="tx"><b>{rm.title}</b><span>{fmtDate(rm.due_date)}</span></div>
-                    <span className={`dx-pill ${late ? 'overdue' : 'risk'}`}>{late ? 'Terlambat' : 'Hari ini'}</span>
-                  </DLink>
-                );
-              })}
             </div>
           )}
         </Panel>

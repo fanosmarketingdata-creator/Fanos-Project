@@ -55,7 +55,7 @@ function Flyout({ item, pathname }: { item: NavItem; pathname: string | null }) 
         <i className="fi fi-rr-angle-small-right text-[11px] leading-none" />
       </button>
       {open && (
-        <div role="menu" className="absolute left-full top-0 z-[610] min-w-[200px] pl-1.5">
+        <div role="menu" className="absolute left-full -top-2.5 z-[610] min-w-[200px] pl-6">
           <div className="rounded-2xl border border-slate-200/80 bg-white p-1.5 shadow-[0_12px_36px_-8px_rgba(15,23,42,0.22)] ring-1 ring-brand-500/5">
             {(item.children ?? []).map((c) => {
               const a = isActive(pathname, c.href);
@@ -140,7 +140,7 @@ function UserMenu({ profile, onLogout }: { profile: { id?: string; full_name: st
       </button>
 
       {open && (
-        <div role="menu" className="absolute right-0 top-full z-[700] mt-2 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+        <div role="menu" className="absolute right-0 top-full z-[700] mt-3.5 w-56 rounded-xl border border-slate-200 bg-white p-1.5 shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
           <div className="border-b border-slate-100 px-2.5 pb-2 pt-1.5">
             <div className="text-[12px] font-bold text-slate-800">{profile.full_name}</div>
             <div className="text-[10px] text-slate-400">{profile.role}</div>

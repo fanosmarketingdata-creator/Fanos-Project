@@ -170,3 +170,5 @@
 .dx-li.dx-locked:hover { background: transparent; }
 .dx-seg .dx-locked { display: block; min-width: 4px; transition: opacity .15s, transform .15s; }
 .dx-seg .dx-locked.dim { opacity: .35; }
+.r-6-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+@media (max-width: 900px) { .r-6-6 { grid-template-columns: 1fr; } }

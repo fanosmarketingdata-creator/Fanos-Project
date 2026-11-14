@@ -45,7 +45,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
     const q = search.trim().toLowerCase();
     return q ? listed.filter((r) => [r.sku, r.name, r.brand, r.category, r.subcategory].some((v) => (v || '').toLowerCase().includes(q))) : listed;
   }, [listed, search]);
-  const paged = usePaged(filtered, search, 24);
+  const paged = usePaged(filtered, search);
 
   const pickable = useMemo(() => {
     const q = pickSearch.trim().toLowerCase();
