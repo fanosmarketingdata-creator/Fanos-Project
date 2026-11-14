@@ -4,6 +4,7 @@ import { useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
+import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortHeader';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { TOP_OPTIONS } from '@/lib/master-options';
@@ -44,7 +45,15 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
     );
   }, [initialVendors, search]);
 
-  const paged = usePaged(filtered, search);
+  const sortCols: SortCol<VendorRow>[] = [
+    { key: 'company', label: 'Vendor', get: (v) => v.company },
+    { key: 'contact', label: 'Contact', get: (v) => v.contact_name },
+    { key: 'phone', label: 'Phone', get: (v) => v.phone },
+    { key: 'email', label: 'Email', get: (v) => v.email },
+    { key: 'top', label: 'TOP', get: (v) => v.top },
+  ];
+  const { sorted, sort, toggle } = useSorted(filtered, sortCols);
+  const paged = usePaged(sorted, search);
 
   function openAdd() {
     setForm(emptyForm);
@@ -125,6 +134,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
       }
     >
       <div className="product-grid-wrap">
+        <SortHeader main={sortCols[0]} cols={sortCols.slice(1)} sort={sort} onSort={toggle} />
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data vendor</div>}
           {paged.pageItems.map((v) => (
