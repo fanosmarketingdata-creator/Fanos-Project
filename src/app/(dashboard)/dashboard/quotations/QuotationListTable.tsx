@@ -67,7 +67,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
       <div className="card-header">
         <h3><i className="fi fi-rr-file-invoice" style={{ fontSize: 16, color: '#2563eb' }} /> Quotations</h3>
         <div className="flex-wrap">
-        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari client..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari project..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         <Link
           href="/dashboard/quotations/new"
           className="btn btn-primary"
@@ -83,7 +83,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">Kode</th>
-              <th className="px-4 py-3 font-semibold">Client</th>
+              <th className="px-4 py-3 font-semibold">Project Name</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Total</th>
               <th className="px-4 py-3 font-semibold">Status</th>
@@ -150,7 +150,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
           }
         >
           <p className="text-sm text-slate-600">
-            Apakah Anda yakin ingin menghapus quotation untuk <strong>{deleteTarget.client_name}</strong>?
+            Apakah Anda yakin ingin menghapus quotation untuk project <strong>{deleteTarget.client_name}</strong>?
           </p>
         </Modal>
       )}

@@ -4,6 +4,7 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const ID_EN: Record<string, string> = {
+  'Belum ada SO berstatus VERIFIED / ONGOING': 'No SO with VERIFIED / ONGOING status yet',
   'Urut naik (klik untuk turun)': 'Ascending (click for descending)',
   'Urut turun (klik untuk reset)': 'Descending (click to reset)',
   'Klik untuk mengurutkan': 'Click to sort',
