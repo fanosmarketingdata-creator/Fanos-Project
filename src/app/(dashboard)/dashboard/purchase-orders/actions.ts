@@ -98,22 +98,22 @@ export async function advancePOStatus(id: string) {
   return { success: true, status: next };
 }
 
-// Tarik item dari Sales Order ke PO: SKU yang sama digabung; harga dari Selling Price (Price List).
+// Tarik item dari Sales Order ke PO: SKU yang sama digabung; harga beli dari Cost Price (Price List).
 export async function getSOItemsForPO(soId: string) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from('sales_order_items')
-    .select('sku, qty, products(name, price, uom)')
+    .select('sku, qty, products(name, cost_price, uom)')
     .eq('sales_order_id', soId)
     .order('sort_order');
   if (error) throw new Error(error.message);
   const by = new Map<string, POItemInput>();
   (data ?? []).forEach((r) => {
     const raw = r.products as unknown;
-    const p = (Array.isArray(raw) ? raw[0] : raw) as { name?: string; price?: number; uom?: string } | null;
+    const p = (Array.isArray(raw) ? raw[0] : raw) as { name?: string; cost_price?: number; uom?: string } | null;
     const cur = by.get(r.sku as string);
     if (cur) cur.qty += Number(r.qty);
-    else by.set(r.sku as string, { sku: r.sku as string, description: p?.name ?? '', qty: Number(r.qty), uom: p?.uom || 'Pcs', unit_price: Number(p?.price) || 0 });
+    else by.set(r.sku as string, { sku: r.sku as string, description: p?.name ?? '', qty: Number(r.qty), uom: p?.uom || 'Pcs', unit_price: Number(p?.cost_price) || 0 });
   });
   return Array.from(by.values());
 }

@@ -5,6 +5,7 @@ import { useMemo, useState } from 'react';
 import { FormModal } from './RegistryModal';
 import type { ProductOption } from '@/components/ProductPicker';
 import { ProductQuickModal } from './QuickAddModals';
+import { rupiah } from '@/lib/format';
 
 // Pemilih produk berupa pop up kartu produk (seperti index.html), bukan dropdown.
 export function ProductPickButton({
@@ -12,8 +13,10 @@ export function ProductPickButton({
   value,
   onSelect,
   onCreated,
+  showPrice,
 }: {
   products: ProductOption[];
+  showPrice?: 'cost' | 'price'; // tampilkan harga beli (cost) atau harga jual (price) di kartu
   value: string; // SKU terpilih
   onSelect: (p: ProductOption) => void;
   onCreated?: (p: ProductOption) => void; // bila diisi, pop up menampilkan tombol "Product Baru"
@@ -34,6 +37,7 @@ export function ProductPickButton({
           selectedSku={value}
           onClose={() => setOpen(false)}
           onCreated={onCreated}
+          showPrice={showPrice}
           onSelect={(p) => {
             onSelect(p);
             setOpen(false);
@@ -50,8 +54,10 @@ function ProductPickerModal({
   onSelect,
   onClose,
   onCreated,
+  showPrice,
 }: {
   products: ProductOption[];
+  showPrice?: 'cost' | 'price';
   selectedSku: string;
   onSelect: (p: ProductOption) => void;
   onClose: () => void;
@@ -119,6 +125,11 @@ function ProductPickerModal({
               <div className="product-card-brand">{p.name}</div>
               <div className="product-card-type">{[p.brand, p.category].filter(Boolean).join(' · ') || '-'}</div>
               <div className="product-card-price">
+                {showPrice && (
+                  <span className="selling" title={showPrice === 'cost' ? 'Cost Price' : 'Selling Price'}>
+                    {(() => { const v = showPrice === 'cost' ? p.cost_price : p.price; return v == null ? '-' : rupiah(Number(v)); })()}
+                  </span>
+                )}
                 <span className="uom">{p.uom || 'Pcs'}</span>
               </div>
             </div>

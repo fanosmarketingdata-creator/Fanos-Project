@@ -130,7 +130,7 @@ export default function POForm({
             {items.map((it, i) => (
               <div key={i} className="fv2-item-row">
                 <div style={{ flex: 2 }}>
-                  <ProductPickButton products={products} value={it.sku} onSelect={(p) => updateItem(i, { sku: p.sku, uom: p.uom, description: p.name, unit_price: Number(p.price) || 0 })} />
+                  <ProductPickButton showPrice="cost" products={products} value={it.sku} onSelect={(p) => updateItem(i, { sku: p.sku, uom: p.uom, description: p.name, unit_price: Number(p.cost_price) || 0 })} />
                 </div>
                 <input type="number" style={{ width: 70, flex: 'none' }} value={it.qty} onChange={(e) => updateItem(i, { qty: parseFloat(e.target.value) || 0 })} />
                 <input style={{ width: 70, flex: 'none' }} value={it.uom} onChange={(e) => updateItem(i, { uom: e.target.value })} />

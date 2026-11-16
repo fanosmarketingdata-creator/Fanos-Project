@@ -150,7 +150,7 @@ export default function QuotationListTable({ initialRows }: { initialRows: Quota
           }
         >
           <p className="text-sm text-slate-600">
-            Apakah Anda yakin ingin menghapus quotation untuk project <strong>{deleteTarget.client_name}</strong>?
+            Apakah Anda yakin ingin menghapus quotation untuk <strong>{deleteTarget.client_name}</strong>?
           </p>
         </Modal>
       )}

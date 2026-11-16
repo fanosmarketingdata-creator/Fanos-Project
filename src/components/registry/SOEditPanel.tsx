@@ -61,6 +61,7 @@ export default function SOEditPanel({
                     </div>
                   ) : (
                     <ProductPickButton
+                      showPrice="price"
                       products={products}
                       value={it.sku}
                       onSelect={(p) => update(i, { product_id: p.id, sku: p.sku, name: p.name, unit_price: Number(p.price) || 0 })}

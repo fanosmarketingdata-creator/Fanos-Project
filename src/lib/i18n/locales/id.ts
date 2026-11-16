@@ -4,6 +4,8 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const EN_ID: Record<string, string> = {
+  'Packing List': 'Daftar Kemas', 'Packing List ID': 'ID Daftar Kemas', 'Import Sales Order': 'Impor Pesanan Penjualan',
+  'Email 2': 'Email 2', 'SO Date': 'Tanggal SO', 'Unit Price': 'Harga Satuan', 'Item Notes': 'Catatan Item',
   "All Projects": "Semua Project",
   "Task Details": "Detail Task",
   "Add Member": "Tambah Anggota",
