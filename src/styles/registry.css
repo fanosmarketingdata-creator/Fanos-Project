@@ -1255,3 +1255,14 @@ html.dark .sk-crow { border-color: var(--d-line); }
 .sk-pimg { height: 140px; width: 100%; }
 @media (max-width: 768px) { .sk-grid-cards { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 10px; } }
 html.dark .sk-pcard { background: var(--d-surface); border-color: var(--d-line); }
+
+/* ---- Dark mode: teks biru tua inline (#1a237e) di form dibuat terang; dokumen cetak (.paper) tetap seperti kertas putih ---- */
+html.dark [style*="color:#1a237e" i]:not(.paper *),
+html.dark [style*="color: #1a237e" i]:not(.paper *),
+html.dark [style*="color: rgb(26, 35, 126)"]:not(.paper *) { color: var(--d-blue) !important; }
+html.dark .dv2-summary-row, html.dark .fv2-summary .dv2-summary-row { color: var(--d-blue) !important; }
+
+html.dark body .paper { background: #fff !important; color: #000 !important; }
+html.dark body .paper * { color: #000 !important; border-color: #000 !important; background-color: transparent !important; }
+html.dark body .paper thead tr { background-color: #f3f4f6 !important; }
+html.dark body .paper img { filter: none !important; }

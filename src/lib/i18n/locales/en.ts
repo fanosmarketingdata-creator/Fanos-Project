@@ -4,6 +4,7 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const ID_EN: Record<string, string> = {
+  'Tarik dari Sales Order (opsional)': 'Pull from Sales Order (optional)',
   'Belum ada SO berstatus VERIFIED / ONGOING': 'No SO with VERIFIED / ONGOING status yet',
   'Urut naik (klik untuk turun)': 'Ascending (click for descending)',
   'Urut turun (klik untuk reset)': 'Descending (click to reset)',

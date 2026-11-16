@@ -67,7 +67,7 @@ export default function QuotationForm({
           sku: it.sku,
           qty: Number(it.qty),
           uom: it.uom ?? '',
-          unit_price: 0,
+          unit_price: Number(matched?.price) || 0, // harga jual dari Price List sebagai nilai awal, tetap bisa diedit
           description: matched?.name || '',
         };
       })
