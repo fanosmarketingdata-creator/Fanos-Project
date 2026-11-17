@@ -46,6 +46,7 @@ export const NAV_GROUPS: NavGroup[] = [
           { href: '/dashboard/payment-terms', label: 'Payment Term', icon: 'fi fi-rr-calendar-clock' },
           { href: '/dashboard/taxes', label: 'Tax', icon: 'fi fi-rr-calculator' },
           { href: '/dashboard/credit-limits', label: 'Credit Limit', icon: 'fi fi-rr-hand-holding-usd' },
+          { href: '/dashboard/quotation-templates', label: 'Terms Template', icon: 'fi fi-rr-document-signed' },
         ],
       },
       { href: '/dashboard/vendors', label: 'Vendors', icon: 'fa-solid fa-truck' },

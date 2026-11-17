@@ -1,6 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { productInfoBySku } from '@/lib/spec-info';
+import PrintModal from '@/components/PrintModal';
 import LightingSpecPrint from './LightingSpecPrint';
 
 export default async function LightingSpecPrintPage({ params }: { params: { id: string } }) {
@@ -25,26 +26,28 @@ export default async function LightingSpecPrintPage({ params }: { params: { id: 
   const boq = spec.boq_projects as unknown as { project_name: string; clients: { company: string | null; project_name: string; contact_name: string | null; address: string | null } | null } | null;
 
   return (
-    <LightingSpecPrint
-      specId={spec.id as string}
-      project={boq?.project_name ?? '-'}
-      client={boq?.clients?.company || boq?.clients?.project_name || '-'}
-      attn={boq?.clients?.contact_name ?? ''}
-      address={boq?.clients?.address ?? ''}
-      notes={(spec.notes as string | null) ?? ''}
-      dateIso={new Date().toISOString().slice(0, 10)}
-      signerName={me?.full_name ?? ''}
-      signerRole={me?.role ?? ''}
-      rows={(items ?? []).map((i, n) => ({
-        no: n + 1,
-        sku: i.sku as string,
-        name: info.get(i.sku as string)?.name ?? '',
-        image_url: info.get(i.sku as string)?.image_url ?? null,
-        spec: info.get(i.sku as string)?.spec ?? [],
-        qty: Number(i.qty) || 0,
-        uom: (i.uom as string | null) ?? '',
-        drawing_code: (i.drawing_code as string | null) ?? '',
-      }))}
-    />
+    <PrintModal backHref="/dashboard/lighting-specification" showPrint={false}>
+      <LightingSpecPrint
+        specId={spec.id as string}
+        project={boq?.project_name ?? '-'}
+        client={boq?.clients?.company || boq?.clients?.project_name || '-'}
+        attn={boq?.clients?.contact_name ?? ''}
+        address={boq?.clients?.address ?? ''}
+        notes={(spec.notes as string | null) ?? ''}
+        dateIso={new Date().toISOString().slice(0, 10)}
+        signerName={me?.full_name ?? ''}
+        signerRole={me?.role ?? ''}
+        rows={(items ?? []).map((i, n) => ({
+          no: n + 1,
+          sku: i.sku as string,
+          name: info.get(i.sku as string)?.name ?? '',
+          image_url: info.get(i.sku as string)?.image_url ?? null,
+          spec: info.get(i.sku as string)?.spec ?? [],
+          qty: Number(i.qty) || 0,
+          uom: (i.uom as string | null) ?? '',
+          drawing_code: (i.drawing_code as string | null) ?? '',
+        }))}
+      />
+    </PrintModal>
   );
 }

@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { one } from '@/lib/print-helpers';
 import { num } from '@/lib/format';
+import PrintModal from '@/components/PrintModal';
 import PackingLetter from './PackingLetter';
 
 export default async function PackingPrintPage({ params }: { params: { id: string } }) {
@@ -28,22 +29,24 @@ export default async function PackingPrintPage({ params }: { params: { id: strin
   }
 
   return (
-    <PackingLetter
-      docNo={p.doc_no ?? '-'}
-      dateIso={String(p.pl_date).slice(0, 10)}
-      soNo={so?.doc_no ?? '-'}
-      project={project || ''}
-      company={c?.company || c?.project_name || '-'}
-      contact={c?.contact_name ?? ''}
-      phone={c?.phone ?? ''}
-      shipTo={p.ship_to || [c?.address, c?.city].filter(Boolean).join(', ')}
-      packedBy={p.packed_by ?? ''}
-      notes={p.notes ?? ''}
-      invoiceNo={invoiceNo}
-      rows={(items ?? []).map((i, n) => {
-        const pr = one<{ name: string; uom: string }>(i.products);
-        return { no: n + 1, sku: i.sku, name: pr?.name ?? '', uom: pr?.uom ?? '', package_type: i.package_type, packages: Number(i.colli), units: num(i.units_per_package), qty: num(i.qty), nw: Number(i.net_weight), gw: Number(i.gross_weight), l: num(i.length_cm), w: num(i.width_cm), h: num(i.height_cm), cbm: Number(i.cbm), remarks: i.remarks ?? '' };
-      })}
-    />
+    <PrintModal backHref="/dashboard/packing-list" showPrint={false}>
+      <PackingLetter
+        docNo={p.doc_no ?? '-'}
+        dateIso={String(p.pl_date).slice(0, 10)}
+        soNo={so?.doc_no ?? '-'}
+        project={project || ''}
+        company={c?.company || c?.project_name || '-'}
+        contact={c?.contact_name ?? ''}
+        phone={c?.phone ?? ''}
+        shipTo={p.ship_to || [c?.address, c?.city].filter(Boolean).join(', ')}
+        packedBy={p.packed_by ?? ''}
+        notes={p.notes ?? ''}
+        invoiceNo={invoiceNo}
+        rows={(items ?? []).map((i, n) => {
+          const pr = one<{ name: string; uom: string }>(i.products);
+          return { no: n + 1, sku: i.sku, name: pr?.name ?? '', uom: pr?.uom ?? '', package_type: i.package_type, packages: Number(i.colli), units: num(i.units_per_package), qty: num(i.qty), nw: Number(i.net_weight), gw: Number(i.gross_weight), l: num(i.length_cm), w: num(i.width_cm), h: num(i.height_cm), cbm: Number(i.cbm), remarks: i.remarks ?? '' };
+        })}
+      />
+    </PrintModal>
   );
 }

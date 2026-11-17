@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { rupiah, num, dateShort } from '@/lib/format';
 import { buildTotals, clientLines, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -28,8 +28,8 @@ export default async function CreditNotePrintPage({ params }: { params: { id: st
   totalRows.push({ label: 'Dipakai ke Invoice:', value: rupiah(cn.applied_amount) }, { label: 'Direfund:', value: rupiah(cn.refunded_amount) }, { label: 'Saldo Kredit:', value: rupiah(balance), bold: true });
 
   return (
-    <div>
-      <PrintToolbar backHref="/dashboard/credit-notes" docNo={cn.doc_no} />
+    <PrintModal backHref="/dashboard/credit-notes" docNo={cn.doc_no}>
+      
       <PrintDocument
         title="CREDIT NOTE"
         meta={[
@@ -53,6 +53,6 @@ export default async function CreditNotePrintPage({ params }: { params: { id: st
         notes={ret?.reason ? [`Alasan retur: ${ret.reason}`] : []}
         signatures={['Dibuat Oleh', 'Disetujui Oleh', 'Diterima Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

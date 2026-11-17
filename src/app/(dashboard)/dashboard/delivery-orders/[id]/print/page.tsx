@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { num, dateShort } from '@/lib/format';
 import { clientLines, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -24,8 +24,8 @@ export default async function DeliveryOrderPrintPage({ params }: { params: { id:
   });
 
   return (
-    <div>
-      <PrintToolbar backHref={`/dashboard/delivery-orders/${d.id}`} docNo={d.doc_no} />
+    <PrintModal backHref={`/dashboard/delivery-orders/${d.id}`} docNo={d.doc_no}>
+      
       <PrintDocument
         title="SURAT JALAN"
         meta={[
@@ -46,6 +46,6 @@ export default async function DeliveryOrderPrintPage({ params }: { params: { id:
         notes={d.notes ? [`Catatan: ${d.notes}`] : []}
         signatures={['Disiapkan Oleh', 'Dikirim Oleh', 'Diterima Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

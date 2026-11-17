@@ -4,6 +4,18 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const ID_EN: Record<string, string> = {
+  'Nama Template': 'Template Name',
+  'Contoh: Standar 7 hari, DP 50%': 'Example: Standard 7 days, 50% DP',
+  'Template berhasil dihapus': 'Template deleted successfully',
+  'Template berhasil diperbarui': 'Template updated successfully',
+  'Template berhasil ditambahkan': 'Template added successfully',
+  'Isi Syarat & Ketentuan wajib diisi.': 'Terms & Conditions content is required.',
+  'Kolom Nama Template wajib diisi.': 'Template Name is required.',
+  'Nama template tersebut sudah terdaftar.': 'That template name is already registered.',
+  'Belum terdapat template syarat & ketentuan': 'No terms & conditions templates yet',
+  'Cetak / Simpan PDF': 'Print / Save as PDF',
+  'Jadikan template default (terpilih otomatis saat cetak Quotation)': 'Set as default template (auto-selected when printing a Quotation)',
+  'Bahasa': 'Language',
   'Tarik dari Sales Order (opsional)': 'Pull from Sales Order (optional)',
   'Belum ada SO berstatus VERIFIED / ONGOING': 'No SO with VERIFIED / ONGOING status yet',
   'Urut naik (klik untuk turun)': 'Ascending (click for descending)',

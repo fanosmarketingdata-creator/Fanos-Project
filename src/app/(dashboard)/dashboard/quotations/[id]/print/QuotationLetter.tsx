@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import RichTextEditor from '@/components/RichTextEditor';
+import Select from '@/components/ui/Select';
+import { RT_MARK, isRich, toRich, valueToHtml } from '@/lib/rich-text';
 
 type Lang = 'id' | 'en';
 type Row = { no: number; sku: string; name: string; qty: string; uom: string; price: string; total: string };
@@ -10,7 +13,7 @@ type Charge = { label?: string; amount: number };
 
 const rp = (n: number) => 'Rp' + Math.round(n).toLocaleString('id-ID');
 
-const T = {
+const T_PLAIN = {
   id: {
     title: 'Surat Penawaran Harga', to: 'Kepada Yth,', cols: ['No', 'Code', 'Item', 'Harga Jual', 'Qty', 'Satuan', 'Total'],
     total: 'TOTAL', grand: 'GRAND TOTAL', discount: 'Diskon', tax: 'Pajak', regards: 'Hormat kami,', slogan: 'Salam "Sukses Bersama"', page: (a: number | string, b: number | string) => `hal. ${a} dari ${b}`,
@@ -24,6 +27,38 @@ const T = {
     pembuka: 'Dear Sir/Madam,\n\nWe from the Project Division of PT Fanosindo Internusa would like to submit a Price Quotation to [attn]. Please find attached the items and prices for the project [project].',
     syarat: 'Terms and Conditions:\n\n1. This price quotation is valid for 7 calendar days from the date the quotation letter is issued.\n2. Estimated delivery time is 7 days after receipt of an official Purchase Order (PO) and payment in accordance with the terms.\n3. Payment is made under the following terms:\na. 50% down payment (DP) after the quotation is sent\nb. Final payment after all goods have been delivered.\nc. Payment is made by transfer to the company account, which will be stated in the invoice.\n4. A down payment (DP) that has been paid is non-refundable if cancellation occurs after the process has started.\n5. Any matters not covered in these terms and conditions will be discussed further and set out in a written agreement between both parties.',
     penutup: 'We hereby submit this quotation letter. Thank you for your attention and consideration.',
+  },
+} as const;
+
+// Default isi surat dalam bentuk teks kaya (daftar bernomor + sub-daftar huruf), bukan lagi teks biasa.
+const li = (x: string) => `<li>${x}</li>`;
+const richSyarat = (head: string, items: string[], pay: string[], tail: string[], idx: number) =>
+  RT_MARK + `<div>${head}</div><div><br></div><ol>` + items.slice(0, idx).map(li).join('') +
+  `<li>${items[idx]}<ol type="a">${pay.map(li).join('')}</ol></li>` + tail.map(li).join('') + '</ol>';
+const T = {
+  id: {
+    ...T_PLAIN.id,
+    pembuka: toRich(T_PLAIN.id.pembuka), penutup: toRich(T_PLAIN.id.penutup),
+    syarat: richSyarat('Syarat dan Ketentuan:', [
+      'Penawaran harga ini berlaku selama 7 hari kalender terhitung sejak tanggal surat penawaran diterbitkan.',
+      'Estimasi waktu pengiriman barang adalah 7 hari setelah diterimanya Purchase Order (PO) resmi dan pembayaran sesuai ketentuan.',
+      'Pembayaran dilakukan dengan ketentuan sebagai berikut:',
+    ], ['DP 50% setelah quotation terkirim', 'Pelunasan setelah semua barang terkirim.', 'Pembayaran dilakukan melalui transfer ke rekening perusahaan yang akan diinformasikan dalam invoice.'], [
+      'Uang muka (DP) yang telah dibayarkan tidak dapat dikembalikan apabila pembatalan dilakukan setelah proses dimulai.',
+      'Hal-hal lain yang belum tercantum dalam syarat dan ketentuan ini akan dibicarakan lebih lanjut dan dituangkan dalam perjanjian tertulis antara kedua belah pihak.',
+    ], 2),
+  },
+  en: {
+    ...T_PLAIN.en,
+    pembuka: toRich(T_PLAIN.en.pembuka), penutup: toRich(T_PLAIN.en.penutup),
+    syarat: richSyarat('Terms and Conditions:', [
+      'This price quotation is valid for 7 calendar days from the date the quotation letter is issued.',
+      'Estimated delivery time is 7 days after receipt of an official Purchase Order (PO) and payment in accordance with the terms.',
+      'Payment is made under the following terms:',
+    ], ['50% down payment (DP) after the quotation is sent', 'Final payment after all goods have been delivered.', 'Payment is made by transfer to the company account, which will be stated in the invoice.'], [
+      'A down payment (DP) that has been paid is non-refundable if cancellation occurs after the process has started.',
+      'Any matters not covered in these terms and conditions will be discussed further and set out in a written agreement between both parties.',
+    ], 2),
   },
 } as const;
 
@@ -41,34 +76,49 @@ export default function QuotationLetter(p: {
   charges: Charge[];
   signerName: string;
   signerRole: string;
+  templates: { id: string; name: string; lang: 'id' | 'en'; content: string; is_default: boolean }[];
 }) {
   const key = `quote-print-v2-${p.quoteId}`;
   const [lang, setLang] = useState<Lang>('id');
   const [attn, setAttn] = useState(p.contactName);
-  const [pembuka, setPembuka] = useState<string>(T.id.pembuka);
+  const [pembuka, setPembuka] = useState<string>(T.id.pembuka as string);
   const [syarat, setSyarat] = useState<string>(T.id.syarat);
   const [penutup, setPenutup] = useState<string>(T.id.penutup);
+  const [tplId, setTplId] = useState(''); // '' = bawaan sistem
   const [signer, setSigner] = useState(p.signerName);
   const [role, setRole] = useState(p.signerRole);
 
   useEffect(() => {
     try {
       const s = JSON.parse(localStorage.getItem(key) || 'null');
-      if (!s) return;
+      if (!s) {
+        // Belum pernah dicetak: pakai template default (bila ada).
+        const d = p.templates.find((t) => t.is_default);
+        if (d) { setTplId(d.id); setSyarat(d.content); setLang(d.lang); }
+        return;
+      }
+      if (typeof s.tplId === 'string' && p.templates.some((t) => t.id === s.tplId)) setTplId(s.tplId);
       if (s.lang === 'en' || s.lang === 'id') setLang(s.lang);
       if (typeof s.attn === 'string') setAttn(s.attn);
-      if (typeof s.pembuka === 'string') setPembuka(s.pembuka);
-      if (typeof s.syarat === 'string') setSyarat(s.syarat);
-      if (typeof s.penutup === 'string') setPenutup(s.penutup);
+      // Nilai lama berupa teks biasa: yang masih sama dengan default lama diganti default baru (rich), sisanya dikonversi.
+      const mig = (v: string, k: 'pembuka' | 'syarat' | 'penutup') => {
+        if (isRich(v)) return v;
+        if (v === T_PLAIN.id[k]) return T.id[k];
+        if (v === T_PLAIN.en[k]) return T.en[k];
+        return toRich(v);
+      };
+      if (typeof s.pembuka === 'string') setPembuka(mig(s.pembuka, 'pembuka'));
+      if (typeof s.syarat === 'string') setSyarat(mig(s.syarat, 'syarat'));
+      if (typeof s.penutup === 'string') setPenutup(mig(s.penutup, 'penutup'));
       if (typeof s.signer === 'string') setSigner(s.signer);
       if (typeof s.role === 'string') setRole(s.role);
     } catch {}
   }, [key]);
   useEffect(() => {
     try {
-      localStorage.setItem(key, JSON.stringify({ lang, attn, pembuka, syarat, penutup, signer, role }));
+      localStorage.setItem(key, JSON.stringify({ lang, attn, pembuka, syarat, penutup, signer, role, tplId }));
     } catch {}
-  }, [key, lang, attn, pembuka, syarat, penutup, signer, role]);
+  }, [key, lang, attn, pembuka, syarat, penutup, signer, role, tplId]);
 
   // Ganti bahasa: teks yang masih default ikut diterjemahkan, teks yang sudah diedit dibiarkan.
   function switchLang(next: Lang) {
@@ -79,10 +129,16 @@ export default function QuotationLetter(p: {
     if (penutup === from.penutup) setPenutup(to.penutup);
     setLang(next);
   }
+  function pickTemplate(id: string) {
+    setTplId(id);
+    const t = p.templates.find((x) => x.id === id);
+    setSyarat(t ? t.content : T[lang].syarat);
+  }
   function reset() {
     setAttn(p.contactName);
     setPembuka(T[lang].pembuka);
     setSyarat(T[lang].syarat);
+    setTplId('');
     setPenutup(T[lang].penutup);
     setSigner(p.signerName);
     setRole(p.signerRole);
@@ -90,7 +146,7 @@ export default function QuotationLetter(p: {
 
   const t = T[lang];
   const attnText = attn.trim() || '................';
-  const opening = pembuka.replace(/\[attn\]/g, attnText).replace(/\[project\]/g, p.project || '-');
+  const openingHtml = valueToHtml(pembuka, { attn: attnText, project: p.project || '-' });
   const date = new Date(p.dateIso + 'T00:00:00').toLocaleDateString(lang === 'id' ? 'id-ID' : 'en-GB', { day: 'numeric', month: 'long', year: 'numeric' });
 
   // Grand Total = Subtotal − Diskon + Pajak (+ Biaya tambahan); pajak dihitung dari Subtotal − Diskon.
@@ -178,11 +234,27 @@ export default function QuotationLetter(p: {
           <input value={`${p.company}${p.clientNo ? ` (${p.clientNo})` : ''}`} readOnly className={roCls} /></label>
         <div className="mb-1 mt-4 text-[11px] font-bold uppercase tracking-wide text-slate-400">Isi Surat</div>
         <label className="block text-[11px] font-semibold uppercase text-slate-500">Pembuka Surat <span className="font-normal normal-case">(gunakan [attn] dan [project])</span>
-          <textarea value={pembuka} onChange={(e) => setPembuka(e.target.value)} rows={4} className={inputCls} /></label>
+          </label>
+        <RichTextEditor value={pembuka} onChange={setPembuka} minHeight={90} />
+        <div className="mt-3 flex items-end justify-between gap-2">
+          <label className="block flex-1 text-[11px] font-semibold uppercase text-slate-500">Template Syarat &amp; Ketentuan
+            <div className="mt-1 font-normal normal-case">
+              <Select value={tplId} onChange={(e) => pickTemplate(e.target.value)}>
+                <option value="">Bawaan sistem</option>
+                {p.templates.map((t) => (
+                  <option key={t.id} value={t.id}>{t.name} ({t.lang === 'en' ? 'EN' : 'ID'}){t.is_default ? ' — default' : ''}</option>
+                ))}
+              </Select>
+            </div>
+          </label>
+          <Link href="/dashboard/quotation-templates" className="pb-2 text-xs font-medium text-brand-600 hover:underline">Kelola template →</Link>
+        </div>
         <label className="mt-3 block text-[11px] font-semibold uppercase text-slate-500">Syarat &amp; Ketentuan
-          <textarea value={syarat} onChange={(e) => setSyarat(e.target.value)} rows={8} className={inputCls} /></label>
+          </label>
+        <RichTextEditor value={syarat} onChange={setSyarat} minHeight={200} />
         <label className="mt-3 block text-[11px] font-semibold uppercase text-slate-500">Penutup Surat
-          <textarea value={penutup} onChange={(e) => setPenutup(e.target.value)} rows={3} className={inputCls} /></label>
+          </label>
+        <RichTextEditor value={penutup} onChange={setPenutup} minHeight={70} />
         <div className="mt-3 grid gap-3 sm:grid-cols-2">
           <label className="text-[11px] font-semibold uppercase text-slate-500">Nama Penandatangan<input value={signer} onChange={(e) => setSigner(e.target.value)} className={inputCls} /></label>
           <label className="text-[11px] font-semibold uppercase text-slate-500">Jabatan<input value={role} onChange={(e) => setRole(e.target.value)} className={inputCls} /></label>
@@ -199,7 +271,7 @@ export default function QuotationLetter(p: {
               <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t.to}</span><span>{date}</span></div>
               <div style={{ fontWeight: 700, textDecoration: 'underline', marginTop: 8 }}>{attnText}</div>
               <div style={{ textDecoration: 'underline', marginTop: 4 }}>{p.company}</div>
-              <div style={{ whiteSpace: 'pre-wrap', textAlign: 'justify', margin: '14px 0' }}>{opening}</div>
+              <div className="rt-view" style={{ textAlign: 'justify', margin: '14px 0' }} dangerouslySetInnerHTML={{ __html: openingHtml }} />
 
               <table className="items">
                 <thead>
@@ -243,8 +315,8 @@ export default function QuotationLetter(p: {
           <thead><tr><td><Head /></td></tr></thead>
           <tbody>
             <tr><td>
-              <div style={{ whiteSpace: 'pre-wrap', fontSize: 11.5, marginTop: 6 }}>{syarat}</div>
-              <div style={{ whiteSpace: 'pre-wrap', marginTop: 18 }}>{penutup}</div>
+              <div className="rt-view" style={{ fontSize: 11.5, marginTop: 6 }} dangerouslySetInnerHTML={{ __html: valueToHtml(syarat) }} />
+              <div className="rt-view" style={{ marginTop: 18 }} dangerouslySetInnerHTML={{ __html: valueToHtml(penutup) }} />
               <div style={{ marginTop: 22, breakInside: 'avoid' }}>
                 <div>{t.regards}</div>
                 <div>{t.slogan}</div>

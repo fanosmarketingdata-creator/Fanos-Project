@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { num, dateShort } from '@/lib/format';
 import { buildTotals, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -58,8 +58,8 @@ export default async function SalesOrderPrintPage({ params }: { params: { id: st
   const { rows: totalRows } = buildTotals(subtotal, so.discounts, so.charges, 'Total SO');
 
   return (
-    <div>
-      <PrintToolbar backHref="/dashboard/sales-orders" docNo={so.doc_no} />
+    <PrintModal backHref="/dashboard/sales-orders" docNo={so.doc_no}>
+      
       <PrintDocument
         title="SALES ORDER"
         meta={[
@@ -82,6 +82,6 @@ export default async function SalesOrderPrintPage({ params }: { params: { id: st
         notes={so.global_notes ? [`Catatan: ${so.global_notes}`] : []}
         signatures={['Disiapkan Oleh', 'Disetujui Oleh', 'Diterima Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

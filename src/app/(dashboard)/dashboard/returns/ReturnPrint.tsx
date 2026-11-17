@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { rupiah, num, dateShort } from '@/lib/format';
 import { clientLines, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -29,8 +29,8 @@ export default async function ReturnPrint({ id, kind }: { id: string; kind: 'ord
   if (kind === 'invoice' && cn) totals.push({ label: 'Nilai Credit Note:', value: rupiah(cn.amount) });
 
   return (
-    <div>
-      <PrintToolbar backHref={`/dashboard/returns/${kind}/${r.id}/view`} docNo={r.doc_no} />
+    <PrintModal backHref={`/dashboard/returns/${kind}/${r.id}/view`} docNo={r.doc_no}>
+      
       <PrintDocument
         title={kind === 'order' ? 'RETURN ORDER' : 'RETURN INVOICE'}
         meta={[
@@ -55,6 +55,6 @@ export default async function ReturnPrint({ id, kind }: { id: string; kind: 'ord
         notes={r.reason ? [`Alasan: ${r.reason}`] : []}
         signatures={['Dibuat Oleh', 'Diterima Oleh', 'Disetujui Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

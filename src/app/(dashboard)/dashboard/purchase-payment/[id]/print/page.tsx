@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { rupiah, dateShort } from '@/lib/format';
 import { one } from '@/lib/print-helpers';
 
@@ -24,8 +24,8 @@ export default async function PurchasePaymentPrintPage({ params }: { params: { i
   const lines = v ? [v.company, v.address, v.contact_name && `Up: ${v.contact_name}`, v.phone].filter(Boolean) as string[] : ['-'];
 
   return (
-    <div>
-      <PrintToolbar backHref={`/dashboard/purchase-payment/${p.id}/view`} docNo={p.doc_no} />
+    <PrintModal backHref={`/dashboard/purchase-payment/${p.id}/view`} docNo={p.doc_no}>
+      
       <PrintDocument
         title="BUKTI PEMBAYARAN KE VENDOR"
         meta={[
@@ -52,6 +52,6 @@ export default async function PurchasePaymentPrintPage({ params }: { params: { i
         notes={p.notes ? [`Catatan: ${p.notes}`] : []}
         signatures={['Dibuat Oleh', 'Disetujui Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

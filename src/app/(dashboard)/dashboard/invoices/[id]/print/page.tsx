@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { COMPANY } from '@/lib/company';
 import { rupiah, num, dateShort } from '@/lib/format';
 import { buildTotals, clientLines, one, type PrintClient } from '@/lib/print-helpers';
@@ -33,8 +33,8 @@ export default async function InvoicePrintPage({ params }: { params: { id: strin
   }
 
   return (
-    <div>
-      <PrintToolbar backHref={`/dashboard/invoices/${inv.id}`} docNo={inv.doc_no} />
+    <PrintModal backHref={`/dashboard/invoices/${inv.id}`} docNo={inv.doc_no}>
+      
       <PrintDocument
         title="SALES INVOICE"
         meta={[
@@ -57,6 +57,6 @@ export default async function InvoicePrintPage({ params }: { params: { id: strin
         notes={COMPANY.paymentInfo}
         signatures={['Disiapkan Oleh', 'Disetujui Oleh', 'Dikirim Oleh', 'Diterima Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }

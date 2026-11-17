@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { COMPANY } from '@/lib/company';
 import { rupiah, num, dateShort } from '@/lib/format';
 import { one } from '@/lib/print-helpers';
@@ -37,8 +37,8 @@ export default async function POPrintPage({ params }: { params: { id: string } }
   const total = (items ?? []).reduce((s, it) => s + Number(it.subtotal), 0);
 
   return (
-    <div>
-      <PrintToolbar backHref="/dashboard/purchase-orders" docNo={po.doc_no} />
+    <PrintModal backHref="/dashboard/purchase-orders" docNo={po.doc_no}>
+      
       <PrintDocument
         title="PURCHASE ORDER"
         meta={[
@@ -64,6 +64,6 @@ export default async function POPrintPage({ params }: { params: { id: string } }
         notes={po.notes ? [`Catatan: ${po.notes}`] : []}
         signatures={['Dibuat Oleh', 'Disetujui Oleh', 'Diterima Vendor']}
       />
-    </div>
+    </PrintModal>
   );
 }

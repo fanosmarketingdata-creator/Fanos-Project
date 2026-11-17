@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
-import PrintToolbar from '@/components/PrintToolbar';
+import PrintModal from '@/components/PrintModal';
 import { rupiah, dateShort } from '@/lib/format';
 import { clientLines, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -24,8 +24,8 @@ export default async function PaymentPrintPage({ params }: { params: { id: strin
   const owing = grand - before - Number(p.amount) - Number(p.discount ?? 0);
 
   return (
-    <div>
-      <PrintToolbar backHref={`/dashboard/payments/${p.id}/view`} docNo={p.doc_no} />
+    <PrintModal backHref={`/dashboard/payments/${p.id}/view`} docNo={p.doc_no}>
+      
       <PrintDocument
         title="BUKTI PEMBAYARAN"
         meta={[
@@ -52,6 +52,6 @@ export default async function PaymentPrintPage({ params }: { params: { id: strin
         notes={p.notes ? [`Catatan: ${p.notes}`] : []}
         signatures={['Diterima Oleh', 'Disetujui Oleh']}
       />
-    </div>
+    </PrintModal>
   );
 }
