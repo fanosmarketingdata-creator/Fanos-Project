@@ -791,3 +791,13 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 @keyframes ai-pop { from { transform: scale(.3); } 60% { transform: scale(1.2); } to { transform: scale(1); } }
 @media (prefers-reduced-motion: reduce) { .ai-card, .ai-ic { animation: none; } }
 html.dark .ab-pop { background: var(--d-surface-2); border-color: var(--d-line); }
+
+/* ---- Dark mode: dynamic island (notifikasi aktivitas & peringatan maintenance) berlatar putih agar menonjol ---- */
+html.dark .ai-card, html.dark .mi-card { background: #fff; color: #0b0b0f; box-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 0 1px rgba(15,23,42,.08); }
+html.dark .ai-line, html.dark .ai-line b { color: #0b0b0f; }
+html.dark .ai-sub, html.dark .mi-sub, html.dark .mi-chev, html.dark .mi-thanks { color: #64748b; }
+html.dark .mi-title { color: #0b0b0f; }
+html.dark .mi-msg { color: #475569; }
+html.dark .mi-eta { color: #0f172a; }
+html.dark .mi-eta b { color: #b45309; }
+html.dark .mi-danger .mi-eta b { color: #dc2626; }

@@ -114,30 +114,30 @@ export default function PresenceWidget({ meId }: { meId: string }) {
           <aside
             role="dialog"
             aria-label="Pengguna Aktif"
-            className={`absolute right-0 top-0 flex h-full w-[380px] max-w-full flex-col rounded-l-2xl bg-white shadow-2xl transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
+            className={`absolute right-0 top-0 flex h-full w-[300px] max-w-full flex-col rounded-l-2xl bg-white shadow-2xl transition-transform duration-300 ease-out ${visible ? 'translate-x-0' : 'translate-x-full'}`}
           >
-            <div className="flex items-center justify-between px-6 pb-3 pt-5">
-              <h2 className="text-xl font-bold text-slate-900">Pengguna Aktif</h2>
+            <div className="flex items-center justify-between px-4 pb-2 pt-4">
+              <h2 className="text-base font-bold text-slate-900">Pengguna Aktif</h2>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="flex h-8 w-8 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
+                className="flex h-7 w-7 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
                 aria-label="Tutup"
               >
                 <i className="fa-solid fa-xmark" />
               </button>
             </div>
 
-            <div className="px-6 pt-4">
+            <div className="px-4 pt-3">
               <input
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 placeholder="Cari pengguna..."
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm outline-none focus:border-brand-500"
+                className="w-full rounded-lg border border-slate-200 bg-white px-3 py-1.5 text-xs outline-none focus:border-brand-500"
               />
             </div>
 
-            <div className="mt-2 flex-1 overflow-y-auto px-6 pb-6">
+            <div className="mt-1 flex-1 overflow-y-auto px-4 pb-4">
               {online.length > 0 && <Section title="Aktif" people={online} active />}
               {offline.length > 0 && <Section title="Tidak Aktif" people={offline} />}
               {online.length === 0 && offline.length === 0 && (
@@ -154,22 +154,22 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
 function Section({ title, people, active }: { title: string; people: Person[]; active?: boolean }) {
   return (
-    <div className="mt-4">
+    <div className="mt-3">
       <div className="mb-2 flex items-center justify-between border-b border-slate-100 pb-2">
-        <span className="text-sm font-bold text-slate-800">{title}</span>
+        <span className="text-xs font-bold text-slate-800">{title}</span>
         <span className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${active ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-500'}`}>{people.length}</span>
       </div>
       {people.map((p) => (
-        <div key={p.id} className="flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-slate-50">
+        <div key={p.id} className="flex items-center gap-2.5 rounded-lg px-1.5 py-1.5 hover:bg-slate-50">
           <div className="relative">
-            <Avatar person={p} className="h-11 w-11 text-sm" />
+            <Avatar person={p} className="h-8 w-8 text-[11px]" />
             <span
-              className={`absolute bottom-0 right-0 h-3 w-3 rounded-full border-2 border-white ${active ? 'bg-emerald-500' : 'bg-slate-400'}`}
+              className={`absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white ${active ? 'bg-emerald-500' : 'bg-slate-400'}`}
             />
           </div>
           <div className="min-w-0 flex-1 leading-tight">
-            <div className="truncate text-[14px] font-semibold text-slate-800">{p.full_name}</div>
-            <div className="truncate text-[12px] text-slate-500">{p.role}</div>
+            <div className="truncate text-[12.5px] font-semibold text-slate-800">{p.full_name}</div>
+            <div className="truncate text-[10.5px] text-slate-500">{p.role}</div>
           </div>
         </div>
       ))}

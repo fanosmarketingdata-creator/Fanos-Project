@@ -62,7 +62,11 @@ export default function Select({ value, onChange, disabled, className = '', styl
     const above = r.top - 12;
     const up = below < 220 && above > below;
     const maxH = Math.max(140, Math.min(300, up ? above : below));
-    setPos({ left: r.left, width: Math.max(r.width, 180), maxH, ...(up ? { bottom: window.innerHeight - r.top + 6 } : { top: r.bottom + 6 }) });
+    // Pemicu sempit (mis. pilihan baris/halaman) cukup dengan dropdown ringkas; posisi dijaga tetap di dalam layar.
+    const width = Math.max(r.width, r.width < 100 ? 110 : 180);
+    let left = r.left;
+    if (left + width > window.innerWidth - 8) left = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8));
+    setPos({ left, width, maxH, ...(up ? { bottom: window.innerHeight - r.top + 6 } : { top: r.bottom + 6 }) });
   }
 
   useLayoutEffect(() => {
