@@ -4,6 +4,21 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const EN_ID: Record<string, string> = {
+  'Terms Template': 'Template Syarat & Ketentuan',
+  'New Template': 'Template Baru',
+  'New Terms Template': 'Template Syarat Baru',
+  'Edit Terms Template': 'Edit Template Syarat',
+  'Audit Log': 'Log Audit',
+  'Activity': 'Aktivitas',
+  'Activity Detail': 'Detail Aktivitas',
+  'Record': 'Catatan',
+  'Time': 'Waktu',
+  'Default': 'Bawaan',
+  'Data': 'Data',
+  'Role': 'Role',
+  'Template Name': 'Nama Template',
+  'Example: Standard 7 days, 50% DP': 'Contoh: Standar 7 hari, DP 50%',
+  'No terms & conditions templates yet': 'Belum terdapat template syarat & ketentuan',
   'Packing List': 'Daftar Kemas', 'Packing List ID': 'ID Daftar Kemas', 'Import Sales Order': 'Impor Pesanan Penjualan',
   'Email 2': 'Email 2', 'SO Date': 'Tanggal SO', 'Unit Price': 'Harga Satuan', 'Item Notes': 'Catatan Item',
   "All Projects": "Semua Project",

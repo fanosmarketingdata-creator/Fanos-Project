@@ -771,3 +771,23 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 .mi-gears svg { overflow: visible; filter: drop-shadow(0 0 8px rgba(251,191,36,.25)); }
 @keyframes mi-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) { .mi-gear { animation: none; } .mi-gears { transition: none; } }
+
+/* ---- Dynamic island audit: muncul dari bawah (seperti toast) setiap ada aktivitas CRUD ---- */
+.ai-wrap { position: fixed; left: 0; right: 0; bottom: 22px; z-index: 2950; display: flex; justify-content: center; pointer-events: none; padding: 0 12px; }
+.ai-card {
+  pointer-events: auto; display: flex; align-items: center; gap: 10px; background: #0b0b0f; color: #fff;
+  padding: 8px 18px 8px 8px; border-radius: 999px; max-width: min(92vw, 460px);
+  box-shadow: 0 10px 30px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.08);
+  animation: ai-rise .5s cubic-bezier(.34, 1.45, .5, 1) both; transform-origin: bottom center;
+}
+.ai-card.ai-leave { animation: ai-fall .4s ease-in both; }
+.ai-ic { width: 30px; height: 30px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: 13px; flex: none; animation: ai-pop .6s .15s both; }
+.ai-txt { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; }
+.ai-line { font-size: 12.5px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.ai-line b { font-weight: 700; }
+.ai-sub { font-size: 11px; color: #9aa4b2; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@keyframes ai-rise { from { transform: translateY(26px) scale(.6); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes ai-fall { to { transform: translateY(20px) scale(.7); opacity: 0; } }
+@keyframes ai-pop { from { transform: scale(.3); } 60% { transform: scale(1.2); } to { transform: scale(1); } }
+@media (prefers-reduced-motion: reduce) { .ai-card, .ai-ic { animation: none; } }
+html.dark .ab-pop { background: var(--d-surface-2); border-color: var(--d-line); }

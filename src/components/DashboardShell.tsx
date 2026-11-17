@@ -14,6 +14,7 @@ import { NAV_GROUPS, ALL_MENU_KEYS, navLabel, flatItems, filterGroups, type NavI
 import ThemeToggle from '@/components/ThemeToggle';
 import PresenceWidget from '@/components/PresenceWidget';
 import MaintenanceNotice from '@/components/MaintenanceNotice';
+import AuditBell from '@/components/AuditBell';
 import ResponsiveTables from '@/components/ResponsiveTables';
 import ProfileModal, { type MyProfile } from '@/components/ProfileModal';
 
@@ -412,6 +413,7 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3">
+          {isSuperuser && <AuditBell meId={profile.id} />}
           <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 

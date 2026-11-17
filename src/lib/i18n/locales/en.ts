@@ -4,6 +4,11 @@
 // Cek kekurangan kosakata: npm run i18n:audit
 
 export const ID_EN: Record<string, string> = {
+  'Syarat & Ketentuan': 'Terms & Conditions',
+  'Detail Aktivitas': 'Activity Detail',
+  'Template Syarat & Ketentuan': 'Terms & Conditions Template',
+  'Bawaan sistem': 'System default',
+  'Kelola template →': 'Manage templates →',
   'Nama Template': 'Template Name',
   'Contoh: Standar 7 hari, DP 50%': 'Example: Standard 7 days, 50% DP',
   'Template berhasil dihapus': 'Template deleted successfully',

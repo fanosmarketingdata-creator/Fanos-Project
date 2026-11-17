@@ -137,6 +137,7 @@ export const NAV_GROUPS: NavGroup[] = [
       { href: '/dashboard/team-members', label: 'Master Team Member', icon: 'fi fi-rr-id-badge' },
       { href: '/dashboard/accounts', label: 'Master Akun', icon: 'fi fi-rr-user-lock' },
       { href: '/dashboard/roles', label: 'Role Group', icon: 'fi fi-rr-shield-check' },
+      { href: '/dashboard/audit-log', label: 'Audit Log', icon: 'fi fi-rr-time-past' },
       { href: '/dashboard/maintenance', label: 'Maintenance', icon: 'fi fi-rr-settings' },
     ],
   },
@@ -146,7 +147,7 @@ export const NAV_GROUPS: NavGroup[] = [
 export const NAV_ID: Record<string, string> = {
   Dashboard: 'Dasbor', Overview: 'Ringkasan', 'Master Data': 'Data Master', Clients: 'Klien', Project: 'Proyek',
   'Project Master': 'Master Proyek', 'Project Classification': 'Klasifikasi Proyek', Vendors: 'Vendor', Products: 'Produk', Catalogue: 'Katalog', 'Price List': 'Daftar Harga', Brand: 'Merek',
-  'Project Hub': 'Pusat Proyek', 'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek',
+  'Project Hub': 'Pusat Proyek', 'Audit Log': 'Log Audit', 'Project Management': 'Manajemen Proyek', 'Project RFQ': 'RFQ Proyek', 'Project BOQ': 'BOQ Proyek',
   'Lighting Specification': 'Spesifikasi Pencahayaan', Purchase: 'Pembelian', 'Purchase Order': 'Pesanan Pembelian',
   'Purchase Delivery': 'Pengiriman Pembelian', 'Purchase Invoice': 'Faktur Pembelian', 'Purchase Payment': 'Pembayaran Pembelian',
   Sales: 'Penjualan', Quotation: 'Penawaran', 'Sales Order': 'Pesanan Penjualan', 'Delivery Order': 'Surat Jalan', 'Packing List': 'Daftar Kemas',
