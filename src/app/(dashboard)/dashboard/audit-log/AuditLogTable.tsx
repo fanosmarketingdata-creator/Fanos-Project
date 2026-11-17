@@ -7,7 +7,7 @@ import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortH
 import { FullModal } from '@/components/registry/RegistryModal';
 import Select from '@/components/ui/Select';
 import { useLang } from '@/components/I18nProvider';
-import { ACTION_META, actionVerb, entityLabel, fmtDateTime, recordText, type AuditLog } from '@/lib/audit';
+import { ACTION_META, actionVerb, entityLabel, fmtDateTime, type AuditLog } from '@/lib/audit';
 
 const show = (v: unknown) => (v === null || v === undefined || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
@@ -118,7 +118,7 @@ export default function AuditLogTable({ initialRows }: { initialRows: AuditLog[]
                 [en ? 'Action' : 'Aksi', en ? ACTION_META[detail.action].enShort : ACTION_META[detail.action].idShort],
                 [en ? 'Data' : 'Data', entityLabel(detail.table_name, en)],
                 ['ID', detail.record_code || '-'],
-                ['Record', recordText(detail) || '-'],
+                ['Record', detail.record_label && detail.record_label !== detail.record_code ? detail.record_label : '-'],
                 [en ? 'Time' : 'Waktu', fmtDateTime(detail.created_at, en)],
                 ['UUID', detail.record_id || '-'],
               ].map(([k, v]) => (
