@@ -7,7 +7,7 @@ import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortH
 import { FullModal } from '@/components/registry/RegistryModal';
 import Select from '@/components/ui/Select';
 import { useLang } from '@/components/I18nProvider';
-import { ACTION_META, actionVerb, entityLabel, fmtDateTime, type AuditLog } from '@/lib/audit';
+import { ACTION_META, actionVerb, entityLabel, fmtDateTime, recordText, type AuditLog } from '@/lib/audit';
 
 const show = (v: unknown) => (v === null || v === undefined || v === '' ? '—' : typeof v === 'object' ? JSON.stringify(v) : String(v));
 
@@ -29,15 +29,15 @@ export default function AuditLogTable({ initialRows }: { initialRows: AuditLog[]
       if (entity && r.table_name !== entity) return false;
       if (user && (r.user_name || 'System') !== user) return false;
       if (!q) return true;
-      return [r.user_name, r.record_label, entityLabel(r.table_name, true), entityLabel(r.table_name, false), r.table_name].some((x) => (x ?? '').toLowerCase().includes(q));
+      return [r.user_name, r.record_code, r.record_label, entityLabel(r.table_name, true), entityLabel(r.table_name, false), r.table_name].some((x) => (x ?? '').toLowerCase().includes(q));
     });
   }, [initialRows, search, action, entity, user]);
 
   const sortCols: SortCol<AuditLog>[] = [
     { key: 'what', label: 'Activity', get: (r) => `${r.user_name ?? ''} ${r.action}` },
     { key: 'entity', label: 'Data', get: (r) => entityLabel(r.table_name, en) },
+    { key: 'code', label: 'ID', get: (r) => r.record_code },
     { key: 'record', label: 'Record', get: (r) => r.record_label },
-    { key: 'role', label: 'Role', get: (r) => r.user_role },
     { key: 'time', label: 'Time', get: (r) => Date.parse(r.created_at) },
   ];
   const { sorted, sort, toggle } = useSorted(filtered, sortCols);
@@ -91,12 +91,12 @@ export default function AuditLogTable({ initialRows }: { initialRows: AuditLog[]
                 <div className="client-card-avatar" style={{ background: m.color, color: '#fff' }}><i className={`${m.icon} leading-none`} /></div>
                 <div className="client-card-main">
                   <div className="name">{r.user_name || 'System'} <span style={{ fontWeight: 500 }}>{actionVerb(r.action, en)}</span></div>
-                  <div className="sub">{en ? m.enShort : m.idShort}</div>
+                  <div className="sub">{(r.user_role ? r.user_role + ' · ' : '') + (en ? m.enShort : m.idShort)}</div>
                 </div>
                 <div className="client-card-meta">
                   <div className="item"><div className="lbl">{en ? 'Data' : 'Data'}</div><div className="val">{entityLabel(r.table_name, en)}</div></div>
-                  <div className="item"><div className="lbl">Record</div><div className="val" title={r.record_label ?? ''}>{r.record_label || '-'}</div></div>
-                  <div className="item"><div className="lbl">Role</div><div className="val">{r.user_role || '-'}</div></div>
+                  <div className="item"><div className="lbl">ID</div><div className="val" title={r.record_code ?? ''}>{r.record_code || '-'}</div></div>
+                  <div className="item"><div className="lbl">Record</div><div className="val" title={r.record_label ?? ''}>{r.record_label && r.record_label !== r.record_code ? r.record_label : '-'}</div></div>
                   <div className="item"><div className="lbl">{en ? 'Time' : 'Waktu'}</div><div className="val">{fmtDateTime(r.created_at, en)}</div></div>
                 </div>
                 <div className="client-card-actions">
@@ -117,9 +117,10 @@ export default function AuditLogTable({ initialRows }: { initialRows: AuditLog[]
                 [en ? 'User' : 'User', `${detail.user_name || 'System'}${detail.user_role ? ` (${detail.user_role})` : ''}`],
                 [en ? 'Action' : 'Aksi', en ? ACTION_META[detail.action].enShort : ACTION_META[detail.action].idShort],
                 [en ? 'Data' : 'Data', entityLabel(detail.table_name, en)],
-                ['Record', detail.record_label || '-'],
+                ['ID', detail.record_code || '-'],
+                ['Record', recordText(detail) || '-'],
                 [en ? 'Time' : 'Waktu', fmtDateTime(detail.created_at, en)],
-                ['ID', detail.record_id || '-'],
+                ['UUID', detail.record_id || '-'],
               ].map(([k, v]) => (
                 <div key={k}><div style={{ fontSize: 10, textTransform: 'uppercase', color: '#9ca3af', fontWeight: 700 }}>{k}</div><div style={{ fontSize: 13, fontWeight: 600, wordBreak: 'break-all' }}>{v}</div></div>
               ))}

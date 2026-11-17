@@ -5,13 +5,13 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useLang } from '@/components/I18nProvider';
-import { ACTION_META, actionVerb, entityLabel, timeAgo, type AuditLog } from '@/lib/audit';
+import { ACTION_META, actionVerb, entityLabel, recordText, timeAgo, type AuditLog } from '@/lib/audit';
 
 const SEEN_KEY = 'fanos-audit-seen';
 
 // Notifikasi dibaca dari activity_feed (ringkas, tanpa isi perubahan) agar bisa dilihat semua user.
-type Feed = Pick<AuditLog, 'id' | 'created_at' | 'user_id' | 'user_name' | 'action' | 'table_name' | 'record_label'>;
-const FEED_COLUMNS = 'id, created_at, user_id, user_name, action, table_name, record_label';
+type Feed = Pick<AuditLog, 'id' | 'created_at' | 'user_id' | 'user_name' | 'action' | 'table_name' | 'record_code' | 'record_label'>;
+const FEED_COLUMNS = 'id, created_at, user_id, user_name, action, table_name, record_code, record_label';
 
 type Toast = { key: string; color: string; icon: string; who: string; text: string; label: string };
 
@@ -55,7 +55,7 @@ export default function AuditBell({ meId, isSuperuser = false }: { meId?: string
     } else {
       const l = queue.current.shift()!;
       const m = ACTION_META[l.action];
-      item = { key: l.id, color: m.color, icon: m.icon, who: l.user_name || 'System', text: `${actionVerb(l.action, en)} ${entityLabel(l.table_name, en)}`, label: l.record_label || '' };
+      item = { key: l.id, color: m.color, icon: m.icon, who: l.user_name || 'System', text: `${actionVerb(l.action, en)} ${entityLabel(l.table_name, en)}`, label: recordText(l) };
     }
     setLeaving(false);
     setToast(item);
@@ -144,7 +144,7 @@ export default function AuditBell({ meId, isSuperuser = false }: { meId?: string
                     <div className="text-[12px] leading-snug text-slate-700">
                       <b>{l.user_name || 'System'}</b> {actionVerb(l.action, en)} {entityLabel(l.table_name, en)}
                     </div>
-                    {l.record_label && <div className="truncate text-[11.5px] font-semibold text-slate-800">{l.record_label}</div>}
+                    {recordText(l) && <div className="truncate text-[11.5px] font-semibold text-slate-800">{recordText(l)}</div>}
                     <div className="text-[10.5px] text-slate-400">{timeAgo(l.created_at, en)}</div>
                   </div>
                   {isNew && <span className="mt-2 h-2 w-2 shrink-0 rounded-full bg-brand-500" />}

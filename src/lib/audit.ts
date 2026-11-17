@@ -7,11 +7,12 @@ export type AuditLog = {
   action: 'create' | 'update' | 'delete';
   table_name: string;
   record_id: string | null;
+  record_code: string | null;
   record_label: string | null;
   changes: Record<string, unknown> | null;
 };
 
-export const AUDIT_COLUMNS = 'id, created_at, user_id, user_name, user_role, action, table_name, record_id, record_label, changes';
+export const AUDIT_COLUMNS = 'id, created_at, user_id, user_name, user_role, action, table_name, record_id, record_code, record_label, changes';
 
 // Nama tabel -> [Indonesia, Inggris]
 const ENTITY: Record<string, [string, string]> = {
@@ -54,3 +55,7 @@ export function timeAgo(iso: string, en: boolean) {
 
 export const fmtDateTime = (iso: string, en: boolean) =>
   new Date(iso).toLocaleString(en ? 'en-GB' : 'id-ID', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Jakarta' });
+
+/** Teks ringkas data yang disentuh: "ID · Nama" (ID bisnis lebih dulu, mis. SKU / No. Client / No. Dokumen). */
+export const recordText = (l: { record_code?: string | null; record_label?: string | null }) =>
+  [l.record_code, l.record_label && l.record_label !== l.record_code ? l.record_label : null].filter(Boolean).join(' · ');

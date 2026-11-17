@@ -10,9 +10,11 @@ create table if not exists public.audit_logs (
   action text not null check (action in ('create', 'update', 'delete')),
   table_name text not null,
   record_id text,
+  record_code text,
   record_label text,
   changes jsonb
 );
+alter table public.audit_logs add column if not exists record_code text; -- ID bisnis: SKU / No. Client / No. Dokumen, dst.
 create index if not exists audit_logs_created_idx on public.audit_logs (created_at desc);
 create index if not exists audit_logs_user_idx on public.audit_logs (user_id);
 create index if not exists audit_logs_table_idx on public.audit_logs (table_name);
@@ -31,8 +33,10 @@ create table if not exists public.activity_feed (
   user_name text,
   action text not null check (action in ('create', 'update', 'delete')),
   table_name text not null,
+  record_code text,
   record_label text
 );
+alter table public.activity_feed add column if not exists record_code text;
 create index if not exists activity_feed_created_idx on public.activity_feed (created_at desc);
 alter table public.activity_feed enable row level security;
 drop policy if exists "activity_feed_read" on public.activity_feed;
@@ -51,6 +55,7 @@ declare
   r jsonb;
   o jsonb;
   lbl text;
+  code text;
   rid text;
   chg jsonb := null;
   k text;
@@ -63,8 +68,9 @@ begin
 
     if tg_op = 'DELETE' then r := to_jsonb(old); else r := to_jsonb(new); end if;
     rid := r ->> 'id';
-    lbl := coalesce(r ->> 'doc_no', r ->> 'name', r ->> 'company', r ->> 'project_name', r ->> 'title',
-                    r ->> 'sku', r ->> 'full_name', r ->> 'email', r ->> 'client_no', r ->> 'key');
+    -- ID bisnis (kode yang dilihat user) dan nama/label data.
+    code := coalesce(r ->> 'doc_no', r ->> 'sku', r ->> 'client_no', r ->> 'vendor_no', r ->> 'project_no', r ->> 'code');
+    lbl := coalesce(r ->> 'name', r ->> 'company', r ->> 'project_name', r ->> 'title', r ->> 'full_name', r ->> 'email', r ->> 'key', code);
 
     if tg_op = 'UPDATE' then
       o := to_jsonb(old);
@@ -87,11 +93,11 @@ begin
       end loop;
     end if;
 
-    insert into public.audit_logs (user_id, user_name, user_role, action, table_name, record_id, record_label, changes)
+    insert into public.audit_logs (user_id, user_name, user_role, action, table_name, record_id, record_code, record_label, changes)
     values (uid, coalesce(pname, 'System'), prole, case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end,
-            tg_table_name, rid, lbl, chg);
-    insert into public.activity_feed (user_id, user_name, action, table_name, record_label)
-    values (uid, coalesce(pname, 'System'), case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end, tg_table_name, lbl);
+            tg_table_name, rid, code, lbl, chg);
+    insert into public.activity_feed (user_id, user_name, action, table_name, record_code, record_label)
+    values (uid, coalesce(pname, 'System'), case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end, tg_table_name, code, lbl);
     if random() < 0.02 then
       delete from public.activity_feed where created_at < now() - interval '30 days'; -- feed notifikasi hanya menyimpan 30 hari
     end if;
