@@ -413,7 +413,7 @@ export default function DashboardShell({
         )}
 
         <div className="flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3">
-          {isSuperuser && <AuditBell meId={profile.id} />}
+          <AuditBell meId={profile.id} isSuperuser={isSuperuser} />
           <UserMenu profile={profile} onLogout={handleLogout} />
         </div>
 

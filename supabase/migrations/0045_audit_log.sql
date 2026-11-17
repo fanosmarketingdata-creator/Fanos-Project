@@ -1,5 +1,6 @@
 -- Audit log: setiap tambah / ubah / hapus data bisnis dicatat otomatis oleh trigger database
--- (siapa, kapan, tabel apa, data apa, field apa yang berubah). Hanya Superuser yang boleh membaca.
+-- (siapa, kapan, tabel apa, data apa, field apa yang berubah). Hanya Superuser yang boleh membaca audit_logs;
+-- semua user melihat notifikasi ringkas lewat activity_feed.
 create table if not exists public.audit_logs (
   id uuid primary key default gen_random_uuid(),
   created_at timestamptz not null default now(),
@@ -20,6 +21,22 @@ alter table public.audit_logs enable row level security;
 drop policy if exists "audit_logs_superuser_read" on public.audit_logs;
 create policy "audit_logs_superuser_read" on public.audit_logs for select using (public.is_superuser());
 -- Tidak ada policy insert/update/delete: log hanya bisa ditulis oleh trigger (security definer) dan tidak bisa diubah/dihapus dari aplikasi.
+
+-- Feed aktivitas ringan untuk notifikasi (lonceng + dynamic island) yang dapat dilihat SEMUA user login.
+-- Sengaja terpisah dari audit_logs: hanya berisi siapa/apa/kapan, TANPA isi perubahan data.
+create table if not exists public.activity_feed (
+  id uuid primary key default gen_random_uuid(),
+  created_at timestamptz not null default now(),
+  user_id uuid,
+  user_name text,
+  action text not null check (action in ('create', 'update', 'delete')),
+  table_name text not null,
+  record_label text
+);
+create index if not exists activity_feed_created_idx on public.activity_feed (created_at desc);
+alter table public.activity_feed enable row level security;
+drop policy if exists "activity_feed_read" on public.activity_feed;
+create policy "activity_feed_read" on public.activity_feed for select using (auth.role() = 'authenticated');
 
 create or replace function public.audit_trigger()
 returns trigger
@@ -73,6 +90,11 @@ begin
     insert into public.audit_logs (user_id, user_name, user_role, action, table_name, record_id, record_label, changes)
     values (uid, coalesce(pname, 'System'), prole, case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end,
             tg_table_name, rid, lbl, chg);
+    insert into public.activity_feed (user_id, user_name, action, table_name, record_label)
+    values (uid, coalesce(pname, 'System'), case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end, tg_table_name, lbl);
+    if random() < 0.02 then
+      delete from public.activity_feed where created_at < now() - interval '30 days'; -- feed notifikasi hanya menyimpan 30 hari
+    end if;
   exception when others then
     null; -- pencatatan audit tidak boleh menggagalkan transaksi bisnis
   end;
@@ -89,7 +111,7 @@ begin
     select table_name from information_schema.tables
     where table_schema = 'public' and table_type = 'BASE TABLE'
       and (
-        (table_name not in ('audit_logs', 'push_subscriptions', 'profiles', 'stock_movements', 'pm_activity', 'system_announcements')
+        (table_name not in ('audit_logs', 'activity_feed', 'push_subscriptions', 'profiles', 'stock_movements', 'pm_activity', 'system_announcements')
           and table_name not like '%\_items' escape '\'
           and table_name not like 'pm\_%' escape '\')
         or table_name = 'pm_projects'
@@ -100,9 +122,9 @@ begin
   end loop;
 end $$;
 
--- Realtime: notifikasi dynamic island untuk Superuser.
+-- Realtime: notifikasi dynamic island untuk semua user (dari activity_feed, bukan audit_logs).
 do $$ begin
-  alter publication supabase_realtime add table public.audit_logs;
+  alter publication supabase_realtime add table public.activity_feed;
 exception when duplicate_object then null; when undefined_object then null;
 end $$;
 

@@ -5,24 +5,28 @@ import { createPortal } from 'react-dom';
 import Link from 'next/link';
 import { createClient } from '@/lib/supabase/client';
 import { useLang } from '@/components/I18nProvider';
-import { ACTION_META, AUDIT_COLUMNS, actionVerb, entityLabel, timeAgo, type AuditLog } from '@/lib/audit';
+import { ACTION_META, actionVerb, entityLabel, timeAgo, type AuditLog } from '@/lib/audit';
 
 const SEEN_KEY = 'fanos-audit-seen';
+
+// Notifikasi dibaca dari activity_feed (ringkas, tanpa isi perubahan) agar bisa dilihat semua user.
+type Feed = Pick<AuditLog, 'id' | 'created_at' | 'user_id' | 'user_name' | 'action' | 'table_name' | 'record_label'>;
+const FEED_COLUMNS = 'id, created_at, user_id, user_name, action, table_name, record_label';
 
 type Toast = { key: string; color: string; icon: string; who: string; text: string; label: string };
 
 // Lonceng audit (di kiri avatar user) + "dynamic island" di bawah layar setiap ada aktivitas CRUD baru.
-// Hanya dipasang untuk Superuser (RLS audit_logs juga hanya mengizinkan Superuser membaca).
-export default function AuditBell({ meId }: { meId?: string }) {
+// Dipasang untuk semua user. Halaman Audit Log lengkap (dengan isi perubahan) hanya untuk Superuser.
+export default function AuditBell({ meId, isSuperuser = false }: { meId?: string; isSuperuser?: boolean }) {
   const en = useLang() === 'en';
   const supabase = useMemo(() => createClient(), []);
   const [open, setOpen] = useState(false);
-  const [logs, setLogs] = useState<AuditLog[]>([]);
+  const [logs, setLogs] = useState<Feed[]>([]);
   const [seen, setSeen] = useState(0);
   const [mounted, setMounted] = useState(false);
   const [toast, setToast] = useState<Toast | null>(null);
   const [leaving, setLeaving] = useState(false);
-  const queue = useRef<AuditLog[]>([]);
+  const queue = useRef<Feed[]>([]);
   const busy = useRef(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -32,8 +36,8 @@ export default function AuditBell({ meId }: { meId?: string }) {
   }, []);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from('audit_logs').select(AUDIT_COLUMNS).order('created_at', { ascending: false }).limit(15);
-    if (data) setLogs(data as AuditLog[]);
+    const { data } = await supabase.from('activity_feed').select(FEED_COLUMNS).order('created_at', { ascending: false }).limit(15);
+    if (data) setLogs(data as Feed[]);
   }, [supabase]);
 
   // Tampilkan antrean island satu per satu; antrean panjang (mis. import massal) diringkas jadi satu kartu.
@@ -63,8 +67,8 @@ export default function AuditBell({ meId }: { meId?: string }) {
     load();
     const channel = supabase
       .channel('audit-feed')
-      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'audit_logs' }, (payload) => {
-        const l = payload.new as AuditLog;
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_feed' }, (payload) => {
+        const l = payload.new as Feed;
         setLogs((prev) => [l, ...prev].slice(0, 15));
         if (l.user_id && l.user_id === meId) return; // aksi sendiri sudah punya toast konfirmasi
         queue.current.push(l);
@@ -148,9 +152,11 @@ export default function AuditBell({ meId }: { meId?: string }) {
               );
             })}
           </div>
-          <Link href="/dashboard/audit-log" onClick={() => setOpen(false)} className="block border-t border-slate-100 px-3.5 py-2.5 text-center text-[12px] font-semibold text-brand-500 hover:bg-slate-50">
-            {en ? 'View full audit log' : 'Lihat seluruh log audit'} →
-          </Link>
+          {isSuperuser && (
+            <Link href="/dashboard/audit-log" onClick={() => setOpen(false)} className="block border-t border-slate-100 px-3.5 py-2.5 text-center text-[12px] font-semibold text-brand-500 hover:bg-slate-50">
+              {en ? 'View full audit log' : 'Lihat seluruh log audit'} →
+            </Link>
+          )}
         </div>
       )}
 
