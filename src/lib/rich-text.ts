@@ -37,7 +37,7 @@ export function sanitizeHtml(html: string): string {
         const keep = (st[1] ?? st[2] ?? '')
           .split(';')
           .map((x) => x.trim())
-          .filter((x) => /^(text-align|margin-left|padding-left)\s*:\s*[a-z0-9.\s%-]+$/i.test(x));
+          .filter((x) => /^(text-align|margin-left|padding-left|text-indent)\s*:\s*[a-z0-9.\s%-]+$/i.test(x));
         if (keep.length) out += ` style="${keep.join('; ')}"`;
       }
       return out + '>';

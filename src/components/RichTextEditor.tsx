@@ -83,6 +83,50 @@ export default function RichTextEditor({
     emit();
   }
 
+  // Tab di awal paragraf = paragraf menjorok (indent baris pertama, seperti di Word).
+  // Bila beberapa paragraf diblok, semuanya ikut. Shift+Tab menghapusnya. Mengembalikan false bila tidak berlaku.
+  function indentFirstLine(outdent: boolean): boolean {
+    const root = ref.current;
+    const sel = window.getSelection();
+    if (!root || !sel || !sel.rangeCount) return false;
+    const range = sel.getRangeAt(0);
+    const blockOf = (node: Node | null): HTMLElement | null => {
+      let n: Node | null = node;
+      while (n && n !== root) {
+        const par: Node | null = n.parentNode;
+        if (n.nodeType === 1 && (n as HTMLElement).tagName === 'DIV' && (par === root || (par as HTMLElement)?.tagName === 'BLOCKQUOTE')) return n as HTMLElement;
+        n = par;
+      }
+      return null;
+    };
+    const first = blockOf(range.startContainer);
+    const lastB = blockOf(range.endContainer);
+    if (!first || !lastB) return false;
+    const blocks: HTMLElement[] = [];
+    if (sel.isCollapsed) {
+      const pre = document.createRange();
+      pre.selectNodeContents(first);
+      pre.setEnd(range.startContainer, range.startOffset);
+      if (pre.toString().length > 0) return false; // hanya di awal paragraf
+      blocks.push(first);
+    } else {
+      let cur: HTMLElement | null = first;
+      while (cur) {
+        blocks.push(cur);
+        if (cur === lastB) break;
+        cur = cur.nextElementSibling as HTMLElement | null;
+      }
+      if (!cur) return false;
+    }
+    if (outdent && !blocks.some((b) => b.style.textIndent)) return false;
+    for (const b of blocks) {
+      if (outdent) b.style.removeProperty('text-indent');
+      else b.style.textIndent = '2em';
+      if (!b.getAttribute('style')) b.removeAttribute('style');
+    }
+    return true;
+  }
+
   const cmds: (Cmd | 'sep')[] = [
     { id: 'bold', icon: 'B', title: 'Tebal (Ctrl+B)', run: () => exec('bold') },
     { id: 'italic', icon: 'I', title: 'Miring (Ctrl+I)', run: () => exec('italic') },
@@ -132,7 +176,7 @@ export default function RichTextEditor({
         onKeyDown={(e) => {
           if (e.key === 'Tab') {
             e.preventDefault();
-            document.execCommand(e.shiftKey ? 'outdent' : 'indent');
+            if (!indentFirstLine(e.shiftKey)) document.execCommand(e.shiftKey ? 'outdent' : 'indent');
             emit();
           }
         }}
