@@ -366,7 +366,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className={`flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
+    <div className={`flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${vertical ? 'lg:overflow-x-clip lg:w-full lg:max-w-[100vw]' : ''} ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
       {loggingOut && (
         <div className="login-overlay print:hidden" role="status" aria-live="polite">
           <div className="spinner" />
@@ -388,7 +388,7 @@ export default function DashboardShell({
           navPos === 'bottom'
             ? 'lg:top-auto lg:bottom-0 lg:order-last lg:border-b-0 lg:border-t lg:shadow-[0_-8px_24px_-20px_rgba(47,107,240,0.5)]'
             : vertical
-              ? `lg:h-screen lg:w-[216px] lg:shrink-0 lg:flex-col lg:items-stretch lg:gap-3 lg:border-b-0 lg:px-3 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
+              ? `lg:h-screen lg:w-[216px] lg:min-w-[216px] lg:max-w-[216px] lg:shrink-0 lg:overflow-x-clip lg:flex-col lg:items-stretch lg:gap-3 lg:border-b-0 lg:px-3 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
               : ''
         }`}
       >
@@ -575,7 +575,7 @@ export default function DashboardShell({
         )}
       </header>
 
-      <main className="min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0">{children}</main>
+      <main className={`min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0 ${vertical ? 'lg:w-[calc(100%-216px)] lg:max-w-[calc(100vw-216px)] lg:overflow-x-clip' : ''}`}>{children}</main>
     </div>
   );
 }

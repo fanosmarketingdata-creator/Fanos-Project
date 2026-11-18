@@ -1374,3 +1374,6 @@ html.dark .ql-pager input { background: #111827; color: #e6ebf5; border-color: #
 html.dark .ql-page { box-shadow: 0 2px 18px rgba(0,0,0,.6); }
 html.dark .ql-zoom { background: #111827; border-color: #263043; }
 html.dark .ql-zoom button { color: #cbd5e1; }
+
+/* Penutupan modal cetak: hilang seketika (tidak menunggu navigasi selesai). */
+@media screen { .print-closing { opacity: 0; pointer-events: none; transition: opacity 80ms ease-out; } }

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { FullModal } from '@/components/registry/RegistryModal';
 import { BankProvider, BankSelect } from '@/components/BankInfo';
@@ -28,10 +29,23 @@ export default function PrintModal({
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const close = () => router.push(backHref);
+  const [closing, setClosing] = useState(false);
+  const busy = useRef(false);
+  // Halaman tujuan di-prefetch sejak modal dibuka, supaya penutupan tidak menunggu server.
+  useEffect(() => { try { router.prefetch(backHref); } catch {} }, [router, backHref]);
+  // Tutup langsung terasa (modal menghilang seketika), navigasi berjalan di belakang.
+  // Bila datang dari halaman daftar di aplikasi ini, pakai "back" agar memakai cache router (tanpa fetch ulang).
+  const close = () => {
+    if (busy.current) return;
+    busy.current = true;
+    setClosing(true);
+    let sameOrigin = false;
+    try { sameOrigin = !!document.referrer && new URL(document.referrer).origin === window.location.origin && window.history.length > 1; } catch {}
+    if (sameOrigin) router.back(); else router.push(backHref);
+  };
   return (
     <BankProvider enabled={showBank} storageKey={bankKey} defaultNone={bankDefaultNone}>
-    <div className={`print-modal ${split ? 'print-split' : ''}`}>
+    <div className={`print-modal ${split ? 'print-split' : ''} ${closing ? 'print-closing' : ''}`}>
       <FullModal
         title="Cetak"
         icon="fi fi-rr-print"
