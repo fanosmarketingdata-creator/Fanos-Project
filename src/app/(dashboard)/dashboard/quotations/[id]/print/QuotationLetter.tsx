@@ -308,7 +308,8 @@ export default function QuotationLetter(p: {
   useEffect(() => {
     const el = rightRef.current;
     if (!el) return;
-    const upd = () => setScale(Math.min(1, Math.max(0.4, (el.clientWidth - 40) / 794)));
+    // Satu halaman pas di dalam panel (lebar & tinggi), seperti pratinjau PDF.
+    const upd = () => setScale(Math.min(1, Math.max(0.3, Math.min((el.clientWidth - 32) / 794, (el.clientHeight - 32) / 1123))));
     upd();
     const ro = new ResizeObserver(upd);
     ro.observe(el);
@@ -325,6 +326,12 @@ export default function QuotationLetter(p: {
     <thead {...(ref ? { 'data-thead': '' } : {})}><tr>{t.cols.map((h) => <th key={h}>{h}</th>)}</tr></thead>
   );
   const totalPages = Math.max(1, pages.length);
+  // Pratinjau menampilkan satu halaman per kali, dengan pager di bawah.
+  const [cur, setCur] = useState(0);
+  const [curText, setCurText] = useState('1');
+  const curSafe = Math.min(cur, totalPages - 1);
+  useEffect(() => { setCurText(String(curSafe + 1)); }, [curSafe]);
+  const goto = (n: number) => setCur(Math.min(totalPages - 1, Math.max(0, n)));
 
   return (
     <div className="ql" style={{ fontFamily: "'Outfit', 'Segoe UI', Arial, sans-serif" }}>
@@ -384,7 +391,8 @@ export default function QuotationLetter(p: {
         </div>
       </div>
 
-      <div className="ql-right" ref={rightRef} data-no-cards data-no-i18n>
+      <div className="ql-right" data-no-cards data-no-i18n>
+       <div className="ql-stage" ref={rightRef}>
         <div className="ql-pages" style={{ zoom: scale }}>
           {pages.map((idxs, pi) => {
             const groups: { row: boolean; items: number[] }[] = [];
@@ -395,7 +403,7 @@ export default function QuotationLetter(p: {
               else groups.push({ row, items: [bi] });
             });
             return (
-              <section key={pi} className="ql-page paper">
+              <section key={pi} className={`ql-page paper${pi === curSafe ? '' : ' ql-hidden'}`}>
                 <Head />
                 {groups.map((g, gi) =>
                   g.row ? (
@@ -412,6 +420,22 @@ export default function QuotationLetter(p: {
               </section>
             );
           })}
+        </div>
+       </div>
+        <div className="ql-pager print:hidden">
+          <button type="button" onClick={() => goto(0)} disabled={curSafe === 0} aria-label="Halaman pertama">«</button>
+          <button type="button" onClick={() => goto(curSafe - 1)} disabled={curSafe === 0} aria-label="Sebelumnya">‹</button>
+          <input
+            value={curText}
+            inputMode="numeric"
+            onChange={(e) => setCurText(e.target.value.replace(/\D/g, ''))}
+            onBlur={() => goto((parseInt(curText, 10) || 1) - 1)}
+            onKeyDown={(e) => { if (e.key === 'Enter') goto((parseInt(curText, 10) || 1) - 1); }}
+            aria-label="Nomor halaman"
+          />
+          <span>/ {totalPages}</span>
+          <button type="button" onClick={() => goto(curSafe + 1)} disabled={curSafe >= totalPages - 1} aria-label="Berikutnya">›</button>
+          <button type="button" onClick={() => goto(totalPages - 1)} disabled={curSafe >= totalPages - 1} aria-label="Halaman terakhir">»</button>
         </div>
       </div>
 
