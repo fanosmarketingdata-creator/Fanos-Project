@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import BankInfo from '@/components/BankInfo';
 import DialSlider from '@/components/DialSlider';
 
 type Lang = 'id' | 'en';
@@ -29,12 +28,12 @@ export default function LightingSpecPrint(p: {
   const [lang, setLang] = useState<Lang>('id');
   const t = T[lang];
   const [preparing, setPreparing] = useState(false);
+  const [sel, setSel] = useState<number>(p.rows[0]?.no ?? 0); // gambar yang sedang diatur di panel ukuran
   // Ukuran tinggi gambar (mm), disimpan di browser.
   const [imgH, setImgH] = useState(56);
   useEffect(() => {
     try { const v = Number(localStorage.getItem('fanos-ls-img-h')); if (v >= 25 && v <= 110) setImgH(v); } catch {}
   }, []);
-  const changeImgH = (v: number) => { setImgH(v); try { localStorage.setItem('fanos-ls-img-h', String(v)); } catch {} };
   // Ukuran per gambar (menimpa ukuran umum), disimpan per dokumen di browser.
   const sizesKey = `fanos-ls-img-sizes-${p.specId}`;
   const [sizes, setSizes] = useState<Record<number, number>>({});
@@ -44,6 +43,12 @@ export default function LightingSpecPrint(p: {
       if (v && typeof v === 'object') setSizes(v);
     } catch {}
   }, [sizesKey]);
+  // Slider umum: mengubah ukuran SEMUA gambar sekaligus (ukuran per gambar yang pernah diatur ikut disamakan).
+  const changeImgH = (v: number) => {
+    setImgH(v);
+    setSizes({});
+    try { localStorage.setItem('fanos-ls-img-h', String(v)); localStorage.removeItem(sizesKey); } catch {}
+  };
   const setSize = (no: number, mm: number | null) => {
     setSizes((prev) => {
       const next = { ...prev };
@@ -75,9 +80,21 @@ export default function LightingSpecPrint(p: {
         .ls-sheet table.items td { border: 1px solid #d4d4d8; padding: 6px 8px; vertical-align: middle; }
         .ls-sheet table.items tr { break-inside: avoid; page-break-inside: avoid; }
         .ls-img { width: 100%; height: var(--ls-img-h, 56mm); object-fit: contain; display: block; }
-        .ls-ctl { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 9px; color: #64748b; }
-                .ls-ctl button { border: 1px solid #e2e8f0; border-radius: 4px; padding: 0 4px; font-size: 10px; cursor: pointer; background: #fff; }
-        @media print { .ls-ctl { display: none !important; } }
+        .ls-pick { cursor: pointer; }
+        .ls-sel { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 2px; }
+        .ls-panel { position: fixed; right: 20px; top: 96px; z-index: 20; width: 250px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 14px 14px; box-shadow: 0 10px 30px rgba(15,23,42,.12); color: #1e293b; }
+        .ls-panel-title { font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
+        .ls-panel-sec { padding: 8px 0; border-top: 1px solid #f1f5f9; }
+        .ls-panel-sec:first-of-type { border-top: 0; }
+        .ls-panel-lbl { font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; }
+        .ls-panel select { width: 100%; height: 32px; margin-bottom: 6px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 8px; font-size: 12px; background: #fff; color: #1e293b; }
+        .ls-panel-row { display: flex; gap: 6px; margin-top: 6px; }
+        .ls-panel-row button { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px 6px; font-size: 11px; font-weight: 600; color: #475569; background: #fff; cursor: pointer; }
+        .ls-panel-row button:hover:not(:disabled) { background: #f8fafc; }
+        .ls-panel-row button:disabled { opacity: .4; cursor: default; }
+        .ls-panel-hint { margin-top: 6px; font-size: 10px; color: #94a3b8; }
+        @media (max-width: 1260px) { .ls-panel { position: static; width: auto; max-width: 210mm; margin: 0 auto 12px; } }
+        @media print { .ls-panel { display: none !important; } .ls-sel { outline: none !important; } }
         .ls-noimg { width: 100%; height: var(--ls-img-h, 56mm); display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
         .ls-spec div { padding: 1px 0; }
         .ls-sign { display: flex; gap: 40px; margin-top: 22px; break-inside: avoid; }
@@ -112,12 +129,6 @@ export default function LightingSpecPrint(p: {
       <div className="ls-toolbar mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 print:hidden" data-no-cards data-no-i18n>
         <Link href="/dashboard/lighting-specification" className="text-sm font-medium text-slate-500 hover:text-slate-700">← Kembali</Link>
         <div className="flex flex-wrap items-center gap-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
-            <span className="max-w-[90px] leading-tight">{lang === 'id' ? 'Ukuran gambar (umum)' : 'Image size (default)'}</span>
-            <DialSlider className="w-44 text-slate-700" value={imgH} min={25} max={110} onChange={changeImgH} unit="mm" />
-            <button type="button" onClick={() => changeImgH(56)} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-500 hover:bg-slate-50">Reset</button>
-            <button type="button" onClick={() => { setSizes({}); try { localStorage.removeItem(sizesKey); } catch {} }} disabled={Object.keys(sizes).length === 0} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-500 hover:bg-slate-50 disabled:opacity-40">{lang === 'id' ? 'Samakan semua' : 'Apply to all'}</button>
-          </div>
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-sm font-semibold">
             {(['id', 'en'] as Lang[]).map((l) => (
               <button key={l} type="button" onClick={() => setLang(l)} className={`px-3 py-2 ${lang === l ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
@@ -128,6 +139,31 @@ export default function LightingSpecPrint(p: {
           <button type="button" onClick={doPrint} disabled={preparing} className="rounded-lg disabled:opacity-60 bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-600">🖨️ Cetak / Simpan PDF</button>
         </div>
       </div>
+
+      {/* Panel ukuran gambar: di luar kertas & posisinya tetap, jadi tidak ikut bergeser saat ukuran diubah / halaman di-scroll */}
+      <aside className="ls-panel print:hidden" data-no-cards data-no-i18n>
+        <div className="ls-panel-title">{lang === 'id' ? 'Ukuran Gambar' : 'Image Size'}</div>
+        <div className="ls-panel-sec">
+          <div className="ls-panel-lbl">{lang === 'id' ? 'Semua gambar' : 'All images'}</div>
+          <DialSlider value={imgH} min={25} max={110} onChange={changeImgH} unit="mm" />
+          <div className="ls-panel-row">
+            <button type="button" onClick={() => changeImgH(56)}>Reset</button>
+          </div>
+        </div>
+        <div className="ls-panel-sec">
+          <div className="ls-panel-lbl">{lang === 'id' ? 'Per gambar' : 'Per image'}</div>
+          <select value={sel} onChange={(e) => setSel(Number(e.target.value))}>
+            {p.rows.map((r) => (
+              <option key={r.no} value={r.no}>{r.no}. {r.name}{sizes[r.no] != null ? ` — ${sizes[r.no]} mm` : ''}</option>
+            ))}
+          </select>
+          <DialSlider value={sizes[sel] ?? imgH} min={25} max={110} onChange={(v) => setSize(sel, v)} unit="mm" />
+          <div className="ls-panel-row">
+            <button type="button" onClick={() => setSize(sel, null)} disabled={sizes[sel] == null}>↺ {lang === 'id' ? 'Ikut ukuran umum' : 'Use default'}</button>
+          </div>
+          <div className="ls-panel-hint">{lang === 'id' ? 'Tips: klik gambar di kertas untuk memilihnya.' : 'Tip: click an image on the page to select it.'}</div>
+        </div>
+      </aside>
 
       <div className="ls-sheet paper" data-no-cards data-no-i18n style={{ ['--ls-img-h' as string]: `${imgH}mm` }}>
         <table className="layout">
@@ -184,12 +220,8 @@ export default function LightingSpecPrint(p: {
                       <td>
                         {r.image_url
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img className="ls-img" style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined} src={r.image_url} alt={r.name} loading="eager" decoding="async" />
-                          : <div className="ls-noimg" style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined}>—</div>}
-                        <div className="ls-ctl print:hidden" data-no-print>
-                          <DialSlider compact className="flex-1" value={sizes[r.no] ?? imgH} min={25} max={110} onChange={(v) => setSize(r.no, v)} unit="mm" label={lang === 'id' ? 'Gambar' : 'Image'} />
-                          {sizes[r.no] != null && <button type="button" onClick={() => setSize(r.no, null)} title={lang === 'id' ? 'Kembali ke ukuran umum' : 'Back to default size'}>↺</button>}
-                        </div>
+                          ? <img className={`ls-img ls-pick${sel === r.no ? ' ls-sel' : ''}`} onClick={() => setSel(r.no)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined} src={r.image_url} alt={r.name} loading="eager" decoding="async" />
+                          : <div className={`ls-noimg ls-pick${sel === r.no ? ' ls-sel' : ''}`} onClick={() => setSel(r.no)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined}>—</div>}
                       </td>
                       <td style={{ textAlign: 'center' }}>{fmtQty(r.qty)}</td>
                       <td style={{ textAlign: 'center' }}>{r.uom}</td>
@@ -200,7 +232,6 @@ export default function LightingSpecPrint(p: {
             </td></tr>
           </tbody>
         </table>
-        <BankInfo />
         <div className="ls-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.project}</span></div>
       </div>
     </div>

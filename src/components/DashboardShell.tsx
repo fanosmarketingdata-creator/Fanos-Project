@@ -321,13 +321,14 @@ export default function DashboardShell({
       const lg = window.matchMedia('(min-width: 1024px)').matches;
       // Sidebar (kiri/kanan) tidak memakan tinggi layar; bar bawah menggeser island notifikasi ke atas bar.
       root.style.setProperty('--hdr-h', `${lg && vertical ? 0 : el.offsetHeight}px`);
-      root.style.setProperty('--dock-b', `${lg && navPos === 'bottom' ? el.offsetHeight : 0}px`);
+      // Bar di bawah: island notifikasi dipindah ke atas layar (lihat globals.css, html[data-dock]).
+      if (lg && navPos === 'bottom') root.setAttribute('data-dock', 'bottom'); else root.removeAttribute('data-dock');
     };
     set();
     const ro = new ResizeObserver(set);
     ro.observe(el);
     window.addEventListener('resize', set);
-    return () => { ro.disconnect(); window.removeEventListener('resize', set); document.documentElement.style.setProperty('--dock-b', '0px'); };
+    return () => { ro.disconnect(); window.removeEventListener('resize', set); document.documentElement.removeAttribute('data-dock'); };
   }, [vertical, navPos]);
   useEffect(() => {
     if (!openId && !mobileOpen) return;

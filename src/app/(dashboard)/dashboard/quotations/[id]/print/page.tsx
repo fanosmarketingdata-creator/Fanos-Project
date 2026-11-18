@@ -10,7 +10,7 @@ export default async function QuotationPrintPage({ params }: { params: { id: str
   const [{ data: q }, { data: items }] = await Promise.all([
     supabase
       .from('quotations')
-      .select('id, doc_no, quote_date, validity_date, discounts, charges, total_amount, clients(client_no, project_name, company, contact_name, address, city, phone), boq_projects(project_name)')
+      .select('id, doc_no, quote_date, validity_date, project_name, discounts, charges, total_amount, clients(client_no, project_name, company, contact_name, address, city, phone), boq_projects(project_name)')
       .eq('id', params.id)
       .single(),
     supabase
@@ -21,10 +21,14 @@ export default async function QuotationPrintPage({ params }: { params: { id: str
   ]);
   if (!q) notFound();
 
+  const emptySkus = (items ?? []).filter((it) => !it.description && it.sku).map((it) => it.sku as string);
+  const { data: pn } = emptySkus.length ? await supabase.from('products').select('sku, name').in('sku', emptySkus) : { data: [] as { sku: string; name: string }[] };
+  const nameBySku = new Map((pn ?? []).map((x) => [x.sku, x.name]));
+
   const rows = (items ?? []).map((it, i) => ({
     no: i + 1,
     sku: it.sku,
-    name: it.description ?? '',
+    name: it.description || nameBySku.get(it.sku as string) || '',
     qty: num(it.qty),
     uom: it.uom ?? '',
     price: num(it.unit_price),
@@ -41,7 +45,7 @@ export default async function QuotationPrintPage({ params }: { params: { id: str
   const boq = one<{ project_name: string }>(q.boq_projects);
 
   return (
-    <PrintModal backHref="/dashboard/quotations" showPrint={false} split>
+    <PrintModal backHref="/dashboard/quotations" showPrint={false} showBank={false} split>
       <QuotationLetter
         quoteId={q.id}
         docNo={q.doc_no ?? '-'}
@@ -49,7 +53,7 @@ export default async function QuotationPrintPage({ params }: { params: { id: str
         company={client?.company || client?.project_name || '-'}
         clientNo={client?.client_no ?? ''}
         contactName={client?.contact_name ?? ''}
-        project={boq?.project_name ?? client?.project_name ?? ''}
+        project={boq?.project_name || q.project_name || client?.project_name || ''}
         rows={rows.map((r) => ({ no: r.no, sku: r.sku ?? '', name: r.name, qty: String(r.qty), uom: r.uom, price: 'Rp' + r.price, total: 'Rp' + r.total }))}
         subtotal={subtotal}
         discounts={q.discounts ?? []}

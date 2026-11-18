@@ -37,7 +37,7 @@ export default async function POPrintPage({ params }: { params: { id: string } }
   const total = (items ?? []).reduce((s, it) => s + Number(it.subtotal), 0);
 
   return (
-    <PrintModal backHref="/dashboard/purchase-orders" docNo={po.doc_no}>
+    <PrintModal backHref="/dashboard/purchase-orders" docNo={po.doc_no} bankKey="po" bankDefaultNone>
       
       <PrintDocument
         title="PURCHASE ORDER"

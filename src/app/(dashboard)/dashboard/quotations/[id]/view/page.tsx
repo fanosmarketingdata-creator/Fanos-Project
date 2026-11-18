@@ -14,6 +14,10 @@ export default async function QuotationViewPage({ params }: { params: { id: stri
   if (!q) notFound();
   const client = one<{ project_name: string }>(q.clients);
   const boq = one<{ project_name: string }>(q.boq_projects);
+  // Data lama: deskripsi kosong → pakai nama produk dari master berdasarkan SKU.
+  const emptySkus = (items ?? []).filter((it) => !it.description && it.sku).map((it) => it.sku as string);
+  const { data: pn } = emptySkus.length ? await supabase.from('products').select('sku, name').in('sku', emptySkus) : { data: [] as { sku: string; name: string }[] };
+  const nameBySku = new Map((pn ?? []).map((x) => [x.sku, x.name]));
   const subtotal = (items ?? []).reduce((s, it) => s + Number(it.subtotal), 0);
   const { rows, total } = buildSummary(subtotal, q.discounts ?? [], q.charges ?? [], 'Total Penawaran');
 
@@ -30,7 +34,7 @@ export default async function QuotationViewPage({ params }: { params: { id: stri
       <DetailTableBlock t={{
         title: 'Daftar Item',
         columns: [{ label: 'No' }, { label: 'SKU', align: 'l' }, { label: 'Deskripsi', align: 'l' }, { label: 'Qty' }, { label: 'UOM' }, { label: 'Harga Satuan', align: 'r' }, { label: 'Jumlah', align: 'r' }],
-        rows: (items ?? []).map((it, i) => [i + 1, it.sku, it.description ?? '', num(it.qty), it.uom ?? '', `Rp ${num(it.unit_price)}`, `Rp ${num(it.subtotal)}`]),
+        rows: (items ?? []).map((it, i) => [i + 1, it.sku, it.description || nameBySku.get(it.sku as string) || '', num(it.qty), it.uom ?? '', `Rp ${num(it.unit_price)}`, `Rp ${num(it.subtotal)}`]),
       }} />
       <DetailSummary rows={rows} />
     </DetailShell>

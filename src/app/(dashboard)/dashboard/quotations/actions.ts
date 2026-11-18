@@ -79,11 +79,19 @@ export async function saveQuotation(input: QuotationInput) {
     quoteId = data.id;
   }
 
+  // Deskripsi kosong → isi dengan nama produk (berdasarkan SKU) agar tampil di detail & cetak.
+  const missing = Array.from(new Set(validItems.filter((it) => !it.description?.trim() && it.sku).map((it) => it.sku)));
+  const nameBySku = new Map<string, string>();
+  if (missing.length) {
+    const { data: pn } = await supabase.from('products').select('sku, name').in('sku', missing);
+    (pn ?? []).forEach((x) => nameBySku.set(x.sku as string, x.name as string));
+  }
+
   const rows = validItems.map((it, i) => ({
     quotation_id: quoteId,
     product_id: it.product_id,
     sku: it.sku,
-    description: it.description || null,
+    description: it.description?.trim() || nameBySku.get(it.sku) || null,
     qty: it.qty,
     uom: it.uom,
     unit_price: it.unit_price,

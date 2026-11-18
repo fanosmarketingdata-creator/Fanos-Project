@@ -14,10 +14,14 @@ export default function PrintModal({
   showPrint = true,
   split = false,
   showBank = true,
+  bankKey,
+  bankDefaultNone = false,
   children,
 }: {
   backHref: string;
   docNo?: string | null;
+  bankKey?: string; // pilihan rekening diingat terpisah per jenis dokumen
+  bankDefaultNone?: boolean; // true: default "Tanpa rekening" (mis. Purchase Order)
   showBank?: boolean; // false: dokumen tanpa info rekening (Surat Jalan, Packing List)
   split?: boolean; // true: isi memenuhi modal (form kiri + pratinjau kanan, masing-masing scroll sendiri)
   showPrint?: boolean; // false: dokumen sudah punya toolbar sendiri (opsi kertas dsb.)
@@ -26,7 +30,7 @@ export default function PrintModal({
   const router = useRouter();
   const close = () => router.push(backHref);
   return (
-    <BankProvider enabled={showBank}>
+    <BankProvider enabled={showBank} storageKey={bankKey} defaultNone={bankDefaultNone}>
     <div className={`print-modal ${split ? 'print-split' : ''}`}>
       <FullModal
         title="Cetak"

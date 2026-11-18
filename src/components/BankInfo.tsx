@@ -6,12 +6,12 @@ import { createClient } from '@/lib/supabase/client';
 // Pilihan rekening diambil dari master Finance → Payment Method (yang berisi data rekening).
 export type BankOption = { id: string; name: string; bank_name: string | null; account_no: string | null; account_holder: string | null; account_note: string | null };
 const NONE = 'none';
-const KEY = 'fanos-print-bank';
 
 type Ctx = { enabled: boolean; options: BankOption[]; loaded: boolean; bankId: string; setBankId: (v: string) => void };
 const BankCtx = createContext<Ctx>({ enabled: true, options: [], loaded: false, bankId: '', setBankId: () => {} });
 
-export function BankProvider({ children, enabled = true }: { children: React.ReactNode; enabled?: boolean }) {
+export function BankProvider({ children, enabled = true, storageKey, defaultNone = false }: { children: React.ReactNode; enabled?: boolean; storageKey?: string; defaultNone?: boolean }) {
+  const KEY = storageKey ? `fanos-print-bank-${storageKey}` : 'fanos-print-bank';
   const [options, setOptions] = useState<BankOption[]>([]);
   const [loaded, setLoaded] = useState(false);
   const [bankId, setBankIdState] = useState('');
@@ -26,7 +26,7 @@ export function BankProvider({ children, enabled = true }: { children: React.Rea
         const list = ((data ?? []) as BankOption[]).filter((o) => o.account_no || o.bank_name || o.account_holder || o.account_note);
         if (!alive) return;
         setOptions(list);
-        setBankIdState(saved === NONE || list.some((o) => o.id === saved) ? saved : (list[0]?.id ?? NONE));
+        setBankIdState(saved === NONE || list.some((o) => o.id === saved) ? saved : (defaultNone ? NONE : (list[0]?.id ?? NONE)));
       } catch {
         if (alive) setBankIdState(NONE);
       } finally {

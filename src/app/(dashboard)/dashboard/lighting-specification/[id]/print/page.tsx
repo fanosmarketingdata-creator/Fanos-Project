@@ -26,7 +26,7 @@ export default async function LightingSpecPrintPage({ params }: { params: { id: 
   const boq = spec.boq_projects as unknown as { project_name: string; clients: { company: string | null; project_name: string; contact_name: string | null; address: string | null } | null } | null;
 
   return (
-    <PrintModal backHref="/dashboard/lighting-specification" showPrint={false}>
+    <PrintModal backHref="/dashboard/lighting-specification" showPrint={false} showBank={false}>
       <LightingSpecPrint
         specId={spec.id as string}
         project={boq?.project_name ?? '-'}

@@ -828,3 +828,25 @@ html.dark body:has(.maint-wrap) { background: #000; }
 .nav-pop[data-pos='right'] { animation-name: nav-pop-in-right; transform-origin: top right; }
 @keyframes nav-pop-in-left { from { opacity: 0; transform: translateX(-6px) scale(.98); } to { opacity: 1; transform: none; } }
 @keyframes nav-pop-in-right { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }
+
+/* Bar menu di bawah: notifikasi dynamic island pindah ke ATAS layar (muncul turun dari atas). */
+html[data-dock='bottom'] .di-wrap, html[data-dock='bottom'] .mi-notice, html[data-dock='bottom'] .ai-wrap { bottom: auto; top: 22px; }
+html[data-dock='bottom'] .mi-notice { align-items: flex-start; }
+html[data-dock='bottom'] .di, html[data-dock='bottom'] .mi-card, html[data-dock='bottom'] .ai-card { transform-origin: top center; }
+html[data-dock='bottom'] .di { animation-name: di-in-top; }
+html[data-dock='bottom'] .di.out { animation-name: di-out-top; }
+html[data-dock='bottom'] .mi-card { animation-name: mi-rise-top; }
+html[data-dock='bottom'] .ai-card { animation-name: ai-rise-top; }
+html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
+@keyframes di-in-top {
+  0% { max-width: 40px; padding-right: 7px; transform: translateY(-18px) scale(.6); opacity: 0; }
+  40% { opacity: 1; }
+  100% { max-width: min(92vw, 560px); padding-right: 18px; transform: none; opacity: 1; }
+}
+@keyframes di-out-top {
+  0% { max-width: min(92vw, 560px); opacity: 1; transform: none; }
+  100% { max-width: 40px; padding-right: 7px; opacity: 0; transform: translateY(-14px) scale(.6); }
+}
+@keyframes mi-rise-top { from { transform: translateY(-26px) scale(.6); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes ai-rise-top { from { transform: translateY(-26px) scale(.6); opacity: 0; } 40% { opacity: 1; } to { transform: none; opacity: 1; } }
+@keyframes ai-fall-top { to { transform: translateY(-20px) scale(.7); opacity: 0; } }

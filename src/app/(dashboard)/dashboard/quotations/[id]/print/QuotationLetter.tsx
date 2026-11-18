@@ -2,7 +2,6 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
-import BankInfo from '@/components/BankInfo';
 import RichTextEditor from '@/components/RichTextEditor';
 import Select from '@/components/ui/Select';
 import { RT_MARK, isRich, toRich, valueToHtml } from '@/lib/rich-text';
@@ -257,7 +256,6 @@ export default function QuotationLetter(p: {
         </div>
       ),
     });
-    out.push({ kind: 'blk', node: <BankInfo /> });
     return out;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [mounted, lang, attn, pembuka, syarat, penutup, signer, role, p.rows, p.company, p.docNo, openingHtml, date, grand]);
