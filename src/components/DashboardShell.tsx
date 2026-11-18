@@ -263,12 +263,12 @@ export default function DashboardShell({
   const isSuperuser = profile.role === 'Superuser';
   const nl = useNavLabel();
 
-  // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
+  // Superuser melihat SEMUA menu (menu biasa + grup Superuser); role lain tidak pernah melihat grup Superuser.
   const visibleGroups = filterGroups(
-    // Superuser: menu Superuser + halaman utama (Dashboard); role lain tidak pernah melihat grup Superuser.
-    NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly || g.id === 'dashboard' : !g.superuserOnly)),
+    isSuperuser ? NAV_GROUPS : NAV_GROUPS.filter((g) => !g.superuserOnly),
     isSuperuser ? null : allowedMenus
   );
+
 
   // Posisi bar menu: dipilih di menu profil, disimpan per browser. Layar < lg selalu memakai bar atas.
   const [navPos, setNavPosState] = useState<NavPos>('top');
