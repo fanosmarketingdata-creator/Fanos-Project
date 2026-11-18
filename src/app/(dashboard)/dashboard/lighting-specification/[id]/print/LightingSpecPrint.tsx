@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import DialSlider from '@/components/DialSlider';
 
@@ -28,7 +28,27 @@ export default function LightingSpecPrint(p: {
   const [lang, setLang] = useState<Lang>('id');
   const t = T[lang];
   const [preparing, setPreparing] = useState(false);
-  const [sel, setSel] = useState<number>(p.rows[0]?.no ?? 0); // gambar yang sedang diatur di panel ukuran
+  // Slider per gambar: muncul di bawah gambar yang diklik. Posisinya dikunci saat dibuka (tidak ikut bergeser saat ukuran berubah).
+  const [pop, setPop] = useState<{ no: number; top: number; left: number } | null>(null);
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const openPop = (no: number, el: HTMLElement) => {
+    const w = wrapRef.current;
+    if (!w) return;
+    const wr = w.getBoundingClientRect(), r = el.getBoundingClientRect();
+    setPop({ no, top: r.bottom - wr.top + 8, left: r.left + r.width / 2 - wr.left });
+  };
+  useEffect(() => {
+    if (!pop) return;
+    const down = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest('.ls-pop') || t.closest('.ls-pick')) return;
+      setPop(null);
+    };
+    const key = (e: KeyboardEvent) => { if (e.key === 'Escape') setPop(null); };
+    document.addEventListener('mousedown', down);
+    document.addEventListener('keydown', key);
+    return () => { document.removeEventListener('mousedown', down); document.removeEventListener('keydown', key); };
+  }, [pop]);
   // Ukuran tinggi gambar (mm), disimpan di browser.
   const [imgH, setImgH] = useState(56);
   useEffect(() => {
@@ -82,19 +102,12 @@ export default function LightingSpecPrint(p: {
         .ls-img { width: 100%; height: var(--ls-img-h, 56mm); object-fit: contain; display: block; }
         .ls-pick { cursor: pointer; }
         .ls-sel { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 2px; }
-        .ls-panel { position: fixed; right: 20px; top: 96px; z-index: 20; width: 250px; background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 12px 14px 14px; box-shadow: 0 10px 30px rgba(15,23,42,.12); color: #1e293b; }
-        .ls-panel-title { font-size: 12px; font-weight: 800; letter-spacing: .04em; text-transform: uppercase; color: #64748b; margin-bottom: 8px; }
-        .ls-panel-sec { padding: 8px 0; border-top: 1px solid #f1f5f9; }
-        .ls-panel-sec:first-of-type { border-top: 0; }
-        .ls-panel-lbl { font-size: 11px; font-weight: 700; color: #475569; margin-bottom: 4px; }
-        .ls-panel select { width: 100%; height: 32px; margin-bottom: 6px; border: 1px solid #e2e8f0; border-radius: 8px; padding: 0 8px; font-size: 12px; background: #fff; color: #1e293b; }
-        .ls-panel-row { display: flex; gap: 6px; margin-top: 6px; }
-        .ls-panel-row button { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 5px 6px; font-size: 11px; font-weight: 600; color: #475569; background: #fff; cursor: pointer; }
-        .ls-panel-row button:hover:not(:disabled) { background: #f8fafc; }
-        .ls-panel-row button:disabled { opacity: .4; cursor: default; }
-        .ls-panel-hint { margin-top: 6px; font-size: 10px; color: #94a3b8; }
-        @media (max-width: 1260px) { .ls-panel { position: static; width: auto; max-width: 210mm; margin: 0 auto 12px; } }
-        @media print { .ls-panel { display: none !important; } .ls-sel { outline: none !important; } }
+        .ls-pop { position: absolute; z-index: 30; width: 230px; transform: translateX(-50%); background: #fff; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 12px 10px; box-shadow: 0 10px 30px rgba(15,23,42,.18); }
+        .ls-pop-row { display: flex; gap: 6px; margin-top: 6px; }
+        .ls-pop-row button { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 6px; font-size: 11px; font-weight: 600; color: #475569; background: #fff; cursor: pointer; }
+        .ls-pop-row button:hover:not(:disabled) { background: #f8fafc; }
+        .ls-pop-row button:disabled { opacity: .4; cursor: default; }
+        @media print { .ls-pop { display: none !important; } .ls-sel { outline: none !important; } }
         .ls-noimg { width: 100%; height: var(--ls-img-h, 56mm); display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
         .ls-spec div { padding: 1px 0; }
         .ls-sign { display: flex; gap: 40px; margin-top: 22px; break-inside: avoid; }
@@ -129,6 +142,11 @@ export default function LightingSpecPrint(p: {
       <div className="ls-toolbar mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 print:hidden" data-no-cards data-no-i18n>
         <Link href="/dashboard/lighting-specification" className="text-sm font-medium text-slate-500 hover:text-slate-700">← Kembali</Link>
         <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <span className="max-w-[90px] leading-tight">{lang === 'id' ? 'Ukuran gambar (semua)' : 'Image size (all)'}</span>
+            <DialSlider className="w-44 text-slate-700" value={imgH} min={25} max={110} onChange={changeImgH} unit="mm" />
+            <button type="button" onClick={() => changeImgH(56)} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-500 hover:bg-slate-50">Reset</button>
+          </div>
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-sm font-semibold">
             {(['id', 'en'] as Lang[]).map((l) => (
               <button key={l} type="button" onClick={() => setLang(l)} className={`px-3 py-2 ${lang === l ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
@@ -140,31 +158,7 @@ export default function LightingSpecPrint(p: {
         </div>
       </div>
 
-      {/* Panel ukuran gambar: di luar kertas & posisinya tetap, jadi tidak ikut bergeser saat ukuran diubah / halaman di-scroll */}
-      <aside className="ls-panel print:hidden" data-no-cards data-no-i18n>
-        <div className="ls-panel-title">{lang === 'id' ? 'Ukuran Gambar' : 'Image Size'}</div>
-        <div className="ls-panel-sec">
-          <div className="ls-panel-lbl">{lang === 'id' ? 'Semua gambar' : 'All images'}</div>
-          <DialSlider value={imgH} min={25} max={110} onChange={changeImgH} unit="mm" />
-          <div className="ls-panel-row">
-            <button type="button" onClick={() => changeImgH(56)}>Reset</button>
-          </div>
-        </div>
-        <div className="ls-panel-sec">
-          <div className="ls-panel-lbl">{lang === 'id' ? 'Per gambar' : 'Per image'}</div>
-          <select value={sel} onChange={(e) => setSel(Number(e.target.value))}>
-            {p.rows.map((r) => (
-              <option key={r.no} value={r.no}>{r.no}. {r.name}{sizes[r.no] != null ? ` — ${sizes[r.no]} mm` : ''}</option>
-            ))}
-          </select>
-          <DialSlider value={sizes[sel] ?? imgH} min={25} max={110} onChange={(v) => setSize(sel, v)} unit="mm" />
-          <div className="ls-panel-row">
-            <button type="button" onClick={() => setSize(sel, null)} disabled={sizes[sel] == null}>↺ {lang === 'id' ? 'Ikut ukuran umum' : 'Use default'}</button>
-          </div>
-          <div className="ls-panel-hint">{lang === 'id' ? 'Tips: klik gambar di kertas untuk memilihnya.' : 'Tip: click an image on the page to select it.'}</div>
-        </div>
-      </aside>
-
+      <div ref={wrapRef} className="ls-sheet-wrap" style={{ position: 'relative' }}>
       <div className="ls-sheet paper" data-no-cards data-no-i18n style={{ ['--ls-img-h' as string]: `${imgH}mm` }}>
         <table className="layout">
           <thead>
@@ -220,8 +214,8 @@ export default function LightingSpecPrint(p: {
                       <td>
                         {r.image_url
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img className={`ls-img ls-pick${sel === r.no ? ' ls-sel' : ''}`} onClick={() => setSel(r.no)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined} src={r.image_url} alt={r.name} loading="eager" decoding="async" />
-                          : <div className={`ls-noimg ls-pick${sel === r.no ? ' ls-sel' : ''}`} onClick={() => setSel(r.no)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined}>—</div>}
+                          ? <img className={`ls-img ls-pick${pop?.no === r.no ? ' ls-sel' : ''}`} onClick={(e) => openPop(r.no, e.currentTarget)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined} src={r.image_url} alt={r.name} loading="eager" decoding="async" />
+                          : <div className={`ls-noimg ls-pick${pop?.no === r.no ? ' ls-sel' : ''}`} onClick={(e) => openPop(r.no, e.currentTarget)} style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined}>—</div>}
                       </td>
                       <td style={{ textAlign: 'center' }}>{fmtQty(r.qty)}</td>
                       <td style={{ textAlign: 'center' }}>{r.uom}</td>
@@ -233,6 +227,16 @@ export default function LightingSpecPrint(p: {
           </tbody>
         </table>
         <div className="ls-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.project}</span></div>
+      </div>
+      {pop && (
+        <div className="ls-pop print:hidden" data-no-cards data-no-i18n style={{ top: pop.top, left: pop.left }}>
+          <DialSlider value={sizes[pop.no] ?? imgH} min={25} max={110} onChange={(v) => setSize(pop.no, v)} unit="mm" label={`${lang === 'id' ? 'Gambar' : 'Image'} ${pop.no}`} />
+          <div className="ls-pop-row">
+            <button type="button" onClick={() => setSize(pop.no, null)} disabled={sizes[pop.no] == null}>↺ {lang === 'id' ? 'Ikut ukuran semua' : 'Match all'}</button>
+            <button type="button" onClick={() => setPop(null)}>{lang === 'id' ? 'Tutup' : 'Close'}</button>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );

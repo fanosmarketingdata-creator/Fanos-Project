@@ -2,6 +2,7 @@
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import { useLang } from '@/components/I18nProvider';
 import RichTextEditor from '@/components/RichTextEditor';
 import Select from '@/components/ui/Select';
 import { RT_MARK, isRich, toRich, valueToHtml } from '@/lib/rich-text';
@@ -309,7 +310,7 @@ export default function QuotationLetter(p: {
     const el = rightRef.current;
     if (!el) return;
     // Satu halaman pas di dalam panel (lebar & tinggi), seperti pratinjau PDF.
-    const upd = () => setScale(Math.min(1, Math.max(0.3, Math.min((el.clientWidth - 32) / 794, (el.clientHeight - 32) / 1123))));
+    const upd = () => setScale(Math.min(1, Math.max(0.25, 0.9 * Math.min((el.clientWidth - 32) / 794, (el.clientHeight - 32) / 1123))));
     upd();
     const ro = new ResizeObserver(upd);
     ro.observe(el);
@@ -326,6 +327,41 @@ export default function QuotationLetter(p: {
     <thead {...(ref ? { 'data-thead': '' } : {})}><tr>{t.cols.map((h) => <th key={h}>{h}</th>)}</tr></thead>
   );
   const totalPages = Math.max(1, pages.length);
+  const en = useLang() === 'en'; // bahasa antarmuka aplikasi (terpisah dari bahasa surat)
+  const ui = (id: string, e: string) => (en ? e : id);
+  // Zoom pratinjau (kelipatan dari ukuran "pas") + geser (drag) saat diperbesar.
+  const [zoomMul, setZoomMul] = useState(1);
+  const ZMIN = 0.5, ZMAX = 4;
+  const zoomRef = useRef(1);
+  zoomRef.current = zoomMul;
+  const keep = useRef<{ fx: number; fy: number } | null>(null);
+  const applyZoom = (next: number) => {
+    const el = rightRef.current;
+    const z = Math.min(ZMAX, Math.max(ZMIN, Math.round(next * 100) / 100));
+    if (el && z !== zoomRef.current) keep.current = { fx: (el.scrollLeft + el.clientWidth / 2) / Math.max(1, el.scrollWidth), fy: (el.scrollTop + el.clientHeight / 2) / Math.max(1, el.scrollHeight) };
+    setZoomMul(z);
+  };
+  useLayoutEffect(() => {
+    const el = rightRef.current, k = keep.current;
+    if (!el || !k) return;
+    el.scrollLeft = k.fx * el.scrollWidth - el.clientWidth / 2;
+    el.scrollTop = k.fy * el.scrollHeight - el.clientHeight / 2;
+    keep.current = null;
+  }, [zoomMul]);
+  useEffect(() => {
+    const el = rightRef.current;
+    if (!el) return;
+    // Ctrl + scroll (atau pinch di trackpad) = zoom. Scroll biasa tetap menggulung/geser halaman.
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      applyZoom(zoomRef.current * (e.deltaY < 0 ? 1.1 : 1 / 1.1));
+    };
+    el.addEventListener('wheel', onWheel, { passive: false });
+    return () => el.removeEventListener('wheel', onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+  const pan = useRef<{ x: number; y: number; l: number; t: number } | null>(null);
   // Pratinjau menampilkan satu halaman per kali, dengan pager di bawah.
   const [cur, setCur] = useState(0);
   const [curText, setCurText] = useState('1');
@@ -392,8 +428,25 @@ export default function QuotationLetter(p: {
       </div>
 
       <div className="ql-right" data-no-cards data-no-i18n>
-       <div className="ql-stage" ref={rightRef}>
-        <div className="ql-pages" style={{ zoom: scale }}>
+       <div
+          className={`ql-stage${zoomMul > 1 ? ' ql-pannable' : ''}`}
+          ref={rightRef}
+          onPointerDown={(e) => {
+            if (e.pointerType !== 'mouse' || e.button !== 0 || !rightRef.current) return;
+            pan.current = { x: e.clientX, y: e.clientY, l: rightRef.current.scrollLeft, t: rightRef.current.scrollTop };
+            (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+          }}
+          onPointerMove={(e) => {
+            const g = pan.current, el = rightRef.current;
+            if (!g || !el) return;
+            el.scrollLeft = g.l - (e.clientX - g.x);
+            el.scrollTop = g.t - (e.clientY - g.y);
+          }}
+          onPointerUp={() => { pan.current = null; }}
+          onPointerCancel={() => { pan.current = null; }}
+          onDoubleClick={() => applyZoom(1)}
+        >
+        <div className="ql-pages" style={{ zoom: scale * zoomMul }}>
           {pages.map((idxs, pi) => {
             const groups: { row: boolean; items: number[] }[] = [];
             idxs.forEach((bi) => {
@@ -423,19 +476,24 @@ export default function QuotationLetter(p: {
         </div>
        </div>
         <div className="ql-pager print:hidden">
-          <button type="button" onClick={() => goto(0)} disabled={curSafe === 0} aria-label="Halaman pertama">«</button>
-          <button type="button" onClick={() => goto(curSafe - 1)} disabled={curSafe === 0} aria-label="Sebelumnya">‹</button>
+          <button type="button" onClick={() => goto(0)} disabled={curSafe === 0} aria-label={ui('Halaman pertama', 'First page')}>«</button>
+          <button type="button" onClick={() => goto(curSafe - 1)} disabled={curSafe === 0} aria-label={ui('Sebelumnya', 'Previous')}>‹</button>
           <input
             value={curText}
             inputMode="numeric"
             onChange={(e) => setCurText(e.target.value.replace(/\D/g, ''))}
             onBlur={() => goto((parseInt(curText, 10) || 1) - 1)}
             onKeyDown={(e) => { if (e.key === 'Enter') goto((parseInt(curText, 10) || 1) - 1); }}
-            aria-label="Nomor halaman"
+            aria-label={ui('Nomor halaman', 'Page number')}
           />
           <span>/ {totalPages}</span>
-          <button type="button" onClick={() => goto(curSafe + 1)} disabled={curSafe >= totalPages - 1} aria-label="Berikutnya">›</button>
-          <button type="button" onClick={() => goto(totalPages - 1)} disabled={curSafe >= totalPages - 1} aria-label="Halaman terakhir">»</button>
+          <button type="button" onClick={() => goto(curSafe + 1)} disabled={curSafe >= totalPages - 1} aria-label={ui('Berikutnya', 'Next')}>›</button>
+          <button type="button" onClick={() => goto(totalPages - 1)} disabled={curSafe >= totalPages - 1} aria-label={ui('Halaman terakhir', 'Last page')}>»</button>
+          <span className="ql-zoom">
+            <button type="button" onClick={() => applyZoom(zoomMul / 1.25)} disabled={zoomMul <= ZMIN} aria-label={ui('Perkecil', 'Zoom out')} title={ui('Perkecil', 'Zoom out')}>−</button>
+            <button type="button" className="ql-zoom-val" onClick={() => applyZoom(1)} title={ui('Kembali ke ukuran pas (klik dua kali pada halaman juga bisa)', 'Back to fit size (double-clicking the page works too)')}>{Math.round(zoomMul * 100)}%</button>
+            <button type="button" onClick={() => applyZoom(zoomMul * 1.25)} disabled={zoomMul >= ZMAX} aria-label={ui('Perbesar', 'Zoom in')} title={ui('Perbesar (Ctrl + scroll)', 'Zoom in (Ctrl + scroll)')}>+</button>
+          </span>
         </div>
       </div>
 
