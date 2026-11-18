@@ -265,7 +265,8 @@ export default function DashboardShell({
 
   // Superuser hanya melihat grup Superuser; role lain tidak pernah melihatnya.
   const visibleGroups = filterGroups(
-    NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly : !g.superuserOnly)),
+    // Superuser: menu Superuser + halaman utama (Dashboard); role lain tidak pernah melihat grup Superuser.
+    NAV_GROUPS.filter((g) => (isSuperuser ? !!g.superuserOnly || g.id === 'dashboard' : !g.superuserOnly)),
     isSuperuser ? null : allowedMenus
   );
 

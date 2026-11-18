@@ -1,4 +1,3 @@
-import { redirect } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { getCurrentProfile } from '@/lib/auth';
 import { loadPermissions } from '@/lib/permissions';
@@ -13,8 +12,6 @@ const n = (v: unknown) => Number(v ?? 0) || 0;
 
 export default async function DashboardPage() {
   const profile = await getCurrentProfile();
-  // Superuser hanya punya menu Superuser, jadi langsung diarahkan ke sana.
-  if (profile?.role === 'Superuser') redirect('/dashboard/team-members');
 
   const supabase = createClient();
   const now = new Date();
