@@ -41,7 +41,7 @@ export default async function QuotationPrintPage({ params }: { params: { id: str
   const boq = one<{ project_name: string }>(q.boq_projects);
 
   return (
-    <PrintModal backHref="/dashboard/quotations" showPrint={false}>
+    <PrintModal backHref="/dashboard/quotations" showPrint={false} split>
       <QuotationLetter
         quoteId={q.id}
         docNo={q.doc_no ?? '-'}

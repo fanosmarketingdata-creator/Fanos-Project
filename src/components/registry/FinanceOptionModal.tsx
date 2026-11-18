@@ -18,6 +18,7 @@ export default function FinanceOptionModal({
   const cfg = FINANCE_KINDS[kind];
   const [name, setName] = useState(option?.name ?? '');
   const [value, setValue] = useState(option?.value == null ? '' : String(option.value));
+  const [bank, setBank] = useState({ bank_name: option?.bank_name ?? '', account_no: option?.account_no ?? '', account_holder: option?.account_holder ?? '', account_note: option?.account_note ?? '' });
   const [saving, setSaving] = useState(false);
   const [err, setErr] = useState('');
 
@@ -25,7 +26,7 @@ export default function FinanceOptionModal({
     setSaving(true);
     setErr('');
     try {
-      const r = await saveFinanceOption({ id: option?.id, kind, name, value: value === '' ? null : Number(value) });
+      const r = await saveFinanceOption({ id: option?.id, kind, name, value: value === '' ? null : Number(value), ...(kind === 'payment_method' ? bank : {}) });
       if (r.error || !r.option) return setErr(r.error ?? 'Data gagal disimpan.');
       onSaved(r.option);
     } catch (e) {
@@ -67,6 +68,15 @@ export default function FinanceOptionModal({
             )}
             </FvField>
           </div>
+        )}
+        {kind === 'payment_method' && (
+          <>
+            <div style={{ marginTop: 18, fontSize: 12, fontWeight: 700, color: '#6b7280' }}>Keterangan Rekening (opsional — tampil di dokumen cetak)</div>
+            <div style={{ marginTop: 8 }}><FvField label="Bank / Cabang"><input value={bank.bank_name} onChange={(e) => setBank({ ...bank, bank_name: e.target.value })} placeholder="Contoh: BCA KCP Mahkota Ancol" /></FvField></div>
+            <div style={{ marginTop: 14 }}><FvField label="No. Rekening"><input value={bank.account_no} onChange={(e) => setBank({ ...bank, account_no: e.target.value })} placeholder="0000 0000 00" /></FvField></div>
+            <div style={{ marginTop: 14 }}><FvField label="Atas Nama"><input value={bank.account_holder} onChange={(e) => setBank({ ...bank, account_holder: e.target.value })} placeholder="Nama pemilik rekening" /></FvField></div>
+            <div style={{ marginTop: 14 }}><FvField label="Keterangan Tambahan"><input value={bank.account_note} onChange={(e) => setBank({ ...bank, account_note: e.target.value })} placeholder="Contoh: Mohon cantumkan No. Invoice" /></FvField></div>
+          </>
         )}
         {cfg.mode === 'amount' && (
           <div style={{ marginTop: 14 }}>

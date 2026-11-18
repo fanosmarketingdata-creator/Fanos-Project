@@ -59,6 +59,9 @@ export default function FinanceOptionsTable({ kind, rows }: { kind: FinanceKind;
               <div className="client-card-main">
                 <div className="name">{r.name}</div>
                 {valueText(r) && r.name !== valueText(r) && <div className="sub">{valueText(r)}</div>}
+                {kind === 'payment_method' && (r.bank_name || r.account_no) && (
+                  <div className="sub">{[r.bank_name, r.account_no, r.account_holder && `a/n ${r.account_holder}`].filter(Boolean).join(' · ')}</div>
+                )}
               </div>
               <div className="client-card-actions">
                 <button type="button" className="btn-action-icon btn-edit btn-xs" onClick={() => setForm({ option: r })} title="Edit">

@@ -96,8 +96,11 @@ begin
     insert into public.audit_logs (user_id, user_name, user_role, action, table_name, record_id, record_code, record_label, changes)
     values (uid, coalesce(pname, 'System'), prole, case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end,
             tg_table_name, rid, code, lbl, chg);
-    insert into public.activity_feed (user_id, user_name, action, table_name, record_code, record_label)
-    values (uid, coalesce(pname, 'System'), case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end, tg_table_name, code, lbl);
+    -- Aktivitas Superuser tetap masuk audit_logs, tetapi tidak dimunculkan sebagai notifikasi (lonceng / island).
+    if uid is null or not coalesce(public.is_superuser(), false) then
+      insert into public.activity_feed (user_id, user_name, action, table_name, record_code, record_label)
+      values (uid, coalesce(pname, 'System'), case tg_op when 'INSERT' then 'create' when 'UPDATE' then 'update' else 'delete' end, tg_table_name, code, lbl);
+    end if;
     if random() < 0.02 then
       delete from public.activity_feed where created_at < now() - interval '30 days'; -- feed notifikasi hanya menyimpan 30 hari
     end if;

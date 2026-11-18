@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import PrintDocument from '@/components/PrintDocument';
 import PrintModal from '@/components/PrintModal';
-import { COMPANY } from '@/lib/company';
 import { rupiah, num, dateShort } from '@/lib/format';
 import { buildTotals, clientLines, one, type PrintClient } from '@/lib/print-helpers';
 
@@ -54,7 +53,6 @@ export default async function InvoicePrintPage({ params }: { params: { id: strin
         ]}
         rows={rows}
         totals={totalRows}
-        notes={COMPANY.paymentInfo}
         signatures={['Disiapkan Oleh', 'Disetujui Oleh', 'Dikirim Oleh', 'Diterima Oleh']}
       />
     </PrintModal>

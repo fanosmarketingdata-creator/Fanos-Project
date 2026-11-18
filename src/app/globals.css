@@ -659,7 +659,7 @@ body, button, input, select, textarea { font-family: 'Outfit', 'Segoe UI', Arial
 html:has(.login-page), body:has(.login-page) { overflow: hidden; height: 100%; overscroll-behavior: none; }
 
 /* ===== Notifikasi "dynamic island" ===== */
-.di-wrap { position: fixed; bottom: 22px; left: 0; right: 0; z-index: 3000; display: flex; justify-content: center; pointer-events: none; }
+.di-wrap { position: fixed; bottom: calc(22px + var(--dock-b, 0px)); left: 0; right: 0; z-index: 3000; display: flex; justify-content: center; pointer-events: none; }
 .di {
   pointer-events: auto; display: inline-flex; align-items: center; gap: 10px; max-width: min(92vw, 560px);
   background: #000; color: #fff; border: 0; cursor: pointer; font-family: inherit;
@@ -724,7 +724,7 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 .mi { display: flex; justify-content: center; pointer-events: none; }
 .mi-page { min-height: calc(100vh - 32px); align-items: center; }
 /* Peringatan: di bawah tengah layar, sama seperti notifikasi toast (muncul naik dari bawah). */
-.mi-notice { position: fixed; bottom: 22px; left: 0; right: 0; z-index: 2900; align-items: flex-end; }
+.mi-notice { position: fixed; bottom: calc(22px + var(--dock-b, 0px)); left: 0; right: 0; z-index: 2900; align-items: flex-end; }
 .mi-card {
   pointer-events: auto; background: #0b0b0f; color: #fff; overflow: hidden;
   width: 210px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.28), 0 0 0 1px rgba(255,255,255,.08);
@@ -773,7 +773,7 @@ html.theme-fade *, html.theme-fade *::before, html.theme-fade *::after {
 @media (prefers-reduced-motion: reduce) { .mi-gear { animation: none; } .mi-gears { transition: none; } }
 
 /* ---- Dynamic island audit: muncul dari bawah (seperti toast) setiap ada aktivitas CRUD ---- */
-.ai-wrap { position: fixed; left: 0; right: 0; bottom: 22px; z-index: 2950; display: flex; justify-content: center; pointer-events: none; padding: 0 12px; }
+.ai-wrap { position: fixed; left: 0; right: 0; bottom: calc(22px + var(--dock-b, 0px)); z-index: 2950; display: flex; justify-content: center; pointer-events: none; padding: 0 12px; }
 .ai-card {
   pointer-events: auto; display: flex; align-items: center; gap: 10px; background: #0b0b0f; color: #fff;
   padding: 8px 18px 8px 8px; border-radius: 999px; max-width: min(92vw, 460px);
@@ -801,3 +801,30 @@ html.dark .mi-msg { color: #475569; }
 html.dark .mi-eta { color: #0f172a; }
 html.dark .mi-eta b { color: #b45309; }
 html.dark .mi-danger .mi-eta b { color: #dc2626; }
+
+/* Dark mode: toast "dynamic island" (berhasil/gagal) juga berlatar putih. */
+html.dark .di { background: #fff; color: #0b0b0f; box-shadow: 0 10px 30px rgba(0,0,0,.55), 0 0 0 1px rgba(15,23,42,.08); }
+html.dark .di .di-ic { color: #fff; }
+html.dark .di .di-msg { color: #0b0b0f; }
+html.dark .mi-eta { color: #0b0b0f; }
+html.dark .mi-eta b { color: #b45309; }
+html.dark .mi-danger .mi-eta b { color: #b91c1c; }
+
+/* Tombol di island maintenance (Muat Ulang / Keluar) — terbaca di latar hitam (terang) maupun putih (gelap). */
+.mi-btn { display: inline-block; background: #fff; color: #0f172a; border-radius: 10px; padding: 10px 18px; font-weight: 700; font-size: 14px; border: 0; cursor: pointer; }
+.mi-btn-ghost { background: rgba(255,255,255,.14); color: #fff; }
+html.dark .mi-btn { background: #0b0b0f; color: #fff; }
+html.dark .mi-btn-ghost { background: #e2e8f0; color: #0f172a; }
+
+/* Dark mode: latar halaman maintenance (di belakang island) hitam. */
+html.dark .maint-wrap { background: #000 !important; }
+html.dark body:has(.maint-wrap) { background: #000; }
+
+/* Posisi bar menu: panel dropdown ke bawah/atas/samping mengikuti posisi bar. */
+.nav-pop[data-pos='bottom'] { transform-origin: bottom left; }
+.nav-pop[data-pos='bottom'] { animation-name: nav-pop-in-up; }
+@keyframes nav-pop-in-up { from { opacity: 0; transform: translateY(6px) scale(.98); } to { opacity: 1; transform: none; } }
+.nav-pop[data-pos='left'] { animation-name: nav-pop-in-left; }
+.nav-pop[data-pos='right'] { animation-name: nav-pop-in-right; transform-origin: top right; }
+@keyframes nav-pop-in-left { from { opacity: 0; transform: translateX(-6px) scale(.98); } to { opacity: 1; transform: none; } }
+@keyframes nav-pop-in-right { from { opacity: 0; transform: translateX(6px) scale(.98); } to { opacity: 1; transform: none; } }

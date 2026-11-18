@@ -1,7 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import BankInfo from '@/components/BankInfo';
+import DialSlider from '@/components/DialSlider';
 
 type Lang = 'id' | 'en';
 export type PrintItem = { no: number; sku: string; name: string; image_url: string | null; spec: string[]; qty: number; uom: string; drawing_code: string };
@@ -27,6 +29,29 @@ export default function LightingSpecPrint(p: {
   const [lang, setLang] = useState<Lang>('id');
   const t = T[lang];
   const [preparing, setPreparing] = useState(false);
+  // Ukuran tinggi gambar (mm), disimpan di browser.
+  const [imgH, setImgH] = useState(56);
+  useEffect(() => {
+    try { const v = Number(localStorage.getItem('fanos-ls-img-h')); if (v >= 25 && v <= 110) setImgH(v); } catch {}
+  }, []);
+  const changeImgH = (v: number) => { setImgH(v); try { localStorage.setItem('fanos-ls-img-h', String(v)); } catch {} };
+  // Ukuran per gambar (menimpa ukuran umum), disimpan per dokumen di browser.
+  const sizesKey = `fanos-ls-img-sizes-${p.specId}`;
+  const [sizes, setSizes] = useState<Record<number, number>>({});
+  useEffect(() => {
+    try {
+      const v = JSON.parse(localStorage.getItem(sizesKey) || 'null');
+      if (v && typeof v === 'object') setSizes(v);
+    } catch {}
+  }, [sizesKey]);
+  const setSize = (no: number, mm: number | null) => {
+    setSizes((prev) => {
+      const next = { ...prev };
+      if (mm == null) delete next[no]; else next[no] = mm;
+      try { localStorage.setItem(sizesKey, JSON.stringify(next)); } catch {}
+      return next;
+    });
+  };
   const doPrint = () => {
     setPreparing(true);
     // beri waktu browser menggambar overlay sebelum print() memblokir thread
@@ -49,8 +74,11 @@ export default function LightingSpecPrint(p: {
         .ls-sheet table.items th { background: ${NAVY}; color: #fff; padding: 6px 4px; font-weight: 600; font-size: 10.5px; text-transform: none !important; letter-spacing: 0 !important; white-space: normal !important; word-break: normal; overflow-wrap: normal; line-height: 1.25; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
         .ls-sheet table.items td { border: 1px solid #d4d4d8; padding: 6px 8px; vertical-align: middle; }
         .ls-sheet table.items tr { break-inside: avoid; page-break-inside: avoid; }
-        .ls-img { width: 100%; height: 56mm; object-fit: contain; display: block; }
-        .ls-noimg { width: 100%; height: 56mm; display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
+        .ls-img { width: 100%; height: var(--ls-img-h, 56mm); object-fit: contain; display: block; }
+        .ls-ctl { display: flex; align-items: center; gap: 4px; margin-top: 4px; font-size: 9px; color: #64748b; }
+                .ls-ctl button { border: 1px solid #e2e8f0; border-radius: 4px; padding: 0 4px; font-size: 10px; cursor: pointer; background: #fff; }
+        @media print { .ls-ctl { display: none !important; } }
+        .ls-noimg { width: 100%; height: var(--ls-img-h, 56mm); display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
         .ls-spec div { padding: 1px 0; }
         .ls-sign { display: flex; gap: 40px; margin-top: 22px; break-inside: avoid; }
         .ls-sign > div { width: 180px; text-align: center; font-size: 11px; }
@@ -83,7 +111,13 @@ export default function LightingSpecPrint(p: {
 
       <div className="ls-toolbar mx-auto mb-4 flex w-full max-w-[210mm] flex-wrap items-center justify-between gap-2 rounded-xl border border-slate-200 bg-white p-3 print:hidden" data-no-cards data-no-i18n>
         <Link href="/dashboard/lighting-specification" className="text-sm font-medium text-slate-500 hover:text-slate-700">← Kembali</Link>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-slate-500">
+            <span className="max-w-[90px] leading-tight">{lang === 'id' ? 'Ukuran gambar (umum)' : 'Image size (default)'}</span>
+            <DialSlider className="w-44 text-slate-700" value={imgH} min={25} max={110} onChange={changeImgH} unit="mm" />
+            <button type="button" onClick={() => changeImgH(56)} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-500 hover:bg-slate-50">Reset</button>
+            <button type="button" onClick={() => { setSizes({}); try { localStorage.removeItem(sizesKey); } catch {} }} disabled={Object.keys(sizes).length === 0} className="rounded border border-slate-200 px-1.5 py-0.5 text-[11px] text-slate-500 hover:bg-slate-50 disabled:opacity-40">{lang === 'id' ? 'Samakan semua' : 'Apply to all'}</button>
+          </div>
           <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-sm font-semibold">
             {(['id', 'en'] as Lang[]).map((l) => (
               <button key={l} type="button" onClick={() => setLang(l)} className={`px-3 py-2 ${lang === l ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
@@ -95,7 +129,7 @@ export default function LightingSpecPrint(p: {
         </div>
       </div>
 
-      <div className="ls-sheet paper" data-no-cards data-no-i18n>
+      <div className="ls-sheet paper" data-no-cards data-no-i18n style={{ ['--ls-img-h' as string]: `${imgH}mm` }}>
         <table className="layout">
           <thead>
             <tr><td>
@@ -150,8 +184,12 @@ export default function LightingSpecPrint(p: {
                       <td>
                         {r.image_url
                           // eslint-disable-next-line @next/next/no-img-element
-                          ? <img className="ls-img" src={r.image_url} alt={r.name} loading="eager" decoding="async" />
-                          : <div className="ls-noimg">—</div>}
+                          ? <img className="ls-img" style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined} src={r.image_url} alt={r.name} loading="eager" decoding="async" />
+                          : <div className="ls-noimg" style={sizes[r.no] ? { height: `${sizes[r.no]}mm` } : undefined}>—</div>}
+                        <div className="ls-ctl print:hidden" data-no-print>
+                          <DialSlider compact className="flex-1" value={sizes[r.no] ?? imgH} min={25} max={110} onChange={(v) => setSize(r.no, v)} unit="mm" label={lang === 'id' ? 'Gambar' : 'Image'} />
+                          {sizes[r.no] != null && <button type="button" onClick={() => setSize(r.no, null)} title={lang === 'id' ? 'Kembali ke ukuran umum' : 'Back to default size'}>↺</button>}
+                        </div>
                       </td>
                       <td style={{ textAlign: 'center' }}>{fmtQty(r.qty)}</td>
                       <td style={{ textAlign: 'center' }}>{r.uom}</td>
@@ -162,6 +200,7 @@ export default function LightingSpecPrint(p: {
             </td></tr>
           </tbody>
         </table>
+        <BankInfo />
         <div className="ls-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.project}</span></div>
       </div>
     </div>

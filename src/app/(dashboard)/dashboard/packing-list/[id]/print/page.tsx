@@ -29,7 +29,7 @@ export default async function PackingPrintPage({ params }: { params: { id: strin
   }
 
   return (
-    <PrintModal backHref="/dashboard/packing-list" showPrint={false}>
+    <PrintModal backHref="/dashboard/packing-list" showPrint={false} showBank={false}>
       <PackingLetter
         docNo={p.doc_no ?? '-'}
         dateIso={String(p.pl_date).slice(0, 10)}

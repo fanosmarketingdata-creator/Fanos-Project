@@ -11,6 +11,10 @@ export const FINANCE_KINDS: Record<FinanceKind, { title: string; icon: string; m
   credit_limit: { title: 'Credit Limit', icon: 'fi fi-rr-hand-holding-usd', mode: 'amount', valueLabel: 'Nominal (Rp)', nameLabel: 'Label', example: 'Otomatis: Rp 10.000.000' },
 };
 
-export type FinanceOption = { id: string; kind: FinanceKind; name: string; value: number | null };
+export type FinanceOption = {
+  id: string; kind: FinanceKind; name: string; value: number | null;
+  // khusus payment_method: data rekening (opsional)
+  bank_name?: string | null; account_no?: string | null; account_holder?: string | null; account_note?: string | null;
+};
 
 export const rupiahLabel = (n: number) => 'Rp ' + n.toLocaleString('id-ID');

@@ -1,5 +1,7 @@
 import { COMPANY } from '@/lib/company';
 
+import BankInfo from '@/components/BankInfo';
+
 export type PrintParty = { label: string; lines: string[] };
 export type PrintColumn = { key: string; label: string; align?: 'left' | 'right' | 'center'; width?: string };
 export type PrintTotal = { label: string; value: string; bold?: boolean };
@@ -90,6 +92,7 @@ export default function PrintDocument({ title, meta, parties, columns, rows, tot
           {(notes ?? []).map((n, i) => (
             <div key={i}>{n}</div>
           ))}
+          <BankInfo />
         </div>
         {totals && totals.length > 0 && (
           <table className="h-fit min-w-[220px] border border-black">

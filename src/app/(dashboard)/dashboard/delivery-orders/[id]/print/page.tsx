@@ -24,7 +24,7 @@ export default async function DeliveryOrderPrintPage({ params }: { params: { id:
   });
 
   return (
-    <PrintModal backHref={`/dashboard/delivery-orders/${d.id}`} docNo={d.doc_no}>
+    <PrintModal backHref={`/dashboard/delivery-orders/${d.id}`} docNo={d.doc_no} showBank={false}>
       
       <PrintDocument
         title="SURAT JALAN"

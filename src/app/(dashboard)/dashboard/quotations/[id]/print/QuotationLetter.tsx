@@ -1,7 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import Link from 'next/link';
+import BankInfo from '@/components/BankInfo';
 import RichTextEditor from '@/components/RichTextEditor';
 import Select from '@/components/ui/Select';
 import { RT_MARK, isRich, toRich, valueToHtml } from '@/lib/rich-text';
@@ -187,43 +188,166 @@ export default function QuotationLetter(p: {
     </div>
   );
 
+  // ---- Blok-blok isi surat (dipecah per halaman ala Word) ----
+  type Block = { kind: 'blk' | 'row'; keep?: boolean; node: React.ReactNode };
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
+
+  const blocks: Block[] = useMemo(() => {
+    if (!mounted) return [];
+    const out: Block[] = [];
+    out.push({
+      kind: 'blk', node: (
+        <div>
+          <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, textDecoration: 'underline', letterSpacing: '1.5px', margin: '8px 0 16px' }}>{t.title}</div>
+          <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t.to}</span><span>{date}</span></div>
+          <div style={{ fontWeight: 700, textDecoration: 'underline', marginTop: 8 }}>{attnText}</div>
+          <div style={{ textDecoration: 'underline', marginTop: 4 }}>{p.company}</div>
+        </div>
+      ),
+    });
+    splitHtml(openingHtml).forEach((h, i, arr) => out.push({ kind: 'blk', node: <div className="rt-view" style={{ textAlign: 'justify', marginTop: i === 0 ? 14 : 0, marginBottom: i === arr.length - 1 ? 14 : 0 }} dangerouslySetInnerHTML={{ __html: h }} /> }));
+    p.rows.forEach((r) => out.push({
+      kind: 'row', node: (
+        <tr key={`r${r.no}`}>
+          <td style={{ textAlign: 'center' }}>{r.no}</td>
+          <td>{r.sku}</td>
+          <td>{r.name}</td>
+          <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{r.price}</td>
+          <td style={{ textAlign: 'center' }}>{r.qty}</td>
+          <td style={{ textAlign: 'center' }}>{r.uom}</td>
+          <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{r.total}</td>
+        </tr>
+      ),
+    }));
+    out.push({ kind: 'row', node: (
+      <tr key="tot" style={{ background: '#f4f4f5', fontWeight: 700 }}>
+        <td colSpan={6} style={{ textAlign: 'right' }}>{t.total}</td>
+        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{rp(p.subtotal)}</td>
+      </tr>
+    ) });
+    extra.forEach((x, i) => out.push({ kind: 'row', node: (
+      <tr key={`x${i}`} style={{ background: '#f4f4f5' }}>
+        <td colSpan={6} style={{ textAlign: 'right' }}>{x.label}</td>
+        <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{x.value}</td>
+      </tr>
+    ) }));
+    out.push({ kind: 'row', node: (
+      <tr key="grand" style={{ background: '#e8eaf6', fontWeight: 700 }}>
+        <td colSpan={6} style={{ textAlign: 'right' }}>{t.grand}</td>
+        <td style={{ textAlign: 'right', whiteSpace: 'nowrap', color: NAVY }}>{rp(grand)}</td>
+      </tr>
+    ) });
+    splitHtml(valueToHtml(syarat)).forEach((h, i) => out.push({
+      kind: 'blk', keep: i < 2,
+      node: <div className="rt-view" style={{ fontSize: 11.5, marginTop: i === 0 ? 18 : 0 }} dangerouslySetInnerHTML={{ __html: h }} />,
+    }));
+    splitHtml(valueToHtml(penutup)).forEach((h, i) => out.push({
+      kind: 'blk', node: <div className="rt-view" style={{ marginTop: i === 0 ? 18 : 0 }} dangerouslySetInnerHTML={{ __html: h }} />,
+    }));
+    out.push({
+      kind: 'blk', node: (
+        <div style={{ marginTop: 22 }}>
+          <div>{t.regards}</div>
+          <div>{t.slogan}</div>
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/logo-fanos.png" alt="" style={{ height: 24, marginTop: 10 }} />
+          <div style={{ width: 150, borderTop: '1px solid #000', marginTop: 8, paddingTop: 3, fontWeight: 700 }}>{signer || '................'}</div>
+          <div style={{ fontSize: 10.5, color: '#444' }}>{role}</div>
+        </div>
+      ),
+    });
+    out.push({ kind: 'blk', node: <BankInfo /> });
+    return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted, lang, attn, pembuka, syarat, penutup, signer, role, p.rows, p.company, p.docNo, openingHtml, date, grand]);
+
+  // ---- Paginasi: ukur tiap blok lalu isi halaman A4 satu per satu ----
+  const measureRef = useRef<HTMLDivElement>(null);
+  const [pages, setPages] = useState<number[][]>([]);
+  const computePages = () => {
+    const root = measureRef.current;
+    if (!root) return;
+    const probe = root.querySelector<HTMLElement>('[data-probe]');
+    const headEl = root.querySelector<HTMLElement>('[data-head]');
+    const theadEl = root.querySelector<HTMLElement>('[data-thead]');
+    if (!probe || !headEl || !theadEl) return;
+    const pageH = probe.offsetHeight;
+    const mm = pageH / 297;
+    const cap = pageH - mm * (12 + 20) - headEl.offsetHeight - 14 * 1.0; // 14px = jarak kop → isi
+    const theadH = theadEl.offsetHeight;
+    const hs = blocks.map((_, i) => root.querySelector<HTMLElement>(`[data-m="${i}"]`)?.getBoundingClientRect().height ?? 0);
+    const res: number[][] = [];
+    let cur: number[] = [];
+    let used = 0;
+    const need = (i: number, list: number[]) => hs[i] + (blocks[i].kind === 'row' && (list.length === 0 || blocks[list[list.length - 1]].kind !== 'row') ? theadH : 0);
+    for (let i = 0; i < blocks.length; i++) {
+      let h = need(i, cur);
+      // blok judul (keep) ikut pindah bila blok berikutnya tidak muat
+      const nextKeep = blocks[i].keep && blocks[i + 1] ? hs[i + 1] : 0;
+      if (cur.length > 0 && used + h + nextKeep > cap) { res.push(cur); cur = []; used = 0; h = need(i, cur); }
+      cur.push(i); used += h;
+    }
+    if (cur.length) res.push(cur);
+    setPages((prev) => (JSON.stringify(prev) === JSON.stringify(res) ? prev : res));
+  };
+  useLayoutEffect(() => { computePages(); });
+  useEffect(() => {
+    const f = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
+    f?.ready.then(() => computePages());
+    // Tinggi blok bisa berubah saat font selesai dimuat → hitung ulang.
+    const el = measureRef.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => computePages());
+    ro.observe(el);
+    return () => ro.disconnect();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [mounted]);
+
+  // Skala pratinjau mengikuti lebar panel kanan.
+  const rightRef = useRef<HTMLDivElement>(null);
+  const [scale, setScale] = useState(1);
+  useEffect(() => {
+    const el = rightRef.current;
+    if (!el) return;
+    const upd = () => setScale(Math.min(1, Math.max(0.4, (el.clientWidth - 40) / 794)));
+    upd();
+    const ro = new ResizeObserver(upd);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const colgroup = (
+    <colgroup>
+      <col style={{ width: '6%' }} /><col style={{ width: '15%' }} /><col style={{ width: '33%' }} /><col style={{ width: '16%' }} />
+      <col style={{ width: '7%' }} /><col style={{ width: '9%' }} /><col style={{ width: '14%' }} />
+    </colgroup>
+  );
+  const theadNode = (ref?: boolean) => (
+    <thead {...(ref ? { 'data-thead': '' } : {})}><tr>{t.cols.map((h) => <th key={h}>{h}</th>)}</tr></thead>
+  );
+  const totalPages = Math.max(1, pages.length);
+
   return (
     <div className="ql" style={{ fontFamily: "'Outfit', 'Segoe UI', Arial, sans-serif" }}>
-      <style>{`
-        .ql, .ql * { font-family: 'Outfit', 'Segoe UI', Arial, sans-serif !important; }
-        @page { size: A4; margin: 12mm 14mm 16mm; @bottom-left { content: "PT Fanosindo Internusa — Lighting & Electrical Consultant"; font: 8px 'Outfit', sans-serif; color: #888; }
-          @bottom-right { content: "${p.docNo} | " "${lang === 'id' ? 'hal.' : 'page'} " counter(page) " ${lang === 'id' ? 'dari' : 'of'} " counter(pages); font: 8px 'Outfit', sans-serif; color: #888; } }
-        .ql-sheet { max-width: 210mm; margin: 0 auto; background: #fff; padding: 12mm 14mm; box-shadow: 0 1px 8px rgba(0,0,0,.12); font-size: 12px; color: #000; line-height: 1.55; }
-        .ql-sheet table.layout { width: 100%; border-collapse: collapse; }
-        .ql-sheet table.items { width: 100%; border-collapse: collapse; font-size: 11px; }
-        .ql-sheet table.items th { background: ${NAVY}; color: #fff; padding: 6px 6px; font-weight: 600; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-        .ql-sheet table.items td { border: 1px solid #d4d4d8; padding: 5px 7px; vertical-align: top; }
-        .ql-sheet table.items tr { break-inside: avoid; }
-        .ql-screen-foot { display: flex; justify-content: space-between; margin-top: 18px; padding-top: 4px; border-top: 1px solid #e5e5e5; font-size: 9px; color: #888; }
-        .ql-break { break-before: page; }
-        @media print {
-          html, body, main { background: #fff !important; }
-          .ql-sheet { box-shadow: none; padding: 0; max-width: none; }
-          .ql-screen-foot, .ql-sep { display: none !important; }
-        }
-        .ql-sep { height: 18px; }
-      `}</style>
 
-      <div className="mx-auto mb-4 w-full max-w-[210mm] rounded-xl border border-slate-200 bg-white p-4 print:hidden" data-no-cards data-no-i18n>
-        <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
-          <Link href="/dashboard/quotations" className="text-sm font-medium text-slate-500 hover:text-slate-700">← Kembali</Link>
-          <div className="flex flex-wrap items-center gap-2">
+      <div className="ql-left print:hidden" data-no-cards data-no-i18n>
+        <div className="ql-left-bar">
+          <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="inline-flex overflow-hidden rounded-lg border border-slate-200 text-sm font-semibold">
               {(['id', 'en'] as Lang[]).map((l) => (
-                <button key={l} type="button" onClick={() => switchLang(l)} className={`px-3 py-2 ${lang === l ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
+                <button key={l} type="button" onClick={() => switchLang(l)} className={`px-3 py-1.5 ${lang === l ? 'bg-brand-500 text-white' : 'bg-white text-slate-600 hover:bg-slate-50'}`}>
                   {l === 'id' ? 'Indonesia' : 'English'}
                 </button>
               ))}
             </div>
-            <button type="button" onClick={reset} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50">Reset Default</button>
-            <button type="button" onClick={() => window.print()} className="rounded-lg bg-brand-500 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-brand-600">🖨️ Cetak / Simpan PDF</button>
+            <div className="flex items-center gap-2">
+              <button type="button" onClick={reset} className="rounded-lg border border-slate-200 px-3 py-1.5 text-sm font-medium text-slate-600 hover:bg-slate-50">Reset Default</button>
+              <button type="button" onClick={() => window.print()} className="rounded-lg bg-brand-500 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-brand-600">🖨️ Cetak</button>
+            </div>
           </div>
         </div>
+        <div className="ql-left-body">
         <div className="mb-1 text-[11px] font-bold uppercase tracking-wide text-slate-400">Informasi Penerima</div>
         <div className="grid gap-3 sm:grid-cols-2">
           <label className="text-[11px] font-semibold uppercase text-slate-500">Project<input value={p.project} readOnly className={roCls} /></label>
@@ -259,77 +383,83 @@ export default function QuotationLetter(p: {
           <label className="text-[11px] font-semibold uppercase text-slate-500">Nama Penandatangan<input value={signer} onChange={(e) => setSigner(e.target.value)} className={inputCls} /></label>
           <label className="text-[11px] font-semibold uppercase text-slate-500">Jabatan<input value={role} onChange={(e) => setRole(e.target.value)} className={inputCls} /></label>
         </div>
+        </div>
       </div>
 
-      <div className="ql-sheet paper" data-no-cards data-no-i18n>
-        {/* Halaman 1: surat + tabel */}
-        <table className="layout">
-          <thead><tr><td><Head /></td></tr></thead>
-          <tbody>
-            <tr><td>
-              <div style={{ textAlign: 'center', fontSize: 15, fontWeight: 700, textDecoration: 'underline', letterSpacing: '1.5px', margin: '8px 0 16px' }}>{t.title}</div>
-              <div style={{ display: 'flex', justifyContent: 'space-between' }}><span>{t.to}</span><span>{date}</span></div>
-              <div style={{ fontWeight: 700, textDecoration: 'underline', marginTop: 8 }}>{attnText}</div>
-              <div style={{ textDecoration: 'underline', marginTop: 4 }}>{p.company}</div>
-              <div className="rt-view" style={{ textAlign: 'justify', margin: '14px 0' }} dangerouslySetInnerHTML={{ __html: openingHtml }} />
-
-              <table className="items">
-                <thead>
-                  <tr>{t.cols.map((h) => <th key={h}>{h}</th>)}</tr>
-                </thead>
-                <tbody>
-                  {p.rows.map((r) => (
-                    <tr key={r.no}>
-                      <td style={{ textAlign: 'center' }}>{r.no}</td>
-                      <td>{r.sku}</td>
-                      <td>{r.name}</td>
-                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{r.price}</td>
-                      <td style={{ textAlign: 'center' }}>{r.qty}</td>
-                      <td style={{ textAlign: 'center' }}>{r.uom}</td>
-                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{r.total}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#f4f4f5', fontWeight: 700 }}>
-                    <td colSpan={6} style={{ textAlign: 'right' }}>{t.total}</td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{rp(p.subtotal)}</td>
-                  </tr>
-                  {extra.map((x, i) => (
-                    <tr key={i} style={{ background: '#f4f4f5' }}>
-                      <td colSpan={6} style={{ textAlign: 'right' }}>{x.label}</td>
-                      <td style={{ textAlign: 'right', whiteSpace: 'nowrap' }}>{x.value}</td>
-                    </tr>
-                  ))}
-                  <tr style={{ background: '#e8eaf6', fontWeight: 700 }}>
-                    <td colSpan={6} style={{ textAlign: 'right' }}>{t.grand}</td>
-                    <td style={{ textAlign: 'right', whiteSpace: 'nowrap', color: NAVY }}>{rp(grand)}</td>
-                  </tr>
-                </tbody>
-              </table>
-              <div className="ql-screen-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.docNo} | {t.page(1, 2)}</span></div>
-              <div className="ql-sep" />
-            </td></tr>
-          </tbody>
-        </table>
-        {/* Halaman 2: syarat, penutup, tanda tangan (kop diulang) */}
-        <table className="layout ql-break">
-          <thead><tr><td><Head /></td></tr></thead>
-          <tbody>
-            <tr><td>
-              <div className="rt-view" style={{ fontSize: 11.5, marginTop: 6 }} dangerouslySetInnerHTML={{ __html: valueToHtml(syarat) }} />
-              <div className="rt-view" style={{ marginTop: 18 }} dangerouslySetInnerHTML={{ __html: valueToHtml(penutup) }} />
-              <div style={{ marginTop: 22, breakInside: 'avoid' }}>
-                <div>{t.regards}</div>
-                <div>{t.slogan}</div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/logo-fanos.png" alt="" style={{ height: 24, marginTop: 10 }} />
-                <div style={{ width: 150, borderTop: '1px solid #000', marginTop: 8, paddingTop: 3, fontWeight: 700 }}>{signer || '................'}</div>
-                <div style={{ fontSize: 10.5, color: '#444' }}>{role}</div>
-              </div>
-              <div className="ql-screen-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.docNo} | {t.page(2, 2)}</span></div>
-            </td></tr>
-          </tbody>
-        </table>
+      <div className="ql-right" ref={rightRef} data-no-cards data-no-i18n>
+        <div className="ql-pages" style={{ zoom: scale }}>
+          {pages.map((idxs, pi) => {
+            const groups: { row: boolean; items: number[] }[] = [];
+            idxs.forEach((bi) => {
+              const row = blocks[bi].kind === 'row';
+              const last = groups[groups.length - 1];
+              if (last && last.row && row) last.items.push(bi);
+              else groups.push({ row, items: [bi] });
+            });
+            return (
+              <section key={pi} className="ql-page paper">
+                <Head />
+                {groups.map((g, gi) =>
+                  g.row ? (
+                    <table key={gi} className="items">
+                      {colgroup}
+                      {theadNode()}
+                      <tbody>{g.items.map((bi) => blocks[bi].node)}</tbody>
+                    </table>
+                  ) : (
+                    <div key={gi}>{g.items.map((bi) => <div key={bi} style={{ display: 'flow-root' }}>{blocks[bi].node}</div>)}</div>
+                  )
+                )}
+                <div className="ql-foot"><span>PT Fanosindo Internusa — Lighting &amp; Electrical Consultant</span><span>{p.docNo} | {t.page(pi + 1, totalPages)}</span></div>
+              </section>
+            );
+          })}
+        </div>
       </div>
+
+      {/* Pengukur tak terlihat: tinggi tiap blok pada lebar isi halaman A4 */}
+      {mounted && (
+        <div ref={measureRef} className="ql-m" aria-hidden style={{ position: 'absolute', left: -99999, top: 0, visibility: 'hidden', pointerEvents: 'none' }} data-no-cards data-no-i18n>
+          <div data-probe style={{ position: 'absolute', width: 1, height: '297mm' }} />
+          <div data-head style={{ display: 'flow-root' }}><Head /></div>
+          <table className="items">{colgroup}{theadNode(true)}</table>
+          {blocks.map((b, i) =>
+            b.kind === 'row' ? (
+              <table key={i} className="items" data-m={i}>{colgroup}<tbody>{b.node}</tbody></table>
+            ) : (
+              <div key={i} data-m={i} style={{ display: 'flow-root' }}>{b.node}</div>
+            )
+          )}
+        </div>
+      )}
     </div>
   );
+}
+
+// Memecah HTML teks kaya menjadi potongan tingkat-atas (daftar dipecah per butir, nomor tetap berlanjut).
+function splitHtml(html: string): string[] {
+  if (typeof window === 'undefined') return [html];
+  const doc = new DOMParser().parseFromString(`<body>${html}</body>`, 'text/html');
+  const out: string[] = [];
+  doc.body.childNodes.forEach((n) => {
+    if (n.nodeType === 3) {
+      if ((n.textContent ?? '').trim()) out.push(`<div>${n.textContent}</div>`);
+      return;
+    }
+    if (n.nodeType !== 1) return;
+    const el = n as HTMLElement;
+    const tag = el.tagName;
+    if ((tag === 'OL' || tag === 'UL') && el.children.length > 1) {
+      const start = tag === 'OL' ? Number(el.getAttribute('start') || 1) : 0;
+      Array.from(el.children).forEach((li, i) => {
+        const w = el.cloneNode(false) as HTMLElement;
+        if (tag === 'OL') w.setAttribute('start', String(start + i));
+        w.appendChild(li.cloneNode(true));
+        out.push(w.outerHTML);
+      });
+    } else {
+      out.push(el.outerHTML);
+    }
+  });
+  return out.length ? out : [''];
 }

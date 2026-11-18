@@ -157,6 +157,7 @@ export const NAV_ID: Record<string, string> = {
   Outstanding: 'Piutang', 'Credit Notes': 'Nota Kredit',
   'Master Team Member': 'Master Anggota Tim', 'Master Akun': 'Master Akun', 'Role Group': 'Grup Peran',
   Language: 'Bahasa', 'Log out': 'Keluar', 'Edit Profile': 'Edit Profil',
+  'Menu Position': 'Posisi Menu', Top: 'Atas', Bottom: 'Bawah', Left: 'Kiri', Right: 'Kanan',
 };
 
 export const navLabel = (lang: string, l: string) => (lang === 'id' ? NAV_ID[l] ?? l : l);

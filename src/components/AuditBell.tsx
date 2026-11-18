@@ -17,7 +17,7 @@ type Toast = { key: string; color: string; icon: string; who: string; text: stri
 
 // Lonceng audit (di kiri avatar user) + "dynamic island" di bawah layar setiap ada aktivitas CRUD baru.
 // Dipasang untuk semua user. Halaman Audit Log lengkap (dengan isi perubahan) hanya untuk Superuser.
-export default function AuditBell({ meId, isSuperuser = false }: { meId?: string; isSuperuser?: boolean }) {
+export default function AuditBell({ meId, isSuperuser = false, popClass }: { meId?: string; isSuperuser?: boolean; popClass?: string }) {
   const en = useLang() === 'en';
   const supabase = useMemo(() => createClient(), []);
   const [open, setOpen] = useState(false);
@@ -125,7 +125,7 @@ export default function AuditBell({ meId, isSuperuser = false }: { meId?: string
       </button>
 
       {open && (
-        <div role="menu" className="ab-pop absolute right-0 top-full z-[700] mt-3.5 w-[340px] max-w-[92vw] rounded-xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]">
+        <div role="menu" className={`ab-pop absolute ${popClass ?? 'right-0 top-full mt-3.5'} z-[700] w-[340px] max-w-[92vw] rounded-xl border border-slate-200 bg-white shadow-[0_8px_30px_rgba(0,0,0,0.12)]`}>
           <div className="flex items-center justify-between border-b border-slate-100 px-3.5 py-2.5">
             <span className="text-[12px] font-bold text-slate-800">{en ? 'Recent activity' : 'Aktivitas terbaru'}</span>
             <button type="button" onClick={markRead} className="text-[11px] font-medium text-brand-500 hover:underline">{en ? 'Mark all as read' : 'Tandai sudah dibaca'}</button>
