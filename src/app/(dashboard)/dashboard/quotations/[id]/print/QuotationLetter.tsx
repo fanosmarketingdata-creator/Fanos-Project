@@ -475,6 +475,11 @@ export default function QuotationLetter(p: {
           })}
         </div>
        </div>
+        <div className="ql-zoom print:hidden">
+          <button type="button" onClick={() => applyZoom(zoomMul / 1.25)} disabled={zoomMul <= ZMIN} aria-label={ui('Perkecil', 'Zoom out')} title={ui('Perkecil', 'Zoom out')}>−</button>
+          <button type="button" className="ql-zoom-val" onClick={() => applyZoom(1)} title={ui('Kembali ke ukuran pas (klik dua kali pada halaman juga bisa)', 'Back to fit size (double-clicking the page works too)')}>{Math.round(zoomMul * 100)}%</button>
+          <button type="button" onClick={() => applyZoom(zoomMul * 1.25)} disabled={zoomMul >= ZMAX} aria-label={ui('Perbesar', 'Zoom in')} title={ui('Perbesar (Ctrl + scroll)', 'Zoom in (Ctrl + scroll)')}>+</button>
+        </div>
         <div className="ql-pager print:hidden">
           <button type="button" onClick={() => goto(0)} disabled={curSafe === 0} aria-label={ui('Halaman pertama', 'First page')}>«</button>
           <button type="button" onClick={() => goto(curSafe - 1)} disabled={curSafe === 0} aria-label={ui('Sebelumnya', 'Previous')}>‹</button>
@@ -489,11 +494,6 @@ export default function QuotationLetter(p: {
           <span>/ {totalPages}</span>
           <button type="button" onClick={() => goto(curSafe + 1)} disabled={curSafe >= totalPages - 1} aria-label={ui('Berikutnya', 'Next')}>›</button>
           <button type="button" onClick={() => goto(totalPages - 1)} disabled={curSafe >= totalPages - 1} aria-label={ui('Halaman terakhir', 'Last page')}>»</button>
-          <span className="ql-zoom">
-            <button type="button" onClick={() => applyZoom(zoomMul / 1.25)} disabled={zoomMul <= ZMIN} aria-label={ui('Perkecil', 'Zoom out')} title={ui('Perkecil', 'Zoom out')}>−</button>
-            <button type="button" className="ql-zoom-val" onClick={() => applyZoom(1)} title={ui('Kembali ke ukuran pas (klik dua kali pada halaman juga bisa)', 'Back to fit size (double-clicking the page works too)')}>{Math.round(zoomMul * 100)}%</button>
-            <button type="button" onClick={() => applyZoom(zoomMul * 1.25)} disabled={zoomMul >= ZMAX} aria-label={ui('Perbesar', 'Zoom in')} title={ui('Perbesar (Ctrl + scroll)', 'Zoom in (Ctrl + scroll)')}>+</button>
-          </span>
         </div>
       </div>
 

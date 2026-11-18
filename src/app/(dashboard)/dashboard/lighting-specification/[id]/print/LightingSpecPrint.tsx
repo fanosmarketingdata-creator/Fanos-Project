@@ -31,6 +31,23 @@ export default function LightingSpecPrint(p: {
   // Slider per gambar: muncul di bawah gambar yang diklik. Posisinya dikunci saat dibuka (tidak ikut bergeser saat ukuran berubah).
   const [pop, setPop] = useState<{ no: number; top: number; left: number } | null>(null);
   const wrapRef = useRef<HTMLDivElement>(null);
+  // Zoom pratinjau dokumen (hanya tampilan; cetak tetap 100%).
+  const [zoom, setZoomState] = useState(1);
+  const setZoom = (z: number) => { setPop(null); setZoomState(Math.min(2.5, Math.max(0.5, Math.round(z * 100) / 100))); };
+  const zoomRef = useRef(1);
+  zoomRef.current = zoom;
+  useEffect(() => {
+    const w = wrapRef.current;
+    if (!w) return;
+    const onWheel = (e: WheelEvent) => {
+      if (!e.ctrlKey && !e.metaKey) return;
+      e.preventDefault();
+      setZoom(zoomRef.current * (e.deltaY < 0 ? 1.1 : 1 / 1.1));
+    };
+    w.addEventListener('wheel', onWheel, { passive: false });
+    return () => w.removeEventListener('wheel', onWheel);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const openPop = (no: number, el: HTMLElement) => {
     const w = wrapRef.current;
     if (!w) return;
@@ -102,11 +119,18 @@ export default function LightingSpecPrint(p: {
         .ls-img { width: 100%; height: var(--ls-img-h, 56mm); object-fit: contain; display: block; }
         .ls-pick { cursor: pointer; }
         .ls-sel { outline: 2px solid #2563eb; outline-offset: 2px; border-radius: 2px; }
-        .ls-pop { position: absolute; z-index: 30; width: 230px; transform: translateX(-50%); background: #fff; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 12px; padding: 10px 12px 10px; box-shadow: 0 10px 30px rgba(15,23,42,.18); }
-        .ls-pop-row { display: flex; gap: 6px; margin-top: 6px; }
-        .ls-pop-row button { flex: 1; border: 1px solid #e2e8f0; border-radius: 8px; padding: 4px 6px; font-size: 11px; font-weight: 600; color: #475569; background: #fff; cursor: pointer; }
-        .ls-pop-row button:hover:not(:disabled) { background: #f8fafc; }
-        .ls-pop-row button:disabled { opacity: .4; cursor: default; }
+        .ls-zoom { position: fixed; right: 24px; bottom: 88px; z-index: 40; display: inline-flex; align-items: center; background: #fff; border: 1px solid #e2e8f0; border-radius: 999px; box-shadow: 0 6px 20px rgba(15,23,42,.18); padding: 3px; }
+        .ls-zoom button { width: 32px; height: 32px; border: 0; border-radius: 50%; background: transparent; color: #334155; font-size: 18px; line-height: 1; cursor: pointer; }
+        .ls-zoom button:hover:not(:disabled) { background: #f1f5f9; }
+        .ls-zoom button:disabled { opacity: .35; cursor: default; }
+        .ls-zoom .ls-zoom-val { width: auto; min-width: 52px; padding: 0 6px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+        @media print { .ls-zoom { display: none !important; } }
+        .ls-pop { position: absolute; z-index: 30; width: 236px; transform: translateX(-50%); display: flex; align-items: center; gap: 4px; background: #fff; color: #1e293b; border: 1px solid #e2e8f0; border-radius: 999px; padding: 4px 6px 4px 12px; box-shadow: 0 6px 20px rgba(15,23,42,.16); }
+        .ls-pop-dial { flex: 1; min-width: 0; }
+        .ls-pop-ic { flex: none; width: 24px; height: 24px; border: 0; border-radius: 50%; background: #f1f5f9; color: #475569; font-size: 12px; line-height: 1; cursor: pointer; }
+        .ls-pop-ic:hover:not(:disabled) { background: #e2e8f0; }
+        .ls-pop-ic:disabled { opacity: .35; cursor: default; }
+        @media print { .ls-sheet { zoom: 1 !important; } }
         @media print { .ls-pop { display: none !important; } .ls-sel { outline: none !important; } }
         .ls-noimg { width: 100%; height: var(--ls-img-h, 56mm); display: flex; align-items: center; justify-content: center; color: #cbd5e1; font-size: 10px; border: 1px dashed #e2e8f0; }
         .ls-spec div { padding: 1px 0; }
@@ -158,8 +182,14 @@ export default function LightingSpecPrint(p: {
         </div>
       </div>
 
+      <div className="ls-zoom print:hidden" data-no-cards data-no-i18n title={lang === 'id' ? 'Zoom pratinjau (Ctrl + scroll)' : 'Preview zoom (Ctrl + scroll)'}>
+        <button type="button" onClick={() => setZoom(zoom / 1.2)} disabled={zoom <= 0.5} aria-label={lang === 'id' ? 'Perkecil' : 'Zoom out'}>−</button>
+        <button type="button" className="ls-zoom-val" onClick={() => setZoom(1)} title={lang === 'id' ? 'Kembali ke 100%' : 'Back to 100%'}>{Math.round(zoom * 100)}%</button>
+        <button type="button" onClick={() => setZoom(zoom * 1.2)} disabled={zoom >= 2.5} aria-label={lang === 'id' ? 'Perbesar' : 'Zoom in'}>+</button>
+      </div>
+
       <div ref={wrapRef} className="ls-sheet-wrap" style={{ position: 'relative' }}>
-      <div className="ls-sheet paper" data-no-cards data-no-i18n style={{ ['--ls-img-h' as string]: `${imgH}mm` }}>
+      <div className="ls-sheet paper" data-no-cards data-no-i18n style={{ ['--ls-img-h' as string]: `${imgH}mm`, zoom }}>
         <table className="layout">
           <thead>
             <tr><td>
@@ -230,11 +260,9 @@ export default function LightingSpecPrint(p: {
       </div>
       {pop && (
         <div className="ls-pop print:hidden" data-no-cards data-no-i18n style={{ top: pop.top, left: pop.left }}>
-          <DialSlider value={sizes[pop.no] ?? imgH} min={25} max={110} onChange={(v) => setSize(pop.no, v)} unit="mm" label={`${lang === 'id' ? 'Gambar' : 'Image'} ${pop.no}`} />
-          <div className="ls-pop-row">
-            <button type="button" onClick={() => setSize(pop.no, null)} disabled={sizes[pop.no] == null}>↺ {lang === 'id' ? 'Ikut ukuran semua' : 'Match all'}</button>
-            <button type="button" onClick={() => setPop(null)}>{lang === 'id' ? 'Tutup' : 'Close'}</button>
-          </div>
+          <DialSlider compact className="ls-pop-dial" value={sizes[pop.no] ?? imgH} min={25} max={110} onChange={(v) => setSize(pop.no, v)} unit="mm" label={`${lang === 'id' ? 'Gambar' : 'Image'} ${pop.no}`} />
+          <button type="button" className="ls-pop-ic" onClick={() => setSize(pop.no, null)} disabled={sizes[pop.no] == null} title={lang === 'id' ? 'Ikut ukuran semua' : 'Match all'}>↺</button>
+          <button type="button" className="ls-pop-ic" onClick={() => setPop(null)} title={lang === 'id' ? 'Tutup' : 'Close'}>✕</button>
         </div>
       )}
       </div>

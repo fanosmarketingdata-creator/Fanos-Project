@@ -11,6 +11,7 @@ export default function DialSlider({
   unit?: string; compact?: boolean; label?: string; className?: string;
 }) {
   const box = useRef<HTMLDivElement>(null);
+  const outer = useRef<HTMLDivElement>(null);
   const [w, setW] = useState(220);
   const PX = compact ? 5 : 7; // piksel per 1 satuan
   const H = compact ? 26 : 38;
@@ -33,8 +34,10 @@ export default function DialSlider({
       const next = c(v + dir * step * (e.shiftKey ? 5 : 1));
       if (next !== v) oc(next);
     };
-    el.addEventListener('wheel', onWheel, { passive: false });
-    return () => { ro.disconnect(); el.removeEventListener('wheel', onWheel); };
+    // Scroll mouse berlaku di seluruh area dial (angka + skala).
+    const host = outer.current ?? el;
+    host.addEventListener('wheel', onWheel, { passive: false });
+    return () => { ro.disconnect(); host.removeEventListener('wheel', onWheel); };
   }, [step]);
 
   const cx = w / 2;
@@ -46,7 +49,7 @@ export default function DialSlider({
   }
 
   return (
-    <div className={className} style={{ userSelect: 'none' }}>
+    <div ref={outer} className={className} style={{ userSelect: 'none' }}>
       <div style={{ textAlign: 'center', fontSize: compact ? 10 : 13, fontWeight: 600, lineHeight: 1.2 }} data-no-i18n>
         {label && <span style={{ opacity: 0.6, marginRight: 6, fontWeight: 500 }}>{label}</span>}{value}{unit ? ` ${unit}` : ''}
       </div>
