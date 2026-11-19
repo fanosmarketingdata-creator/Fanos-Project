@@ -194,7 +194,7 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
           <button
             type="button"
             role="menuitem"
-            onClick={() => setPosOpen(true)}
+            onClick={() => { setPosOpen(true); setOpen(false); }}
             className="hidden w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-slate-600 transition hover:bg-slate-50 lg:flex"
           >
             <i className="fi fi-rr-apps text-[13px] leading-none" />
@@ -202,7 +202,41 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
             <span className="text-[11px] text-slate-400">{nl(NAV_POS_OPTIONS.find((o) => o.id === navPos)?.label || '')}</span>
             <i className="fi fi-rr-angle-small-right text-[11px] leading-none text-slate-400" />
           </button>
-          {posOpen && typeof document !== 'undefined' && createPortal(
+          <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+            <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
+          </div>
+          {options.map((o) => (
+            <button
+              key={o.code}
+              type="button"
+              role="menuitemradio"
+              aria-checked={lang === o.code}
+              data-no-i18n
+              onClick={() => (lang === o.code ? setOpen(false) : setLang(o.code))}
+              className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition ${
+                lang === o.code ? 'bg-brand-50 text-brand-500' : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              <span className="flex-1">{o.label}</span>
+              {lang === o.code && <i className="fi fi-rr-check text-[11px]" />}
+            </button>
+          ))}
+          <div className="my-1.5 border-t border-slate-100" />
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => {
+              setOpen(false);
+              onLogout();
+            }}
+            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-red-600 transition hover:bg-red-50"
+          >
+            <i className="fi fi-rr-sign-out-alt text-[13px] leading-none" />
+            <span className="flex-1">{nl('Log out')}</span>
+          </button>
+        </div>
+      )}
+      {posOpen && typeof document !== 'undefined' && createPortal(
             <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4">
               <div className="w-[260px] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
                 <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-bold text-slate-700">
@@ -242,40 +276,6 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
             </div>,
             document.body,
           )}
-          <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-            <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
-          </div>
-          {options.map((o) => (
-            <button
-              key={o.code}
-              type="button"
-              role="menuitemradio"
-              aria-checked={lang === o.code}
-              data-no-i18n
-              onClick={() => (lang === o.code ? setOpen(false) : setLang(o.code))}
-              className={`flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium transition ${
-                lang === o.code ? 'bg-brand-50 text-brand-500' : 'text-slate-600 hover:bg-slate-50'
-              }`}
-            >
-              <span className="flex-1">{o.label}</span>
-              {lang === o.code && <i className="fi fi-rr-check text-[11px]" />}
-            </button>
-          ))}
-          <div className="my-1.5 border-t border-slate-100" />
-          <button
-            type="button"
-            role="menuitem"
-            onClick={() => {
-              setOpen(false);
-              onLogout();
-            }}
-            className="flex w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-red-600 transition hover:bg-red-50"
-          >
-            <i className="fi fi-rr-sign-out-alt text-[13px] leading-none" />
-            <span className="flex-1">{nl('Log out')}</span>
-          </button>
-        </div>
-      )}
       {editProfile && profile.id && <ProfileModal profile={profile as MyProfile} onClose={() => setEditProfile(false)} />}
     </div>
   );
