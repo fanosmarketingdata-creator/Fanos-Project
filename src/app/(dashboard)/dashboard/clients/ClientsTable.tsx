@@ -190,12 +190,12 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data client</div>}
           {paged.pageItems.map((c) => (
             <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
+              <div className="client-card-id"><StatusBadge status={c.status} /><span>{c.client_no || '-'}</span></div>
               <div className="client-card-avatar">{c.company.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main has-id">
-                <div className="name" style={{ display: 'flex', alignItems: 'center', gap: 7 }}><StatusBadge status={c.status} /><span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.company}</span></div>
+                <div className="name" style={{ display: 'flex', alignItems: 'center', gap: 7 }}><span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.company}</span></div>
                 <div className="sub">{c.client_no || '-'}</div>
               </div>
-              <div className="client-card-id">{c.client_no || '-'}</div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}{contactsOf(c).length > 1 ? ` (+${contactsOf(c).length - 1})` : ''}</div></div>
                 <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>

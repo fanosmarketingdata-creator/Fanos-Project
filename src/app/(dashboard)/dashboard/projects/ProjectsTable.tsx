@@ -161,12 +161,12 @@ export default function ProjectsTable({ initialProjects, clients, classification
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data project</div>}
           {paged.pageItems.map((p) => (
             <div key={p.id} className="client-card" onClick={() => setDetail(p)}>
+              <div className="client-card-id">{p.project_no || '-'}</div>
               <div className="client-card-avatar">{p.name.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main has-id">
                 <div className="name">{p.name}</div>
                 <div className="sub">{p.project_no || '-'}</div>
               </div>
-              <div className="client-card-id">{p.project_no || '-'}</div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Client</div><div className="val">{p.client_company || '-'}</div></div>
                 <div className="item"><div className="lbl">Type</div><div className="val">{p.project_type || '-'}</div></div>

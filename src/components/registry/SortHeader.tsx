@@ -49,9 +49,9 @@ export default function SortHeader({ main, idCol, cols, sort, onSort }: {
   };
   return (
     <div className="sort-header">
+      {idCol && <div className="sort-id">{btn(idCol)}</div>}
       <div className="sort-spacer-av" />
       <div className="sort-main">{btn(main)}</div>
-      {idCol && <div className="sort-id">{btn(idCol)}</div>}
       <div className="sort-meta">{cols.map(btn)}</div>
       <div className="sort-spacer-act" />
     </div>
