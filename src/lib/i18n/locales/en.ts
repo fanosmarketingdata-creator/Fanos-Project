@@ -1285,4 +1285,5 @@ export const ID_EN: Record<string, string> = {
   'Keterangan tambahan (opsional)': 'Additional notes (optional)',
   'Lainnya': 'Others',
   'Gudang default (dipakai otomatis oleh Delivery Order & retur)': 'Default warehouse (used automatically by Delivery Orders & returns)',
+  'Client harus berstatus Active untuk dapat digunakan.': 'The client must have Active status to be used.',
 };

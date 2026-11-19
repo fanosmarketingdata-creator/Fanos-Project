@@ -9,7 +9,7 @@ export default async function ProjectsPage() {
       .from('projects')
       .select('id, project_no, name, location, classification, project_type, client_id, client_company, client_name, trigger_source, triggered_by, top, cashback')
       .order('created_at', { ascending: false }),
-    supabase.from('clients').select('id, company, contact_name').order('company'),
+    supabase.from('clients').select('id, company, contact_name, status').order('company'),
     supabase.from('project_classifications').select('name').order('created_at'),
   ]));
 

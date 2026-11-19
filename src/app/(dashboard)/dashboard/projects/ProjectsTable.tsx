@@ -30,7 +30,7 @@ export type ProjectRow = {
   top: string | null;
   cashback: string | null;
 };
-type ClientOpt = { id: string; company: string; contact_name: string | null };
+type ClientOpt = { id: string; company: string; contact_name: string | null; status?: string | null };
 
 const emptyForm: ProjectInput = {
   name: '', location: '', classification: '', project_type: '', client_id: '',
@@ -69,6 +69,8 @@ export default function ProjectsTable({ initialProjects, clients, classification
   const { sorted, sort, toggle } = useSorted(filtered, sortCols);
   const paged = usePaged(sorted, search);
   const selectedClient = clients.find((c) => c.id === form.client_id);
+  // Hanya client berstatus Active yang bisa dipilih (client terpilih saat ini tetap tampil agar data lama terbaca).
+  const cOpt = (c: ClientOpt, byName?: boolean) => ({ value: byName ? c.company : c.id, label: c.company, sub: c.status && c.status !== 'Active' ? c.status : undefined, disabled: c.status !== 'Active' && c.id !== form.client_id && c.company !== form.triggered_by });
 
   function openAdd() {
     setForm(emptyForm);
@@ -254,7 +256,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
                 <FvSelect
                   value={form.client_id || ''}
                   onChange={(v) => setForm({ ...form, client_id: v })}
-                  options={clients.map((c) => ({ value: c.id, label: c.company }))}
+                  options={clients.map((c) => cOpt(c))}
                   placeholder="— Pilih client —"
                 />
               </FvField>
@@ -274,7 +276,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
                 <FvSelect
                   value={form.triggered_by || ''}
                   onChange={(v) => setForm({ ...form, triggered_by: v })}
-                  options={clients.map((c) => ({ value: c.company, label: c.company }))}
+                  options={clients.map((c) => cOpt(c, true))}
                   placeholder="— Pilih client —"
                 />
               </FvField>

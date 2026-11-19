@@ -99,7 +99,7 @@ export function ProjectQuickModal({
   onSaved: (p: { id: string; name: string; client_id: string | null }) => void;
 }) {
   const toast = useToast();
-  const [clients, setClients] = useState<{ id: string; company: string; contact_name: string | null }[]>([]);
+  const [clients, setClients] = useState<{ id: string; company: string; contact_name: string | null; status?: string | null }[]>([]);
   const [classes, setClasses] = useState<string[]>([]);
   const [form, setForm] = useState<ProjectInput>({ name: '', location: '', classification: '', project_type: '', client_id: defaultClientId || '', trigger_source: '', triggered_by: '', top: '', cashback: '' });
   const [saving, setSaving] = useState(false);
@@ -160,7 +160,7 @@ export function ProjectQuickModal({
         <div className="fv2-section-title"><i className="fi fi-rr-building" /> Client</div>
         <div className="fv2-grid">
           <FvField label="Client Company">
-            <FvSelect value={form.client_id || ''} onChange={(v) => setForm({ ...form, client_id: v })} options={clients.map((c) => ({ value: c.id, label: c.company }))} placeholder="— Pilih client —" />
+            <FvSelect value={form.client_id || ''} onChange={(v) => setForm({ ...form, client_id: v })} options={clients.map((c) => ({ value: c.id, label: c.company, sub: c.status && c.status !== 'Active' ? c.status : undefined, disabled: c.status !== 'Active' && c.id !== form.client_id }))} placeholder="— Pilih client —" />
           </FvField>
           <FvField label="Client Name">
             <input value={selectedClient?.contact_name || ''} placeholder="Terisi otomatis sesuai Client Company" readOnly />
@@ -174,7 +174,7 @@ export function ProjectQuickModal({
             <FvSelect value={form.trigger_source || ''} onChange={(v) => setForm({ ...form, trigger_source: v })} options={toOptions(PROJECT_TRIGGER_OPTIONS)} />
           </FvField>
           <FvField label="Triggered By">
-            <FvSelect value={form.triggered_by || ''} onChange={(v) => setForm({ ...form, triggered_by: v })} options={clients.map((c) => ({ value: c.company, label: c.company }))} placeholder="— Pilih client —" />
+            <FvSelect value={form.triggered_by || ''} onChange={(v) => setForm({ ...form, triggered_by: v })} options={clients.map((c) => ({ value: c.company, label: c.company, sub: c.status && c.status !== 'Active' ? c.status : undefined, disabled: c.status !== 'Active' && c.company !== form.triggered_by }))} placeholder="— Pilih client —" />
           </FvField>
           <FvField label="Term of Payment">
             <FinanceSelect kind="payment_term" value={form.top || ''} onChange={(v) => setForm({ ...form, top: v })} />

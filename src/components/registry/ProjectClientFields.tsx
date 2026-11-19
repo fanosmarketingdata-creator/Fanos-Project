@@ -7,7 +7,7 @@ import { ClientQuickModal, ProjectQuickModal } from '@/components/registry/Quick
 import { getProjectClientLookups } from '@/lib/quick-add-actions';
 
 type Proj = { id: string; name: string; client_id: string | null };
-type Cli = { id: string; company: string };
+type Cli = { id: string; company: string; status?: string | null };
 
 // Pilih Project (dari Master Project) dan Client, masing-masing dengan tombol tambah baru
 // yang membuka form lengkap seperti di Master Data. Dipakai di BOQ Project dan Quotation manual.
@@ -33,7 +33,7 @@ export default function ProjectClientFields({
 
   useEffect(() => {
     getProjectClientLookups()
-      .then((d) => { setProjects(d.projects); setClients(d.clients.map((c) => ({ id: c.id, company: c.company }))); })
+      .then((d) => { setProjects(d.projects); setClients(d.clients.map((c) => ({ id: c.id, company: c.company, status: c.status }))); })
       .catch(() => {});
   }, []);
 
@@ -74,7 +74,7 @@ export default function ProjectClientFields({
             <SearchSelect
               value={clientId}
               onChange={(v) => onClientId(v)}
-              options={clients.map((c) => ({ value: c.id, label: c.company }))}
+              options={clients.map((c) => ({ value: c.id, label: c.company, sub: c.status && c.status !== 'Active' ? c.status : undefined, disabled: !!c.status && c.status !== 'Active' && c.id !== clientId }))}
               placeholder="Cari client..."
             />
           </div>

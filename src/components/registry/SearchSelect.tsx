@@ -2,7 +2,7 @@
 
 import Select from '@/components/ui/Select';
 
-export type SearchOption = { value: string; label: string; sub?: string };
+export type SearchOption = { value: string; label: string; sub?: string; disabled?: boolean };
 
 // Dropdown dengan pencarian. Memakai komponen Select yang sama dengan semua dropdown lain
 // supaya tampilannya seragam.
@@ -32,7 +32,7 @@ export default function SearchSelect({
       }}
     >
       {options.map((o) => (
-        <option key={o.value} value={o.value} data-sub={o.sub}>
+        <option key={o.value} value={o.value} data-sub={o.sub} disabled={o.disabled}>
           {o.label}
         </option>
       ))}

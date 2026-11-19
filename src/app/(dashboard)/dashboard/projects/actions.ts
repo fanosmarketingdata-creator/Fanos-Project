@@ -27,7 +27,16 @@ export async function saveProject(input: ProjectInput) {
   let client_company: string | null = null;
   let client_name: string | null = null;
   if (input.client_id) {
-    const { data: c } = await supabase.from('clients').select('company, contact_name').eq('id', input.client_id).single();
+    const { data: c } = await supabase.from('clients').select('company, contact_name, status').eq('id', input.client_id).single();
+    // Hanya client berstatus Active yang boleh dipakai (client lama pada project yang sudah ada tidak dipaksa berubah).
+    if (c && c.status !== 'Active') {
+      let sameAsBefore = false;
+      if (input.id) {
+        const { data: prev } = await supabase.from('projects').select('client_id').eq('id', input.id).single();
+        sameAsBefore = prev?.client_id === input.client_id;
+      }
+      if (!sameAsBefore) return { error: 'Client harus berstatus Active untuk dapat digunakan.' };
+    }
     client_company = c?.company ?? null;
     client_name = c?.contact_name ?? null;
   }

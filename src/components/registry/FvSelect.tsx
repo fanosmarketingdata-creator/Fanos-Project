@@ -13,7 +13,7 @@ export default function FvSelect({
 }: {
   value: string;
   onChange: (v: string) => void;
-  options: { value: string; label: string }[];
+  options: { value: string; label: string; sub?: string; disabled?: boolean }[];
   placeholder?: string;
   disabled?: boolean;
 }) {
@@ -23,7 +23,7 @@ export default function FvSelect({
       <option value="">{placeholder}</option>
       {value && !known && <option value={value}>{value}</option>}
       {options.map((o) => (
-        <option key={o.value} value={o.value}>
+        <option key={o.value} value={o.value} data-sub={o.sub} disabled={o.disabled}>
           {o.label}
         </option>
       ))}
