@@ -145,6 +145,13 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
     };
   }, [open]);
 
+  useEffect(() => {
+    if (!posOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setPosOpen(false);
+    document.addEventListener('keydown', onKey);
+    return () => document.removeEventListener('keydown', onKey);
+  }, [posOpen]);
+
   const options: { code: Lang; label: string }[] = [
     { code: 'en', label: 'English' },
     { code: 'id', label: 'Bahasa Indonesia' },
