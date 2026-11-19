@@ -1,5 +1,6 @@
 'use client';
 
+import PhoneInput from '@/components/PhoneInput';
 import { FvField } from '@/components/registry/RegistryModal';
 import { emptyContact, type ContactInfo } from '@/lib/client-contacts';
 
@@ -28,7 +29,7 @@ export default function ContactsEditor({ value, onChange }: { value: ContactInfo
               <input value={c.position} onChange={(e) => set(i, { position: e.target.value })} placeholder="Jabatan penanggung jawab" />
             </FvField>
             <FvField label="Phone">
-              <input value={c.phone} onChange={(e) => set(i, { phone: e.target.value })} placeholder="08xx-xxxx-xxxx" />
+              <PhoneInput value={c.phone} onChange={(v) => set(i, { phone: v })} />
             </FvField>
             <FvField label="Email">
               <input type="email" value={c.email} onChange={(e) => set(i, { email: e.target.value })} placeholder="nama@perusahaan.com" />

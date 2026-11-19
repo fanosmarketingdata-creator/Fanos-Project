@@ -1,5 +1,6 @@
 'use client';
 
+import PhoneInput from '@/components/PhoneInput';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
@@ -210,7 +211,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
                 <input value={form.position || ''} onChange={(e) => setForm({ ...form, position: e.target.value })} />
               </FvField>
               <FvField label="Phone">
-                <input value={form.phone || ''} onChange={(e) => setForm({ ...form, phone: e.target.value })} />
+                <PhoneInput value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
               </FvField>
               <FvField label="Email">
                 <input type="email" value={form.email || ''} onChange={(e) => setForm({ ...form, email: e.target.value })} />

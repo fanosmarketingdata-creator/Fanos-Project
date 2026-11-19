@@ -1,5 +1,6 @@
 'use client';
 
+import PhoneInput from '@/components/PhoneInput';
 import Select from '@/components/ui/Select';
 import { useMemo, useRef, useState } from 'react';
 import Modal from '@/components/Modal';
@@ -417,7 +418,7 @@ export default function AccountsTable({
               </Select>
             </div>
             )}
-            <Field label="Phone" value={form.phone || ''} disabled={!!linked} onChange={(v) => setForm({ ...form, phone: v })} />
+            <div><label className="mb-1 block text-xs font-semibold text-slate-500">Phone</label><PhoneInput inputClassName="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" disabled={!!linked} value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} /></div>
             <div className="sm:col-span-2">
               <label className="mb-1 block text-xs font-semibold text-slate-500">Warna Kursor</label>
               <div className="flex flex-wrap items-center gap-2">

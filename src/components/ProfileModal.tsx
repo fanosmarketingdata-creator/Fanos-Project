@@ -1,5 +1,6 @@
 'use client';
 
+import PhoneInput from '@/components/PhoneInput';
 import { useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { useRouter } from 'next/navigation';
@@ -104,7 +105,7 @@ export default function ProfileModal({ profile, onClose }: { profile: MyProfile;
             <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Nama lengkap" />
           </FvField>
           <FvField label="Phone">
-            <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="08xx-xxxx-xxxx" />
+            <PhoneInput value={phone} onChange={setPhone} />
           </FvField>
           <FvField label="Email">
             <input value={profile.email ?? ''} readOnly />

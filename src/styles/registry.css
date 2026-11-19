@@ -1404,3 +1404,13 @@ html.dark .client-card-id { color: var(--d-text, #e5e7eb); }
 .sort-id, .client-card-id { flex: 0 0 104px; }
 .client-card-id { display: flex; align-items: center; gap: 7px; }
 .client-card-id > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+
+/* ---- PhoneInput: pilihan negara + nomor ---- */
+.ph-wrap { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
+.ph-wrap > input { flex: 1 1 0; min-width: 0; }
+.ph-cc { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid #dfe3ee; border-radius: 12px; background: #fff; font-size: 12.5px; font-weight: 700; color: #374151; cursor: pointer; white-space: nowrap; }
+.ph-cc i { font-size: 10px; color: #9ca3af; }
+.ph-cc select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+.ph-cc.ph-off { opacity: .6; cursor: not-allowed; }
+.ph-cc:focus-within { border-color: #5b86ff; box-shadow: 0 0 0 3px rgba(91, 134, 255, .15); }
+html.dark .ph-cc { background: var(--d-surface-2, #1b2133); border-color: var(--d-line, #2c3550); color: var(--d-text, #e5e7eb); }

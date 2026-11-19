@@ -1,5 +1,6 @@
 'use client';
 
+import PhoneInput from '@/components/PhoneInput';
 import { useMemo, useState } from 'react';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
@@ -176,7 +177,7 @@ export default function TeamMembersTable({ initialRows }: { initialRows: TeamMem
             <Field label="Jabatan" value={form.role_title || ''} onChange={(v) => setForm({ ...form, role_title: v })} />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <Field label="Email" value={form.email || ''} onChange={(v) => setForm({ ...form, email: v })} />
-              <Field label="Phone" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} />
+              <div><label className="mb-1 block text-xs font-semibold text-slate-500">Phone</label><PhoneInput inputClassName="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-brand-500 focus:ring-2 focus:ring-brand-500/10" value={form.phone || ''} onChange={(v) => setForm({ ...form, phone: v })} /></div>
             </div>
           </div>
         </Modal>
