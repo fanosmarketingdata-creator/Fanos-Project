@@ -1,42 +1,29 @@
 'use client';
 
+import { useMemo, useState } from 'react';
 import { useLang } from '@/components/I18nProvider';
 import Select, { Flag } from '@/components/ui/Select';
 
-type C = { iso: string; dial: string; en: string; id: string };
-export const COUNTRIES: C[] = [
-  { iso: 'ID', dial: '62', en: 'Indonesia', id: 'Indonesia' },
-  { iso: 'MY', dial: '60', en: 'Malaysia', id: 'Malaysia' },
-  { iso: 'SG', dial: '65', en: 'Singapore', id: 'Singapura' },
-  { iso: 'TH', dial: '66', en: 'Thailand', id: 'Thailand' },
-  { iso: 'PH', dial: '63', en: 'Philippines', id: 'Filipina' },
-  { iso: 'VN', dial: '84', en: 'Vietnam', id: 'Vietnam' },
-  { iso: 'BN', dial: '673', en: 'Brunei', id: 'Brunei' },
-  { iso: 'AU', dial: '61', en: 'Australia', id: 'Australia' },
-  { iso: 'NZ', dial: '64', en: 'New Zealand', id: 'Selandia Baru' },
-  { iso: 'JP', dial: '81', en: 'Japan', id: 'Jepang' },
-  { iso: 'KR', dial: '82', en: 'South Korea', id: 'Korea Selatan' },
-  { iso: 'CN', dial: '86', en: 'China', id: 'Tiongkok' },
-  { iso: 'HK', dial: '852', en: 'Hong Kong', id: 'Hong Kong' },
-  { iso: 'TW', dial: '886', en: 'Taiwan', id: 'Taiwan' },
-  { iso: 'IN', dial: '91', en: 'India', id: 'India' },
-  { iso: 'PK', dial: '92', en: 'Pakistan', id: 'Pakistan' },
-  { iso: 'BD', dial: '880', en: 'Bangladesh', id: 'Bangladesh' },
-  { iso: 'AE', dial: '971', en: 'United Arab Emirates', id: 'Uni Emirat Arab' },
-  { iso: 'SA', dial: '966', en: 'Saudi Arabia', id: 'Arab Saudi' },
-  { iso: 'QA', dial: '974', en: 'Qatar', id: 'Qatar' },
-  { iso: 'TR', dial: '90', en: 'Turkey', id: 'Turki' },
-  { iso: 'EG', dial: '20', en: 'Egypt', id: 'Mesir' },
-  { iso: 'ZA', dial: '27', en: 'South Africa', id: 'Afrika Selatan' },
-  { iso: 'GB', dial: '44', en: 'United Kingdom', id: 'Inggris' },
-  { iso: 'DE', dial: '49', en: 'Germany', id: 'Jerman' },
-  { iso: 'FR', dial: '33', en: 'France', id: 'Prancis' },
-  { iso: 'NL', dial: '31', en: 'Netherlands', id: 'Belanda' },
-  { iso: 'IT', dial: '39', en: 'Italy', id: 'Italia' },
-  { iso: 'ES', dial: '34', en: 'Spain', id: 'Spanyol' },
-  { iso: 'BR', dial: '55', en: 'Brazil', id: 'Brasil' },
-  { iso: 'US', dial: '1', en: 'United States / Canada', id: 'Amerika Serikat / Kanada' },
-];
+type C = { iso: string; dial: string };
+// Kode negara (ISO-3166) + kode telepon. Nama negara diambil dari Intl.DisplayNames sesuai bahasa aktif.
+const RAW = 'AF93 AL355 DZ213 AD376 AO244 AG1268 AR54 AM374 AU61 AT43 AZ994 BS1242 BH973 BD880 BB1246 BY375 BE32 BZ501 BJ229 BT975 BO591 BA387 BW267 BR55 BN673 BG359 BF226 BI257 CV238 KH855 CM237 CA1 CF236 TD235 CL56 CN86 CO57 KM269 CG242 CD243 CR506 CI225 HR385 CU53 CY357 CZ420 DK45 DJ253 DM1767 DO1809 EC593 EG20 SV503 GQ240 ER291 EE372 SZ268 ET251 FJ679 FI358 FR33 GA241 GM220 GE995 DE49 GH233 GR30 GD1473 GT502 GN224 GW245 GY592 HT509 HN504 HK852 HU36 IS354 IN91 ID62 IR98 IQ964 IE353 IL972 IT39 JM1876 JP81 JO962 KZ7 KE254 KI686 KP850 KR82 KW965 KG996 LA856 LV371 LB961 LS266 LR231 LY218 LI423 LT370 LU352 MO853 MG261 MW265 MY60 MV960 ML223 MT356 MH692 MR222 MU230 MX52 FM691 MD373 MC377 MN976 ME382 MA212 MZ258 MM95 NA264 NR674 NP977 NL31 NZ64 NI505 NE227 NG234 MK389 NO47 OM968 PK92 PW680 PS970 PA507 PG675 PY595 PE51 PH63 PL48 PT351 PR1787 QA974 RO40 RU7 RW250 KN1869 LC1758 VC1784 WS685 SM378 ST239 SA966 SN221 RS381 SC248 SL232 SG65 SK421 SI386 SB677 SO252 ZA27 SS211 ES34 LK94 SD249 SR597 SE46 CH41 SY963 TW886 TJ992 TZ255 TH66 TL670 TG228 TO676 TT1868 TN216 TR90 TM993 TV688 UG256 UA380 AE971 GB44 US1 UY598 UZ998 VU678 VA379 VE58 VN84 YE967 ZM260 ZW263 XK383';
+const PRIORITY = ['ID', 'MY', 'SG', 'TH', 'PH', 'VN', 'BN', 'AU', 'JP', 'KR', 'CN', 'IN', 'US'];
+export const COUNTRIES: C[] = RAW.split(' ').map((t) => ({ iso: t.slice(0, 2), dial: t.slice(2) }));
+
+const byDial = (dial: string) => COUNTRIES.find((c) => c.dial === dial && ['US', 'RU'].includes(c.iso)) || COUNTRIES.find((c) => c.dial === dial);
+
+const dn: Record<string, Intl.DisplayNames | null> = {};
+function countryName(iso: string, lang: string): string {
+  try {
+    dn[lang] ??= new Intl.DisplayNames([lang], { type: 'region' });
+    return dn[lang]!.of(iso) || iso;
+  } catch { return iso; }
+}
+function sortedCountries(lang: string): C[] {
+  const top = PRIORITY.map((i) => COUNTRIES.find((c) => c.iso === i)!);
+  const rest = COUNTRIES.filter((c) => !PRIORITY.includes(c.iso)).sort((a, b) => countryName(a.iso, lang).localeCompare(countryName(b.iso, lang), lang));
+  return [...top, ...rest];
+}
 
 /** 811 5007 036 -> 811-5007-036 (3 angka pertama, lalu per 4 angka). */
 function group(d: string) {
@@ -53,7 +40,7 @@ export function parsePhone(v: string | null | undefined): { dial: string; local:
   const digits = raw.replace(/\D/g, '');
   if (raw.startsWith('+') || raw.startsWith('00')) {
     const d = raw.startsWith('00') ? digits.slice(2) : digits;
-    const hit = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length).find((c) => d.startsWith(c.dial));
+    const hit = [...COUNTRIES].sort((a, b) => b.dial.length - a.dial.length).map((c) => (d.startsWith(c.dial) ? byDial(c.dial) : undefined)).find(Boolean);
     if (hit) return { dial: hit.dial, local: d.slice(hit.dial.length).replace(/^0+/, '') };
     return { dial: '62', local: d };
   }
@@ -70,8 +57,11 @@ export default function PhoneInput({ value, onChange, disabled, inputClassName }
 }) {
   const lang = useLang();
   const { dial, local } = parsePhone(value);
-  const cur = COUNTRIES.find((c) => c.dial === dial) || COUNTRIES[0];
-  const nm = (c: C) => (lang === 'id' ? c.id : c.en);
+  const [pick, setPick] = useState<string | null>(null);
+  const byPick = pick ? COUNTRIES.find((c) => c.iso === pick && c.dial === dial) : undefined;
+  const cur = byPick || byDial(dial) || COUNTRIES.find((c) => c.iso === 'ID')!;
+  const nm = (c: C) => countryName(c.iso, lang === 'id' ? 'id' : 'en');
+  const list = useMemo(() => sortedCountries(lang === 'id' ? 'id' : 'en'), [lang]);
   return (
     <div className="ph-wrap">
       <Select
@@ -83,9 +73,9 @@ export default function PhoneInput({ value, onChange, disabled, inputClassName }
         popMinWidth={250}
         listMaxHeight={216}
         triggerContent={<span className="ph-cur"><Flag iso={cur.iso} /><b>+{cur.dial}</b></span>}
-        onChange={(e) => onChange(buildPhone(COUNTRIES.find((c) => c.iso === e.target.value)!.dial, local))}
+        onChange={(e) => { setPick(e.target.value); onChange(buildPhone(COUNTRIES.find((c) => c.iso === e.target.value)!.dial, local)); }}
       >
-        {COUNTRIES.map((c) => <option key={c.iso} value={c.iso} data-flag={c.iso} data-sub={`+${c.dial}`}>{nm(c)}</option>)}
+        {list.map((c) => <option key={c.iso} value={c.iso} data-flag={c.iso} data-sub={`+${c.dial}`}>{nm(c)}</option>)}
       </Select>
       <input
         className={inputClassName}

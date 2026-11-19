@@ -1424,3 +1424,7 @@ html.dark .ls-zoom button { background: transparent !important; }
 html.dark .ls-pop-ic:hover:not(:disabled), html.dark .ls-zoom button:hover:not(:disabled) { background: #323c5a !important; }
 html.dark .dial-major { stroke: #8391b0; }
 html.dark .dial-minor { stroke: #4b5675; }
+
+/* Header kolom daftar: sama dengan latar utama halaman */
+.sort-header { background: #f6f8fc; }
+html.dark .sort-header { background: var(--d-bg, #090a10) !important; }
