@@ -188,26 +188,39 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
             </button>
           )}
           <ThemeToggle variant="menu" />
-          <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-            <i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}
-          </div>
-          <div className="grid grid-cols-4 gap-1 px-1 pb-1" role="radiogroup" aria-label="Menu Position">
-            {NAV_POS_OPTIONS.map((o) => (
-              <button
-                key={o.id}
-                type="button"
-                role="radio"
-                aria-checked={navPos === o.id}
-                title={nl(o.label)}
-                onClick={() => onNavPos(o.id)}
-                className={`flex flex-col items-center gap-0.5 rounded-lg px-1 py-1.5 text-[10px] font-semibold transition ${
-                  navPos === o.id ? 'bg-brand-50 text-brand-500' : 'text-slate-500 hover:bg-slate-50'
-                }`}
-              >
-                <i className={`${o.icon} text-[14px] leading-none`} />
-                <span>{nl(o.label)}</span>
-              </button>
-            ))}
+          <div className="hidden lg:block">
+            <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
+              <i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}
+            </div>
+            <div className="grid grid-cols-2 gap-2 px-2 pb-1" role="radiogroup" aria-label="Menu Position">
+              {NAV_POS_OPTIONS.map((o) => {
+                const on = navPos === o.id;
+                const bar = on ? 'bg-brand-500' : 'bg-slate-300';
+                const barCls =
+                  o.id === 'top' ? 'left-1 right-1 top-1 h-2' :
+                  o.id === 'bottom' ? 'left-1 right-1 bottom-1 h-2' :
+                  o.id === 'left' ? 'left-1 top-1 bottom-1 w-3' : 'right-1 top-1 bottom-1 w-3';
+                return (
+                  <button
+                    key={o.id}
+                    type="button"
+                    role="radio"
+                    aria-checked={on}
+                    title={nl(o.label)}
+                    onClick={() => onNavPos(o.id)}
+                    className={`flex flex-col items-center gap-1 rounded-xl border p-1.5 text-[10px] font-semibold transition ${
+                      on ? 'border-brand-500 bg-brand-50 text-brand-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'
+                    }`}
+                  >
+                    <span className="relative block h-[38px] w-full overflow-hidden rounded-md border border-slate-200 bg-slate-100">
+                      <span className={`absolute rounded-sm ${bar} ${barCls}`} />
+                      <span className="absolute inset-0 m-auto h-3 w-1/2 rounded-sm bg-white/80" />
+                    </span>
+                    <span>{nl(o.label)}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
           <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
             <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
@@ -366,7 +379,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className={`flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${vertical ? 'lg:overflow-x-clip lg:w-full lg:max-w-[100vw]' : ''} ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
+    <div className={`flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
       {loggingOut && (
         <div className="login-overlay print:hidden" role="status" aria-live="polite">
           <div className="spinner" />
@@ -388,7 +401,7 @@ export default function DashboardShell({
           navPos === 'bottom'
             ? 'lg:top-auto lg:bottom-0 lg:order-last lg:border-b-0 lg:border-t lg:shadow-[0_-8px_24px_-20px_rgba(47,107,240,0.5)]'
             : vertical
-              ? `lg:h-screen lg:w-[216px] lg:min-w-[216px] lg:max-w-[216px] lg:shrink-0 lg:overflow-x-clip lg:flex-col lg:items-stretch lg:gap-3 lg:border-b-0 lg:px-3 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
+              ? `lg:h-screen lg:w-[216px] lg:min-w-[216px] lg:max-w-[216px] lg:shrink-0 lg:flex-col lg:items-stretch lg:gap-3 lg:border-b-0 lg:px-3 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
               : ''
         }`}
       >
@@ -406,10 +419,10 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className={`logo-light mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:self-start lg:px-1' : ''}`} />
-        <img src="/logo-fanos-dark.png" alt="Fanos" className={`logo-dark mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:self-start lg:px-1' : ''}`} />
+        <img src={LOGO_URL} alt="Fanos" className={`logo-light mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-3 lg:h-[24px] lg:self-center lg:px-1' : ''}`} />
+        <img src="/logo-fanos-dark.png" alt="Fanos" className={`logo-dark mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-3 lg:h-[24px] lg:self-center lg:px-1' : ''}`} />
 
-        <nav className={`hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:flex-col lg:items-stretch lg:gap-1' : 'lg:justify-center'}`}>
+        <nav className={`hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-4 lg:flex-col lg:items-stretch lg:gap-1' : 'lg:justify-center'}`}>
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
@@ -575,7 +588,7 @@ export default function DashboardShell({
         )}
       </header>
 
-      <main className={`min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0 ${vertical ? 'lg:w-[calc(100%-216px)] lg:max-w-[calc(100vw-216px)] lg:overflow-x-clip' : ''}`}>{children}</main>
+      <main className={`min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0 ${vertical ? 'lg:w-[calc(100%-216px)] lg:max-w-[calc(100vw-216px)] ' : ''}`}>{children}</main>
     </div>
   );
 }
