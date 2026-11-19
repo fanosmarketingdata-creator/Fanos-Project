@@ -11,7 +11,7 @@ type Person = { id: string; full_name: string; photo_url: string | null; role: s
 // ditampilkan: daftar hanya berisi akun Active ber-role selain Superuser.
 const MAX_AVATARS = 4;
 
-export default function PresenceWidget({ meId }: { meId: string }) {
+export default function PresenceWidget({ meId, vertical = false }: { meId: string; vertical?: boolean }) {
   const supabase = useMemo(() => createClient(), []);
   const [people, setPeople] = useState<Person[]>([]);
   const [onlineIds, setOnlineIds] = useState<Set<string>>(new Set());
@@ -92,18 +92,18 @@ export default function PresenceWidget({ meId }: { meId: string }) {
 
   return (
     <div className="relative">
-      <button onClick={() => setOpen((v) => !v)} className="flex items-center pl-2" title="Lihat pengguna yang sedang aktif">
+      <button onClick={() => setOpen((v) => !v)} className={`flex items-center ${vertical ? 'flex-col' : 'pl-2'}`} title="Lihat pengguna yang sedang aktif">
         {shown.map((p, i) => (
           <Avatar
             key={p.id}
             person={p}
-            className={`${i > 0 ? '-ml-2.5' : ''} h-[30px] w-[30px] border-2 border-white ${
+            className={`${i > 0 ? (vertical ? '-mt-2.5' : '-ml-2.5') : ''} h-[30px] w-[30px] border-2 border-white ${
               onlineIds.has(p.id) ? 'ring-2 ring-emerald-500' : ''
             }`}
           />
         ))}
         {remaining > 0 && (
-          <span className="-ml-2.5 flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-orange-400 text-[10px] font-bold text-white">
+          <span className={`${vertical ? '-mt-2.5' : '-ml-2.5'} flex h-[30px] w-[30px] items-center justify-center rounded-full border-2 border-white bg-orange-400 text-[10px] font-bold text-white`}>
             +{remaining}
           </span>
         )}
