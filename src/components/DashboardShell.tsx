@@ -421,7 +421,7 @@ export default function DashboardShell({
           navPos === 'bottom'
             ? 'lg:top-auto lg:bottom-0 lg:order-last lg:border-b-0 lg:border-t lg:shadow-[0_-8px_24px_-20px_rgba(47,107,240,0.5)]'
             : vertical
-              ? `lg:h-screen lg:w-[216px] lg:min-w-[216px] lg:max-w-[216px] lg:shrink-0 lg:flex-col lg:items-stretch lg:gap-3 lg:border-b-0 lg:px-3 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
+              ? `lg:h-screen lg:w-[84px] lg:min-w-[84px] lg:max-w-[84px] lg:shrink-0 lg:flex-col lg:items-center lg:gap-3 lg:border-b-0 lg:px-2 lg:py-4 ${navPos === 'left' ? 'lg:border-r' : 'lg:border-l'}`
               : ''
         }`}
       >
@@ -439,14 +439,14 @@ export default function DashboardShell({
         </button>
 
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={LOGO_URL} alt="Fanos" className={`logo-light mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-3 lg:h-[24px] lg:self-center lg:px-1' : ''}`} />
-        <img src="/logo-fanos-dark.png" alt="Fanos" className={`logo-dark mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-3 lg:h-[24px] lg:self-center lg:px-1' : ''}`} />
+        <img src={LOGO_URL} alt="Fanos" className={`logo-light mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-2 lg:h-auto lg:w-[60px] lg:self-center' : ''}`} />
+        <img src="/logo-fanos-dark.png" alt="Fanos" className={`logo-dark mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-2 lg:h-auto lg:w-[60px] lg:self-center' : ''}`} />
 
-        <nav className={`hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-4 lg:flex-col lg:items-stretch lg:gap-1' : 'lg:justify-center'}`}>
+        <nav className={`hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-4 lg:w-full lg:flex-col lg:items-stretch lg:gap-2' : 'lg:justify-center'}`}>
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
-            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 lg:gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${vertical ? 'lg:w-full lg:px-3 lg:py-2' : ''} ${
+            const btnClass = `group/nav inline-flex shrink-0 items-center gap-1.5 lg:gap-1.5 whitespace-nowrap rounded-lg px-2 py-1.5 text-[12px] font-semibold transition-colors duration-150 xl:px-3 ${vertical ? 'lg:w-full lg:flex-col lg:gap-1 lg:whitespace-normal lg:rounded-xl lg:px-1 lg:py-2 lg:text-center lg:text-[10px] lg:leading-tight' : ''} ${
               groupActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                 : openId === group.id
@@ -457,7 +457,7 @@ export default function DashboardShell({
             if (group.direct) {
               return (
                 <Link key={group.id} href={group.items[0].href} className={btnClass}>
-                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
+                  <i className={`${group.icon} hidden ${vertical ? 'lg:text-[18px]' : 'text-[12px]'} leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
                   <span>{nl(group.label)}</span>
                 </Link>
               );
@@ -481,11 +481,9 @@ export default function DashboardShell({
                   onClick={() => (canHover() ? openMenu(group.id) : open ? setOpenId(null) : openMenu(group.id))}
                   onKeyDown={(e) => e.key === 'Escape' && setOpenId(null)}
                 >
-                  <i className={`${group.icon} hidden text-[12px] leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
-                  <span className={vertical ? 'flex-1 text-left' : ''}>{nl(group.label)}</span>
-                  {vertical ? (
-                    <i className={`fi ${navPos === 'right' ? 'fi-rr-angle-small-left' : 'fi-rr-angle-small-right'} hidden text-[11px] leading-none lg:inline`} />
-                  ) : (
+                  <i className={`${group.icon} hidden ${vertical ? 'lg:text-[18px]' : 'text-[12px]'} leading-none transition-transform duration-200 group-hover/nav:scale-110 lg:inline`} />
+                  <span className={vertical ? 'text-center' : ''}>{nl(group.label)}</span>
+                  {vertical ? null : (
                     <i className={`fi ${navPos === 'bottom' ? 'fi-rr-angle-small-up' : 'fi-rr-angle-small-down'} hidden text-[10px] leading-none transition-transform xl:inline ${open ? 'rotate-180' : ''}`} />
                   )}
                 </button>
@@ -523,12 +521,12 @@ export default function DashboardShell({
         <div className="flex-1 lg:hidden" />
 
         {!isSuperuser && (
-          <div className={`shrink-0 ${vertical ? 'lg:self-stretch' : ''}`}>
+          <div className={`shrink-0 ${vertical ? 'lg:self-center' : ''}`}>
             <PresenceWidget meId={profile.id} />
           </div>
         )}
 
-        <div className={`flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3 ${vertical ? 'lg:justify-between lg:border-l-0 lg:border-t lg:pl-0 lg:pt-3' : ''}`}>
+        <div className={`flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3 ${vertical ? 'lg:w-full lg:flex-col lg:justify-center lg:gap-3 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-3' : ''}`}>
           <AuditBell meId={profile.id} isSuperuser={isSuperuser} popClass={cornerPopClass(navPos)} />
           <UserMenu profile={profile} onLogout={handleLogout} navPos={navPos} onNavPos={setNavPos} />
         </div>
@@ -608,7 +606,7 @@ export default function DashboardShell({
         )}
       </header>
 
-      <main className={`min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0 ${vertical ? 'lg:w-[calc(100%-216px)] lg:max-w-[calc(100vw-216px)] ' : ''}`}>{children}</main>
+      <main className={`min-w-0 flex-1 p-3 sm:p-4 lg:p-6 print:p-0 ${vertical ? 'lg:w-[calc(100%-84px)] lg:max-w-[calc(100vw-84px)] ' : ''}`}>{children}</main>
     </div>
   );
 }
