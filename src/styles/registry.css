@@ -1406,11 +1406,21 @@ html.dark .client-card-id { color: var(--d-text, #e5e7eb); }
 .client-card-id > span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
 
 /* ---- PhoneInput: pilihan negara + nomor ---- */
-.ph-wrap { display: flex; gap: 6px; align-items: stretch; min-width: 0; }
+.ph-wrap { display: flex; gap: 8px; align-items: stretch; min-width: 0; }
 .ph-wrap > input { flex: 1 1 0; min-width: 0; }
-.ph-cc { position: relative; flex: 0 0 auto; display: inline-flex; align-items: center; gap: 4px; padding: 0 10px; border: 1px solid #dfe3ee; border-radius: 12px; background: #fff; font-size: 12.5px; font-weight: 700; color: #374151; cursor: pointer; white-space: nowrap; }
-.ph-cc i { font-size: 10px; color: #9ca3af; }
-.ph-cc select { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
-.ph-cc.ph-off { opacity: .6; cursor: not-allowed; }
-.ph-cc:focus-within { border-color: #5b86ff; box-shadow: 0 0 0 3px rgba(91, 134, 255, .15); }
-html.dark .ph-cc { background: var(--d-surface-2, #1b2133); border-color: var(--d-line, #2c3550); color: var(--d-text, #e5e7eb); }
+.ph-wrap .ui-select-trigger.ph-trigger { width: auto; flex: 0 0 auto; min-width: 84px; height: auto; padding: 0 8px 0 10px; gap: 6px; justify-content: space-between; }
+.ph-cur { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 700; }
+.ui-flag { width: 20px; height: 14px; object-fit: cover; border-radius: 2px; box-shadow: 0 0 0 1px rgba(15, 23, 42, .15); flex: 0 0 auto; }
+
+/* Judul kolom sudah ada di header, jadi label kecil di tiap baris disembunyikan (desktop) */
+@media (min-width: 901px) {
+  .sort-header ~ .client-card-list .client-card-meta .item .lbl { display: none; }
+}
+
+/* Slider / popover ukuran gambar & zoom: gelap di dark mode */
+html.dark .ls-pop, html.dark .ls-zoom { background: #1b2133 !important; color: #e5e7eb !important; border-color: #2c3550 !important; box-shadow: 0 8px 24px rgba(0, 0, 0, .55) !important; }
+html.dark .ls-pop-ic, html.dark .ls-zoom button { background: #262e45 !important; color: #cbd5e1 !important; }
+html.dark .ls-zoom button { background: transparent !important; }
+html.dark .ls-pop-ic:hover:not(:disabled), html.dark .ls-zoom button:hover:not(:disabled) { background: #323c5a !important; }
+html.dark .dial-major { stroke: #8391b0; }
+html.dark .dial-minor { stroke: #4b5675; }

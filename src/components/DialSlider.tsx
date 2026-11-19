@@ -45,7 +45,7 @@ export default function DialSlider({
   for (let v = min; v <= max; v += step) {
     const major = v % 10 === 0;
     const x = (v - min) * PX;
-    ticks.push(<line key={v} x1={x} x2={x} y1={major ? H * 0.3 : H * 0.42} y2={major ? H * 0.9 : H * 0.8} stroke={major ? '#94a3b8' : '#cbd5e1'} strokeWidth={major ? 1.5 : 1} />);
+    ticks.push(<line key={v} x1={x} x2={x} y1={major ? H * 0.3 : H * 0.42} y2={major ? H * 0.9 : H * 0.8} stroke={major ? '#94a3b8' : '#cbd5e1'} strokeWidth={major ? 1.5 : 1} className={major ? 'dial-major' : 'dial-minor'} />);
   }
 
   return (

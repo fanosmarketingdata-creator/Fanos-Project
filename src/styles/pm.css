@@ -195,3 +195,9 @@
 .pm-tile span { display: block; font-size: 11.5px; color: #64748b; font-weight: 600; }
 .pm-tile b { font-size: 24px; font-weight: 800; line-height: 1.2; }
 @media (max-width: 640px) { .pm-tiles { grid-template-columns: 1fr 1fr; } }
+
+/* Pilihan anggota tim (chip) */
+.pm-pick { cursor: pointer; border: 1.5px solid transparent; background: #f4f6fa; padding-right: 10px; color: #334155; }
+.pm-pick.is-on { border-color: #3563e9; background: #eef3ff; color: #1d4ed8; }
+html.dark .pm-pick { background: var(--d-surface-2, #1b2133) !important; color: var(--d-text, #e5e7eb) !important; border-color: var(--d-line, #2c3550) !important; }
+html.dark .pm-pick.is-on { background: rgba(91, 134, 255, .18) !important; border-color: var(--d-blue, #5b86ff) !important; color: #dbe6ff !important; }

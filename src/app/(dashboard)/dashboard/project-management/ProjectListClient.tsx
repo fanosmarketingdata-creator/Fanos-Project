@@ -244,7 +244,7 @@ export default function ProjectListClient({ rows, members, today }: { rows: PmPr
                   {members.map((m) => {
                     const on = form.member_ids.includes(m.id) || form.owner_id === m.id;
                     return (
-                      <button key={m.id} type="button" onClick={() => toggleMember(m.id)} className="pm-who" style={{ cursor: 'pointer', border: on ? '1.5px solid #3563e9' : '1.5px solid transparent', background: on ? '#eef3ff' : '#f4f6fa', paddingRight: 10 }}>
+                      <button key={m.id} type="button" onClick={() => toggleMember(m.id)} className={`pm-who pm-pick${on ? ' is-on' : ''}`}>
                         <Avatar m={m} /> {m.name}
                       </button>
                     );

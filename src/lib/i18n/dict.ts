@@ -53,6 +53,7 @@ const RULES: Rule[] = [
   [/^Invoice tidak cukup untuk menyerap seluruh Credit Note\. Sisa (Rp .+):$/, (m) => `The invoice cannot absorb the whole Credit Note. Remaining ${m[1]}:`],
   [/^Saldo Credit Note: (Rp .+)$/, (m) => `Credit Note balance: ${m[1]}`],
   [/^Jumlah melebihi saldo Credit Note \((Rp .+)\)\.$/, (m) => `Amount exceeds the Credit Note balance (${m[1]}).`],
+  [/^Isi per Kemasan \((.+)\)$/, (m) => `Units per Package (${m[1]})`],
   [/^Sisa (Rp .+)$/, (m) => `Remaining ${m[1]}`],
   [/^Jumlah payment \+ discount melebihi sisa tagihan \((Rp .+)\)\.$/, (m) => `Payment + discount exceeds the remaining balance (${m[1]}).`],
   [/^Payment ID "(.+)" sudah dipakai\.$/, (m) => `Payment ID "${m[1]}" is already used.`],

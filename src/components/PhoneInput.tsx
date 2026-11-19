@@ -1,6 +1,7 @@
 'use client';
 
 import { useLang } from '@/components/I18nProvider';
+import Select, { Flag } from '@/components/ui/Select';
 
 type C = { iso: string; dial: string; en: string; id: string };
 export const COUNTRIES: C[] = [
@@ -73,14 +74,19 @@ export default function PhoneInput({ value, onChange, disabled, inputClassName }
   const nm = (c: C) => (lang === 'id' ? c.id : c.en);
   return (
     <div className="ph-wrap">
-      <label className={`ph-cc${disabled ? ' ph-off' : ''}`} title={nm(cur)}>
-        <span>{cur.iso} +{cur.dial}</span>
-        <i className="fi fi-rr-angle-small-down" />
-        <select value={cur.iso} disabled={disabled} aria-label={lang === 'id' ? 'Negara' : 'Country'}
-          onChange={(e) => onChange(buildPhone(COUNTRIES.find((c) => c.iso === e.target.value)!.dial, local))}>
-          {COUNTRIES.map((c) => <option key={c.iso} value={c.iso}>{nm(c)} (+{c.dial})</option>)}
-        </select>
-      </label>
+      <Select
+        value={cur.iso}
+        disabled={disabled}
+        className="ph-trigger"
+        searchable
+        searchPlaceholder={lang === 'id' ? 'Cari negara...' : 'Search country...'}
+        popMinWidth={250}
+        listMaxHeight={216}
+        triggerContent={<span className="ph-cur"><Flag iso={cur.iso} /><b>+{cur.dial}</b></span>}
+        onChange={(e) => onChange(buildPhone(COUNTRIES.find((c) => c.iso === e.target.value)!.dial, local))}
+      >
+        {COUNTRIES.map((c) => <option key={c.iso} value={c.iso} data-flag={c.iso} data-sub={`+${c.dial}`}>{nm(c)}</option>)}
+      </Select>
       <input
         className={inputClassName}
         inputMode="numeric"

@@ -244,7 +244,7 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
         </div>
       )}
       {posOpen && typeof document !== 'undefined' && createPortal(
-            <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4">
+            <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4" onMouseDown={() => setPosOpen(false)}>
               <div className="w-[260px] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
                 <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-bold text-slate-700">
                   <span><i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}</span>

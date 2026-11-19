@@ -3,20 +3,25 @@
 import { Children, isValidElement, useEffect, useLayoutEffect, useMemo, useRef, useState, type CSSProperties, type ReactNode } from 'react';
 import { createPortal } from 'react-dom';
 
-type Item = { value: string; label: string; sub?: string; disabled?: boolean; group?: string };
+type Item = { value: string; label: string; sub?: string; disabled?: boolean; group?: string; flag?: string };
 
 // Ubah <option>/<optgroup> menjadi daftar item datar, supaya <select> lama bisa diganti tanpa ubah isinya.
 function parseChildren(children: ReactNode, group?: string, out: Item[] = []): Item[] {
   Children.forEach(children, (c) => {
     if (!isValidElement(c)) return;
-    const p = c.props as { value?: string | number; disabled?: boolean; label?: string; children?: ReactNode; 'data-sub'?: string };
+    const p = c.props as { value?: string | number; disabled?: boolean; label?: string; children?: ReactNode; 'data-sub'?: string; 'data-flag'?: string };
     if (c.type === 'optgroup') parseChildren(p.children, p.label, out);
     else if (c.type === 'option') {
       const text = Children.toArray(p.children).join('');
-      out.push({ value: String(p.value ?? text), label: text, sub: p['data-sub'], disabled: p.disabled, group });
+      out.push({ value: String(p.value ?? text), label: text, sub: p['data-sub'], flag: p['data-flag'], disabled: p.disabled, group });
     } else if (p.children) parseChildren(p.children, group, out);
   });
   return out;
+}
+
+export function Flag({ iso }: { iso: string }) {
+  // eslint-disable-next-line @next/next/no-img-element
+  return <img className="ui-flag" src={`https://flagcdn.com/w40/${iso.toLowerCase()}.png`} alt="" width={20} height={14} loading="lazy" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }} />;
 }
 
 export type UiSelectProps = {
@@ -27,13 +32,16 @@ export type UiSelectProps = {
   style?: CSSProperties;
   searchable?: boolean; // paksa kolom cari (default: otomatis bila pilihan > 8)
   searchPlaceholder?: string;
+  triggerContent?: ReactNode; // isi tombol kustom (mis. bendera + kode negara)
+  popMinWidth?: number;
+  listMaxHeight?: number; // tinggi daftar maksimum (px) sebelum di-scroll
   placeholder?: string; // teks saat belum ada pilihan, tanpa baris "kosongkan"
   children: ReactNode;
 };
 
 // Dropdown modern pengganti <select> bawaan browser: popover berbayang, centang pada pilihan,
 // pencarian otomatis bila pilihan banyak, navigasi keyboard, dan membuka ke atas bila ruang bawah sempit.
-export default function Select({ value, onChange, disabled, className = '', style, searchable: forceSearch, searchPlaceholder = 'Cari...', placeholder, children }: UiSelectProps) {
+export default function Select({ value, onChange, disabled, className = '', style, searchable: forceSearch, searchPlaceholder = 'Cari...', placeholder, triggerContent, popMinWidth, listMaxHeight, children }: UiSelectProps) {
   const items = useMemo(() => parseChildren(children), [children]);
   const current = String(value ?? '');
   const selected = items.find((i) => i.value === current);
@@ -61,9 +69,9 @@ export default function Select({ value, onChange, disabled, className = '', styl
     const below = window.innerHeight - r.bottom - 12;
     const above = r.top - 12;
     const up = below < 220 && above > below;
-    const maxH = Math.max(140, Math.min(300, up ? above : below));
+    const maxH = Math.max(140, Math.min(listMaxHeight ? listMaxHeight + 48 : 300, up ? above : below));
     // Pemicu sempit (mis. pilihan baris/halaman) cukup dengan dropdown ringkas; posisi dijaga tetap di dalam layar.
-    const width = Math.max(r.width, r.width < 100 ? 110 : 180);
+    const width = Math.max(r.width, popMinWidth ?? (r.width < 100 ? 110 : 180));
     let left = r.left;
     if (left + width > window.innerWidth - 8) left = Math.max(8, Math.min(r.right - width, window.innerWidth - width - 8));
     setPos({ left, width, maxH, ...(up ? { bottom: window.innerHeight - r.top + 6 } : { top: r.bottom + 6 }) });
@@ -152,7 +160,7 @@ export default function Select({ value, onChange, disabled, className = '', styl
         onClick={() => { setQuery(''); setOpen((o) => !o); }}
         onKeyDown={onKeyDown}
       >
-        <span className={`ui-select-label ${showPlaceholder ? 'is-placeholder' : ''}`}>{label}</span>
+        {triggerContent ?? <span className={`ui-select-label ${showPlaceholder ? 'is-placeholder' : ''}`}>{label}</span>}
         <svg className="ui-select-chevron" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6" /></svg>
       </button>
       {open && pos && typeof document !== 'undefined' &&
@@ -189,8 +197,9 @@ export default function Select({ value, onChange, disabled, className = '', styl
                       onMouseEnter={() => setHi(idx)}
                       onClick={() => choose(r)}
                     >
-                      <span style={{ minWidth: 0 }}>
-                        {r.label}
+                      <span style={{ minWidth: 0, display: r.flag ? 'flex' : undefined, alignItems: 'center', gap: 8 }}>
+                        {r.flag && <Flag iso={r.flag} />}
+                        <span>{r.label}</span>
                         {r.sub && <span className="ui-select-sub">{r.sub}</span>}
                       </span>
                       {isSel && r.value !== '' && <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M5 12l5 5 9-10" /></svg>}

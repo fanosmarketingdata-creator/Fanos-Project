@@ -129,7 +129,7 @@ function BarChart({ labels, a, b, nameA, nameB }: { labels: string[]; a: number[
             const on = hi === i;
             return (
               <g key={i} onMouseEnter={() => setHi(i)} onClick={() => setHi(i)} style={{ cursor: 'pointer' }}>
-                <rect x={L + gw * i} y={T} width={gw} height={H - T - B} fill={on ? '#f3f6fe' : 'transparent'} rx={8} />
+                <rect x={L + gw * i} y={T} width={gw} height={H - T - B} fill={on ? '#f3f6fe' : 'transparent'} rx={8} className={on ? 'dx-hl' : undefined} />
                 {!hide.a && <rect x={cx - bw - 2} y={y(a[i])} width={bw} height={Math.max(0, H - B - y(a[i]))} rx={6} fill={BLUE} className="dx-bar" />}
                 {!hide.b && <rect x={cx + 2} y={y(b[i])} width={bw} height={Math.max(0, H - B - y(b[i]))} rx={6} fill={BLUE_SOFT} className="dx-bar" />}
                 <text x={cx} y={H - 8} textAnchor="middle" className={`dx-tick ${on ? 'on' : ''}`}>{lb}</text>
@@ -138,7 +138,7 @@ function BarChart({ labels, a, b, nameA, nameB }: { labels: string[]; a: number[
           })}
         </svg>
         {hi !== null && (
-          <div className="dx-tip" style={{ left: `${((L + gw * hi + gw / 2) / W) * 100}%` }}>
+          <div className="dx-tip" style={(() => { const pc = ((L + gw * hi + gw / 2) / W) * 100; return { left: `${pc}%`, transform: pc > 68 ? 'translateX(-100%)' : pc < 32 ? 'translateX(0)' : 'translateX(-50%)' }; })()}>
             <b>{labels[hi]}</b>
             {!hide.a && <div><i style={{ background: BLUE }} />{nameA}<span>{idr(a[hi])}</span></div>}
             {!hide.b && <div><i style={{ background: BLUE_SOFT }} />{nameB}<span>{idr(b[hi])}</span></div>}
@@ -201,7 +201,7 @@ function LineChart({ labels, series, H = 180, axis = true, fill = false, tickEve
         {axis && labels.map((lb, i) => (i % tickEvery === 0 ? <text key={i} x={x(i)} y={H - 6} textAnchor="middle" className={`dx-tick ${hi === i ? 'on' : ''}`}>{lb}</text> : null))}
       </svg>
       {hi !== null && (
-        <div className="dx-tip" style={{ left: `${(x(hi) / W) * 100}%` }}>
+        <div className="dx-tip" style={(() => { const pc = (x(hi) / W) * 100; return { left: `${pc}%`, transform: pc > 68 ? 'translateX(-100%)' : pc < 32 ? 'translateX(0)' : 'translateX(-50%)' }; })()}>
           <b>{labels[hi]}</b>
           {series.map((s) => <div key={s.name}><i style={{ background: s.color }} />{s.name}<span>{idr(s.values[hi])}</span></div>)}
         </div>

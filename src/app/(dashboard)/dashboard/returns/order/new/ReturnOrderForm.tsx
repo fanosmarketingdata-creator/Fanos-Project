@@ -78,7 +78,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
           </FvField>
           <FvField label="Client"><input readOnly value={inv?.client_name ?? ''} placeholder="Terisi otomatis dari invoice" /></FvField>
           <FvField label="Tanggal Retur" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
-          <WarehouseField label="Gudang Tujuan (Barang Kembali)" value={warehouseId} onChange={setWarehouseId} required />
+          <WarehouseField label="Gudang Tujuan" value={warehouseId} onChange={setWarehouseId} required />
         </div>
         <div style={{ marginTop: 14 }}>
           <FvField label="Alasan">

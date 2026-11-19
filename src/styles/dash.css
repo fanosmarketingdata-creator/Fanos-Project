@@ -172,3 +172,6 @@
 .dx-seg .dx-locked.dim { opacity: .35; }
 .r-6-6 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 @media (max-width: 900px) { .r-6-6 { grid-template-columns: 1fr; } }
+
+/* Sorotan kolom grafik saat hover: gelap di dark mode */
+html.dark .dx-hl { fill: rgba(91, 134, 255, .14) !important; }

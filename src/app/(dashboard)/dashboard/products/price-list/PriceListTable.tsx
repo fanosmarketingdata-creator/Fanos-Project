@@ -203,7 +203,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
                 <span className="search-icon"><i className="fa-solid fa-search" /></span>
                 <input type="text" placeholder="Cari produk..." value={pickSearch} onChange={(e) => setPickSearch(e.target.value)} />
               </div>
-              <div style={{ maxHeight: 260, overflowY: 'auto', display: 'grid', gap: 6 }}>
+              <div style={{ maxHeight: 'max(260px, calc(100dvh - 330px))', minHeight: 'min(260px, 40dvh)', overflowY: 'auto', display: 'grid', gap: 6, alignContent: 'start' }}>
                 {pickable.length === 0 && (
                   <div className="no-data-grid">{unlisted.length === 0 ? 'Semua produk Catalogue sudah memiliki price list' : 'Produk tidak ditemukan'}</div>
                 )}

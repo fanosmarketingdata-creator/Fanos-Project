@@ -6,10 +6,9 @@ import RegistryCard from '@/components/registry/RegistryCard';
 import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
 import Select from '@/components/ui/Select';
 import RichTextEditor from '@/components/RichTextEditor';
-import { RT_MARK, valueToHtml } from '@/lib/rich-text';
+import { RT_MARK } from '@/lib/rich-text';
 import { saveTermsTemplate, deleteTermsTemplate, type TermsTemplate } from './actions';
 
-const preview = (html: string) => valueToHtml(html).replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim();
 
 export default function TermsTemplatesTable({ initialRows }: { initialRows: TermsTemplate[] }) {
   const toast = useToast();
@@ -86,7 +85,6 @@ export default function TermsTemplatesTable({ initialRows }: { initialRows: Term
                   {r.name}
                   {r.is_default && <span className="badge badge-active" style={{ marginLeft: 8 }}>Default</span>}
                 </div>
-                <div className="sub">{preview(r.content) || '-'}</div>
               </div>
               <div className="client-card-meta" style={{ gridTemplateColumns: '1fr', flex: '0 0 90px' }}>
                 <div className="item"><div className="lbl">Bahasa</div><div className="val">{r.lang === 'en' ? 'English' : 'Indonesia'}</div></div>

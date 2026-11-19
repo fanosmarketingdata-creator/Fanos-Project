@@ -119,7 +119,7 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
             <label style={{ display: 'flex', alignItems: 'center', gap: 8, marginTop: 12, fontSize: 12.5 }}>
               <input type="checkbox" checked={restock} onChange={(e) => setRestock(e.target.checked)} /> Kembalikan stok ke gudang (tanpa Return Order)
             </label>
-            {restock && <div style={{ marginTop: 12, maxWidth: 360 }}><WarehouseField label="Gudang Tujuan (Barang Kembali)" value={warehouseId} onChange={setWarehouseId} required /></div>}
+            {restock && <div style={{ marginTop: 12, maxWidth: 360 }}><WarehouseField label="Gudang Tujuan" value={warehouseId} onChange={setWarehouseId} required /></div>}
           </>
         )}
         {fromOrder && <p style={{ fontSize: 11, color: '#9ca3af', marginTop: 8 }}>Stok sudah bertambah saat Return Order dibuat, jadi tidak ditambah lagi.</p>}
@@ -155,17 +155,17 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
       <Sec title="Summary & Penyelesaian" icon="fi fi-rr-calculator">
         <div className="fv2-summary">
           <div className="dv2-summary-row"><span>Subtotal Barang Diretur</span><span>{rp(subtotal)}</span></div>
-          <div className="dv2-summary-row discount"><span>Diskon Invoice ({factor.discountPercent}%)</span><span>- {rp(discAmt)}</span></div>
-          <div className="dv2-summary-row charge"><span>Pajak Invoice ({factor.taxPercent}%)</span><span>+ {rp(taxAmt)}</span></div>
+          <div className="dv2-summary-row discount"><span>{`Diskon Invoice (${factor.discountPercent}%)`}</span><span>- {rp(discAmt)}</span></div>
+          <div className="dv2-summary-row charge"><span>{`Pajak Invoice (${factor.taxPercent}%)`}</span><span>+ {rp(taxAmt)}</span></div>
           <div className="dv2-summary-row" style={{ borderTop: '1.5px solid #e5e7eb', marginTop: 6, paddingTop: 10, fontSize: 15, fontWeight: 800, color: '#1a237e' }}>
             <span>Nilai Credit Note</span><span>{rp(credit)}</span>
           </div>
-          <div className="dv2-summary-row"><span>Memotong Piutang Invoice (sisa {inv ? rp(inv.remaining) : '-'})</span><span>{rp(apply)}</span></div>
+          <div className="dv2-summary-row"><span>{`Memotong Piutang Invoice (sisa ${inv ? rp(inv.remaining) : '-'})`}</span><span>{rp(apply)}</span></div>
           <div className="dv2-summary-row"><span>Saldo Kredit / Refund</span><span>{rp(leftover)}</span></div>
         </div>
         {leftover > 0 && (
           <div style={{ marginTop: 14 }}>
-            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>Invoice tidak cukup untuk menyerap seluruh Credit Note. Sisa {rp(leftover)}:</p>
+            <p style={{ fontSize: 12, color: '#64748b', marginBottom: 8 }}>{`Invoice tidak cukup untuk menyerap seluruh Credit Note. Sisa ${rp(leftover)}:`}</p>
             <div style={{ display: 'flex', gap: 18, flexWrap: 'wrap', fontSize: 12.5 }}>
               <label><input type="radio" checked={settlement === 'CREDIT'} onChange={() => setSettlement('CREDIT')} /> Simpan sebagai saldo kredit client</label>
               <label><input type="radio" checked={settlement === 'REFUND'} onChange={() => setSettlement('REFUND')} /> Refund sekarang</label>
