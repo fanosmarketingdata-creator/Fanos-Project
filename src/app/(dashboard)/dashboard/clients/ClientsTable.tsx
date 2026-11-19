@@ -89,6 +89,7 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
 
   const sortCols: SortCol<ClientRow>[] = [
     { key: 'company', label: 'Client', get: (c) => c.company },
+    { key: 'client_no', label: 'ID', get: (c) => c.client_no },
     { key: 'contact', label: 'Contact', get: (c) => c.contact_name },
     { key: 'phone', label: 'Phone', get: (c) => c.phone },
     { key: 'email', label: 'Email', get: (c) => c.email },
@@ -184,16 +185,17 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
       }
     >
       <div className="product-grid-wrap">
-        <SortHeader main={sortCols[0]} cols={sortCols.slice(1)} sort={sort} onSort={toggle} />
+        <SortHeader main={sortCols[0]} idCol={sortCols[1]} cols={sortCols.slice(2)} sort={sort} onSort={toggle} />
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data client</div>}
           {paged.pageItems.map((c) => (
             <div key={c.id} className="client-card" onClick={() => setDetail(c)}>
               <div className="client-card-avatar">{c.company.trim().charAt(0).toUpperCase() || '?'}</div>
-              <div className="client-card-main">
+              <div className="client-card-main has-id">
                 <div className="name" style={{ display: 'flex', alignItems: 'center', gap: 7 }}><StatusBadge status={c.status} /><span style={{ minWidth: 0, overflow: 'hidden', textOverflow: 'ellipsis' }}>{c.company}</span></div>
                 <div className="sub">{c.client_no || '-'}</div>
               </div>
+              <div className="client-card-id">{c.client_no || '-'}</div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}{contactsOf(c).length > 1 ? ` (+${contactsOf(c).length - 1})` : ''}</div></div>
                 <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>

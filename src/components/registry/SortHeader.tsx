@@ -30,8 +30,9 @@ export function useSorted<T>(rows: T[], cols: SortCol<T>[]) {
   return { sorted, sort, toggle };
 }
 
-export default function SortHeader({ main, cols, sort, onSort }: {
+export default function SortHeader({ main, idCol, cols, sort, onSort }: {
   main: { key: string; label: string };
+  idCol?: { key: string; label: string };
   cols: { key: string; label: string }[];
   sort: SortState;
   onSort: (key: string) => void;
@@ -50,6 +51,7 @@ export default function SortHeader({ main, cols, sort, onSort }: {
     <div className="sort-header">
       <div className="sort-spacer-av" />
       <div className="sort-main">{btn(main)}</div>
+      {idCol && <div className="sort-id">{btn(idCol)}</div>}
       <div className="sort-meta">{cols.map(btn)}</div>
       <div className="sort-spacer-act" />
     </div>

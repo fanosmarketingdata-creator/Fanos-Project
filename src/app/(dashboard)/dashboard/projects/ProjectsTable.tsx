@@ -60,6 +60,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
 
   const sortCols: SortCol<ProjectRow>[] = [
     { key: 'name', label: 'Project', get: (p) => p.name },
+    { key: 'project_no', label: 'ID', get: (p) => p.project_no },
     { key: 'client', label: 'Client', get: (p) => p.client_company },
     { key: 'type', label: 'Type', get: (p) => p.project_type },
     { key: 'trigger', label: 'Trigger', get: (p) => p.trigger_source },
@@ -155,16 +156,17 @@ export default function ProjectsTable({ initialProjects, clients, classification
       }
     >
       <div className="product-grid-wrap">
-        <SortHeader main={sortCols[0]} cols={sortCols.slice(1)} sort={sort} onSort={toggle} />
+        <SortHeader main={sortCols[0]} idCol={sortCols[1]} cols={sortCols.slice(2)} sort={sort} onSort={toggle} />
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data project</div>}
           {paged.pageItems.map((p) => (
             <div key={p.id} className="client-card" onClick={() => setDetail(p)}>
               <div className="client-card-avatar">{p.name.trim().charAt(0).toUpperCase() || '?'}</div>
-              <div className="client-card-main">
+              <div className="client-card-main has-id">
                 <div className="name">{p.name}</div>
-                <div className="sub" title={p.location || undefined}>{[p.project_no, p.location].filter(Boolean).join(' · ') || '-'}</div>
+                <div className="sub">{p.project_no || '-'}</div>
               </div>
+              <div className="client-card-id">{p.project_no || '-'}</div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Client</div><div className="val">{p.client_company || '-'}</div></div>
                 <div className="item"><div className="lbl">Type</div><div className="val">{p.project_type || '-'}</div></div>

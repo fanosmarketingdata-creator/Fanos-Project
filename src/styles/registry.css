@@ -1391,3 +1391,13 @@ html.dark .ql-zoom button { color: #cbd5e1; }
 .client-card-list .client-card-actions { gap: 4px; }
 .client-card-list .client-card-actions .btn,
 .client-card-list .client-card-actions button { padding: 3px 8px; font-size: 11px; line-height: 1.2; }
+
+/* Kolom ID tersendiri + header sejajar dengan baris ramping */
+.sort-header { gap: 12px; padding: 8px 12px; }
+.sort-spacer-av { width: 34px; }
+.sort-meta { gap: 14px; }
+.sort-id, .client-card-id { flex: 0 0 76px; min-width: 0; }
+.client-card-id { font-size: 11.5px; font-weight: 700; color: #374151; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+html.dark .client-card-id { color: var(--d-text, #e5e7eb); }
+@media (min-width: 901px) { .client-card-main.has-id .sub { display: none; } }
+@media (max-width: 900px) { .client-card-id, .sort-id { display: none; } }
