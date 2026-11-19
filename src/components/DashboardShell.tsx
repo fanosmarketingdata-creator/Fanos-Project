@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
+import { createPortal } from 'react-dom';
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { createClient } from '@/lib/supabase/client';
 import IdleLogout from '@/components/IdleLogout';
@@ -125,12 +126,14 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
   const nl = useNavLabel();
   const [open, setOpen] = useState(false);
   const [editProfile, setEditProfile] = useState(false);
+  const [posOpen, setPosOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const popRef = useClamp<HTMLDivElement>(open);
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
+      if ((e.target as HTMLElement).closest?.('[data-navpos-pop]')) return;
       if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
     };
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && setOpen(false);
@@ -188,10 +191,24 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
             </button>
           )}
           <ThemeToggle variant="menu" />
-          <div className="hidden lg:block">
-            <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
-              <i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}
-            </div>
+          <button
+            type="button"
+            role="menuitem"
+            onClick={() => setPosOpen(true)}
+            className="hidden w-full items-center gap-2 rounded-lg px-2.5 py-1.5 text-left text-[12px] font-medium text-slate-600 transition hover:bg-slate-50 lg:flex"
+          >
+            <i className="fi fi-rr-apps text-[13px] leading-none" />
+            <span className="flex-1">{nl('Menu Position')}</span>
+            <span className="text-[11px] text-slate-400">{nl(NAV_POS_OPTIONS.find((o) => o.id === navPos)?.label || '')}</span>
+            <i className="fi fi-rr-angle-small-right text-[11px] leading-none text-slate-400" />
+          </button>
+          {posOpen && typeof document !== 'undefined' && createPortal(
+            <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4" onMouseDown={() => setPosOpen(false)}>
+              <div className="w-[260px] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
+                <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-bold text-slate-700">
+                  <span><i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}</span>
+                  <button type="button" aria-label="Close" onClick={() => setPosOpen(false)} className="text-slate-400 hover:text-slate-600"><i className="fi fi-rr-cross-small" /></button>
+                </div>
             <div className="grid grid-cols-2 gap-2 px-2 pb-1" role="radiogroup" aria-label="Menu Position">
               {NAV_POS_OPTIONS.map((o) => {
                 const on = navPos === o.id;
@@ -207,7 +224,7 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
                     role="radio"
                     aria-checked={on}
                     title={nl(o.label)}
-                    onClick={() => onNavPos(o.id)}
+                    onClick={() => { onNavPos(o.id); setPosOpen(false); }}
                     className={`flex flex-col items-center gap-1 rounded-xl border p-1.5 text-[10px] font-semibold transition ${
                       on ? 'border-brand-500 bg-brand-50 text-brand-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'
                     }`}
@@ -221,7 +238,10 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
                 );
               })}
             </div>
-          </div>
+              </div>
+            </div>,
+            document.body,
+          )}
           <div className="px-2.5 pb-1 pt-2 text-[10px] font-bold uppercase tracking-wide text-slate-400">
             <i className="fi fi-rr-globe mr-1.5" />{nl('Language')}
           </div>
