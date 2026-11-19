@@ -203,7 +203,7 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
             <i className="fi fi-rr-angle-small-right text-[11px] leading-none text-slate-400" />
           </button>
           {posOpen && typeof document !== 'undefined' && createPortal(
-            <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4" onMouseDown={() => setPosOpen(false)}>
+            <div data-navpos-pop className="fixed inset-0 z-[3000] flex items-center justify-center bg-slate-900/30 p-4">
               <div className="w-[260px] rounded-2xl border border-slate-200 bg-white p-3 shadow-2xl" onMouseDown={(e) => e.stopPropagation()}>
                 <div className="mb-2 flex items-center justify-between px-1 text-[12px] font-bold text-slate-700">
                   <span><i className="fi fi-rr-apps mr-1.5" />{nl('Menu Position')}</span>
@@ -224,7 +224,7 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
                     role="radio"
                     aria-checked={on}
                     title={nl(o.label)}
-                    onClick={() => { onNavPos(o.id); setPosOpen(false); }}
+                    onClick={() => onNavPos(o.id)}
                     className={`flex flex-col items-center gap-1 rounded-xl border p-1.5 text-[10px] font-semibold transition ${
                       on ? 'border-brand-500 bg-brand-50 text-brand-500' : 'border-slate-200 text-slate-500 hover:bg-slate-50'
                     }`}
