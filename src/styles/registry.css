@@ -1432,3 +1432,8 @@ html.dark .sort-header { background: var(--d-bg, #090a10) !important; }
 /* Header kolom: tanpa sudut membulat & menutup penuh agar isi baris tidak tembus di belakangnya */
 .sort-header { border-radius: 0; margin: 0 0 6px; box-shadow: 0 6px 0 #f6f8fc; }
 html.dark .sort-header { box-shadow: 0 6px 0 var(--d-bg, #090a10); }
+
+/* Latar konten dibuat rata (tanpa semburat gradasi) agar header kolom daftar persis sama warnanya */
+@media screen {
+  main:not(.paper *) { background: transparent !important; }
+}

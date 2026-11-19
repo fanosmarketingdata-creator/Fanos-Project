@@ -58,7 +58,7 @@ export default function PhoneInput({ value, onChange, disabled, inputClassName }
   const lang = useLang();
   const { dial, local } = parsePhone(value);
   const [pick, setPick] = useState<string | null>(null);
-  const byPick = pick ? COUNTRIES.find((c) => c.iso === pick && c.dial === dial) : undefined;
+  const byPick = pick ? COUNTRIES.find((c) => c.iso === pick && (!local || c.dial === dial)) : undefined;
   const cur = byPick || byDial(dial) || COUNTRIES.find((c) => c.iso === 'ID')!;
   const nm = (c: C) => countryName(c.iso, lang === 'id' ? 'id' : 'en');
   const list = useMemo(() => sortedCountries(lang === 'id' ? 'id' : 'en'), [lang]);
