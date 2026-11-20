@@ -1437,3 +1437,22 @@ html.dark .sort-header { box-shadow: 0 6px 0 var(--d-bg, #090a10); }
 @media screen {
   main:not(.paper *) { background: transparent !important; }
 }
+
+/* Chip Progress yang bisa diklik */
+.pg-chip { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px 4px 10px; border-radius: 999px; font-size: 11.5px; font-weight: 700; border: 0; cursor: pointer; white-space: nowrap; transition: filter .15s; }
+.pg-chip:hover:not(:disabled) { filter: brightness(1.12); }
+.pg-chip i { font-size: 10px; opacity: .7; }
+.pg-dot { width: 7px; height: 7px; border-radius: 50%; flex: 0 0 auto; }
+.pg-overlay { position: fixed; inset: 0; z-index: 3000; }
+.pg-menu { position: fixed; width: 164px; padding: 5px; border-radius: 12px; background: #fff; border: 1px solid #e5e9f2; box-shadow: 0 12px 32px rgba(15, 23, 42, .18); }
+.pg-item { display: flex; align-items: center; gap: 8px; width: 100%; padding: 7px 9px; border: 0; background: transparent; border-radius: 8px; font-size: 12px; font-weight: 600; color: #334155; cursor: pointer; text-align: left; }
+.pg-item:hover { background: #f1f5f9; }
+.pg-item.is-on { background: #eef3ff; color: #1d4ed8; }
+.pg-item i { margin-left: auto; font-size: 11px; }
+html.dark .pg-menu { background: #161a26; border-color: #2c3550; box-shadow: 0 12px 32px rgba(0, 0, 0, .6); }
+html.dark .pg-item { color: #d5dbe8; }
+html.dark .pg-item:hover { background: #20263a; }
+html.dark .pg-item.is-on { background: rgba(91, 134, 255, .16); color: #cfdcff; }
+html.dark .pg-chip { filter: brightness(1.35); }
+html.dark .pg-chip:hover:not(:disabled) { filter: brightness(1.55); }
+.ph-text { display: inline-flex; align-items: center; gap: 7px; }

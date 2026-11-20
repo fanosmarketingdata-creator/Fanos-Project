@@ -189,7 +189,7 @@ export default function ProjectsTable({ initialProjects, clients, classification
       </div>
 
       {detail && (
-        <DetailModal title="Project Detail" onClose={() => setDetail(null)}>
+        <DetailModal title="Project Detail" onClose={() => setDetail(null)} onEdit={() => { const d = detail; setDetail(null); openEdit(d); }}>
           <div className="dv2">
             <div className="dv2-topbar">
               <div>

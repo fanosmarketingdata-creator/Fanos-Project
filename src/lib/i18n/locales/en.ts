@@ -1286,4 +1286,6 @@ export const ID_EN: Record<string, string> = {
   'Lainnya': 'Others',
   'Gudang default (dipakai otomatis oleh Delivery Order & retur)': 'Default warehouse (used automatically by Delivery Orders & returns)',
   'Client harus berstatus Active untuk dapat digunakan.': 'The client must have Active status to be used.',
+  'Progress berhasil diperbarui': 'Progress updated successfully',
+  'Progress tidak valid.': 'Invalid progress.',
 };

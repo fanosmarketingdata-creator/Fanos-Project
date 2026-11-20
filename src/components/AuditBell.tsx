@@ -142,7 +142,7 @@ export default function AuditBell({ meId, isSuperuser = false, popClass }: { meI
                   </span>
                   <div className="min-w-0 flex-1" data-no-i18n>
                     <div className="text-[12px] leading-snug text-slate-700">
-                      <b>{l.user_name || 'System'}</b> {actionVerb(l.action, en)} {entityLabel(l.table_name, en)}
+                      <b>{meId && l.user_id === meId ? (en ? 'You' : 'Anda') : l.user_name || 'System'}</b> {actionVerb(l.action, en)} {entityLabel(l.table_name, en)}
                     </div>
                     {recordText(l) && <div className="truncate text-[11.5px] font-semibold text-slate-800">{recordText(l)}</div>}
                     <div className="text-[10.5px] text-slate-400">{timeAgo(l.created_at, en)}</div>

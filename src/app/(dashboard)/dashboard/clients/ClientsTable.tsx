@@ -1,5 +1,6 @@
 'use client';
 
+import { PhoneText } from '@/components/PhoneInput';
 import { useEffect, useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
@@ -198,7 +199,7 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
               </div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Contact</div><div className="val">{c.contact_name || '-'}{c.position ? ` · ${c.position}` : ''}{contactsOf(c).length > 1 ? ` (+${contactsOf(c).length - 1})` : ''}</div></div>
-                <div className="item"><div className="lbl">Phone</div><div className="val">{c.phone || '-'}</div></div>
+                <div className="item"><div className="lbl">Phone</div><div className="val"><PhoneText value={c.phone} /></div></div>
                 <div className="item"><div className="lbl">Email</div><div className="val">{c.email || '-'}</div></div>
                 <div className="item"><div className="lbl">Credit Limit</div><div className="val">{creditLabel(c.credit_limit)}</div></div>
               </div>
@@ -216,7 +217,7 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
       </div>
 
       {detail && (
-        <DetailModal title="Client Detail" onClose={() => setDetail(null)}>
+        <DetailModal title="Client Detail" onClose={() => setDetail(null)} onEdit={() => { const d = detail; setDetail(null); openEdit(d); }}>
           <div className="dv2">
             <div className="dv2-topbar">
               <div>
@@ -235,7 +236,7 @@ export default function ClientsTable({ initialClients, categories = [] }: { init
                 <DvCard icon="fi fi-rr-user" label="Contact Person" value={c.name || '-'} />
                 <DvCard icon="fi fi-rr-briefcase" label="Position" value={c.position || '-'} />
                 <DvCard icon="fi fi-rr-envelope" label="Email" value={c.email || '-'} />
-                <DvCard icon="fi fi-rr-phone-call" label="Phone" value={c.phone || '-'} />
+                <DvCard icon="fi fi-rr-phone-call" label="Phone" value={<PhoneText value={c.phone} />} />
               </div>
             ))}
             <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Company Address</div>

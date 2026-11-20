@@ -255,7 +255,7 @@ export default function ProductsTable({ initialProducts, brands, categories: PRO
       </div>
 
       {detail && (
-        <DetailModal title="Product Detail" onClose={() => setDetail(null)}>
+        <DetailModal title="Product Detail" onClose={() => setDetail(null)} onEdit={() => { const d = detail; setDetail(null); openEdit(d); }}>
           <div className="dv2">
             <div className="dv2-product-layout">
               <div className="dv2-product-info">

@@ -85,9 +85,6 @@ export default function CategoriesTable({ initialRows }: { initialRows: Category
               <div className="client-card-avatar">{r.name.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
                 <div className="name">{r.name}</div>
-                <div className="sub" data-no-i18n>
-                  {r.subcategories.length ? r.subcategories.join(' · ') : '—'}
-                </div>
               </div>
               <div className="client-card-main" style={{ flex: '0 0 auto', textAlign: 'right' }}>
                 <div className="name" data-no-i18n>{r.products}</div>

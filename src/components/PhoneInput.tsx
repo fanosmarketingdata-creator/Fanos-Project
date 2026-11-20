@@ -49,6 +49,15 @@ export function parsePhone(v: string | null | undefined): { dial: string; local:
   return { dial: '62', local: digits };
 }
 
+/** Tampilan nomor + bendera negara (untuk daftar & detail). */
+export function PhoneText({ value }: { value: string | null | undefined }) {
+  if (!value || !value.trim()) return <>-</>;
+  const { dial, local } = parsePhone(value);
+  const c = byDial(dial) || COUNTRIES.find((x) => x.iso === 'ID')!;
+  const shown = value.trim().startsWith('+') ? value.trim() : buildPhone(dial, local) || value;
+  return <span className="ph-text"><Flag iso={c.iso} />{shown}</span>;
+}
+
 export const buildPhone = (dial: string, local: string) => (local ? `+${dial} ${group(local)}` : '');
 
 /** Pilih negara + isi nomor tanpa angka 0 di depan; otomatis dipisah dengan "-". Disimpan sebagai "+62 811-5007-036". */

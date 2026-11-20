@@ -1,12 +1,12 @@
 'use client';
 
-import PhoneInput from '@/components/PhoneInput';
+import PhoneInput, { PhoneText } from '@/components/PhoneInput';
 import { useMemo, useState } from 'react';
 import { useToast } from '@/components/Toast';
 import RegistryCard from '@/components/registry/RegistryCard';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import SortHeader, { useSorted, type SortCol } from '@/components/registry/SortHeader';
-import { FormModal, DeleteModal, FvField } from '@/components/registry/RegistryModal';
+import { FormModal, DetailModal, DeleteModal, DvCard, FvField } from '@/components/registry/RegistryModal';
 import FvSelect, { toOptions } from '@/components/registry/FvSelect';
 import { TOP_OPTIONS } from '@/lib/master-options';
 import { saveVendor, deleteVendor, type VendorInput } from './actions';
@@ -37,6 +37,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
   const [saving, setSaving] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<VendorRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [detail, setDetail] = useState<VendorRow | null>(null);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -139,7 +140,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
         <div className="client-card-list">
           {paged.pageItems.length === 0 && <div className="no-data-grid">Belum terdapat data vendor</div>}
           {paged.pageItems.map((v) => (
-            <div key={v.id} className="client-card" onClick={() => openEdit(v)}>
+            <div key={v.id} className="client-card" onClick={() => setDetail(v)}>
               <div className="client-card-avatar">{v.company.trim().charAt(0).toUpperCase() || '?'}</div>
               <div className="client-card-main">
                 <div className="name">{v.company}</div>
@@ -147,7 +148,7 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
               </div>
               <div className="client-card-meta">
                 <div className="item"><div className="lbl">Contact</div><div className="val">{v.contact_name || '-'}{v.position ? ` · ${v.position}` : ''}</div></div>
-                <div className="item"><div className="lbl">Phone</div><div className="val">{v.phone || '-'}</div></div>
+                <div className="item"><div className="lbl">Phone</div><div className="val"><PhoneText value={v.phone} /></div></div>
                 <div className="item"><div className="lbl">Email</div><div className="val">{v.email || '-'}</div></div>
                 <div className="item"><div className="lbl">TOP</div><div className="val">{v.top || '-'}</div></div>
               </div>
@@ -163,6 +164,31 @@ export default function VendorsTable({ initialVendors }: { initialVendors: Vendo
           ))}
         </div>
       </div>
+
+      {detail && (
+        <DetailModal title="Vendor Detail" onClose={() => setDetail(null)} onEdit={() => { const d = detail; setDetail(null); openEdit(d); }}>
+          <div>
+            <div className="dv2-topbar">
+              <div>
+                <div className="dv2-topbar-id">{detail.vendor_no || 'Vendor'}</div>
+                <div className="dv2-topbar-title">{detail.company}</div>
+              </div>
+            </div>
+            <div className="dv2-grid">
+              <DvCard icon="fi fi-rr-user" label="Contact Person" value={detail.contact_name || '-'} />
+              <DvCard icon="fi fi-rr-briefcase" label="Position" value={detail.position || '-'} />
+              <DvCard icon="fi fi-rr-envelope" label="Email" value={detail.email || '-'} />
+              <DvCard icon="fi fi-rr-phone-call" label="Phone" value={<PhoneText value={detail.phone} />} />
+              <DvCard icon="fi fi-rr-calendar" label="TOP" value={detail.top || '-'} />
+            </div>
+            <div className="dv2-section-title"><i className="fi fi-rr-marker" /> Company Address</div>
+            <div className="dv2-card">
+              <div className="dv2-card-icon"><i className="fi fi-rr-home" /></div>
+              <div><div className="dv2-card-value" style={{ fontWeight: 500 }}>{detail.address || '-'}</div></div>
+            </div>
+          </div>
+        </DetailModal>
+      )}
 
       {modalOpen && (
         <FormModal full

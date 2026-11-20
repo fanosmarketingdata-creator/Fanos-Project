@@ -98,7 +98,7 @@ export function FullModal({
 }
 
 // Modal detail (showModalDetail()).
-export function DetailModal({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+export function DetailModal({ title, onClose, onEdit, children }: { title: string; onClose: () => void; onEdit?: () => void; children: React.ReactNode }) {
   useEscape(onClose);
   useBodyLock();
   return (
@@ -116,6 +116,11 @@ export function DetailModal({ title, onClose, children }: { title: string; onClo
           <div className="modal-inner">{children}</div>
         </div>
         <div className="modal-footer">
+          {onEdit && (
+            <button type="button" className="btn btn-primary" onClick={onEdit}>
+              <i className="fa-solid fa-pencil" /> Edit
+            </button>
+          )}
           <button type="button" className="btn btn-secondary" onClick={onClose}>
             Close
           </button>

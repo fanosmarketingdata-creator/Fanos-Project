@@ -6,7 +6,8 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Modal from '@/components/Modal';
 import { useToast } from '@/components/Toast';
-import { deleteBOQProject } from './actions';
+import ProgressChip from '@/components/ProgressChip';
+import { deleteBOQProject, updateBOQProgress } from './actions';
 
 export type BOQProjectRow = {
   id: string;
@@ -30,6 +31,19 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
   const [search, setSearch] = useState('');
   const [deleteTarget, setDeleteTarget] = useState<BOQProjectRow | null>(null);
   const [deleting, setDeleting] = useState(false);
+  const [prog, setProg] = useState<Record<string, string>>({});
+
+  async function changeProgress(r: BOQProjectRow, next: string) {
+    const before = prog[r.id] ?? r.progress;
+    setProg((p) => ({ ...p, [r.id]: next }));
+    const res = await updateBOQProgress(r.id, next as 'Pending' | 'InProgress' | 'Completed');
+    if (res.error) {
+      setProg((p) => ({ ...p, [r.id]: before }));
+      toast(res.error, 'error');
+    } else {
+      toast('Progress berhasil diperbarui', 'success');
+    }
+  }
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -99,7 +113,7 @@ export default function BOQProjectListTable({ initialRows }: { initialRows: BOQP
                   {new Date(r.boq_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
                 <td className="px-4 py-3 text-slate-600">{r.item_count}</td>
-                <td className="px-4 py-3 text-slate-600">{r.progress}</td>
+                <td className="px-4 py-3"><ProgressChip value={prog[r.id] ?? r.progress} onChange={(v) => changeProgress(r, v)} /></td>
                 <td className="px-4 py-3">
                   <span className={`rounded-full px-2.5 py-1 text-[10px] font-bold uppercase ${statusBadge[r.status] || 'bg-slate-100 text-slate-600'}`}>
                     {r.status}

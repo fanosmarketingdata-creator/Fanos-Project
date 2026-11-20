@@ -104,3 +104,14 @@ export async function deleteBOQProject(id: string) {
   revalidatePath('/dashboard/boq-project');
   return { success: true };
 }
+
+// Ubah Progress langsung dari tabel daftar.
+export async function updateBOQProgress(id: string, progress: 'Pending' | 'InProgress' | 'Completed') {
+  { const denied = await guard('/dashboard/boq-project', 'save', { id, progress }); if (denied) return { error: denied }; }
+  if (!['Pending', 'InProgress', 'Completed'].includes(progress)) return { error: 'Progress tidak valid.' };
+  const supabase = createClient();
+  const { error } = await supabase.from('boq_projects').update({ progress }).eq('id', id);
+  if (error) return { error: error.message };
+  revalidatePath('/dashboard/boq-project');
+  return { success: true };
+}

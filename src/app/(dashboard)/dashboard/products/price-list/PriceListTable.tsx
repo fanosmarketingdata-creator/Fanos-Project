@@ -145,7 +145,7 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
       </div>
 
       {detail && (
-        <DetailModal title="Price List Detail" onClose={() => setDetail(null)}>
+        <DetailModal title="Price List Detail" onClose={() => setDetail(null)} onEdit={() => { const d = detail; setDetail(null); openEdit(d); }}>
           <div className="dv2">
             <div className="dv2-product-layout">
               <div className="dv2-product-info">
@@ -174,9 +174,6 @@ export default function PriceListTable({ initialRows }: { initialRows: PriceRow[
                 </div>
               </div>
             ))}
-            <div style={{ marginTop: 14 }}>
-              <button type="button" className="btn btn-primary" onClick={() => openEdit(detail)}><i className="fi fi-rr-pencil" /> Edit Harga</button>
-            </div>
           </div>
         </DetailModal>
       )}
