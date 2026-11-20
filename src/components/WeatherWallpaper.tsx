@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from 'react';
 
 /* ------------------------------------------------------------------
-   Dynamic Weather Wallpaper (halaman login)
-   - Langit mengikuti jam (pagi, siang, sore, malam) dan cuaca (cerah, berawan, hujan, badai, kabut).
-   - Semua nilai (awan, hujan, petir, kabut, jam) bergerak halus menuju target sehingga perpindahan
-     cuaca terlihat hidup, bukan berganti mendadak.
-   - Mode: Live (cuaca nyata Open-Meteo + jam perangkat), Demo (siklus otomatis), atau dipilih manual.
+   Dynamic Weather Wallpaper (halaman login) - versi WebGL
+   - Seluruh langit digambar oleh fragment shader: awan volumetrik (fbm) berperspektif dengan
+     pencahayaan dari matahari/bulan, laut yang memantulkan langit, bintang, kabut, hujan berlapis.
+   - Cuaca nyata (Open-Meteo, Jakarta) + jam perangkat. Semua nilai bergerak halus menuju target
+     sehingga perubahan cuaca terlihat hidup.
+   - Parameter rahasia untuk uji: ?wx=clear|cloudy|rain|storm|fog&h=0..24
 ------------------------------------------------------------------- */
 
 type RGB = [number, number, number];
@@ -15,63 +16,33 @@ type Wx = { cloud: number; rain: number; storm: number; fog: number; wind: numbe
 type WxKey = 'clear' | 'cloudy' | 'rain' | 'storm' | 'fog';
 
 const PRESETS: Record<WxKey, Wx> = {
-  clear: { cloud: 0.08, rain: 0, storm: 0, fog: 0, wind: 0.25 },
+  clear: { cloud: 0.1, rain: 0, storm: 0, fog: 0, wind: 0.25 },
   cloudy: { cloud: 0.82, rain: 0, storm: 0, fog: 0.05, wind: 0.45 },
   rain: { cloud: 0.96, rain: 0.7, storm: 0, fog: 0.12, wind: 0.6 },
   storm: { cloud: 1, rain: 1, storm: 1, fog: 0.15, wind: 1 },
   fog: { cloud: 0.6, rain: 0, storm: 0, fog: 0.85, wind: 0.1 },
 };
-const WX_KEYS: WxKey[] = ['clear', 'cloudy', 'rain', 'storm', 'fog'];
-const WX_ICON: Record<WxKey, string> = { clear: '☀️', cloudy: '⛅', rain: '🌧️', storm: '⛈️', fog: '🌫️' };
-const WX_LABEL: Record<WxKey, { en: string; id: string }> = {
-  clear: { en: 'Clear', id: 'Cerah' },
-  cloudy: { en: 'Cloudy', id: 'Berawan' },
-  rain: { en: 'Rain', id: 'Hujan' },
-  storm: { en: 'Storm', id: 'Badai' },
-  fog: { en: 'Fog', id: 'Kabut' },
-};
-const TIMES = [
-  { key: 'morning', h: 7, icon: '🌅', en: 'Morning', id: 'Pagi' },
-  { key: 'noon', h: 12.5, icon: '🌞', en: 'Noon', id: 'Siang' },
-  { key: 'evening', h: 17.7, icon: '🌇', en: 'Evening', id: 'Sore' },
-  { key: 'night', h: 22, icon: '🌙', en: 'Night', id: 'Malam' },
-] as const;
 
-// Lokasi cuaca nyata: Jakarta (Ancol).
-const LAT = -6.12;
+const LAT = -6.12; // Jakarta (Ancol)
 const LON = 106.83;
 
 const clamp = (x: number, a: number, b: number) => Math.min(b, Math.max(a, x));
 const lerp = (a: number, b: number, t: number) => a + (b - a) * t;
-const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16), parseInt(h.slice(3, 5), 16), parseInt(h.slice(5, 7), 16)];
+const hex = (h: string): RGB => [parseInt(h.slice(1, 3), 16) / 255, parseInt(h.slice(3, 5), 16) / 255, parseInt(h.slice(5, 7), 16) / 255];
 const mix = (a: RGB, b: RGB, t: number): RGB => [lerp(a[0], b[0], t), lerp(a[1], b[1], t), lerp(a[2], b[2], t)];
-const rgba = (c: RGB, a = 1) => `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
 const smooth = (t: number) => { t = clamp(t, 0, 1); return t * t * (3 - 2 * t); };
-const dist = (a: RGB, b: RGB) => Math.abs(a[0] - b[0]) + Math.abs(a[1] - b[1]) + Math.abs(a[2] - b[2]);
 
-function rng(seed: number) {
-  let s = seed >>> 0;
-  return () => {
-    s = (s + 0x6d2b79f5) >>> 0;
-    let t = s;
-    t = Math.imul(t ^ (t >>> 15), t | 1);
-    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
-    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
-  };
-}
-
-// Palet langit (atas, tengah, bawah) per jam.
 const SKY: { h: number; c: [RGB, RGB, RGB] }[] = [
-  { h: 0, c: [hex('#04081c'), hex('#0a1433'), hex('#14214a')] },
-  { h: 5, c: [hex('#0d1230'), hex('#2a2f6b'), hex('#7a5a8a')] },
-  { h: 6.4, c: [hex('#3b5b9e'), hex('#e58f7a'), hex('#ffd09a')] },
-  { h: 8, c: [hex('#4a90d9'), hex('#8fc3ee'), hex('#d9ecfa')] },
-  { h: 12, c: [hex('#2b7bd6'), hex('#62aee8'), hex('#b9defa')] },
-  { h: 16.3, c: [hex('#3a82d0'), hex('#7db8e6'), hex('#f3e2b8')] },
-  { h: 18, c: [hex('#34508f'), hex('#e27d5c'), hex('#ffb870')] },
-  { h: 19.4, c: [hex('#1a2250'), hex('#5a3a7a'), hex('#d0607a')] },
-  { h: 21, c: [hex('#080e2a'), hex('#101a3c'), hex('#1a2850')] },
-  { h: 24, c: [hex('#04081c'), hex('#0a1433'), hex('#14214a')] },
+  { h: 0, c: [hex('#03061a'), hex('#0a1330'), hex('#14224a')] },
+  { h: 5, c: [hex('#0b1030'), hex('#2a2f6b'), hex('#8a5f8c')] },
+  { h: 6.3, c: [hex('#34569c'), hex('#e58f7a'), hex('#ffcf98')] },
+  { h: 8, c: [hex('#3f86d6'), hex('#86bdec'), hex('#d6eaf9')] },
+  { h: 12, c: [hex('#1f6fd0'), hex('#5aa7e8'), hex('#b4daf8')] },
+  { h: 16.3, c: [hex('#3279cc'), hex('#79b4e4'), hex('#f1dfb4')] },
+  { h: 18, c: [hex('#2e4a8c'), hex('#e0795a'), hex('#ffb56c')] },
+  { h: 19.4, c: [hex('#18204c'), hex('#573878'), hex('#cf5f7c')] },
+  { h: 21, c: [hex('#070d28'), hex('#101a3c'), hex('#1a2850')] },
+  { h: 24, c: [hex('#03061a'), hex('#0a1330'), hex('#14224a')] },
 ];
 function skyAt(h: number): [RGB, RGB, RGB] {
   for (let i = 0; i < SKY.length - 1; i++) {
@@ -85,7 +56,6 @@ function skyAt(h: number): [RGB, RGB, RGB] {
 }
 const nightness = (h: number) => (h <= 5 ? 1 : h < 7 ? 1 - smooth((h - 5) / 2) : h < 18 ? 0 : h < 20 ? smooth((h - 18) / 2) : 1);
 
-// WMO weather_code (Open-Meteo) -> parameter cuaca.
 function fromCode(code: number, cover: number, wind: number): Wx {
   const c = clamp(cover / 100, 0, 1);
   const w = clamp(wind / 30, 0.1, 1);
@@ -114,28 +84,190 @@ function codeLabel(code: number, lang: 'en' | 'id'): string {
   return id ? 'Berawan' : 'Cloudy';
 }
 
-type Mode = 'live' | 'demo' | 'manual';
+const VERT = `attribute vec2 a; void main(){ gl_Position = vec4(a, 0.0, 1.0); }`;
+
+const FRAG = `
+#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 uRes; uniform float uTime; uniform vec2 uDrift;
+uniform vec3 uTop, uMid, uBot, uSunCol, uFogCol;
+uniform vec2 uSun, uMoon, uLight, uFlashPos;
+uniform float uSunVis, uMoonVis, uNight, uCloud, uRain, uStorm, uFog, uWind, uFlash, uHor;
+
+float hash(vec2 p){ p = fract(p * vec2(123.34, 456.21)); p += dot(p, p + 45.32); return fract(p.x * p.y); }
+float noise(vec2 p){
+  vec2 i = floor(p), f = fract(p); f = f * f * (3.0 - 2.0 * f);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
+}
+float fbm(vec2 p){
+  float a = 0.5, s = 0.0;
+  mat2 m = mat2(1.6, 1.2, -1.2, 1.6);
+  for (int i = 0; i < 5; i++) { s += a * noise(p); p = m * p; a *= 0.5; }
+  return s;
+}
+vec3 skyGrad(float y){
+  vec3 c = mix(uBot, uMid, smoothstep(0.0, 0.38, y));
+  return mix(c, uTop, smoothstep(0.3, 1.0, y));
+}
+
+// Satu lapisan awan: x = alpha, yzw = warna.
+vec4 cloudLayer(vec2 p, float y, float scale, float speed, float cover, float seed){
+  float depth = 1.0 / (y * 1.1 + 0.34);
+  vec2 cp = vec2(p.x * depth * 0.7, depth * 0.95) * scale * 4.2 + uDrift * speed * 4.2 + seed;
+  float f = fbm(cp + vec2(0.0, uTime * 0.006));
+  float thr = mix(0.80, 0.30, cover);
+  float d = smoothstep(thr, thr + 0.24, f);
+  float f2 = fbm(cp + uLight * 0.16 + vec2(0.0, uTime * 0.006));
+  float d2 = smoothstep(thr, thr + 0.24, f2);
+  float lit = clamp(1.25 - d2 * 1.15, 0.0, 1.0);
+  float g = clamp(uRain * 0.62 + uStorm * 0.25, 0.0, 0.9);
+  vec3 litCol = mix(vec3(1.0), uSunCol, 0.4) * (1.0 - uNight * 0.78) + uNight * vec3(0.22, 0.27, 0.42);
+  vec3 shCol = mix(uMid * 0.62, vec3(0.36, 0.4, 0.5), 0.5) * (1.0 - uNight * 0.55);
+  litCol = mix(litCol, vec3(0.52, 0.56, 0.64) * (1.0 - uNight * 0.8), g * 0.85);
+  shCol  = mix(shCol,  vec3(0.2, 0.22, 0.29)  * (1.0 - uNight * 0.7), g);
+  vec3 c = mix(shCol, litCol, lit * (1.0 - 0.38 * d));
+  // tepi bercahaya (silver lining)
+  float rim = (1.0 - d) * smoothstep(0.0, 0.5, d) * 0.0 + pow(clamp(1.0 - d, 0.0, 1.0), 3.0) * d * 3.2;
+  c += uSunCol * rim * 0.22 * uSunVis * (1.0 - g);
+  float a = d * smoothstep(0.0, 0.14, y);
+  return vec4(a, c);
+}
+
+void main(){
+  vec2 p = (gl_FragCoord.xy - 0.5 * uRes) / uRes.y;
+  float hor = uHor;
+  vec3 col;
+  float cloudDim = 1.0 - uCloud * 0.62;
+
+  if (p.y >= hor) {
+    float y = (p.y - hor) / (0.5 - hor);
+    col = skyGrad(y);
+
+    // bintang
+    float stA = uNight * (1.0 - uCloud * 0.96) * (1.0 - uFog) * smoothstep(0.02, 0.3, y);
+    if (stA > 0.01) {
+      vec2 g = p * 95.0; vec2 id = floor(g); float h = hash(id);
+      if (h > 0.972) {
+        vec2 f = fract(g) - 0.5;
+        float tw = 0.55 + 0.45 * sin(uTime * (1.0 + h * 3.0) + h * 60.0);
+        col += vec3(0.85, 0.9, 1.0) * smoothstep(0.34, 0.0, length(f)) * tw * stA * (0.5 + h * 0.5);
+      }
+    }
+
+    // matahari
+    vec2 ds = p - uSun; float dS = length(ds);
+    float sunG = (exp(-dS * 4.2) * 0.3 + exp(-dS * 15.0) * 0.42) * uSunVis * cloudDim * (1.0 - uFog * 0.5);
+    col += uSunCol * sunG;
+    col = mix(col, vec3(1.0, 0.98, 0.92), smoothstep(0.024, 0.018, dS) * uSunVis * (1.0 - uCloud * 0.85));
+    // bulan
+    vec2 dm = p - uMoon; float dM = length(dm);
+    col += vec3(0.55, 0.65, 0.95) * (exp(-dM * 7.0) * 0.35 + exp(-dM * 24.0) * 0.4) * uMoonVis * cloudDim * (1.0 - uFog * 0.6);
+    float moonDisc = smoothstep(0.026, 0.021, dM) * uMoonVis * (1.0 - uCloud * 0.9);
+    float crater = 0.88 + 0.12 * noise((dm + 0.3) * 160.0);
+    col = mix(col, vec3(0.93, 0.95, 1.0) * crater, moonDisc);
+
+    // awan: dua lapis untuk kedalaman
+    if (uCloud > 0.03) {
+      vec4 cB = cloudLayer(p, y, 1.7, 1.55, clamp(uCloud * 0.92, 0.0, 1.0), 31.0);
+      col = mix(col, cB.yzw, cB.x * 0.78);
+      vec4 cA = cloudLayer(p, y, 1.0, 1.0, uCloud, 0.0);
+      col = mix(col, cA.yzw, cA.x * 0.96);
+    }
+    // lapisan mendung merata saat hujan / sangat berawan
+    float veil = smoothstep(0.72, 1.0, uCloud) * 0.62 * smoothstep(0.0, 0.18, y);
+    float vl = dot(uMid, vec3(0.3, 0.59, 0.11));
+    col = mix(col, vec3(vl) * vec3(0.94, 1.0, 1.08) * (0.9 - uRain * 0.3 - uStorm * 0.15), veil * (0.55 + 0.45 * fbm(vec2(p.x * 3.0 + uDrift.x * 3.0, y * 5.0 + uTime * 0.01))));
+    // kabut tipis di horizon
+    col = mix(col, skyGrad(0.0), exp(-y * 10.0) * 0.55);
+  } else {
+    // laut
+    float sy = (hor - p.y) / (hor + 0.5);
+    float depth = 1.0 / (sy * 1.5 + 0.07);
+    float sp = 0.4 + uWind;
+    vec2 wp = vec2(p.x * depth * 0.9, depth * 1.4);
+    float w1 = fbm(wp * 1.1 + vec2(uTime * 0.05 * sp, uTime * 0.13 * sp));
+    float w2 = noise(wp * 5.0 + vec2(uTime * 0.2 * sp, uTime * 0.38 * sp));
+    float wave = (w1 - 0.5) * 0.9 + (w2 - 0.5) * 0.35;
+    vec3 refl = skyGrad(clamp(sy * 0.85 + wave * 0.05, 0.0, 1.0));
+    refl = mix(refl, uFogCol, 0.0);
+    vec3 deep = mix(uBot * 0.2, vec3(0.03, 0.12, 0.18), 0.5) * (1.0 - uNight * 0.55) + uMid * 0.06;
+    float fres = mix(0.92, 0.32, smoothstep(0.0, 0.85, sy));
+    col = mix(deep, refl, fres);
+    col *= 1.0 + wave * 0.35;
+    float gl = pow(max(0.0, noise(vec2(wp.x * 7.0, wp.y * 30.0) + uTime * vec2(0.3, 0.9) * sp) * 1.3 - 0.36), 3.0);
+    float pathS = exp(-abs(p.x - uSun.x) / (0.05 + sy * 0.36)) * uSunVis * cloudDim;
+    col += uSunCol * gl * pathS * 2.6;
+    float pathM = exp(-abs(p.x - uMoon.x) / (0.04 + sy * 0.26)) * uMoonVis * cloudDim;
+    col += vec3(0.7, 0.8, 1.0) * gl * pathM * 1.3;
+    // buih ombak
+    float cap = smoothstep(0.64, 0.78, w1 + w2 * 0.15) * (0.1 + uWind * 0.55) * (0.25 + sy);
+    col = mix(col, vec3(0.86, 0.9, 0.95) * (1.0 - uNight * 0.7), cap * 0.5);
+    // riak hujan
+    if (uRain > 0.05) {
+      vec2 rp = vec2(p.x * depth * 3.2, depth * 3.4);
+      vec2 cell = floor(rp); vec2 f = fract(rp) - 0.5;
+      float h = hash(cell); float t = fract(uTime * 0.8 + h * 6.0);
+      float ring = smoothstep(0.035, 0.0, abs(length(f * vec2(1.0, 2.2)) - t * 0.42)) * (1.0 - t) * step(h, uRain * 0.85);
+      col += vec3(0.62, 0.72, 0.84) * ring * 0.4 * (1.0 - uNight * 0.5);
+    }
+    // menyatu dengan horizon
+    col = mix(col, skyGrad(0.0), exp(-sy * 16.0) * 0.9);
+  }
+
+  // hujan (3 lapis)
+  if (uRain > 0.02) {
+    float sl = 0.1 + uWind * 0.32;
+    float acc = 0.0;
+    for (int L = 0; L < 3; L++) {
+      float fl = float(L);
+      float cols = 46.0 + fl * 48.0;
+      float len = 0.13 - fl * 0.035;
+      float wid = 0.1 + fl * 0.035;
+      float spd = 2.4 - fl * 0.55;
+      vec2 q = vec2(p.x + p.y * sl, p.y);
+      float cx = q.x * cols; float id = floor(cx); float fx = fract(cx) - 0.5;
+      float r = hash(vec2(id, 3.7 + fl)); float r2 = hash(vec2(id, 9.1 + fl));
+      float on = step(r2, uRain * 0.92 + 0.02);
+      float d = fract(q.y * 1.9 + uTime * spd * (0.85 + 0.3 * r) + r * 13.0);
+      float s = smoothstep(len, 0.0, d) * smoothstep(wid, wid * 0.35, abs(fx));
+      acc += s * on * (0.85 - fl * 0.25);
+    }
+    vec3 rc = mix(vec3(0.82, 0.88, 0.97), vec3(0.45, 0.52, 0.7), uNight);
+    col = mix(col, rc, clamp(acc, 0.0, 1.0) * (0.34 + uRain * 0.2));
+    col *= 1.0 - uRain * 0.08;
+  }
+
+  // kabut
+  if (uFog > 0.02) {
+    float fogH = 0.6 + 0.4 * exp(-abs(p.y - hor) * 2.6);
+    float wisp = fbm(vec2(p.x * 2.2 + uDrift.x * 0.5, p.y * 3.2) + uTime * 0.02);
+    col = mix(col, uFogCol, clamp(uFog * (0.55 + 0.55 * wisp) * fogH * 1.1, 0.0, 0.93));
+  }
+
+  // kilatan petir
+  if (uFlash > 0.01) {
+    float fl = 0.35 + 0.65 * exp(-length(p - uFlashPos) * 1.6);
+    col += vec3(0.6, 0.72, 1.0) * uFlash * fl * 0.65;
+  }
+
+  // vinyet + grain
+  col *= 1.0 - 0.34 * smoothstep(0.42, 1.05, length(p * vec2(0.85, 1.0)));
+  col += (hash(gl_FragCoord.xy + fract(uTime) * 100.0) - 0.5) * 0.022;
+  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
+}
+`;
 
 export default function WeatherWallpaper({ lang }: { lang: 'en' | 'id' }) {
   const wrap = useRef<HTMLDivElement>(null);
-  const canvas = useRef<HTMLCanvasElement>(null);
-  const [mode, setMode] = useState<Mode>('live');
-  const [wxPin, setWxPin] = useState<WxKey | null>(null);
-  const [timePin, setTimePin] = useState<number | null>(null);
+  const glRef = useRef<HTMLCanvasElement>(null);
+  const boltRef = useRef<HTMLCanvasElement>(null);
   const [live, setLive] = useState<{ wx: Wx; code: number; temp: number } | null>(null);
   const [offline, setOffline] = useState(false);
-  const [demoKey, setDemoKey] = useState<WxKey>('clear');
-
-  // Nilai terkini untuk loop animasi (tanpa render ulang React).
-  const ctl = useRef({ mode, wxPin, timePin, live, demoKey });
-  ctl.current = { mode, wxPin, timePin, live, demoKey };
-
-  useEffect(() => {
-    try {
-      const m = localStorage.getItem('fanos-wx-mode');
-      if (m === 'demo') setMode('demo');
-    } catch { /* abaikan */ }
-  }, []);
+  const liveRef = useRef<Wx | null>(null);
+  liveRef.current = live ? live.wx : null;
 
   // Cuaca nyata (diperbarui tiap 10 menit).
   useEffect(() => {
@@ -158,421 +290,177 @@ export default function WeatherWallpaper({ lang }: { lang: 'en' | 'id' }) {
     return () => { dead = true; clearInterval(t); };
   }, []);
 
-  // Mode demo: ganti cuaca tiap ~13 detik.
   useEffect(() => {
-    if (mode !== 'demo') return;
-    const seq: WxKey[] = ['clear', 'cloudy', 'rain', 'storm', 'rain', 'cloudy', 'fog', 'clear'];
-    let i = 0;
-    setDemoKey(seq[0]);
-    const t = setInterval(() => { i = (i + 1) % seq.length; setDemoKey(seq[i]); }, 13000);
-    return () => clearInterval(t);
-  }, [mode]);
+    const cv0 = glRef.current, bc0 = boltRef.current, box0 = wrap.current;
+    if (!cv0 || !bc0 || !box0) return;
+    const cv: HTMLCanvasElement = cv0, bc: HTMLCanvasElement = bc0, box: HTMLDivElement = box0;
+    const gl0 = (cv.getContext('webgl', { antialias: false, alpha: false }) || cv.getContext('experimental-webgl')) as WebGLRenderingContext | null;
+    if (!gl0) return;
+    const gl: WebGLRenderingContext = gl0;
+    const b2 = bc.getContext('2d');
+    if (!b2) return;
 
-  // ---------------------------------------------------------------- animasi
-  useEffect(() => {
-    const cv = canvas.current, box = wrap.current;
-    if (!cv || !box) return;
-    const ctx = cv.getContext('2d') as CanvasRenderingContext2D | null;
-    if (!ctx) return;
-    const g2 = ctx;
+    const sh = (type: number, src: string) => {
+      const s = gl.createShader(type)!;
+      gl.shaderSource(s, src);
+      gl.compileShader(s);
+      if (!gl.getShaderParameter(s, gl.COMPILE_STATUS)) { console.error(gl.getShaderInfoLog(s)); }
+      return s;
+    };
+    const prog = gl.createProgram()!;
+    gl.attachShader(prog, sh(gl.VERTEX_SHADER, VERT));
+    gl.attachShader(prog, sh(gl.FRAGMENT_SHADER, FRAG));
+    gl.linkProgram(prog);
+    if (!gl.getProgramParameter(prog, gl.LINK_STATUS)) { console.error(gl.getProgramInfoLog(prog)); return; }
+    gl.useProgram(prog);
+    const buf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, buf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(prog, 'a');
+    gl.enableVertexAttribArray(loc);
+    gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    const U: Record<string, WebGLUniformLocation | null> = {};
+    for (const n of ['uRes', 'uTime', 'uDrift', 'uTop', 'uMid', 'uBot', 'uSunCol', 'uFogCol', 'uSun', 'uMoon', 'uLight', 'uFlashPos', 'uSunVis', 'uMoonVis', 'uNight', 'uCloud', 'uRain', 'uStorm', 'uFog', 'uWind', 'uFlash', 'uHor']) U[n] = gl.getUniformLocation(prog, n);
+
     const reduced = typeof window.matchMedia === 'function' && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const qs = new URLSearchParams(window.location.search);
+    const forceWx = qs.get('wx') as WxKey | null;
+    const forceH = qs.get('h') !== null ? parseFloat(qs.get('h') as string) : null;
 
-    let W = 0, H = 0, dpr = 1;
+    let W = 1, H = 1;
     const resize = () => {
       const r = box.getBoundingClientRect();
-      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       W = Math.max(1, Math.round(r.width));
       H = Math.max(1, Math.round(r.height));
-      cv.width = Math.round(W * dpr);
-      cv.height = Math.round(H * dpr);
-      g2.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.25);
+      const sc = Math.min(dpr, Math.sqrt(1_100_000 / (W * H)));
+      cv.width = Math.max(2, Math.round(W * sc));
+      cv.height = Math.max(2, Math.round(H * sc));
+      bc.width = W; bc.height = H;
+      gl.viewport(0, 0, cv.width, cv.height);
     };
     resize();
     const ro = new ResizeObserver(resize);
     ro.observe(box);
 
-    const R = rng(20261120);
-
-    // Bintang
-    const stars = Array.from({ length: 170 }, () => ({ x: R(), y: R() * 0.7, r: 0.4 + R() * 1.2, ph: R() * 6.28, sp: 0.6 + R() * 1.8 }));
-
-    // Sprite awan (putih lembut), diwarnai ulang secara berkala.
-    const mkCloud = (w: number, h: number) => {
-      const c = document.createElement('canvas');
-      c.width = w; c.height = h;
-      const g = c.getContext('2d')!;
-      const n = 16;
-      for (let i = 0; i < n; i++) {
-        const t = i / (n - 1);
-        const x = w * (0.18 + 0.64 * t) + (R() - 0.5) * w * 0.06;
-        const rr = h * (0.28 + 0.2 * Math.sin(t * Math.PI) + R() * 0.12);
-        const y = h * (0.62 - 0.16 * Math.sin(t * Math.PI)) + (R() - 0.5) * h * 0.1;
-        const gr = g.createRadialGradient(x, y, 0, x, y, rr);
-        gr.addColorStop(0, 'rgba(255,255,255,0.85)');
-        gr.addColorStop(0.55, 'rgba(255,255,255,0.35)');
-        gr.addColorStop(1, 'rgba(255,255,255,0)');
-        g.fillStyle = gr;
-        g.fillRect(x - rr, y - rr, rr * 2, rr * 2);
-      }
-      return c;
-    };
-    const baseSprites = Array.from({ length: 5 }, () => mkCloud(360, 170));
-    const tinted = baseSprites.map((s) => { const c = document.createElement('canvas'); c.width = s.width; c.height = s.height; return c; });
-    let lastTint: RGB = [-99, -99, -99];
-    const retint = (col: RGB) => {
-      if (dist(col, lastTint) < 6) return;
-      lastTint = col;
-      tinted.forEach((t, i) => {
-        const g = t.getContext('2d')!;
-        g.globalCompositeOperation = 'source-over';
-        g.clearRect(0, 0, t.width, t.height);
-        g.drawImage(baseSprites[i], 0, 0);
-        g.globalCompositeOperation = 'source-in';
-        g.fillStyle = rgba(col, 1);
-        g.fillRect(0, 0, t.width, t.height);
-      });
-    };
-    const clouds = Array.from({ length: 24 }, (_, i) => {
-      const layer = R();
-      return { sp: i % 5, x: R(), y: 0.03 + R() * 0.5, scale: 0.55 + layer * 1.25, speed: 0.004 + layer * 0.012, thr: (i / 24) * 0.9 + R() * 0.08, layer };
-    });
-    clouds.sort((a, b) => a.layer - b.layer);
-
-    // Sprite kabut
-    const fogSprite = (() => {
-      const c = document.createElement('canvas');
-      c.width = 640; c.height = 220;
-      const g = c.getContext('2d')!;
-      const gr = g.createRadialGradient(320, 110, 0, 320, 110, 320);
-      gr.addColorStop(0, 'rgba(255,255,255,0.9)');
-      gr.addColorStop(0.5, 'rgba(255,255,255,0.35)');
-      gr.addColorStop(1, 'rgba(255,255,255,0)');
-      g.setTransform(1, 0, 0, 0.36, 0, 70);
-      g.fillStyle = gr;
-      g.fillRect(0, 0, 640, 640);
-      return c;
-    })();
-    const fogs = Array.from({ length: 6 }, (_, i) => ({ x: R(), y: 0.42 + (i / 6) * 0.5, s: 1.2 + R() * 1.4, v: 0.006 + R() * 0.01 }));
-
-    // Skyline
-    const mkCity = (n: number, minW: number, maxW: number, minH: number, maxH: number) => {
-      const out: { x: number; w: number; h: number; lit: number[] ; ant: number }[] = [];
-      for (let i = 0; i < n; i++) {
-        const w = minW + R() * (maxW - minW);
-        const h = minH + Math.pow(R(), 1.6) * (maxH - minH);
-        out.push({ x: (i / n) + (R() - 0.5) * 0.02, w, h, lit: Array.from({ length: 60 }, () => (R() < 0.45 ? 1 : 0)), ant: R() < 0.18 ? 0.04 + R() * 0.05 : 0 });
-      }
-      return out;
-    };
-    const cityFar = mkCity(30, 0.022, 0.05, 0.07, 0.2);
-    const cityNear = mkCity(20, 0.04, 0.085, 0.1, 0.34);
-    const flicker = Array.from({ length: 60 }, () => R() * 6.28);
-
-    // Hujan
-    const NRAIN = 950;
-    const rx = new Float32Array(NRAIN), ry = new Float32Array(NRAIN), rv = new Float32Array(NRAIN), rl = new Float32Array(NRAIN);
-    for (let i = 0; i < NRAIN; i++) { rx[i] = R(); ry[i] = R(); rv[i] = 0.7 + R() * 0.6; rl[i] = 9 + R() * 18; }
-    const splashes: { x: number; y: number; a: number }[] = [];
-
-    // Petir
-    let flash = 0, bolt: { x: number; y: number }[] | null = null, boltLife = 0, nextBolt = 4, echo = 0;
-
-    // Keadaan terinterpolasi
     const cur: Wx = { ...PRESETS.clear };
-    let hour = ((d) => d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600)(new Date());
-    let demoHour = 9;
+    let hour = forceH ?? ((d) => d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600)(new Date());
     let drift = 0;
+    let flash = 0, echo = 0, nextBolt = 4, boltLife = 0;
+    let bolt: { x: number; y: number }[] | null = null;
+    let flashPos: [number, number] = [0, 0.2];
     let last = performance.now();
+    let t0 = last;
     let raf = 0;
     let to: ReturnType<typeof setTimeout> | undefined;
 
-    const target = (): { wx: Wx; hour: number; snap: boolean } => {
-      const c = ctl.current;
-      const now = new Date();
-      const real = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
-      if (c.mode === 'demo') return { wx: PRESETS[c.demoKey], hour: demoHour, snap: false };
-      const liveWx = c.live ? c.live.wx : PRESETS.clear;
-      return { wx: c.wxPin ? PRESETS[c.wxPin] : liveWx, hour: c.timePin ?? real, snap: false };
-    };
-
     const makeBolt = () => {
       const pts: { x: number; y: number }[] = [];
-      let x = W * (0.15 + R() * 0.7), y = H * 0.08;
+      let x = W * (0.2 + Math.random() * 0.6), y = H * 0.05;
       pts.push({ x, y });
-      while (y < H * (0.5 + R() * 0.2)) { x += (R() - 0.5) * W * 0.07; y += H * (0.03 + R() * 0.05); pts.push({ x, y }); }
+      const endY = H * (0.42 + Math.random() * 0.2);
+      while (y < endY) { x += (Math.random() - 0.5) * W * 0.08; y += H * (0.03 + Math.random() * 0.05); pts.push({ x, y }); }
       return pts;
     };
 
     function frame(now: number) {
       const dt = reduced ? 0.016 : Math.min(0.05, (now - last) / 1000);
       last = now;
-      const tg = target();
-      const c = ctl.current;
-      if (c.mode === 'demo') demoHour = (demoHour + dt * 0.25) % 24;
-
-      // Cuaca bergerak halus menuju target (±3 detik).
+      const aspect = W / H;
+      const tg = forceWx && PRESETS[forceWx] ? PRESETS[forceWx] : (liveRef.current ?? PRESETS.clear);
       const k = reduced ? 1 : 1 - Math.exp(-dt / 2.6);
-      cur.cloud = lerp(cur.cloud, tg.wx.cloud, k);
-      cur.rain = lerp(cur.rain, tg.wx.rain, 1 - Math.exp(-dt / 2.0));
-      cur.storm = lerp(cur.storm, tg.wx.storm, 1 - Math.exp(-dt / 1.8));
-      cur.fog = lerp(cur.fog, tg.wx.fog, 1 - Math.exp(-dt / 3.5));
-      cur.wind = lerp(cur.wind, tg.wx.wind, 1 - Math.exp(-dt / 3));
-      // Jam: ikut target, lompatan besar dibuat seperti time-lapse.
-      let dh = tg.hour - hour;
+      cur.cloud = lerp(cur.cloud, tg.cloud, k);
+      cur.rain = lerp(cur.rain, tg.rain, 1 - Math.exp(-dt / 2.0));
+      cur.storm = lerp(cur.storm, tg.storm, 1 - Math.exp(-dt / 1.8));
+      cur.fog = lerp(cur.fog, tg.fog, 1 - Math.exp(-dt / 3.5));
+      cur.wind = lerp(cur.wind, tg.wind, 1 - Math.exp(-dt / 3));
+      const real = forceH ?? ((d) => d.getHours() + d.getMinutes() / 60 + d.getSeconds() / 3600)(new Date());
+      let dh = real - hour;
       if (dh > 12) dh -= 24; else if (dh < -12) dh += 24;
-      const step = clamp(dh, -4 * dt, 4 * dt);
-      hour = reduced ? tg.hour : (hour + step + 24) % 24;
-      drift += dt * (0.4 + cur.wind);
+      hour = (hour + clamp(dh, -4 * dt, 4 * dt) + 24) % 24;
+      drift += dt * (0.012 + cur.wind * 0.03);
 
       const night = nightness(hour);
       let [top, mid, bot] = skyAt(hour);
-      // Redupkan & abu-abukan langit saat berawan / hujan / kabut.
-      const gloom = clamp(Math.max(cur.cloud * 0.72, cur.rain * 0.92, cur.fog * 0.55), 0, 1);
-      const lum = (cc: RGB) => (cc[0] * 0.3 + cc[1] * 0.59 + cc[2] * 0.11);
-      const grey = (cc: RGB, dark: number): RGB => { const l = lum(cc) * dark; return [l * 0.92, l * 0.98, l * 1.08]; };
-      const dark = 0.86 - cur.rain * 0.3 - cur.storm * 0.22;
-      top = mix(top, grey(top, dark * 0.9), gloom);
+      const gloom = clamp(Math.max(cur.cloud * 0.7, cur.rain * 0.92, cur.fog * 0.5), 0, 1);
+      const lum = (c: RGB) => c[0] * 0.3 + c[1] * 0.59 + c[2] * 0.11;
+      const grey = (c: RGB, d: number): RGB => { const l = lum(c) * d; return [l * 0.93, l * 0.99, l * 1.08]; };
+      const dark = 0.9 - cur.rain * 0.32 - cur.storm * 0.2;
+      top = mix(top, grey(top, dark * 0.85), gloom);
       mid = mix(mid, grey(mid, dark), gloom);
       bot = mix(bot, grey(bot, dark * 1.05), gloom);
 
-      // Langit
-      const sg = g2.createLinearGradient(0, 0, 0, H);
-      sg.addColorStop(0, rgba(top));
-      sg.addColorStop(0.55, rgba(mid));
-      sg.addColorStop(1, rgba(bot));
-      g2.fillStyle = sg;
-      g2.fillRect(0, 0, W, H);
-
-      const yH = H * 0.8;
-      // Bintang
-      const starA = night * (1 - cur.cloud * 0.95) * (1 - cur.fog * 0.8);
-      if (starA > 0.02) {
-        for (const s of stars) {
-          const tw = 0.55 + 0.45 * Math.sin(now / 1000 * s.sp + s.ph);
-          g2.fillStyle = `rgba(255,255,255,${(starA * tw).toFixed(3)})`;
-          g2.beginPath();
-          g2.arc(s.x * W, s.y * H, s.r, 0, 6.283);
-          g2.fill();
-        }
-      }
-      // Matahari
-      const arc = (t: number) => ({ x: W * (0.12 + 0.76 * t), y: yH + 24 - Math.sin(clamp(t, 0, 1) * Math.PI) * H * 0.6 });
+      const hor = -0.2;
+      const arc = (t: number): [number, number] => [(t - 0.5) * aspect * 0.86, hor + Math.sin(clamp(t, 0, 1) * Math.PI) * 0.52 - 0.012];
       const ts = (hour - 6) / 12;
-      if (ts > -0.08 && ts < 1.08) {
-        const p = arc(ts);
-        const alt = Math.sin(clamp(ts, 0, 1) * Math.PI);
-        const warm = mix([255, 150, 70], [255, 244, 214], smooth(alt * 1.4));
-        const vis = (1 - cur.cloud * 0.55) * (1 - cur.fog * 0.4) * (1 - cur.rain * 0.4);
-        const rad = H * (0.2 + (1 - alt) * 0.1);
-        const g = g2.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
-        g.addColorStop(0, rgba(warm, 0.55 * vis));
-        g.addColorStop(1, rgba(warm, 0));
-        g2.fillStyle = g;
-        g2.fillRect(p.x - rad, p.y - rad, rad * 2, rad * 2);
-        g2.fillStyle = rgba(mix(warm, [255, 255, 255], 0.5), clamp(vis * 1.1, 0, 1) * (cur.cloud > 0.85 ? 0.25 : 1));
-        g2.beginPath();
-        g2.arc(p.x, p.y, H * 0.035, 0, 6.283);
-        g2.fill();
-      }
-      // Bulan
-      const tm = (((hour - 18) % 24) + 24) % 24 / 12;
-      if (tm > -0.05 && tm < 1.05) {
-        const p = arc(tm);
-        const vis = (1 - cur.cloud * 0.8) * (1 - cur.fog * 0.6);
-        const rad = H * 0.16;
-        const g = g2.createRadialGradient(p.x, p.y, 0, p.x, p.y, rad);
-        g.addColorStop(0, `rgba(200,215,255,${(0.35 * vis).toFixed(3)})`);
-        g.addColorStop(1, 'rgba(200,215,255,0)');
-        g2.fillStyle = g;
-        g2.fillRect(p.x - rad, p.y - rad, rad * 2, rad * 2);
-        g2.fillStyle = `rgba(240,244,255,${(0.95 * vis).toFixed(3)})`;
-        g2.beginPath();
-        g2.arc(p.x, p.y, H * 0.026, 0, 6.283);
-        g2.fill();
-        g2.fillStyle = `rgba(190,200,230,${(0.35 * vis).toFixed(3)})`;
-        g2.beginPath();
-        g2.arc(p.x - H * 0.008, p.y - H * 0.004, H * 0.006, 0, 6.283);
-        g2.arc(p.x + H * 0.007, p.y + H * 0.009, H * 0.004, 0, 6.283);
-        g2.fill();
-      }
+      const tm = ((((hour - 18) % 24) + 24) % 24) / 12;
+      const sun = arc(ts), moon = arc(tm);
+      const sunVis = smooth(ts / 0.07) * smooth((1 - ts) / 0.07);
+      const moonVis = smooth(tm / 0.07) * smooth((1 - tm) / 0.07);
+      const alt = Math.sin(clamp(ts, 0, 1) * Math.PI);
+      const sunCol = mix([1, 0.55, 0.26], [1, 0.95, 0.82], smooth(alt * 1.5));
+      const fogCol = mix(mix(bot, [0.92, 0.94, 0.97], 0.55), [0.16, 0.19, 0.28], night * 0.85);
+      const lightDir: [number, number] = sunVis > 0.1 || night < 0.5 ? [sun[0] * 0.4 + 0.1, 0.55] : [moon[0] * 0.4 + 0.1, 0.55];
 
-      // Awan
-      const dayCol = mix(mix(mid, [255, 255, 255], 0.62), [255, 255, 255], 1 - night);
-      const nightCol = mix(mid, [150, 165, 215], 0.45);
-      let cloudCol = mix(dayCol, nightCol, night);
-      const heavy: RGB = mix([92, 100, 116], [28, 32, 46], night);
-      cloudCol = mix(cloudCol, heavy, clamp(cur.rain * 0.85 + cur.storm * 0.25 + (cur.cloud > 0.9 ? 0.15 : 0), 0, 1));
-      retint(cloudCol);
-      for (const cl of clouds) {
-        const a = clamp((cur.cloud * 1.18 - cl.thr) * 3, 0, 1) * (0.5 + cl.layer * 0.42);
-        if (a < 0.01) continue;
-        const sw = 360 * cl.scale, sh = 170 * cl.scale;
-        const span = W + sw;
-        const x = ((cl.x * span + drift * cl.speed * W * 6) % span) - sw;
-        g2.globalAlpha = a;
-        g2.drawImage(tinted[cl.sp], x, cl.y * H * (0.7 + cur.cloud * 0.35) - sh * 0.3, sw, sh);
-      }
-      g2.globalAlpha = 1;
-      // Lapisan mendung di atas
-      const ov = clamp(cur.rain * 0.5 + cur.cloud * 0.18 + cur.storm * 0.2, 0, 0.8);
-      if (ov > 0.01) {
-        const og = g2.createLinearGradient(0, 0, 0, H * 0.7);
-        og.addColorStop(0, rgba(mix([40, 46, 62], [10, 12, 22], night), ov));
-        og.addColorStop(1, rgba([40, 46, 62], 0));
-        g2.fillStyle = og;
-        g2.fillRect(0, 0, W, H * 0.7);
-      }
-
-      // Kabut
-      if (cur.fog > 0.02) {
-        const fc = mix(mix(bot, [235, 240, 248], 0.55), [90, 100, 125], night * 0.8);
-        retintFog(fc);
-        g2.globalAlpha = clamp(cur.fog * 0.6, 0, 0.7);
-        for (const f of fogs) {
-          const fw = 640 * f.s, fh = 220 * f.s;
-          const span = W + fw;
-          const x = ((f.x * span + drift * f.v * W * 8) % span) - fw;
-          g2.drawImage(fogTint, x, f.y * H - fh * 0.5, fw, fh);
-        }
-        g2.globalAlpha = 1;
-      }
-
-      // Kota (jauh)
-      const farCol = mix(mix(bot, [18, 26, 50], 0.32 + night * 0.25), bot, cur.fog * 0.7);
-      const nearCol = mix(mix(bot, [8, 12, 26], 0.5 + night * 0.32), bot, cur.fog * 0.35);
-      const drawCity = (list: typeof cityFar, col: RGB, lights: boolean) => {
-        g2.fillStyle = rgba(col);
-        g2.beginPath();
-        for (const b of list) {
-          const bx = b.x * W, bw = b.w * W, bh = b.h * H;
-          g2.rect(bx, H - bh, bw, bh + 2);
-          if (b.ant) g2.rect(bx + bw * 0.48, H - bh - b.ant * H, Math.max(1.4, bw * 0.04), b.ant * H);
-        }
-        g2.fill();
-        if (lights && night > 0.12) {
-          g2.fillStyle = `rgba(255,214,130,${(night * 0.85).toFixed(3)})`;
-          g2.beginPath();
-          list.forEach((b, bi) => {
-            const bx = b.x * W, bw = b.w * W, bh = b.h * H;
-            const cols = Math.max(1, Math.floor(bw / 9)), rows = Math.floor(bh / 13);
-            for (let r = 0; r < rows; r++) for (let cc = 0; cc < cols; cc++) {
-              const idx = (r * cols + cc + bi * 7) % 60;
-              if (!b.lit[idx]) continue;
-              const fl = 0.75 + 0.25 * Math.sin(now / 1600 + flicker[idx]);
-              if (fl < 0.55) continue;
-              g2.rect(bx + 3 + cc * 9, H - bh + 5 + r * 13, 3.2, 4.4);
-            }
-          });
-          g2.fill();
-        }
-      };
-      drawCity(cityFar, farCol, false);
-      drawCity(cityNear, nearCol, true);
-
-      // Kabut tanah / uap hujan
-      const mistA = clamp(cur.rain * 0.28 + cur.fog * 0.3, 0, 0.5);
-      if (mistA > 0.01) {
-        const mg = g2.createLinearGradient(0, H * 0.7, 0, H);
-        mg.addColorStop(0, rgba(mix(bot, [220, 228, 240], 0.4), 0));
-        mg.addColorStop(1, rgba(mix(bot, [220, 228, 240], 0.4), mistA));
-        g2.fillStyle = mg;
-        g2.fillRect(0, H * 0.7, W, H * 0.3);
-      }
-
-      // Hujan
-      const nr = Math.floor(NRAIN * Math.pow(cur.rain, 0.85));
-      if (nr > 0) {
-        const slant = 0.12 + cur.wind * 0.42;
-        const far = new Path2D(), near = new Path2D();
-        for (let i = 0; i < nr; i++) {
-          const sp = rv[i] * (900 + cur.rain * 500);
-          ry[i] += (sp * dt) / H;
-          rx[i] -= (sp * dt * slant) / W;
-          if (ry[i] > 1) { ry[i] -= 1.05; rx[i] = R(); if (R() < 0.05 && splashes.length < 90) splashes.push({ x: R() * W, y: H * (0.9 + R() * 0.09), a: 1 }); }
-          if (rx[i] < -0.05) rx[i] += 1.1;
-          const x = rx[i] * W, y = ry[i] * H, l = rl[i] * (0.7 + cur.rain * 0.6);
-          const path = i % 3 === 0 ? near : far;
-          path.moveTo(x, y);
-          path.lineTo(x + slant * l, y - l);
-        }
-        const rc = night > 0.5 ? '180,200,240' : '215,228,250';
-        g2.lineCap = 'round';
-        g2.strokeStyle = `rgba(${rc},${(0.22 + cur.rain * 0.12).toFixed(3)})`;
-        g2.lineWidth = 0.9;
-        g2.stroke(far);
-        g2.strokeStyle = `rgba(${rc},${(0.4 + cur.rain * 0.2).toFixed(3)})`;
-        g2.lineWidth = 1.4;
-        g2.stroke(near);
-      }
-      for (let i = splashes.length - 1; i >= 0; i--) {
-        const s = splashes[i];
-        s.a -= dt * 2.6;
-        if (s.a <= 0) { splashes.splice(i, 1); continue; }
-        g2.strokeStyle = `rgba(210,225,250,${(s.a * 0.45).toFixed(3)})`;
-        g2.lineWidth = 1;
-        g2.beginPath();
-        g2.ellipse(s.x, s.y, (1 - s.a) * 9 + 1, (1 - s.a) * 3 + 0.4, 0, 0, 6.283);
-        g2.stroke();
-      }
-
-      // Petir
+      // petir
       if (cur.storm > 0.35) {
         nextBolt -= dt;
         if (nextBolt <= 0) {
-          bolt = makeBolt(); boltLife = 0.2; flash = 1; echo = 0.13;
-          nextBolt = (3 + R() * 7) / cur.storm;
+          bolt = makeBolt(); boltLife = 0.22; flash = 1; echo = 0.13;
+          nextBolt = (3 + Math.random() * 7) / cur.storm;
+          flashPos = [(bolt[0].x / W - 0.5) * aspect, 0.5 - bolt[0].y / H];
         }
       }
       if (echo > 0) { echo -= dt; if (echo <= 0) flash = Math.max(flash, 0.7); }
+
+      gl.uniform2f(U.uRes, cv.width, cv.height);
+      gl.uniform1f(U.uTime, (now - t0) / 1000);
+      gl.uniform2f(U.uDrift, drift, drift * 0.15);
+      gl.uniform3f(U.uTop, top[0], top[1], top[2]);
+      gl.uniform3f(U.uMid, mid[0], mid[1], mid[2]);
+      gl.uniform3f(U.uBot, bot[0], bot[1], bot[2]);
+      gl.uniform3f(U.uSunCol, sunCol[0], sunCol[1], sunCol[2]);
+      gl.uniform3f(U.uFogCol, fogCol[0], fogCol[1], fogCol[2]);
+      gl.uniform2f(U.uSun, sun[0], sun[1]);
+      gl.uniform2f(U.uMoon, moon[0], moon[1]);
+      gl.uniform2f(U.uLight, lightDir[0], lightDir[1]);
+      gl.uniform2f(U.uFlashPos, flashPos[0], flashPos[1]);
+      gl.uniform1f(U.uSunVis, sunVis);
+      gl.uniform1f(U.uMoonVis, moonVis);
+      gl.uniform1f(U.uNight, night);
+      gl.uniform1f(U.uCloud, cur.cloud);
+      gl.uniform1f(U.uRain, cur.rain);
+      gl.uniform1f(U.uStorm, cur.storm);
+      gl.uniform1f(U.uFog, cur.fog);
+      gl.uniform1f(U.uWind, cur.wind);
+      gl.uniform1f(U.uFlash, flash);
+      gl.uniform1f(U.uHor, hor);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      // sambaran petir (overlay 2D)
+      b2!.clearRect(0, 0, W, H);
       if (boltLife > 0 && bolt) {
         boltLife -= dt;
-        g2.save();
-        g2.globalAlpha = clamp(boltLife / 0.2, 0, 1);
-        g2.strokeStyle = '#eaf2ff';
-        g2.shadowColor = '#9cc4ff';
-        g2.shadowBlur = 22;
-        g2.lineWidth = 2.2;
-        g2.lineJoin = 'round';
-        g2.beginPath();
-        bolt.forEach((p, i) => (i ? g2.lineTo(p.x, p.y) : g2.moveTo(p.x, p.y)));
-        g2.stroke();
-        g2.lineWidth = 1;
-        g2.beginPath();
-        const mid2 = bolt[Math.floor(bolt.length / 2)];
-        g2.moveTo(mid2.x, mid2.y);
-        g2.lineTo(mid2.x + W * 0.08, mid2.y + H * 0.14);
-        g2.lineTo(mid2.x + W * 0.05, mid2.y + H * 0.26);
-        g2.stroke();
-        g2.restore();
+        b2!.save();
+        b2!.globalAlpha = clamp(boltLife / 0.22, 0, 1);
+        b2!.strokeStyle = '#f2f7ff';
+        b2!.shadowColor = '#9cc4ff';
+        b2!.shadowBlur = 26;
+        b2!.lineWidth = 2.4;
+        b2!.lineJoin = 'round';
+        b2!.beginPath();
+        bolt.forEach((p, i) => (i ? b2!.lineTo(p.x, p.y) : b2!.moveTo(p.x, p.y)));
+        b2!.stroke();
+        b2!.lineWidth = 1.1;
+        b2!.beginPath();
+        const m = bolt[Math.floor(bolt.length / 2)];
+        b2!.moveTo(m.x, m.y);
+        b2!.lineTo(m.x + W * 0.08, m.y + H * 0.13);
+        b2!.lineTo(m.x + W * 0.05, m.y + H * 0.24);
+        b2!.stroke();
+        b2!.restore();
       }
-      if (flash > 0.01) {
-        g2.fillStyle = `rgba(215,228,255,${(flash * 0.42).toFixed(3)})`;
-        g2.fillRect(0, 0, W, H);
-        flash *= Math.exp(-dt * 7);
-      }
-
-      // Vinyet halus
-      const vg = g2.createRadialGradient(W / 2, H * 0.55, Math.min(W, H) * 0.35, W / 2, H * 0.55, Math.max(W, H) * 0.8);
-      vg.addColorStop(0, 'rgba(0,0,0,0)');
-      vg.addColorStop(1, `rgba(0,0,0,${(0.28 + night * 0.15).toFixed(3)})`);
-      g2.fillStyle = vg;
-      g2.fillRect(0, 0, W, H);
-    }
-
-    // Sprite kabut berwarna
-    const fogTint = document.createElement('canvas');
-    fogTint.width = fogSprite.width; fogTint.height = fogSprite.height;
-    let lastFog: RGB = [-99, -99, -99];
-    function retintFog(col: RGB) {
-      if (dist(col, lastFog) < 6) return;
-      lastFog = col;
-      const g = fogTint.getContext('2d')!;
-      g.globalCompositeOperation = 'source-over';
-      g.clearRect(0, 0, fogTint.width, fogTint.height);
-      g.drawImage(fogSprite, 0, 0);
-      g.globalCompositeOperation = 'source-in';
-      g.fillStyle = rgba(col, 1);
-      g.fillRect(0, 0, fogTint.width, fogTint.height);
+      flash *= Math.exp(-dt * 7);
     }
 
     const loop = (t: number) => {
@@ -584,37 +472,16 @@ export default function WeatherWallpaper({ lang }: { lang: 'en' | 'id' }) {
     return () => { cancelAnimationFrame(raf); if (to) clearTimeout(to); ro.disconnect(); };
   }, []);
 
-  // ---------------------------------------------------------------- UI
-  const L = (o: { en: string; id: string }) => (lang === 'id' ? o.id : o.en);
-  const pickWx = (k: WxKey) => { setWxPin(k); setMode('manual'); try { localStorage.setItem('fanos-wx-mode', 'manual'); } catch { /* */ } };
-  const pickTime = (h: number) => { setTimePin(h); setMode('manual'); try { localStorage.setItem('fanos-wx-mode', 'manual'); } catch { /* */ } };
-  const goLive = () => { setWxPin(null); setTimePin(null); setMode('live'); try { localStorage.setItem('fanos-wx-mode', 'live'); } catch { /* */ } };
-  const goDemo = () => { setWxPin(null); setTimePin(null); setMode('demo'); try { localStorage.setItem('fanos-wx-mode', 'demo'); } catch { /* */ } };
-  const status =
-    mode === 'demo'
-      ? (lang === 'id' ? 'Mode demo · cuaca & waktu berganti otomatis' : 'Demo mode · weather & time change automatically')
-      : live && !offline
-        ? `Jakarta · ${live.temp}°C · ${codeLabel(live.code, lang)}`
-        : (lang === 'id' ? 'Jakarta · cuaca nyata tidak tersedia' : 'Jakarta · live weather unavailable');
-  const activeWx = mode === 'demo' ? demoKey : wxPin;
+  const status = live && !offline
+    ? `Jakarta · ${live.temp}°C · ${codeLabel(live.code, lang)}`
+    : (lang === 'id' ? 'Jakarta · cuaca nyata tidak tersedia' : 'Jakarta · live weather unavailable');
 
   return (
     <div ref={wrap} className="wx-wrap" data-no-i18n>
-      <canvas ref={canvas} className="wx-canvas" aria-hidden="true" />
+      <canvas ref={glRef} className="wx-canvas" aria-hidden="true" />
+      <canvas ref={boltRef} className="wx-canvas wx-bolt" aria-hidden="true" />
       <div className="wx-ui">
-        <div className="wx-status">{status}</div>
-        <div className="wx-bar">
-          <button type="button" className={`wx-chip${mode === 'live' ? ' on' : ''}`} onClick={goLive}><span className="wx-dot" />Live</button>
-          <button type="button" className={`wx-chip${mode === 'demo' ? ' on' : ''}`} onClick={goDemo}>▶ Demo</button>
-          <span className="wx-sep" />
-          {WX_KEYS.map((k) => (
-            <button key={k} type="button" className={`wx-chip wx-ic${activeWx === k ? ' on' : ''}`} onClick={() => pickWx(k)} title={L(WX_LABEL[k])}>{WX_ICON[k]}</button>
-          ))}
-          <span className="wx-sep" />
-          {TIMES.map((t) => (
-            <button key={t.key} type="button" className={`wx-chip wx-ic${timePin === t.h ? ' on' : ''}`} onClick={() => pickTime(t.h)} title={L(t)}>{t.icon}</button>
-          ))}
-        </div>
+        <div className="wx-status"><span className="wx-dot" />{status}</div>
       </div>
     </div>
   );

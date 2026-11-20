@@ -855,12 +855,7 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 /* ---- Dynamic Weather Wallpaper (login) ---- */
 .wx-wrap { position: absolute; inset: 0; }
 .wx-canvas { position: absolute; inset: 0; width: 100%; height: 100%; display: block; }
-.wx-ui { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; flex-direction: column; align-items: center; gap: 8px; z-index: 2; pointer-events: none; padding: 0 12px; }
-.wx-status { font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, .92); text-shadow: 0 1px 6px rgba(0, 0, 0, .55); letter-spacing: .02em; text-align: center; }
-.wx-bar { pointer-events: auto; display: flex; align-items: center; flex-wrap: wrap; justify-content: center; gap: 4px; padding: 5px; border-radius: 999px; background: rgba(12, 18, 38, .42); border: 1px solid rgba(255, 255, 255, .16); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); box-shadow: 0 8px 28px rgba(0, 0, 0, .35); }
-.wx-chip { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 0; border-radius: 999px; background: transparent; color: rgba(255, 255, 255, .85); font-size: 12px; font-weight: 700; cursor: pointer; transition: background .15s, color .15s; }
-.wx-chip.wx-ic { width: 32px; padding: 0; justify-content: center; font-size: 15px; }
-.wx-chip:hover { background: rgba(255, 255, 255, .14); }
-.wx-chip.on { background: rgba(255, 255, 255, .92); color: #0f172a; }
-.wx-sep { width: 1px; height: 18px; background: rgba(255, 255, 255, .22); margin: 0 3px; }
+.wx-bolt { pointer-events: none; }
+.wx-ui { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; z-index: 2; pointer-events: none; padding: 0 12px; }
+.wx-status { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, .95); background: rgba(10, 16, 34, .38); border: 1px solid rgba(255, 255, 255, .16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); letter-spacing: .02em; }
 .wx-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .25); }
