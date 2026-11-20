@@ -8,6 +8,7 @@ import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
 import ThemeToggle from '@/components/ThemeToggle';
+import WeatherWallpaper from '@/components/WeatherWallpaper';
 
 export default function LoginPage() {
   const lang = useLang();
@@ -134,8 +135,8 @@ export default function LoginPage() {
           </div>
         </div>
       </div>
-      <div className="login-right" aria-hidden="true">
-        <div className="login-right-shade" />
+      <div className="login-right">
+        <WeatherWallpaper lang={lang === 'id' ? 'id' : 'en'} />
       </div>
     </div>
   );
