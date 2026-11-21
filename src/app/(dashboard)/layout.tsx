@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { headers } from 'next/headers';
 import '@/styles/registry.css';
 import '@/styles/theme.css';
+import '@/styles/dash.css';
 import { createClient } from '@/lib/supabase/server';
 import DashboardShell from '@/components/DashboardShell';
 import InactiveNotice from '@/components/InactiveNotice';

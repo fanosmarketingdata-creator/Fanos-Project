@@ -197,16 +197,10 @@ html.dark .dx-hl { fill: rgba(91, 134, 255, .14) !important; }
   header[data-nav-pos='bottom'] .hdr-nav > a > i.fi:not([class*='angle']), header[data-nav-pos='bottom'] .hdr-nav > div > button > i.fi:not([class*='angle']) { display: inline-flex !important; font-size: 14px !important; opacity: .85; }
   header[data-nav-pos='top'] .hdr-nav > a, header[data-nav-pos='top'] .hdr-nav > div > button,
   header[data-nav-pos='bottom'] .hdr-nav > a, header[data-nav-pos='bottom'] .hdr-nav > div > button { font-weight: 500; font-size: 13px; border-radius: 999px; height: 40px; padding: 0 14px; gap: 8px; align-items: center; }
-  header[data-nav-pos='top'] .hdr-nav > [class*='from-brand-500'], header[data-nav-pos='top'] .hdr-nav > div > [class*='from-brand-500'],
-  header[data-nav-pos='bottom'] .hdr-nav > [class*='from-brand-500'], header[data-nav-pos='bottom'] .hdr-nav > div > [class*='from-brand-500'] {
-    background: #1c1c1f !important; background-image: none !important; color: #fff !important; box-shadow: none !important;
-  }
   html.dark header[data-nav-pos='top'], html.dark header[data-nav-pos='bottom'] { background: linear-gradient(to bottom, rgba(9, 10, 16, .97) 70%, rgba(9, 10, 16, 0)) !important; }
   html.dark header[data-nav-pos='bottom'] { background: linear-gradient(to top, rgba(9, 10, 16, .97) 70%, rgba(9, 10, 16, 0)) !important; }
   html.dark header[data-nav-pos='top'] .hdr-nav, html.dark header[data-nav-pos='top'] .hdr-right,
   html.dark header[data-nav-pos='bottom'] .hdr-nav, html.dark header[data-nav-pos='bottom'] .hdr-right { background: var(--d-surface-2, #161a28); box-shadow: 0 8px 24px -14px rgba(0, 0, 0, .6); }
-  html.dark header[data-nav-pos='top'] .hdr-nav > [class*='from-brand-500'], html.dark header[data-nav-pos='top'] .hdr-nav > div > [class*='from-brand-500'],
-  html.dark header[data-nav-pos='bottom'] .hdr-nav > [class*='from-brand-500'], html.dark header[data-nav-pos='bottom'] .hdr-nav > div > [class*='from-brand-500'] { background: #f1f5f9 !important; color: #0f172a !important; }
 }
 
 .hdr-user-text { display: none; }

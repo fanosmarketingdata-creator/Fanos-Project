@@ -177,10 +177,6 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
           </span>
           {showPresence && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />}
         </span>
-        <span className="hdr-user-text" data-no-i18n>
-          <b>{profile.full_name}</b>
-          <small>{profile.email || profile.role}</small>
-        </span>
         <i className={`fi fi-rr-angle-small-down text-[10px] leading-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
