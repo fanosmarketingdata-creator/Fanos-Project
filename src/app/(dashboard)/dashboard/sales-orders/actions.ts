@@ -48,6 +48,12 @@ export async function saveSalesOrder(input: SalesOrderInput) {
     boqProjectId = q?.boq_project_id ?? null;
     projectName = (q?.project_name as string | null) ?? null;
     projectId = (q?.project_id as string | null) ?? null;
+    // Quotation dari BOQ tidak punya project sendiri: ikuti BOQ Project-nya.
+    if ((!projectName || !projectId) && boqProjectId) {
+      const { data: b } = await supabase.from('boq_projects').select('project_name, project_id').eq('id', boqProjectId).single();
+      projectName = ((b?.project_name as string | null) || projectName) ?? null;
+      projectId = projectId || ((b?.project_id as string | null) ?? null);
+    }
   } else if (input.mode === 'manual') {
     projectName = input.project_name?.trim() || null;
     projectId = projectName ? await ensureProject(supabase, projectName, input.client_id) : null;
@@ -127,15 +133,18 @@ export async function getQuotationForSO(quotationId: string) {
   const supabase = createClient();
   const { data: q } = await supabase
     .from('quotations')
-    .select('client_id, project_name, discounts, charges, quotation_items(product_id, sku, qty, unit_price, sort_order)')
+    .select('client_id, project_name, discounts, charges, boq_projects(project_name), quotation_items(product_id, sku, qty, unit_price, sort_order)')
     .eq('id', quotationId)
     .single();
   if (!q) return { error: 'Quotation tidak ditemukan' as const };
+  // Quotation dari BOQ tidak menyimpan project_name sendiri; ambil dari BOQ Project-nya.
+  const boq = q.boq_projects as unknown as { project_name: string | null } | { project_name: string | null }[] | null;
+  const boqName = (Array.isArray(boq) ? boq[0]?.project_name : boq?.project_name) ?? '';
   const items = ((q.quotation_items as { product_id: string | null; sku: string; qty: number; unit_price: number; sort_order: number | null }[]) ?? [])
     .slice()
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
     .map((it) => ({ product_id: it.product_id, sku: it.sku, qty: Number(it.qty), unit_price: Number(it.unit_price) }));
-  return { clientId: q.client_id as string, projectName: ((q as { project_name?: string | null }).project_name ?? '') as string, items, discounts: (q.discounts ?? []) as DiscountLine[], charges: (q.charges ?? []) as ChargeLine[] };
+  return { clientId: q.client_id as string, projectName: (boqName || (q as { project_name?: string | null }).project_name || '') as string, items, discounts: (q.discounts ?? []) as DiscountLine[], charges: (q.charges ?? []) as ChargeLine[] };
 }
 
 // ------------------------------------------------------------
