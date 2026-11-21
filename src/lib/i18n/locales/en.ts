@@ -883,6 +883,7 @@ export const ID_EN: Record<string, string> = {
   'Cari SKU / nama produk...': 'Search SKU / product name...',
   'Cari SKU, nama, atau brand...': 'Search SKU, name, or brand...',
   'Cari client...': 'Search client...',
+  'Cari client atau project...': 'Search client or project...',
   'Cari invoice...': 'Search invoice...',
   'Cari nama / email / role...': 'Search name / email / role...',
   'Cari nama / jabatan...': 'Search name / position...',

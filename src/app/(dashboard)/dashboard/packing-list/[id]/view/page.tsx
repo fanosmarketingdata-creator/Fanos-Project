@@ -9,12 +9,14 @@ import { packageSummary } from '@/lib/packing';
 export default async function PackingViewPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const [{ data: p }, { data: items }] = await Promise.all([
-    supabase.from('packing_lists').select('id, doc_no, pl_date, status, ship_to, packed_by, notes, clients(project_name), sales_orders(doc_no)').eq('id', params.id).single(),
+    supabase.from('packing_lists').select('id, doc_no, pl_date, status, ship_to, packed_by, notes, clients(project_name), sales_orders(doc_no, project_name, boq_projects(project_name), quotations(project_name, boq_projects(project_name)))').eq('id', params.id).single(),
     supabase.from('packing_list_items').select('sku, qty, colli, package_type, units_per_package, net_weight, gross_weight, length_cm, width_cm, height_cm, cbm, remarks, products(name, uom)').eq('packing_list_id', params.id).order('sort_order'),
   ]);
   if (!p) notFound();
   const client = one<{ project_name: string }>(p.clients);
-  const so = one<{ doc_no: string | null }>(p.sales_orders);
+  const so = one<{ doc_no: string | null; project_name: string | null; boq_projects: unknown; quotations: unknown }>(p.sales_orders);
+  const viaQuote = one<{ project_name: string | null; boq_projects: unknown }>(so?.quotations);
+  const project = so?.project_name || one<{ project_name: string }>(so?.boq_projects)?.project_name || one<{ project_name: string }>(viaQuote?.boq_projects)?.project_name || viaQuote?.project_name || '';
   const tQty = (items ?? []).reduce((s, i) => s + Number(i.qty), 0);
   const tNw = (items ?? []).reduce((s, i) => s + Number(i.net_weight), 0);
   const tGw = (items ?? []).reduce((s, i) => s + Number(i.gross_weight), 0);
@@ -26,6 +28,7 @@ export default async function PackingViewPage({ params }: { params: { id: string
       <DetailCards cards={[
         { icon: 'fi fi-rr-calendar', label: 'Tanggal', value: dateShort(p.pl_date) },
         { icon: 'fi fi-rr-shopping-cart', label: 'Sales Order', value: so?.doc_no ?? '-' },
+        { icon: 'fi fi-rr-briefcase', label: 'Nama Project', value: project || '-' },
         { icon: 'fi fi-rr-marker', label: 'Alamat Pengiriman', value: p.ship_to || '-' },
         { icon: 'fi fi-rr-user', label: 'Dikemas Oleh', value: p.packed_by || '-' },
       ]} />

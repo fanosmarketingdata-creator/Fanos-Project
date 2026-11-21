@@ -28,13 +28,14 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
   const [packedBy, setPackedBy] = useState('');
   const [notes, setNotes] = useState('');
   const [clientName, setClientName] = useState('');
+  const [projectName, setProjectName] = useState('');
   const [items, setItems] = useState<Item[]>([]);
   const [lines, setLines] = useState<Line[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
   async function pick(id: string) {
-    setSoId(id); setItems([]); setLines([]); setClientName('');
+    setSoId(id); setItems([]); setLines([]); setClientName(''); setProjectName('');
     if (!id) return;
     setLoading(true);
     try {
@@ -60,6 +61,7 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
       setLines(out);
       setShipTo(info.address);
       setClientName(info.client_name);
+      setProjectName(info.project_name);
     } catch (e) {
       toast('Item Sales Order gagal dimuat: ' + (e instanceof Error ? e.message : 'terjadi kendala pada server'), 'error');
     } finally {
@@ -107,6 +109,7 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
             <DocPicker value={soId} onChange={(v) => pick(v)} placeholder="Cari Sales Order..."
               options={salesOrders.map((s) => ({ value: s.id, label: `${s.doc_no || '-'} — ${s.client_name}`, sub: new Date(s.so_date).toLocaleDateString('id-ID') }))} />
           </FvField>
+          <AutoInfo label="Nama Project" value={projectName} placeholder="Terisi otomatis setelah Sales Order dipilih" icon="fi fi-rr-briefcase" />
           <AutoInfo label="Client" value={clientName} placeholder="Terisi otomatis setelah Sales Order dipilih" />
           <FvField label="Tanggal" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <FvField label="Dikemas Oleh"><input value={packedBy} onChange={(e) => setPackedBy(e.target.value)} placeholder="Nama petugas packing" /></FvField>

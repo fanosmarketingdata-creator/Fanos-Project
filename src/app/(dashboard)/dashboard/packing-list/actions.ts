@@ -26,7 +26,7 @@ const one = <T,>(v: unknown): T | null => (Array.isArray(v) ? (v[0] as T) : (v a
 export async function getPackingItems(soId: string) {
   const supabase = createClient();
   const [{ data: so }, itemsRes, { data: packed }] = await Promise.all([
-    supabase.from('sales_orders').select('id, clients(project_name, company, address, city)').eq('id', soId).single(),
+    supabase.from('sales_orders').select('id, project_name, clients(project_name, company, address, city), boq_projects(project_name), quotations(project_name, boq_projects(project_name))').eq('id', soId).single(),
     supabase.from('sales_order_items').select('sku, qty, sort_order, products(name, uom, package_type, units_per_package, net_weight, gross_weight, pkg_length_cm, pkg_width_cm, pkg_height_cm)').eq('sales_order_id', soId).order('sort_order'),
     supabase.from('packing_lists').select('packing_list_items(sku, qty)').eq('sales_order_id', soId),
   ]);
@@ -50,7 +50,12 @@ export async function getPackingItems(soId: string) {
     if (cur) cur.qty += Number(it.qty);
     else bySku.set(it.sku as string, { sku: it.sku as string, name: p?.name ?? '', uom: p?.uom ?? '', qty: Number(it.qty), pack: { package_type: p?.package_type || 'Carton', units_per_package: Number(p?.units_per_package) || 0, net_weight: Number(p?.net_weight) || 0, gross_weight: Number(p?.gross_weight) || 0, l: Number(p?.pkg_length_cm) || 0, w: Number(p?.pkg_width_cm) || 0, h: Number(p?.pkg_height_cm) || 0 } });
   });
+  // Project: milik SO sendiri, lalu BOQ-nya, lalu BOQ/project pada Quotation asalnya.
+  const soRow = so as unknown as { project_name?: string | null; boq_projects: unknown; quotations: unknown };
+  const viaQuote = one<{ project_name: string | null; boq_projects: unknown }>(soRow.quotations);
+  const project = soRow.project_name || one<{ project_name: string }>(soRow.boq_projects)?.project_name || one<{ project_name: string }>(viaQuote?.boq_projects)?.project_name || viaQuote?.project_name || '';
   return {
+    project_name: project,
     client_name: c?.project_name ?? '-',
     address: [c?.address, c?.city].filter(Boolean).join(', '),
     items: Array.from(bySku.values()).map((i) => ({ ...i, packed: done.get(i.sku) ?? 0, remaining: Math.max(0, i.qty - (done.get(i.sku) ?? 0)) })),

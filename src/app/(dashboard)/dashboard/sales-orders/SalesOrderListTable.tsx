@@ -20,6 +20,7 @@ export type SalesOrderRow = {
   status: string;
   total_amount: number;
   client_name: string;
+  project_name: string;
 };
 
 const statusBadge: Record<string, string> = {
@@ -41,7 +42,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
     if (!q) return initialRows;
-    return initialRows.filter((r) => r.client_name.toLowerCase().includes(q));
+    return initialRows.filter((r) => r.client_name.toLowerCase().includes(q) || r.project_name.toLowerCase().includes(q));
   }, [initialRows, search]);
 
   async function handleDelete() {
@@ -80,7 +81,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
       <div className="card-header">
         <h3><i className="fi fi-rr-shopping-cart" style={{ fontSize: 16, color: '#2563eb' }} /> Sales Orders</h3>
         <div className="flex-wrap">
-        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari client..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+        <div className="search-box"><span className="search-icon"><i className="fa-solid fa-search" /></span><input type="text" placeholder="Cari client atau project..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
         <SalesOrderExportButton ids={filtered.map((r) => r.id)} />
         <BulkImportButton title="Import Sales Order" fileName="template-import-sales-order" columns={SO_COLUMNS} run={importSalesOrders}
           notes={['Satu baris = satu item. Baris dengan SO No sama digabung menjadi satu Sales Order.', 'Sales Order lama hanya dapat ditimpa bila berstatus DRAFT; Sales Order baru selalu berstatus DRAFT.', 'Diskon, pajak, dan biaya tambahan tidak diimpor (SO lama tetap memakai yang sudah ada).']}
@@ -96,11 +97,12 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
       
 
       <div className="overflow-x-auto rounded-xl border border-slate-200 bg-white">
-        <table className="w-full min-w-[640px] text-left text-sm">
+        <table className="w-full min-w-[760px] text-left text-sm">
           <thead>
             <tr className="border-b border-slate-100 bg-slate-50 text-[11px] uppercase tracking-wide text-slate-500">
               <th className="px-4 py-3 font-semibold">Kode</th>
               <th className="px-4 py-3 font-semibold">Client</th>
+              <th className="px-4 py-3 font-semibold">Nama Project</th>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 font-semibold">Total</th>
               <th className="px-4 py-3 font-semibold">Status</th>
@@ -110,7 +112,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
           <tbody>
             {filtered.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-10 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-10 text-center text-slate-400">
                   Belum terdapat data Sales Order
                 </td>
               </tr>
@@ -119,6 +121,7 @@ export default function SalesOrderListTable({ initialRows }: { initialRows: Sale
               <tr key={r.id} onClick={(e) => { if ((e.target as HTMLElement).closest('a,button,input,select')) return; router.push(`/dashboard/sales-orders/${r.id}/view`); }} className="clickable-row border-b border-slate-50 last:border-0 hover:bg-slate-50/60">
                 <td className="whitespace-nowrap px-4 py-3 text-xs text-slate-500">{r.doc_no || '-'}</td>
                 <td className="px-4 py-3 font-medium text-slate-800">{r.client_name}</td>
+                <td className="px-4 py-3 text-slate-600">{r.project_name || '-'}</td>
                 <td className="px-4 py-3 text-slate-600">
                   {new Date(r.so_date).toLocaleDateString('id-ID', { day: '2-digit', month: 'short', year: 'numeric' })}
                 </td>
