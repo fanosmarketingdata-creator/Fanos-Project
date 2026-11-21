@@ -1,5 +1,6 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -115,7 +116,7 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
           </FvField>
           {mode === 'so' ? (
             <FvField label="Sales Order" required>
-              <SearchSelect
+              <DocPicker
                 value={soId}
                 onChange={pickSO}
                 options={salesOrders.map((so) => ({

@@ -1,10 +1,10 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import WarehouseField from '@/components/registry/WarehouseField';
 import { FvField } from '@/components/registry/RegistryModal';
 import { createPurchaseDelivery, getPOReceivable, type Receivable } from '../actions';
@@ -69,7 +69,7 @@ export default function NewReceiptForm({ pos, initialPo }: { pos: PO[]; initialP
           <FvField label="Delivery ID"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (GR-...)" /></FvField>
           <FvField label="Tanggal Terima" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <FvField label="Purchase Order" required>
-            <SearchSelect value={poId} onChange={pick} placeholder="Cari PO (status ORDERED)..."
+            <DocPicker value={poId} onChange={pick} placeholder="Cari PO (status ORDERED)..."
               options={pos.map((p) => ({ value: p.id, label: `${p.doc_no} — ${p.vendor}`, sub: new Date(p.po_date).toLocaleDateString('id-ID') }))} />
           </FvField>
           <WarehouseField label="Gudang Penerima" value={warehouseId} onChange={setWarehouseId} required />

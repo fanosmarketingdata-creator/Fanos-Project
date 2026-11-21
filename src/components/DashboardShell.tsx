@@ -177,6 +177,10 @@ function UserMenu({ profile, onLogout, navPos, onNavPos }: { profile: { id?: str
           </span>
           {showPresence && <span className="absolute bottom-0 right-0 h-2.5 w-2.5 rounded-full border-2 border-white bg-emerald-500" />}
         </span>
+        <span className="hdr-user-text" data-no-i18n>
+          <b>{profile.full_name}</b>
+          <small>{profile.email || profile.role}</small>
+        </span>
         <i className={`fi fi-rr-angle-small-down text-[10px] leading-none text-slate-400 transition-transform ${open ? 'rotate-180' : ''}`} />
       </button>
 
@@ -445,11 +449,13 @@ export default function DashboardShell({
           </svg>
         </button>
 
+        <div className="hdr-logo flex shrink-0 items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={LOGO_URL} alt="Fanos" className={`logo-light mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[48px] lg:self-center' : ''}`} />
         <img src="/logo-fanos-dark.png" alt="Fanos" className={`logo-dark mr-1 h-[20px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[48px] lg:self-center' : ''}`} />
+        </div>
 
-        <nav className={`hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-2 lg:w-full lg:flex-col lg:items-stretch lg:gap-0.5' : 'lg:justify-center'}`}>
+        <nav className={`hdr-nav hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-2 lg:w-full lg:flex-col lg:items-stretch lg:gap-0.5' : 'lg:justify-center'}`}>
 
           {visibleGroups.map((group) => {
             const groupActive = flatItems(group.items).some((it) => isActive(pathname, it.href));
@@ -527,6 +533,7 @@ export default function DashboardShell({
 
         <div className="flex-1 lg:hidden" />
 
+        <div className={`hdr-right flex shrink-0 items-center gap-2 ${vertical ? 'lg:contents' : ''}`}>
         {!isSuperuser && (
           <div className={`shrink-0 ${vertical ? 'lg:self-center' : ''}`}>
             <PresenceWidget meId={profile.id} vertical={vertical} />
@@ -536,6 +543,7 @@ export default function DashboardShell({
         <div className={`flex shrink-0 items-center gap-2 border-l border-slate-200 pl-3 ${vertical ? 'lg:w-full lg:flex-col lg:justify-center lg:gap-3 lg:border-l-0 lg:border-t lg:pl-0 lg:pt-3' : ''}`}>
           <AuditBell meId={profile.id} isSuperuser={isSuperuser} popClass={cornerPopClass(navPos)} />
           <UserMenu profile={profile} onLogout={handleLogout} navPos={navPos} onNavPos={setNavPos} />
+        </div>
         </div>
 
         {mobileOpen && (

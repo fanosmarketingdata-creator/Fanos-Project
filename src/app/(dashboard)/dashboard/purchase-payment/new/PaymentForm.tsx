@@ -1,12 +1,12 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
 import RichTextEditor from '@/components/RichTextEditor';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import RupiahInput from '@/components/ui/RupiahInput';
@@ -52,7 +52,7 @@ export default function PaymentForm({ invoices, preset }: { invoices: Inv[]; pre
     <DocFormShell title="New Purchase Payment" icon="fi fi-rr-wallet" backHref="/dashboard/purchase-payment" saving={saving} disabled={!invoiceId || over || amount + discount <= 0} onSave={handleSave}>
       <Sec title="Informasi Payment" icon="fi fi-rr-receipt">
         <div className="fv2-grid">
-          <FvField label="Purchase Invoice" required><SearchSelect value={invoiceId} onChange={setInvoiceId} options={options} placeholder="Cari invoice vendor..." /></FvField>
+          <FvField label="Purchase Invoice" required><DocPicker value={invoiceId} onChange={setInvoiceId} options={options} placeholder="Cari invoice vendor..." /></FvField>
           <AutoInfo label="Vendor" icon="fi fi-rr-truck-side" value={inv?.vendor} placeholder="Terisi otomatis setelah invoice dipilih" />
           <FvField label="Payment ID (PP)"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk autogenerate" /></FvField>
           <FvField label="Tanggal Payment" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>

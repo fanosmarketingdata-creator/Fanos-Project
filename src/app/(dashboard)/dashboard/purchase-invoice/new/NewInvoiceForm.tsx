@@ -1,10 +1,10 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { createPurchaseInvoice, getPOLinesForInvoice, type InvoiceLine } from '../actions';
 
@@ -74,7 +74,7 @@ export default function NewInvoiceForm({ pos, initialPo }: { pos: PO[]; initialP
           <FvField label="Invoice ID"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (PI-...)" /></FvField>
           <FvField label="No. Invoice Vendor"><input value={vendorInv} onChange={(e) => setVendorInv(e.target.value)} placeholder="Nomor faktur dari vendor" /></FvField>
           <FvField label="Purchase Order" required>
-            <SearchSelect value={poId} onChange={pick} placeholder="Cari PO..." options={pos.map((p) => ({ value: p.id, label: `${p.doc_no} — ${p.vendor}`, sub: p.status }))} />
+            <DocPicker value={poId} onChange={pick} placeholder="Cari PO..." options={pos.map((p) => ({ value: p.id, label: `${p.doc_no} — ${p.vendor}`, sub: p.status }))} />
           </FvField>
           <FvField label="Tanggal Invoice" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <FvField label="Jatuh Tempo"><input type="date" value={due} onChange={(e) => setDue(e.target.value)} /></FvField>

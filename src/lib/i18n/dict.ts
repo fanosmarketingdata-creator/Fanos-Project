@@ -62,6 +62,7 @@ const RULES: Rule[] = [
   [/^Apakah Anda yakin ingin menghapus (.+?) untuk$/, (m) => `Are you sure you want to delete the ${m[1]} for`],
   [/^Apakah Anda yakin ingin menghapus (PO|.+?) ke$/, (m) => `Are you sure you want to delete the ${m[1]} to`],
   [/^\?\s*Delivery Order\s+terkait akan turut terhapus\.$/, () => '? The related Delivery Orders will also be deleted.'],
+  [/^(\d+) data$/, (m) => `${m[1]} items`],
   [/^Tandai (.+?) ini sebagai (.+)\?$/, (m) => `Mark this ${m[1]} as ${m[2]}?`],
   [/^Tandai Sales Order (.+) sebagai (Verified|Completed)\?$/, (m) => `Mark Sales Order ${m[1]} as ${m[2]}?`],
   [/^Status gagal diubah:\s*(.*)$/, (m) => `Failed to change status: ${m[1]}`],

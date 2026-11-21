@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import WarehouseField from '@/components/registry/WarehouseField';
 import FvSelect from '@/components/registry/FvSelect';
 import { FvField } from '@/components/registry/RegistryModal';
@@ -74,7 +74,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
             <input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (RO-...)" />
           </FvField>
           <FvField label="Invoice" required>
-            <SearchSelect value={invoiceId} onChange={(v) => pick(v)} placeholder="Cari invoice..."
+            <DocPicker value={invoiceId} onChange={(v) => pick(v)} placeholder="Cari invoice..."
               options={invoices.map((i) => ({ value: i.id, label: `${i.doc_no || '-'} — ${i.client_name}`, sub: `${new Date(i.inv_date).toLocaleDateString('id-ID')} — ${rp(i.grand_total)}` }))} />
           </FvField>
           <AutoInfo label="Client" value={inv?.client_name} placeholder="Terisi otomatis setelah invoice dipilih" />

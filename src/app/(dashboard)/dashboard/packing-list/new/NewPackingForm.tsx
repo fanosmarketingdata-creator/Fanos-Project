@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import FvSelect from '@/components/registry/FvSelect';
 import { PACKAGE_TYPES, calcCbm, packageSummary } from '@/lib/packing';
@@ -104,7 +104,7 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
         <div className="fv2-grid">
           <FvField label="Packing List ID"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (PL-...)" /></FvField>
           <FvField label="Sales Order (VERIFIED)" required>
-            <SearchSelect value={soId} onChange={(v) => pick(v)} placeholder="Cari Sales Order..."
+            <DocPicker value={soId} onChange={(v) => pick(v)} placeholder="Cari Sales Order..."
               options={salesOrders.map((s) => ({ value: s.id, label: `${s.doc_no || '-'} — ${s.client_name}`, sub: new Date(s.so_date).toLocaleDateString('id-ID') }))} />
           </FvField>
           <AutoInfo label="Client" value={clientName} placeholder="Terisi otomatis setelah Sales Order dipilih" />

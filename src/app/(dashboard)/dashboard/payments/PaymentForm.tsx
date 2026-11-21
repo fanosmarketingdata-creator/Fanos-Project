@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import RupiahInput from '@/components/ui/RupiahInput';
@@ -75,7 +75,7 @@ export default function PaymentForm({ invoices, initial, presetInvoice }: { invo
       <Sec title="Informasi Payment" icon="fi fi-rr-receipt">
         <div className="fv2-grid">
           <FvField label="Invoice" required>
-            <SearchSelect value={invoiceId} onChange={(v) => setInvoiceId(v)} options={options} placeholder="Cari invoice..." disabled={!!initial} />
+            <DocPicker value={invoiceId} onChange={(v) => setInvoiceId(v)} options={options} placeholder="Cari invoice..." disabled={!!initial} />
           </FvField>
           <FvField label="Client">
             <input readOnly value={inv?.client_name ?? ''} placeholder="Terisi otomatis dari invoice" />

@@ -1,5 +1,6 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
 import RupiahInput from '@/components/ui/RupiahInput';
 import { useState } from 'react';
@@ -104,7 +105,7 @@ export default function POForm({
           </FvField>
           {!initial?.id && (
             <FvField label="Tarik dari Sales Order (opsional)">
-              <SearchSelect value={soId} onChange={pickSO} options={salesOrders.map((o) => ({ value: o.id, label: o.label }))} placeholder={salesOrders.length ? "Cari Sales Order..." : "Belum ada SO berstatus VERIFIED / ONGOING"} />
+              <DocPicker value={soId} onChange={pickSO} options={salesOrders.map((o) => ({ value: o.id, label: o.label }))} placeholder={salesOrders.length ? "Cari Sales Order..." : "Belum ada SO berstatus VERIFIED / ONGOING"} />
             </FvField>
           )}
           <FvField label="Tanggal PO" required>

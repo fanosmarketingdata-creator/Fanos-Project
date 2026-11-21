@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import WarehouseField from '@/components/registry/WarehouseField';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import { FvField } from '@/components/registry/RegistryModal';
@@ -102,12 +102,12 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
           <FvField label="Return ID"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (RI-...)" /></FvField>
           <FvField label="Credit Note ID"><input value={cnNo} onChange={(e) => setCnNo(e.target.value)} placeholder="Kosongkan untuk otomatis (CN-...)" /></FvField>
           <FvField label="Invoice" required>
-            <SearchSelect value={invoiceId} onChange={(v) => pickInvoice(v)} placeholder="Cari invoice..."
+            <DocPicker value={invoiceId} onChange={(v) => pickInvoice(v)} placeholder="Cari invoice..."
               options={invoices.map((i) => ({ value: i.id, label: `${i.doc_no || '-'} — ${i.client_name}`, sub: `${new Date(i.inv_date).toLocaleDateString('id-ID')} — Sisa ${rp(i.remaining)}` }))} />
           </FvField>
           <AutoInfo label="Client" value={inv?.client_name} placeholder="Terisi otomatis setelah invoice dipilih" />
           <FvField label="Dari Return Order">
-            <SearchSelect value={orderId} onChange={(v) => pickOrder(v || NONE)} placeholder="Tanpa Return Order (retur langsung)"
+            <DocPicker clearable title="Pilih Return Order" value={orderId} onChange={(v) => pickOrder(v || NONE)} placeholder="Tanpa Return Order (retur langsung)"
               options={[{ value: NONE, label: 'Tanpa Return Order (retur langsung)' }, ...orders.map((o) => ({ value: o.id, label: o.doc_no || '-', sub: new Date(o.return_date).toLocaleDateString('id-ID') }))]} disabled={!invoiceId} />
           </FvField>
           <FvField label="Tanggal Retur" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>

@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import DocFormShell, { Sec } from '@/components/registry/DocFormShell';
-import SearchSelect from '@/components/registry/SearchSelect';
 import SOEditPanel from '@/components/registry/SOEditPanel';
 import { FvField } from '@/components/registry/RegistryModal';
 import type { ProductOption } from '@/components/ProductPicker';
@@ -88,7 +88,8 @@ export default function NewInvoiceForm({ salesOrders, products }: { salesOrders:
             <input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk otomatis (INV-...)" />
           </FvField>
           <FvField label="Sales Order" required>
-            <SearchSelect
+            <DocPicker
+              title="Pilih Sales Order"
               value={soId}
               onChange={(v) => pickSO(v)}
               options={salesOrders.map((so) => ({

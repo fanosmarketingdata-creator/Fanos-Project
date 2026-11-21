@@ -1,11 +1,11 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import { useMemo, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import RowActions from '@/components/ui/RowActions';
 import Pagination, { usePaged } from '@/components/registry/Pagination';
 import { DetailModal, DvCard, FormModal, FvField } from '@/components/registry/RegistryModal';
-import SearchSelect from '@/components/registry/SearchSelect';
 import FinanceSelect from '@/components/registry/FinanceSelect';
 import RupiahInput from '@/components/ui/RupiahInput';
 import { useToast } from '@/components/Toast';
@@ -215,7 +215,7 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
             <div className="fv2-grid">
               {mode.type === 'apply' && (
                 <FvField label="Invoice" required>
-                  <SearchSelect value={invoiceId} placeholder="Cari invoice..." onChange={(v, o) => { setInvoiceId(v); const inv = invoices.find((i) => i.id === v); if (inv) setAmount(Math.min(inv.remaining, mode.row.amount - mode.row.applied - mode.row.refunded)); void o; }}
+                  <DocPicker value={invoiceId} placeholder="Cari invoice..." onChange={(v, o) => { setInvoiceId(v); const inv = invoices.find((i) => i.id === v); if (inv) setAmount(Math.min(inv.remaining, mode.row.amount - mode.row.applied - mode.row.refunded)); void o; }}
                     options={invoices.map((i) => ({ value: i.id, label: i.doc_no || '-', sub: `Sisa ${rp(i.remaining)}` }))} />
                 </FvField>
               )}

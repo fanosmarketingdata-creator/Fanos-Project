@@ -1,5 +1,6 @@
 'use client';
 
+import DocPicker from '@/components/registry/DocPicker';
 import RupiahInput from '@/components/ui/RupiahInput';
 import Select from '@/components/ui/Select';
 import { useState } from 'react';
@@ -133,7 +134,7 @@ export default function SalesOrderForm({
           </FvField>
           {mode === 'quotation' && !initial?.id && (
             <FvField label="Quotation" required>
-              <SearchSelect
+              <DocPicker
                 value={quotationId}
                 onChange={(v) => handlePickQuotation(v)}
                 options={quotations.map((q) => ({
