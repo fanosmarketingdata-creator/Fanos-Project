@@ -2,6 +2,8 @@ import { createClient } from '@/lib/supabase/server';
 import SalesOrderForm from '../SalesOrderForm';
 import { toQuoteOptions } from '@/lib/so-quotes';
 
+export const dynamic = 'force-dynamic';
+
 export default async function NewSalesOrderPage() {
   const supabase = createClient();
   const [{ data: clients }, { data: products }, { data: quotes }, { data: usedSO }] = await Promise.all([
@@ -10,9 +12,8 @@ export default async function NewSalesOrderPage() {
     supabase
         .from('quotations')
         .select('id, doc_no, status, total_amount, client_id, clients(project_name)')
-        .not('status', 'in', '(REJECTED,CANCELLED)')
-        .order('quote_date', { ascending: false }),
-      supabase.from('sales_orders').select('quotation_id, id').not('quotation_id', 'is', null),
+                .order('quote_date', { ascending: false }),
+      supabase.from('sales_orders').select('quotation_id, doc_no').not('quotation_id', 'is', null),
   ]);
 
   return (

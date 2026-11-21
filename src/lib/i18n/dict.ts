@@ -29,6 +29,7 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Sudah dipakai (.+) · (.+)$/, (m) => `Already used by ${m[1]} · ${m[2]}`],
   [/^Notifikasi terkirim ke (\d+) perangkat$/, (m) => `Notification sent to ${m[1]} device${m[1] === '1' ? '' : 's'}`],
   [/^membuat project$/, () => 'created the project'],
   [/^memperbarui data project$/, () => 'updated the project'],

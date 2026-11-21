@@ -138,7 +138,8 @@ export default function SalesOrderForm({
                 options={quotations.map((q) => ({
                   value: q.id,
                   label: `${q.doc_no} — ${q.client_name}`,
-                  sub: `${q.status} · Rp ${q.total_amount.toLocaleString('id-ID')}`,
+                  sub: q.blocked ? `${q.blocked} · ${q.status}` : `${q.status} · Rp ${q.total_amount.toLocaleString('id-ID')}`,
+                  disabled: !!q.blocked,
                 }))}
                 placeholder="Cari quotation..."
               />

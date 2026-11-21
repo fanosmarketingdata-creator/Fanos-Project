@@ -20,9 +20,8 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
       supabase
         .from('quotations')
         .select('id, doc_no, status, total_amount, client_id, clients(project_name)')
-        .not('status', 'in', '(REJECTED,CANCELLED)')
-        .order('quote_date', { ascending: false }),
-      supabase.from('sales_orders').select('quotation_id, id').not('quotation_id', 'is', null),
+                .order('quote_date', { ascending: false }),
+      supabase.from('sales_orders').select('quotation_id, doc_no').not('quotation_id', 'is', null),
     ]);
 
   if (!so) notFound();

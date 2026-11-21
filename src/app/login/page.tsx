@@ -7,6 +7,7 @@ import UpdateAnnouncementModal from '@/components/UpdateAnnouncementModal';
 import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
+import { emailRegistered } from '@/lib/login-actions';
 import WeatherWallpaper from '@/components/WeatherWallpaper';
 
 export default function LoginPage() {
@@ -19,6 +20,10 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [emailErr, setEmailErr] = useState('');
+  // Status kolom (hijau/merah) hanya muncul setelah tombol Masuk diklik.
+  const [emailSt, setEmailSt] = useState<'' | 'ok' | 'bad'>('');
+  const [passSt, setPassSt] = useState<'' | 'ok' | 'bad'>('');
   const [info, setInfo] = useState('');
 
   // Halaman login selalu tampil terang (tanpa dark mode); tema pengguna dipulihkan saat keluar.
@@ -37,26 +42,50 @@ export default function LoginPage() {
     }
   }, []);
 
+  const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
     if (loading) return;
     setError('');
+    setEmailErr('');
+    setEmailSt('');
+    setPassSt('');
 
-    if (!email.trim() || !password) {
-      setError('Email dan kata sandi wajib diisi.');
-      return;
-    }
+    const mail = email.trim();
+    // 1) Email dulu
+    if (!mail) { setEmailSt('bad'); setEmailErr('Email wajib diisi.'); return; }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { setEmailSt('bad'); setEmailErr('Format email tidak valid.'); return; }
 
     setLoading(true);
     try {
-      const { error: signInError } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      const known = await emailRegistered(mail);
+      if (!known) {
+        setEmailSt('bad');
+        setEmailErr('Email tidak terdaftar.');
+        setLoading(false);
+        return;
+      }
+      setEmailSt('ok');
+      await wait(350);
+
+      // 2) Lalu kata sandi
+      if (!password) {
+        setPassSt('bad');
+        setError('Kata sandi wajib diisi.');
+        setLoading(false);
+        return;
+      }
+      const { error: signInError } = await supabase.auth.signInWithPassword({ email: mail, password });
       if (signInError) {
-        setError('Email atau kata sandi tidak sesuai. Mohon periksa kembali.');
+        setPassSt('bad');
+        setError('Kata sandi salah. Mohon periksa kembali.');
         setPassword('');
         setLoading(false);
         return;
       }
-      // Overlay tetap tampil sampai halaman dashboard terbuka.
+      setPassSt('ok');
+      // Tombol tetap berputar sampai dashboard terbuka.
       router.replace('/dashboard');
       router.refresh();
     } catch {
@@ -69,14 +98,6 @@ export default function LoginPage() {
     <div className="login-page login-split">
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
-      {loading && (
-        <div className="login-overlay">
-          <div className="spinner" />
-          <p>Memverifikasi...</p>
-          <span className="sub-text">Mohon menunggu</span>
-        </div>
-      )}
-
       <div className="login-right">
         <WeatherWallpaper lang={lang === 'id' ? 'id' : 'en'} />
       </div>
@@ -100,12 +121,13 @@ export default function LoginPage() {
                 id="email"
                 placeholder=" "
                 value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className={error ? 'warning' : ''}
+                onChange={(e) => { setEmail(e.target.value); setEmailSt(''); setEmailErr(''); }}
+                className={emailSt === 'ok' ? 'valid' : emailSt === 'bad' ? 'warning' : ''}
                 autoComplete="username"
                 autoFocus
               />
               <label htmlFor="email">Email</label>
+              <span className={`warning-text${emailErr ? ' show' : ''}`}>{emailErr}</span>
             </div>
 
             <div className="login-required">
@@ -115,8 +137,8 @@ export default function LoginPage() {
                 data-has-toggle="1"
                 placeholder=" "
                 value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className={error ? 'warning' : ''}
+                onChange={(e) => { setPassword(e.target.value); setPassSt(''); setError(''); }}
+                className={passSt === 'ok' ? 'valid' : passSt === 'bad' ? 'warning' : ''}
                 autoComplete="current-password"
               />
               <label htmlFor="password">Kata Sandi</label>
@@ -130,8 +152,9 @@ export default function LoginPage() {
               <span className={`warning-text${error ? ' show' : ''}`}>{error}</span>
             </div>
 
-            <button type="submit" className="login-btn" disabled={loading}>
-              {loading ? 'Memverifikasi...' : 'Masuk'}
+            <button type="submit" className={`login-btn${loading ? ' is-loading' : ''}`} disabled={loading} aria-busy={loading} aria-label={loading ? 'Memverifikasi...' : undefined}>
+              <span className="login-btn-label">Masuk</span>
+              <span className="login-btn-spin" aria-hidden="true" />
             </button>
           </form>
           <div data-no-i18n style={{ marginTop: 14, textAlign: 'center', fontSize: 12 }}>
