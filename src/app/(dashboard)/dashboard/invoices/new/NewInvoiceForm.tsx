@@ -1,5 +1,6 @@
 'use client';
 
+import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -98,9 +99,7 @@ export default function NewInvoiceForm({ salesOrders, products }: { salesOrders:
               placeholder="Pilih Sales Order yang belum ditagihkan"
             />
           </FvField>
-          <FvField label="Client">
-            <input readOnly value={clientName} placeholder="Terisi otomatis dari Sales Order" />
-          </FvField>
+          <AutoInfo label="Client" value={clientName} placeholder="Terisi otomatis setelah Sales Order dipilih" />
           <FvField label="Tanggal Invoice" required>
             <input type="date" value={invDate} onChange={(e) => setInvDate(e.target.value)} />
           </FvField>

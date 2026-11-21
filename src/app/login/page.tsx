@@ -21,6 +21,7 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [emailErr, setEmailErr] = useState('');
+  const [phase, setPhase] = useState('');
   // Status kolom (hijau/merah) hanya muncul setelah tombol Masuk diklik.
   const [emailSt, setEmailSt] = useState<'' | 'ok' | 'bad'>('');
   const [passSt, setPassSt] = useState<'' | 'ok' | 'bad'>('');
@@ -58,38 +59,49 @@ export default function LoginPage() {
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { setEmailSt('bad'); setEmailErr('Format email tidak valid.'); return; }
 
     setLoading(true);
+    setPhase('Memeriksa email...');
+    await wait(450);
     try {
       const known = await emailRegistered(mail);
       if (!known) {
         setEmailSt('bad');
         setEmailErr('Email tidak terdaftar.');
+        setPhase('');
         setLoading(false);
         return;
       }
       setEmailSt('ok');
-      await wait(350);
+      setPhase('Email benar');
+      await wait(700);
 
       // 2) Lalu kata sandi
       if (!password) {
         setPassSt('bad');
         setError('Kata sandi wajib diisi.');
+        setPhase('');
         setLoading(false);
         return;
       }
+      setPhase('Memeriksa kata sandi...');
       const { error: signInError } = await supabase.auth.signInWithPassword({ email: mail, password });
       if (signInError) {
         setPassSt('bad');
         setError('Kata sandi salah. Mohon periksa kembali.');
         setPassword('');
+        setPhase('');
         setLoading(false);
         return;
       }
       setPassSt('ok');
+      setPhase('Kata sandi benar');
+      await wait(700);
+      setPhase('Membuka dashboard...');
       // Tombol tetap berputar sampai dashboard terbuka.
       router.replace('/dashboard');
       router.refresh();
     } catch {
       setError('Tidak dapat terhubung ke server. Mohon coba kembali beberapa saat lagi.');
+      setPhase('');
       setLoading(false);
     }
   }
@@ -156,6 +168,14 @@ export default function LoginPage() {
               <span className="login-btn-label">Masuk</span>
               <span className="login-btn-spin" aria-hidden="true" />
             </button>
+            <div className={`login-status${phase ? ' show' : ''}`} role="status" aria-live="polite">
+              {phase && (
+                <span key={phase} className="login-status-item">
+                  {phase.endsWith('benar') ? <i className="fi fi-rr-check-circle ok" /> : <span className="login-status-dots" aria-hidden="true"><b /><b /><b /></span>}
+                  {phase}
+                </span>
+              )}
+            </div>
           </form>
           <div data-no-i18n style={{ marginTop: 14, textAlign: 'center', fontSize: 12 }}>
             <button type="button" onClick={() => setLang('en')} style={{ fontWeight: lang === 'en' ? 700 : 400, opacity: lang === 'en' ? 1 : 0.7 }}>English</button>

@@ -1,5 +1,6 @@
 'use client';
 
+import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -106,7 +107,7 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
             <SearchSelect value={soId} onChange={(v) => pick(v)} placeholder="Cari Sales Order..."
               options={salesOrders.map((s) => ({ value: s.id, label: `${s.doc_no || '-'} — ${s.client_name}`, sub: new Date(s.so_date).toLocaleDateString('id-ID') }))} />
           </FvField>
-          <FvField label="Client"><input readOnly value={clientName} placeholder="Terisi otomatis dari Sales Order" /></FvField>
+          <AutoInfo label="Client" value={clientName} placeholder="Terisi otomatis setelah Sales Order dipilih" />
           <FvField label="Tanggal" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <FvField label="Dikemas Oleh"><input value={packedBy} onChange={(e) => setPackedBy(e.target.value)} placeholder="Nama petugas packing" /></FvField>
         </div>

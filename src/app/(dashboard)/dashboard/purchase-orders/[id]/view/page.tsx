@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { richToPlain } from '@/lib/rich-text';
 import { createClient } from '@/lib/supabase/server';
 import DetailShell from '@/components/registry/DetailShell';
 import { DetailTop, DetailCards, DetailTableBlock, DetailSummary } from '@/components/registry/DocDetail';
@@ -21,7 +22,7 @@ export default async function POViewPage({ params }: { params: { id: string } })
       <DetailCards cards={[
         { icon: 'fi fi-rr-calendar', label: 'Tanggal PO', value: dateShort(po.po_date) },
         { icon: 'fi fi-rr-truck-side', label: 'Vendor', value: vendor?.company ?? '-' },
-        { icon: 'fi fi-rr-comment', label: 'Catatan', value: po.notes || '-' },
+        { icon: 'fi fi-rr-comment', label: 'Catatan', value: richToPlain(po.notes) || '-' },
       ]} />
       <DetailTableBlock t={{
         title: 'Daftar Item',

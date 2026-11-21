@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/RichTextEditor';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -136,9 +137,11 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
             </FvField>
           )}
           <WarehouseField label="Gudang Asal Barang" value={warehouseId} onChange={setWarehouseId} required />
-          <FvField label="Catatan">
-            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan pengiriman (opsional)" />
-          </FvField>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <FvField label="Catatan">
+              <RichTextEditor value={notes} onChange={setNotes} minHeight={100} />
+            </FvField>
+          </div>
         </div>
       </Sec>
 

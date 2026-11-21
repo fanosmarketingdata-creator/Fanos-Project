@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { richToPlain } from '@/lib/rich-text';
 import { createClient } from '@/lib/supabase/server';
 import DetailShell from '@/components/registry/DetailShell';
 import { DetailTop, DetailCards, DetailTableBlock } from '@/components/registry/DocDetail';
@@ -28,7 +29,7 @@ export default async function DeliveryOrderDetailPage({ params }: { params: { id
         { icon: 'fi fi-rr-calendar', label: 'Tanggal Pengiriman', value: dateShort(d.do_date) },
         { icon: 'fi fi-rr-marker', label: 'Alamat Pengiriman', value: [client?.address, client?.city].filter(Boolean).join(', ') || '-' },
         { icon: 'fi fi-rr-shopping-cart', label: 'Sales Order', value: so?.doc_no ?? '-' },
-        { icon: 'fi fi-rr-comment', label: 'Catatan', value: d.notes || '-' },
+        { icon: 'fi fi-rr-comment', label: 'Catatan', value: richToPlain(d.notes) || '-' },
       ]} />
       <DetailTableBlock t={{
         title: 'Daftar Item',

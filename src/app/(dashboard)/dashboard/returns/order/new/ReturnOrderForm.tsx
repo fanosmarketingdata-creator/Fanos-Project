@@ -1,5 +1,6 @@
 'use client';
 
+import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -76,7 +77,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
             <SearchSelect value={invoiceId} onChange={(v) => pick(v)} placeholder="Cari invoice..."
               options={invoices.map((i) => ({ value: i.id, label: `${i.doc_no || '-'} — ${i.client_name}`, sub: `${new Date(i.inv_date).toLocaleDateString('id-ID')} — ${rp(i.grand_total)}` }))} />
           </FvField>
-          <FvField label="Client"><input readOnly value={inv?.client_name ?? ''} placeholder="Terisi otomatis dari invoice" /></FvField>
+          <AutoInfo label="Client" value={inv?.client_name} placeholder="Terisi otomatis setelah invoice dipilih" />
           <FvField label="Tanggal Retur" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <WarehouseField label="Gudang Tujuan" value={warehouseId} onChange={setWarehouseId} required />
         </div>

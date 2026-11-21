@@ -1,5 +1,7 @@
 'use client';
 
+import AutoInfo from '@/components/registry/AutoInfo';
+import RichTextEditor from '@/components/RichTextEditor';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -51,7 +53,7 @@ export default function PaymentForm({ invoices, preset }: { invoices: Inv[]; pre
       <Sec title="Informasi Payment" icon="fi fi-rr-receipt">
         <div className="fv2-grid">
           <FvField label="Purchase Invoice" required><SearchSelect value={invoiceId} onChange={setInvoiceId} options={options} placeholder="Cari invoice vendor..." /></FvField>
-          <FvField label="Vendor"><input readOnly value={inv?.vendor ?? ''} placeholder="Terisi otomatis dari invoice" /></FvField>
+          <AutoInfo label="Vendor" icon="fi fi-rr-truck-side" value={inv?.vendor} placeholder="Terisi otomatis setelah invoice dipilih" />
           <FvField label="Payment ID (PP)"><input value={docNo} onChange={(e) => setDocNo(e.target.value)} placeholder="Kosongkan untuk autogenerate" /></FvField>
           <FvField label="Tanggal Payment" required><input type="date" value={date} onChange={(e) => setDate(e.target.value)} /></FvField>
           <FvField label="Metode Pembayaran"><FinanceSelect kind="payment_method" value={method} onChange={setMethod} /></FvField>
@@ -64,7 +66,9 @@ export default function PaymentForm({ invoices, preset }: { invoices: Inv[]; pre
           <FvField label="Jumlah Payment" required><RupiahInput value={amount} onValue={setAmount} /></FvField>
           <FvField label="Total Discount"><RupiahInput value={discount} onValue={setDiscount} /></FvField>
         </div>
-        <div style={{ marginTop: 14 }}><FvField label="Catatan"><input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Opsional" /></FvField></div>
+        <div style={{ marginTop: 14 }}><FvField label="Catatan">
+            <RichTextEditor value={notes} onChange={setNotes} minHeight={100} />
+          </FvField></div>
       </Sec>
       <Sec title="Summary" icon="fi fi-rr-calculator">
         <div className="fv2-summary">

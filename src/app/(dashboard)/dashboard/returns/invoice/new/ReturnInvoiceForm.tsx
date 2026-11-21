@@ -1,5 +1,6 @@
 'use client';
 
+import AutoInfo from '@/components/registry/AutoInfo';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -104,7 +105,7 @@ export default function ReturnInvoiceForm({ invoices }: { invoices: InvoiceOptio
             <SearchSelect value={invoiceId} onChange={(v) => pickInvoice(v)} placeholder="Cari invoice..."
               options={invoices.map((i) => ({ value: i.id, label: `${i.doc_no || '-'} — ${i.client_name}`, sub: `${new Date(i.inv_date).toLocaleDateString('id-ID')} — Sisa ${rp(i.remaining)}` }))} />
           </FvField>
-          <FvField label="Client"><input readOnly value={inv?.client_name ?? ''} placeholder="Terisi otomatis dari invoice" /></FvField>
+          <AutoInfo label="Client" value={inv?.client_name} placeholder="Terisi otomatis setelah invoice dipilih" />
           <FvField label="Dari Return Order">
             <SearchSelect value={orderId} onChange={(v) => pickOrder(v || NONE)} placeholder="Tanpa Return Order (retur langsung)"
               options={[{ value: NONE, label: 'Tanpa Return Order (retur langsung)' }, ...orders.map((o) => ({ value: o.id, label: o.doc_no || '-', sub: new Date(o.return_date).toLocaleDateString('id-ID') }))]} disabled={!invoiceId} />

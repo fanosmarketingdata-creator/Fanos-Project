@@ -162,15 +162,12 @@ export default function SalesOrderForm({
               <span className="so-client-label">Client</span>
               {clients.find((c) => c.id === clientId) ? (
                 <strong>{clients.find((c) => c.id === clientId)?.project_name}</strong>
-              ) : (
-                <em>Terisi otomatis setelah Quotation dipilih</em>
-              )}
+              ) : null}
             </div>
           )}
           <div style={{ gridColumn: '1 / -1' }}>
             <FvField label="Catatan Umum">
               <RichTextEditor value={globalNotes} onChange={setGlobalNotes} minHeight={110} />
-              <span className="so-notes-hint">Tarik sudut kanan bawah kotak untuk mengatur tinggi. Format ikut tampil saat dicetak.</span>
             </FvField>
           </div>
         </div>

@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/RichTextEditor';
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
@@ -107,10 +108,10 @@ export default function PaymentForm({ invoices, initial, presetInvoice }: { invo
           </FvField>
         </div>
         <div style={{ marginTop: 14 }}>
-          <FvField label="Catatan">
-            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan (opsional)" />
-          </FvField>
-        </div>
+            <FvField label="Catatan">
+              <RichTextEditor value={notes} onChange={setNotes} minHeight={100} />
+            </FvField>
+          </div>
       </Sec>
 
       <Sec title="Summary" icon="fi fi-rr-calculator">

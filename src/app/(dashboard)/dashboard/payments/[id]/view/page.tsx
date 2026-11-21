@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { richToPlain } from '@/lib/rich-text';
 import { createClient } from '@/lib/supabase/server';
 import DetailShell from '@/components/registry/DetailShell';
 import { DetailTop, DetailCards, DetailSummary } from '@/components/registry/DocDetail';
@@ -32,7 +33,7 @@ export default async function PaymentViewPage({ params }: { params: { id: string
         { label: 'Total Discount', value: `- ${rp(p.discount)}`, kind: 'discount' },
         { label: 'Owing Invoice Saat Ini', value: rp(inv?.remaining), kind: 'grand' },
       ]} />
-      {p.notes && <p style={{ marginTop: 12, fontSize: 12, color: '#64748b' }}>Catatan: {p.notes}</p>}
+      {p.notes && <p style={{ marginTop: 12, fontSize: 12, color: '#64748b', whiteSpace: 'pre-line' }}>Catatan: {richToPlain(p.notes)}</p>}
     </DetailShell>
   );
 }

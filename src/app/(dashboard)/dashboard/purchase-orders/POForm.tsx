@@ -1,5 +1,6 @@
 'use client';
 
+import RichTextEditor from '@/components/RichTextEditor';
 import RupiahInput from '@/components/ui/RupiahInput';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -109,9 +110,11 @@ export default function POForm({
           <FvField label="Tanggal PO" required>
             <input type="date" value={poDate} onChange={(e) => setPoDate(e.target.value)} />
           </FvField>
-          <FvField label="Catatan">
-            <input value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Catatan pesanan" />
-          </FvField>
+          <div style={{ gridColumn: '1 / -1' }}>
+            <FvField label="Catatan">
+              <RichTextEditor value={notes} onChange={setNotes} minHeight={100} />
+            </FvField>
+          </div>
         </div>
       </Sec>
 

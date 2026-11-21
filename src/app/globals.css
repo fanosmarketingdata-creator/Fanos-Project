@@ -916,7 +916,7 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 }
 .login-card .login-btn.is-loading { width: 50px; border-radius: 25px; opacity: 1; cursor: progress; transform: none; }
 .login-card .login-btn.is-loading .login-btn-label { opacity: 0; transform: scale(.6); }
-.login-card .login-btn.is-loading .login-btn-spin { opacity: 1; transform: scale(1); animation: login-spin .8s linear infinite .45s; }
+.login-card .login-btn.is-loading .login-btn-spin { opacity: 1; transform: scale(1); animation: login-btn-rot .8s linear infinite .45s; }
 @media (prefers-reduced-motion: reduce) { .login-card .login-btn, .login-card .login-btn-label, .login-card .login-btn-spin { transition-duration: .01s; transition-delay: 0s; } }
 
 /* Hanya border isian: hijau jika benar, merah jika salah (latar tetap kaca) */
@@ -925,3 +925,16 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 .login-card .login-required input.warning,
 .login-card .login-required input.warning:focus { border-color: #f87171 !important; background: rgba(255, 255, 255, .14) !important; box-shadow: none !important; }
 .login-card .login-required input.valid + label { color: #fff; }
+
+/* Keterangan proses login (memeriksa email, email benar, dst.) */
+.login-status { min-height: 26px; margin-top: 12px; display: flex; justify-content: center; font-size: 13px; font-weight: 500; color: #fff; text-shadow: 0 1px 8px rgba(0, 0, 0, .45); }
+.login-status-item { display: inline-flex; align-items: center; gap: 8px; animation: login-status-in .35s ease both; }
+.login-status-item i.ok { color: #4ade80; font-size: 16px; display: inline-flex; animation: login-pop .4s cubic-bezier(.3, 1.6, .5, 1) both; }
+.login-status-dots { display: inline-flex; gap: 3px; }
+.login-status-dots b { width: 5px; height: 5px; border-radius: 50%; background: #fff; animation: login-dot 1s ease-in-out infinite; }
+.login-status-dots b:nth-child(2) { animation-delay: .15s; }
+.login-status-dots b:nth-child(3) { animation-delay: .3s; }
+@keyframes login-dot { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@keyframes login-status-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@keyframes login-pop { from { transform: scale(.3); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+@keyframes login-btn-rot { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
