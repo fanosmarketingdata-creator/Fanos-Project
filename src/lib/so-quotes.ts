@@ -1,6 +1,6 @@
 // Opsi Quotation untuk form Sales Order.
-// Quotation yang sudah dipakai Sales Order lain (atau ditolak/dibatalkan) tetap TAMPIL tetapi tidak
-// bisa dipilih, lengkap dengan alasannya, supaya jelas kenapa tidak bisa dipakai lagi.
+// Quotation yang sudah dipakai Sales Order lain (atau ditolak/dibatalkan) DISEMBUNYIKAN dari dropdown.
+// Begitu Sales Order-nya dihapus, quotation otomatis muncul lagi (dihitung ulang setiap form dibuka).
 export type QuoteOption = { id: string; doc_no: string; client_name: string; total_amount: number; status: string; blocked?: string };
 
 export function toQuoteOptions(
@@ -19,5 +19,7 @@ export function toQuoteOptions(
         else if (q.status === 'REJECTED' || q.status === 'CANCELLED') blocked = q.status;
       }
       return { id: q.id, doc_no: q.doc_no, client_name: c?.project_name ?? '', total_amount: Number(q.total_amount) || 0, status: q.status, blocked };
-    });
+
+    })
+    .filter((o) => !o.blocked);
 }

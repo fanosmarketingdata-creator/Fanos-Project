@@ -1,6 +1,7 @@
 import { COMPANY } from '@/lib/company';
 
 import BankInfo from '@/components/BankInfo';
+import { isRich, plainToHtml, sanitizeHtml, RT_MARK } from '@/lib/rich-text';
 
 export type PrintParty = { label: string; lines: string[] };
 export type PrintColumn = { key: string; label: string; align?: 'left' | 'right' | 'center'; width?: string };
@@ -89,9 +90,17 @@ export default function PrintDocument({ title, meta, parties, columns, rows, tot
       {/* Catatan & total */}
       <div className="mt-2 grid grid-cols-[1fr_auto] gap-3">
         <div className="text-[10px]">
-          {(notes ?? []).map((n, i) => (
-            <div key={i}>{n}</div>
-          ))}
+          {(notes ?? []).map((n, i) => {
+            // Catatan dokumen ditampilkan sebagai kotak di bawah judul "Catatan:".
+            const m = /^Catatan:\s*([\s\S]*)$/.exec(n);
+            if (!m) return <div key={i}>{n}</div>;
+            return (
+              <div key={i} className="break-inside-avoid">
+                <div className="font-semibold">Catatan:</div>
+                <div data-no-i18n className="rt-view mt-0.5 border border-black px-2 py-1.5 leading-snug" dangerouslySetInnerHTML={{ __html: isRich(m[1]) ? sanitizeHtml(m[1].slice(RT_MARK.length)) : plainToHtml(m[1]) }} />
+              </div>
+            );
+          })}
           <BankInfo />
         </div>
         {totals && totals.length > 0 && (

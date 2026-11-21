@@ -50,3 +50,15 @@ export function valueToHtml(v: string, vars: Record<string, string> = {}): strin
   for (const [k, val] of Object.entries(vars)) html = html.split(`[${k}]`).join(escapeHtml(val));
   return html;
 }
+
+// Ubah nilai teks kaya (HTML) menjadi teks biasa berbaris-baris (untuk tampilan ringkas).
+export function richToPlain(v: string | null | undefined): string {
+  const s = v ?? '';
+  if (!isRich(s)) return s;
+  return sanitizeHtml(s.slice(RT_MARK.length))
+    .replace(/<li[^>]*>/gi, '• ')
+    .replace(/<\/(p|div|li|ul|ol)>|<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&')
+    .replace(/\n{3,}/g, '\n\n').trim();
+}

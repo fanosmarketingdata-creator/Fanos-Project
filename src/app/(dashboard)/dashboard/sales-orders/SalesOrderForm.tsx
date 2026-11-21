@@ -7,6 +7,7 @@ import { useRouter } from 'next/navigation';
 import { useToast } from '@/components/Toast';
 import { ProductPickButton } from '@/components/registry/ProductPickerModal';
 import DocFormShell, { Sec, TotalsBox } from '@/components/registry/DocFormShell';
+import RichTextEditor from '@/components/RichTextEditor';
 import SearchSelect from '@/components/registry/SearchSelect';
 import { FvField } from '@/components/registry/RegistryModal';
 import { type ProductOption } from '@/components/ProductPicker';
@@ -158,7 +159,7 @@ export default function SalesOrderForm({
             )}
           </FvField>
           <FvField label="Catatan Umum">
-            <input value={globalNotes} onChange={(e) => setGlobalNotes(e.target.value)} placeholder="Catatan untuk seluruh pesanan" />
+            <RichTextEditor value={globalNotes} onChange={setGlobalNotes} minHeight={90} />
           </FvField>
         </div>
       </Sec>

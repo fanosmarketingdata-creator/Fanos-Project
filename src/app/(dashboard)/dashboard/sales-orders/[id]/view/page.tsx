@@ -1,3 +1,4 @@
+import { richToPlain } from '@/lib/rich-text';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import DetailShell from '@/components/registry/DetailShell';
@@ -24,7 +25,7 @@ export default async function SalesOrderViewPage({ params }: { params: { id: str
         { icon: 'fi fi-rr-calendar', label: 'Tanggal SO', value: dateShort(so.so_date) },
         { icon: 'fi fi-rr-user', label: 'Client', value: client?.project_name ?? '-' },
         { icon: 'fi fi-rr-link', label: 'Sumber', value: src },
-        { icon: 'fi fi-rr-comment', label: 'Catatan Umum', value: so.global_notes || '-' },
+        { icon: 'fi fi-rr-comment', label: 'Catatan Umum', value: richToPlain(so.global_notes) || '-' },
       ]} />
       <DetailTableBlock t={{
         title: 'Daftar Item',
