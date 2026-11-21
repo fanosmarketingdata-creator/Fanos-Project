@@ -463,8 +463,8 @@ export default function DashboardShell({
               groupActive
                 ? 'bg-gradient-to-br from-brand-500 to-brand-600 text-white shadow-md shadow-brand-500/30'
                 : openId === group.id
-                  ? 'bg-slate-100 text-blue-600'
-                  : 'text-slate-600 hover:bg-slate-100 hover:text-blue-600'
+                  ? 'bg-brand-50 text-brand-500'
+                  : 'text-slate-600 hover:bg-brand-50 hover:text-brand-500'
             }`;
 
             if (group.direct) {
