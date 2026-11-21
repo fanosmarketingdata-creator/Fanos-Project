@@ -10,7 +10,7 @@ export default async function SalesOrderPrintPage({ params }: { params: { id: st
   const [{ data: so }, { data: items }] = await Promise.all([
     supabase
       .from('sales_orders')
-      .select('id, doc_no, so_date, discounts, charges, global_notes, quotation_id, boq_project_id, clients(project_name, company, contact_name, address, city, phone)')
+      .select('*, clients(project_name, company, contact_name, address, city, phone)')
       .eq('id', params.id)
       .single(),
     supabase
@@ -21,7 +21,7 @@ export default async function SalesOrderPrintPage({ params }: { params: { id: st
   ]);
   if (!so) notFound();
 
-  // Project: dari BOQ asal SO, atau dari Quotation asal SO (SO manual tidak punya project).
+  // Project: dari BOQ asal SO, atau dari Quotation asal SO (SO manual: project yang diisi di SO).
   let projName = '';
   let projLocation = '';
   type Proj = { name: string | null; location: string | null };
@@ -41,6 +41,12 @@ export default async function SalesOrderPrintPage({ params }: { params: { id: st
     const pr = await loadProj(q?.project_id);
     projName = pr?.name || q?.project_name || '';
     projLocation = pr?.location || '';
+  }
+  if (!projName) {
+    const sx = so as { project_id?: string | null; project_name?: string | null };
+    const pr = await loadProj(sx.project_id);
+    projName = pr?.name || sx.project_name || '';
+    projLocation = projLocation || pr?.location || '';
   }
   const cl = one<PrintClient>(so.clients);
   const toLines = [

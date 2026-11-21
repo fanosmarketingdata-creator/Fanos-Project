@@ -9,7 +9,7 @@ import { one } from '@/lib/print-helpers';
 export default async function SalesOrderViewPage({ params }: { params: { id: string } }) {
   const supabase = createClient();
   const [{ data: so }, { data: items }] = await Promise.all([
-    supabase.from('sales_orders').select('id, doc_no, so_date, status, discounts, charges, global_notes, source_type, clients(project_name)').eq('id', params.id).single(),
+    supabase.from('sales_orders').select('*, clients(project_name)').eq('id', params.id).single(),
     supabase.from('sales_order_items').select('sku, qty, qty_shipped, unit_price, total, notes, products(name)').eq('sales_order_id', params.id).order('sort_order'),
   ]);
   if (!so) notFound();
@@ -23,6 +23,7 @@ export default async function SalesOrderViewPage({ params }: { params: { id: str
       <DetailTop id={so.doc_no ?? 'Sales Order'} title={client?.project_name ?? '-'} badge={so.status} amountLabel="Total" amount={`Rp ${total.toLocaleString('id-ID')}`} />
       <DetailCards cards={[
         { icon: 'fi fi-rr-calendar', label: 'Tanggal SO', value: dateShort(so.so_date) },
+        { icon: 'fi fi-rr-briefcase', label: 'Project', value: (so as { project_name?: string | null }).project_name || '-' },
         { icon: 'fi fi-rr-user', label: 'Client', value: client?.project_name ?? '-' },
         { icon: 'fi fi-rr-link', label: 'Sumber', value: src },
         { icon: 'fi fi-rr-comment', label: 'Catatan Umum', value: richToPlain(so.global_notes) || '-' },

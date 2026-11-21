@@ -1,5 +1,6 @@
 'use client';
 
+import ProjectClientFields from '@/components/registry/ProjectClientFields';
 import DocPicker from '@/components/registry/DocPicker';
 import RupiahInput from '@/components/ui/RupiahInput';
 import Select from '@/components/ui/Select';
@@ -44,6 +45,7 @@ export default function SalesOrderForm({
   const [soDate, setSoDate] = useState(initial?.so_date ?? new Date().toISOString().split('T')[0]);
   const [quotationId, setQuotationId] = useState(initial?.quotation_id ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
+  const [projectName, setProjectName] = useState(initial?.project_name ?? '');
   const [globalNotes, setGlobalNotes] = useState(initial?.global_notes ?? '');
   const [items, setItems] = useState<SOItemInput[]>(initial?.items?.length ? initial.items : [emptyItem()]);
   const [discounts, setDiscounts] = useState<DiscountLine[]>(initial?.discounts ?? []);
@@ -57,6 +59,7 @@ export default function SalesOrderForm({
       const r = await getQuotationForSO(id);
       if ('error' in r) return toast(r.error ?? 'Quotation tidak ditemukan', 'error');
       setClientId(r.clientId);
+      setProjectName(r.projectName ?? '');
       setItems(r.items.length ? r.items.map((it) => ({ ...it, notes: '' })) : [emptyItem()]);
       setDiscounts(r.discounts);
       setCharges(r.charges);
@@ -92,6 +95,7 @@ export default function SalesOrderForm({
       so_date: soDate,
       quotation_id: mode === 'quotation' ? quotationId : null,
       client_id: clientId,
+      project_name: mode === 'manual' ? projectName : undefined,
       discounts,
       charges,
       global_notes: globalNotes,
@@ -148,14 +152,14 @@ export default function SalesOrderForm({
             </FvField>
           )}
           {mode !== 'quotation' && (
-            <FvField label="Client" required>
-              <SearchSelect
-                value={clientId}
-                onChange={(v) => setClientId(v)}
-                options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
-                placeholder="Cari client..."
-              />
-            </FvField>
+            <ProjectClientFields projectName={projectName} clientId={clientId} onProjectName={setProjectName} onClientId={setClientId} fallbackClients={clients} />
+          )}
+          {mode === 'quotation' && (
+            <div className="so-client-auto" style={{ gridColumn: '1 / -1' }}>
+              <i className="fi fi-rr-briefcase" />
+              <span className="so-client-label">Project</span>
+              {projectName ? <strong>{projectName}</strong> : null}
+            </div>
           )}
           {mode === 'quotation' && (
             <div className="so-client-auto" style={{ gridColumn: '1 / -1' }}>

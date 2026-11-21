@@ -33,6 +33,7 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
     so_date: so.so_date,
     quotation_id: so.quotation_id,
     client_id: so.client_id,
+    project_name: so.project_name ?? '',
     discounts: so.discounts ?? [],
     charges: so.charges ?? [],
     global_notes: so.global_notes ?? '',

@@ -6,6 +6,7 @@ import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
 import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
 import type { SOFull, SOEdits } from '@/lib/so-types';
+import { ensureProject } from '@/lib/project-sync';
 
 export type SOItemInput = {
   product_id: string | null;
@@ -21,6 +22,7 @@ export type SalesOrderInput = {
   so_date: string;
   quotation_id?: string | null;
   client_id: string;
+  project_name?: string; // hanya untuk Input Manual
   discounts: DiscountLine[];
   charges: ChargeLine[];
   global_notes?: string;
@@ -35,12 +37,20 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   if (validItems.length === 0) return { error: 'Minimal satu item harus ditambahkan.' };
 
   if (input.mode === 'quotation' && !input.quotation_id) return { error: 'Mohon pilih Quotation terlebih dahulu.' };
+  if (input.mode === 'manual' && !input.project_name?.trim()) return { error: 'Nama Project wajib diisi.' };
 
   const supabase = createClient();
   let boqProjectId: string | null = null;
+  let projectName: string | null = null;
+  let projectId: string | null = null;
   if (input.mode === 'quotation' && input.quotation_id) {
-    const { data: q } = await supabase.from('quotations').select('boq_project_id').eq('id', input.quotation_id).single();
+    const { data: q } = await supabase.from('quotations').select('boq_project_id, project_name, project_id').eq('id', input.quotation_id).single();
     boqProjectId = q?.boq_project_id ?? null;
+    projectName = (q?.project_name as string | null) ?? null;
+    projectId = (q?.project_id as string | null) ?? null;
+  } else if (input.mode === 'manual') {
+    projectName = input.project_name?.trim() || null;
+    projectId = projectName ? await ensureProject(supabase, projectName, input.client_id) : null;
   }
   const total = validItems.reduce((s, it) => s + it.qty * it.unit_price, 0);
   const discountPercent = sumDiscountPercent(input.discounts);
@@ -52,6 +62,8 @@ export async function saveSalesOrder(input: SalesOrderInput) {
     client_id: input.client_id,
     quotation_id: input.mode === 'quotation' ? input.quotation_id : null,
     boq_project_id: boqProjectId,
+    project_name: projectName,
+    project_id: projectId,
     discount_percent: discountPercent,
     discounts: input.discounts,
     charges: input.charges,
@@ -115,7 +127,7 @@ export async function getQuotationForSO(quotationId: string) {
   const supabase = createClient();
   const { data: q } = await supabase
     .from('quotations')
-    .select('client_id, discounts, charges, quotation_items(product_id, sku, qty, unit_price, sort_order)')
+    .select('client_id, project_name, discounts, charges, quotation_items(product_id, sku, qty, unit_price, sort_order)')
     .eq('id', quotationId)
     .single();
   if (!q) return { error: 'Quotation tidak ditemukan' as const };
@@ -123,7 +135,7 @@ export async function getQuotationForSO(quotationId: string) {
     .slice()
     .sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0))
     .map((it) => ({ product_id: it.product_id, sku: it.sku, qty: Number(it.qty), unit_price: Number(it.unit_price) }));
-  return { clientId: q.client_id as string, items, discounts: (q.discounts ?? []) as DiscountLine[], charges: (q.charges ?? []) as ChargeLine[] };
+  return { clientId: q.client_id as string, projectName: ((q as { project_name?: string | null }).project_name ?? '') as string, items, discounts: (q.discounts ?? []) as DiscountLine[], charges: (q.charges ?? []) as ChargeLine[] };
 }
 
 // ------------------------------------------------------------
