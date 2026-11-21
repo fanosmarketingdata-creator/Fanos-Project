@@ -4,7 +4,7 @@ import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
 import type { DiscountLine, ChargeLine } from '@/lib/discount-charge';
-import { sumDiscountPercent, sumChargeAmount, sumTaxAmount } from '@/lib/discount-charge';
+import { sumDiscountPercent, sumChargeAmount, sumTaxAmount, sumTaxPercent } from '@/lib/discount-charge';
 import type { SOFull, SOEdits } from '@/lib/so-types';
 import { ensureProject } from '@/lib/project-sync';
 
@@ -335,22 +335,36 @@ export async function syncSalesOrder(soId: string, edits: SOEdits) {
 export async function getSalesOrdersForExport(ids: string[]) {
   const supabase = createClient();
   const out: Record<string, string | number>[] = [];
+  type ExpItem = { sku: string; qty: number; qty_shipped: number | null; unit_price: number; total: number; notes: string | null; sort_order: number | null; products: { name: string; uom: string | null } | null };
+  const first = <T,>(v: unknown): T | null => (Array.isArray(v) ? ((v[0] as T) ?? null) : ((v as T) ?? null));
   for (let i = 0; i < ids.length; i += 100) {
     const { data, error } = await supabase
       .from('sales_orders')
-      .select('doc_no, so_date, status, total_amount, global_notes, clients(client_no, company), sales_order_items(sku, qty, unit_price, total, notes, sort_order, products(name))')
+      .select('doc_no, so_date, status, total_amount, global_notes, project_name, source_type, discounts, charges, clients(client_no, company), quotations(doc_no), boq_projects(doc_no), sales_order_items(sku, qty, qty_shipped, unit_price, total, notes, sort_order, products(name, uom))')
       .in('id', ids.slice(i, i + 100))
       .order('so_date', { ascending: false });
     if (error) return { error: error.message };
     for (const so of data ?? []) {
-      const c = so.clients as unknown as { client_no: string | null; company: string | null } | null;
-      const items = ((so.sales_order_items as unknown as { sku: string; qty: number; unit_price: number; total: number; notes: string | null; sort_order: number | null; products: { name: string } | null }[]) ?? [])
-        .slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
-      const head = { 'SO No': so.doc_no ?? '', 'SO Date': so.so_date, 'Client ID': c?.client_no ?? '', 'Client Name': c?.company ?? '', Status: so.status };
-      if (items.length === 0) out.push({ ...head, Notes: so.global_notes ?? '', SKU: '', Qty: '', 'Unit Price': '', 'Item Notes': '', 'Product Name': '', 'Item Total': '', 'SO Total': Number(so.total_amount) });
+      const c = first<{ client_no: string | null; company: string | null }>(so.clients);
+      const quote = first<{ doc_no: string | null }>(so.quotations);
+      const boq = first<{ doc_no: string | null }>(so.boq_projects);
+      const items = ((so.sales_order_items as unknown as ExpItem[]) ?? []).slice().sort((a, b) => (a.sort_order ?? 0) - (b.sort_order ?? 0));
+      const discounts = ((so.discounts ?? []) as DiscountLine[]);
+      const charges = ((so.charges ?? []) as ChargeLine[]);
+      const subtotal = items.reduce((a, it) => a + Number(it.total), 0);
+      const source = so.source_type === 'boq' ? 'BOQ Project' : so.source_type === 'quotation' ? 'Quotation' : 'Manual';
+      const head = {
+        'SO No': so.doc_no ?? '', 'SO Date': so.so_date, 'Client ID': c?.client_no ?? '', 'Client Name': c?.company ?? '',
+        Project: (so as { project_name?: string | null }).project_name ?? '', Source: source, 'Source Doc No': quote?.doc_no ?? boq?.doc_no ?? '', Status: so.status,
+      };
+      const summary = (idx: number) => idx === 0
+        ? { Subtotal: subtotal, 'Discount %': sumDiscountPercent(discounts), 'Tax %': sumTaxPercent(discounts), 'Additional Charges': sumChargeAmount(charges), 'SO Total': Number(so.total_amount) }
+        : { Subtotal: '', 'Discount %': '', 'Tax %': '', 'Additional Charges': '', 'SO Total': '' };
+      if (items.length === 0) out.push({ ...head, Notes: so.global_notes ?? '', SKU: '', Qty: '', 'Unit Price': '', 'Item Notes': '', 'Product Name': '', UoM: '', 'Qty Shipped': '', 'Qty Remaining': '', 'Item Total': '', ...summary(0) });
       items.forEach((it, idx) => out.push({
         ...head, Notes: idx === 0 ? (so.global_notes ?? '') : '', SKU: it.sku, Qty: Number(it.qty), 'Unit Price': Number(it.unit_price),
-        'Item Notes': it.notes ?? '', 'Product Name': it.products?.name ?? '', 'Item Total': Number(it.total), 'SO Total': idx === 0 ? Number(so.total_amount) : '',
+        'Item Notes': it.notes ?? '', 'Product Name': it.products?.name ?? '', UoM: it.products?.uom ?? '',
+        'Qty Shipped': Number(it.qty_shipped ?? 0), 'Qty Remaining': Number(it.qty) - Number(it.qty_shipped ?? 0), 'Item Total': Number(it.total), ...summary(idx),
       }));
     }
   }
