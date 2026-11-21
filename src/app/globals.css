@@ -859,3 +859,43 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 .wx-ui { position: absolute; left: 0; right: 0; bottom: 18px; display: flex; justify-content: center; z-index: 2; pointer-events: none; padding: 0 12px; }
 .wx-status { display: inline-flex; align-items: center; gap: 8px; padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 600; color: rgba(255, 255, 255, .95); background: rgba(10, 16, 34, .38); border: 1px solid rgba(255, 255, 255, .16); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px); letter-spacing: .02em; }
 .wx-dot { width: 7px; height: 7px; border-radius: 50%; background: #22c55e; box-shadow: 0 0 0 3px rgba(34, 197, 94, .25); }
+
+/* ===== Login: wallpaper cuaca layar penuh, formulir kaca (glass), tanpa dark mode ===== */
+.login-page.login-split { display: block; background: #0b1535; }
+.login-page.login-split .login-right { position: absolute; inset: 0; display: block; z-index: 0; }
+.login-page.login-split .login-left { position: relative; z-index: 1; width: 100%; height: 100%; background: transparent; overflow-y: auto; padding: 20px; display: flex; align-items: center; justify-content: center; }
+.login-card {
+  width: 100%; max-width: 420px; margin: auto; padding: 30px 32px 26px; border-radius: 28px; position: relative;
+  background: linear-gradient(145deg, rgba(255, 255, 255, .26), rgba(255, 255, 255, .08)), rgba(14, 24, 52, .22);
+  border: 1px solid rgba(255, 255, 255, .38);
+  backdrop-filter: blur(26px) saturate(1.6); -webkit-backdrop-filter: blur(26px) saturate(1.6);
+  box-shadow: 0 30px 70px -22px rgba(4, 8, 28, .6), inset 0 1px 0 rgba(255, 255, 255, .55), inset 0 -1px 0 rgba(255, 255, 255, .08);
+}
+.login-card .login-logo-top { position: static; display: flex; justify-content: center; margin-bottom: 18px; }
+.login-card .login-logo-top .logo-light { display: none; }
+.login-card .login-logo-top .logo-dark { display: block; }
+.login-card .login-container { max-width: none; padding: 0; width: 100%; }
+.login-card .login-title { color: #fff; text-shadow: 0 1px 12px rgba(0, 0, 0, .25); }
+.login-card .login-sub { color: rgba(255, 255, 255, .82); }
+.login-card .login-required input {
+  background: rgba(255, 255, 255, .16); border: 1px solid rgba(255, 255, 255, .34); color: #fff;
+  backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+}
+.login-card .login-required input:focus { background: rgba(255, 255, 255, .26); border-color: rgba(255, 255, 255, .8); box-shadow: 0 0 0 3px rgba(255, 255, 255, .16); }
+.login-card .login-required label { color: rgba(255, 255, 255, .78); background: transparent; }
+.login-card .login-required input:focus + label,
+.login-card .login-required input:not(:placeholder-shown) + label { color: #fff; background: transparent; }
+.login-card .login-required .toggle-eye { color: rgba(255, 255, 255, .8); }
+.login-card .login-required .toggle-eye:hover { color: #fff; }
+.login-card .login-required input.warning { background: rgba(254, 202, 202, .22) !important; border-color: #fca5a5 !important; }
+.login-card .login-required input.warning + label,
+.login-card .login-required .warning-text { color: #fecaca !important; }
+.login-card .login-info { background: rgba(255, 255, 255, .18); color: #fff; border-color: rgba(255, 255, 255, .3); }
+.login-card .login-btn { box-shadow: 0 10px 26px -8px rgba(37, 99, 235, .7), inset 0 1px 0 rgba(255, 255, 255, .3); }
+.login-card button[type='button']:not(.toggle-eye) { color: #fff; }
+.login-card input:-webkit-autofill { -webkit-text-fill-color: #fff; transition: background-color 9999s ease-out; }
+.wx-ui { bottom: 14px; }
+@media (max-width: 900px) {
+  .login-page.login-split .login-right { display: block; }
+  .login-card { padding: 24px 20px 20px; border-radius: 22px; }
+}

@@ -7,7 +7,6 @@ import UpdateAnnouncementModal from '@/components/UpdateAnnouncementModal';
 import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
-import ThemeToggle from '@/components/ThemeToggle';
 import WeatherWallpaper from '@/components/WeatherWallpaper';
 
 export default function LoginPage() {
@@ -21,6 +20,16 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [info, setInfo] = useState('');
+
+  // Halaman login selalu tampil terang (tanpa dark mode); tema pengguna dipulihkan saat keluar.
+  useEffect(() => {
+    const root = document.documentElement;
+    const was = root.classList.contains('dark');
+    root.classList.remove('dark');
+    const mo = new MutationObserver(() => { if (root.classList.contains('dark')) root.classList.remove('dark'); });
+    mo.observe(root, { attributes: true, attributeFilter: ['class'] });
+    return () => { mo.disconnect(); if (was) root.classList.add('dark'); };
+  }, []);
 
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('reason') === 'idle') {
@@ -58,7 +67,6 @@ export default function LoginPage() {
 
   return (
     <div className="login-page login-split">
-      <ThemeToggle />
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
       {loading && (
@@ -69,13 +77,12 @@ export default function LoginPage() {
         </div>
       )}
 
+      <div className="login-right">
+        <WeatherWallpaper lang={lang === 'id' ? 'id' : 'en'} />
+      </div>
+
       <div className="login-left">
-        <div className="login-aurora" aria-hidden="true">
-          <span className="a1" />
-          <span className="a2" />
-          <span className="a3" />
-          <span className="a4" />
-        </div>
+        <div className="login-card">
         <div className="login-image login-logo-top">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo-fanos-wordmark.png" alt="Fanos" className="logo-light" />
@@ -134,9 +141,7 @@ export default function LoginPage() {
           </div>
           </div>
         </div>
-      </div>
-      <div className="login-right">
-        <WeatherWallpaper lang={lang === 'id' ? 'id' : 'en'} />
+        </div>
       </div>
     </div>
   );
