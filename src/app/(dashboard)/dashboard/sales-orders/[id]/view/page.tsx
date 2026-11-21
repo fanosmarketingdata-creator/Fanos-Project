@@ -19,6 +19,7 @@ export default async function SalesOrderViewPage({ params }: { params: { id: str
   const { rows, total } = buildSummary(subtotal, so.discounts ?? [], so.charges ?? [], 'Total Sales Order');
   const src = so.source_type === 'boq' ? 'BOQ Project' : so.source_type === 'quotation' ? 'Quotation' : 'Manual';
   // Sumber dokumen yang bisa diklik supaya pengguna dapat menelusuri (tracking) asal SO.
+  // Quotation sudah memuat BOQ-nya, jadi BOQ hanya ditampilkan bila SO dibuat langsung dari BOQ (tanpa quotation).
   const quote = one<{ id: string; doc_no: string | null }>(so.quotations);
   const boq = one<{ id: string; doc_no: string | null }>(so.boq_projects);
   const linkStyle = { color: '#2563eb', textDecoration: 'none' } as const;
@@ -30,7 +31,7 @@ export default async function SalesOrderViewPage({ params }: { params: { id: str
           {quote.doc_no ?? 'Quotation'}
         </Link>
       )}
-      {boq && (
+      {!quote && boq && (
         <Link href={`/dashboard/boq-project/${boq.id}/view`} style={linkStyle}>
           {boq.doc_no ?? 'BOQ Project'}
         </Link>
