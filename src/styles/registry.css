@@ -1478,7 +1478,7 @@ html.dark .so-client-auto .so-client-label { color: #94a3b8; }
 .dp-trigger-sub { font-size: 11.5px; color: #64748b; font-weight: 400; }
 .dp-trigger-ph { font-size: 13.5px; color: #94a3b8; font-weight: 400; }
 .dp-trigger > i { color: #94a3b8; display: inline-flex; }
-.dp-overlay { position: fixed; inset: 0; z-index: 1200; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, .5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: dp-fade .15s ease both; }
+.dp-overlay { position: fixed; inset: 0; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 20px; background: rgba(15, 23, 42, .5); backdrop-filter: blur(3px); -webkit-backdrop-filter: blur(3px); animation: dp-fade .15s ease both; }
 .dp-modal { width: 100%; max-width: 620px; max-height: min(640px, 88vh); display: flex; flex-direction: column; border-radius: 20px; background: #fff; box-shadow: 0 30px 80px -20px rgba(15, 23, 42, .5); overflow: hidden; animation: dp-pop .2s cubic-bezier(.2, .9, .3, 1.1) both; }
 .dp-head { display: flex; align-items: center; justify-content: space-between; padding: 16px 20px 6px; font-size: 16px; color: #0f172a; }
 .dp-x { width: 32px; height: 32px; border: 0; border-radius: 10px; background: #f1f5f9; color: #475569; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
