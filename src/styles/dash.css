@@ -184,19 +184,18 @@ html.dark .dx-hl { fill: rgba(91, 134, 255, .14) !important; }
     padding: 12px 20px 8px !important; gap: 14px !important; justify-content: space-between;
   }
   header[data-nav-pos='bottom'] { background: linear-gradient(to top, rgba(246, 248, 252, .97) 70%, rgba(246, 248, 252, 0)) !important; padding: 8px 20px 12px !important; }
-  header[data-nav-pos='top'] .hdr-logo, header[data-nav-pos='bottom'] .hdr-logo,
   header[data-nav-pos='top'] .hdr-nav, header[data-nav-pos='bottom'] .hdr-nav,
   header[data-nav-pos='top'] .hdr-right, header[data-nav-pos='bottom'] .hdr-right {
     background: #fff; border-radius: 999px; box-shadow: 0 1px 2px rgba(15, 23, 42, .04), 0 8px 24px -14px rgba(15, 23, 42, .18);
   }
-  header[data-nav-pos='top'] .hdr-logo, header[data-nav-pos='bottom'] .hdr-logo { height: 52px; padding: 0 22px; }
+  header[data-nav-pos='top'] .hdr-logo, header[data-nav-pos='bottom'] .hdr-logo { height: 52px; padding: 0 8px 0 6px; background: transparent; box-shadow: none; }
   header[data-nav-pos='top'] .hdr-nav, header[data-nav-pos='bottom'] .hdr-nav { flex: 0 1 auto !important; margin: 0 auto; height: 52px; padding: 0 6px; gap: 2px !important; justify-content: center; }
   header[data-nav-pos='top'] .hdr-right, header[data-nav-pos='bottom'] .hdr-right { height: 52px; padding: 0 8px 0 12px; gap: 6px !important; }
   header[data-nav-pos='top'] .hdr-right > div, header[data-nav-pos='bottom'] .hdr-right > div { border-left: 0 !important; padding-left: 0 !important; }
-  /* butir menu: teks saja, ala pill */
-  header[data-nav-pos='top'] .hdr-nav i.fi:not([class*='angle']), header[data-nav-pos='bottom'] .hdr-nav i.fi:not([class*='angle']) { display: none !important; }
+  /* butir menu: ikon + teks, ala pill */
+  header[data-nav-pos='top'] .hdr-nav i.fi:not([class*='angle']), header[data-nav-pos='bottom'] .hdr-nav i.fi:not([class*='angle']) { display: inline-flex !important; font-size: 14px !important; opacity: .85; }
   header[data-nav-pos='top'] .hdr-nav a, header[data-nav-pos='top'] .hdr-nav button,
-  header[data-nav-pos='bottom'] .hdr-nav a, header[data-nav-pos='bottom'] .hdr-nav button { font-weight: 500; font-size: 13px; border-radius: 999px; padding: 9px 16px; color: #475569; }
+  header[data-nav-pos='bottom'] .hdr-nav a, header[data-nav-pos='bottom'] .hdr-nav button { font-weight: 500; font-size: 13px; border-radius: 999px; padding: 9px 14px; gap: 8px; color: #475569; }
   header[data-nav-pos='top'] .hdr-nav > a:hover:not([class*='from-brand-500']), header[data-nav-pos='top'] .hdr-nav > div > button:hover:not([class*='from-brand-500']),
   header[data-nav-pos='bottom'] .hdr-nav > a:hover, header[data-nav-pos='bottom'] .hdr-nav > div > button:hover { background: #f1f3f7; color: #0f172a; }
   header[data-nav-pos='top'] .hdr-nav [class*='from-brand-500'], header[data-nav-pos='bottom'] .hdr-nav [class*='from-brand-500'] {
@@ -205,8 +204,8 @@ html.dark .dx-hl { fill: rgba(91, 134, 255, .14) !important; }
   header[data-nav-pos='top'] .hdr-nav [class~='bg-slate-100'], header[data-nav-pos='bottom'] .hdr-nav [class~='bg-slate-100'] { background: #f1f3f7 !important; color: #0f172a !important; }
   html.dark header[data-nav-pos='top'], html.dark header[data-nav-pos='bottom'] { background: linear-gradient(to bottom, rgba(9, 10, 16, .97) 70%, rgba(9, 10, 16, 0)) !important; }
   html.dark header[data-nav-pos='bottom'] { background: linear-gradient(to top, rgba(9, 10, 16, .97) 70%, rgba(9, 10, 16, 0)) !important; }
-  html.dark header[data-nav-pos='top'] .hdr-logo, html.dark header[data-nav-pos='top'] .hdr-nav, html.dark header[data-nav-pos='top'] .hdr-right,
-  html.dark header[data-nav-pos='bottom'] .hdr-logo, html.dark header[data-nav-pos='bottom'] .hdr-nav, html.dark header[data-nav-pos='bottom'] .hdr-right { background: var(--d-surface-2, #161a28); box-shadow: 0 8px 24px -14px rgba(0, 0, 0, .6); }
+  html.dark header[data-nav-pos='top'] .hdr-nav, html.dark header[data-nav-pos='top'] .hdr-right,
+  html.dark header[data-nav-pos='bottom'] .hdr-nav, html.dark header[data-nav-pos='bottom'] .hdr-right { background: var(--d-surface-2, #161a28); box-shadow: 0 8px 24px -14px rgba(0, 0, 0, .6); }
   html.dark header[data-nav-pos='top'] .hdr-nav a, html.dark header[data-nav-pos='top'] .hdr-nav button,
   html.dark header[data-nav-pos='bottom'] .hdr-nav a, html.dark header[data-nav-pos='bottom'] .hdr-nav button { color: #cbd5e1; }
   html.dark header[data-nav-pos='top'] .hdr-nav > a:hover, html.dark header[data-nav-pos='top'] .hdr-nav > div > button:hover { background: rgba(255, 255, 255, .08); color: #fff; }
