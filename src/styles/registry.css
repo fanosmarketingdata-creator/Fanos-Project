@@ -1456,3 +1456,14 @@ html.dark .pg-item.is-on { background: rgba(91, 134, 255, .16); color: #cfdcff; 
 html.dark .pg-chip { filter: brightness(1.35); }
 html.dark .pg-chip:hover:not(:disabled) { filter: brightness(1.55); }
 .ph-text { display: inline-flex; align-items: center; gap: 7px; }
+
+/* Sales Order: client otomatis (bukan inputan) & catatan umum yang tingginya bisa diatur */
+.so-client-auto { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-radius: 12px; background: #eff6ff; border: 1px solid #dbeafe; color: #1e3a8a; font-size: 13px; }
+.so-client-auto i { color: #2563eb; display: inline-flex; }
+.so-client-auto .so-client-label { font-size: 11.5px; font-weight: 600; text-transform: uppercase; letter-spacing: .04em; color: #64748b; }
+.so-client-auto strong { font-weight: 700; }
+.so-client-auto em { font-style: normal; color: #94a3b8; }
+html.dark .so-client-auto { background: rgba(37, 99, 235, .12); border-color: rgba(96, 165, 250, .25); color: #dbeafe; }
+html.dark .so-client-auto .so-client-label { color: #94a3b8; }
+.so-notes-hint { display: block; margin-top: 4px; font-size: 11px; color: #94a3b8; font-weight: 400; }
+.rte-area { resize: vertical; max-height: 640px; min-height: 70px; }

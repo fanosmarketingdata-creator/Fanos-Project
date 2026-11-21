@@ -146,21 +146,33 @@ export default function SalesOrderForm({
               />
             </FvField>
           )}
-          <FvField label="Client" required>
-            {mode === 'quotation' ? (
-              <input readOnly value={clients.find((c) => c.id === clientId)?.project_name ?? ''} placeholder="Terisi otomatis dari quotation" />
-            ) : (
+          {mode !== 'quotation' && (
+            <FvField label="Client" required>
               <SearchSelect
                 value={clientId}
                 onChange={(v) => setClientId(v)}
                 options={clients.map((c) => ({ value: c.id, label: c.project_name }))}
                 placeholder="Cari client..."
               />
-            )}
-          </FvField>
-          <FvField label="Catatan Umum">
-            <RichTextEditor value={globalNotes} onChange={setGlobalNotes} minHeight={90} />
-          </FvField>
+            </FvField>
+          )}
+          {mode === 'quotation' && (
+            <div className="so-client-auto" style={{ gridColumn: '1 / -1' }}>
+              <i className="fi fi-rr-user" />
+              <span className="so-client-label">Client</span>
+              {clients.find((c) => c.id === clientId) ? (
+                <strong>{clients.find((c) => c.id === clientId)?.project_name}</strong>
+              ) : (
+                <em>Terisi otomatis setelah Quotation dipilih</em>
+              )}
+            </div>
+          )}
+          <div style={{ gridColumn: '1 / -1' }}>
+            <FvField label="Catatan Umum">
+              <RichTextEditor value={globalNotes} onChange={setGlobalNotes} minHeight={110} />
+              <span className="so-notes-hint">Tarik sudut kanan bawah kotak untuk mengatur tinggi. Format ikut tampil saat dicetak.</span>
+            </FvField>
+          </div>
         </div>
       </Sec>
 
