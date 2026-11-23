@@ -8,7 +8,7 @@ import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
 import { emailRegistered } from '@/lib/login-actions';
-import WeatherWallpaper from '@/components/WeatherWallpaper';
+import AuroraBackground from '@/components/AuroraBackground';
 
 export default function LoginPage() {
   const lang = useLang();
@@ -111,7 +111,7 @@ export default function LoginPage() {
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
       <div className="login-right">
-        <WeatherWallpaper lang={lang === 'id' ? 'id' : 'en'} />
+        <AuroraBackground speed={1.0} />
       </div>
 
       <div className="login-left">
