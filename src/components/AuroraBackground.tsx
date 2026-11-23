@@ -16,15 +16,26 @@ float hash(vec2 p){ return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); 
 // noise 1D halus: nilai acak yang berganti pelan-pelan (tiap "sel" waktu mendapat nilai acak baru)
 float n1(float x){ float i = floor(x), f = fract(x); f = f * f * (3.0 - 2.0 * f); return mix(h1(i), h1(i + 1.0), f); }
 
-// Gumpalan cahaya: posisi, ukuran, kekuatan, dan warnanya berubah acak seiring waktu.
-vec3 layer(vec3 col, vec2 p, vec2 b, vec2 amp, float rate, float id, float r, vec3 cA, vec3 cB, float k, float ls, float li){
+// Palet empat warna dengan kecerahan sama, supaya tidak ada warna yang mendominasi.
+vec3 pal(float i){
+  i = mod(i, 4.0);
+  if (i < 1.0) return vec3(0.05, 0.36, 0.16);   // hijau
+  if (i < 2.0) return vec3(0.04, 0.36, 0.34);   // teal
+  if (i < 3.0) return vec3(0.04, 0.38, 0.56);   // cyan
+  return vec3(0.05, 0.18, 0.62);                // biru
+}
+
+// Gumpalan cahaya: posisi, ukuran, dan kekuatan berubah acak; warnanya bergilir merata di keempat warna.
+vec3 layer(vec3 col, vec2 p, vec2 b, vec2 amp, float rate, float id, float r, float k, float ls, float li){
   float t = uTime * rate * ls;
   vec2 q = b + amp * vec2(n1(t + id * 7.0) - 0.5, n1(t * 1.13 + id * 13.0 + 5.0) - 0.5) * 2.0;
-  float rr = r * (0.75 + 0.6 * n1(t * 0.7 + id * 3.0));
+  float rr = r * (0.85 + 0.3 * n1(t * 0.7 + id * 3.0));
   vec2 d = p - q;
   float w = pow(exp(-dot(d, d) / (rr * rr)), mix(1.6, 0.6, uBlend));
-  float str = k * li * (0.25 + 0.95 * n1(t * 0.5 + id * 11.0));
-  vec3 c = mix(cA, cB, smoothstep(0.25, 0.75, n1(t * 0.6 + id * 17.0)));
+  float str = k * li * (0.7 + 0.3 * n1(t * 0.5 + id * 11.0));
+  float ph = uTime * 0.045 * ls + h1(id * 3.1) * 4.0 + id;
+  float i0 = floor(ph);
+  vec3 c = mix(pal(i0), pal(i0 + 1.0), smoothstep(0.65, 1.0, fract(ph)));
   return mix(col, c, clamp(w * str, 0.0, 1.0));
 }
 
@@ -32,22 +43,20 @@ void main(){
   vec2 uv = gl_FragCoord.xy / uResolution;
   float asp = uResolution.x / uResolution.y;
   vec2 p = vec2(uv.x * asp, uv.y);
-  // aliran lembut seperti kabut tertiup angin
   float nf = uNoise / 0.5;
   p += 0.08 * vec2(sin(uv.y * 3.0 * nf + uTime * 0.14 * -uMove.y), cos(uv.x * 2.5 * nf - uTime * 0.14 * -uMove.x));
 
-  vec3 teal = vec3(0.035, 0.36, 0.33), green = vec3(0.04, 0.30, 0.14), cyan = vec3(0.03, 0.42, 0.56);
-  vec3 blue = vec3(0.04, 0.17, 0.70), navy = vec3(0.02, 0.09, 0.42), indigo = vec3(0.14, 0.10, 0.58);
-
   vec3 col = uBase;
-  col = layer(col, p, vec2(0.55 * asp, 0.55), vec2(0.34 * asp, 0.28), 0.10, 1.0, 0.62, navy, blue, 0.95, uLS.x / 0.27, uLI.x / 0.35);
-  col = layer(col, p, vec2(0.15 * asp, 0.78), vec2(0.20 * asp, 0.22), 0.13, 2.0, 0.34, teal, green, 0.90, uLS.y / 0.27, uLI.y / 0.35);
-  col = layer(col, p, vec2(0.05 * asp, 0.62), vec2(0.12 * asp, 0.24), 0.16, 3.0, 0.24, green, teal, 0.75, uLS.y / 0.27, uLI.y / 0.35);
-  col = layer(col, p, vec2(0.82 * asp, 0.55), vec2(0.20 * asp, 0.26), 0.12, 4.0, 0.32, cyan, teal, 0.80, uLS.z / 0.27, uLI.z / 0.35);
-  col = layer(col, p, vec2(0.92 * asp, 0.12), vec2(0.16 * asp, 0.18), 0.15, 5.0, 0.38, blue, indigo, 0.85, uLS.w / 0.27, uLI.w / 0.35);
-  col = layer(col, p, vec2(0.72 * asp, 0.90), vec2(0.26 * asp, 0.14), 0.11, 6.0, 0.32, navy, cyan, 0.80, uLS.x / 0.27, uLI.x / 0.35);
-  col = layer(col, p, vec2(0.32 * asp, 0.22), vec2(0.24 * asp, 0.18), 0.14, 7.0, 0.32, cyan, blue, 0.70, uLS.z / 0.27, uLI.z / 0.35);
-  col = layer(col, p, vec2(0.50 * asp, 0.95), vec2(0.30 * asp, 0.10), 0.09, 8.0, 0.30, indigo, teal, 0.55, uLS.w / 0.27, uLI.w / 0.35);
+  vec2 am = vec2(0.22 * asp, 0.22);
+  float R = 0.34;
+  col = layer(col, p, vec2(0.15 * asp, 0.75), am, 0.12, 1.0, R, 0.85, uLS.x / 0.27, uLI.x / 0.35);
+  col = layer(col, p, vec2(0.85 * asp, 0.25), am, 0.12, 2.0, R, 0.85, uLS.x / 0.27, uLI.x / 0.35);
+  col = layer(col, p, vec2(0.40 * asp, 0.30), am, 0.12, 3.0, R, 0.85, uLS.y / 0.27, uLI.y / 0.35);
+  col = layer(col, p, vec2(0.60 * asp, 0.80), am, 0.12, 4.0, R, 0.85, uLS.y / 0.27, uLI.y / 0.35);
+  col = layer(col, p, vec2(0.05 * asp, 0.30), am, 0.12, 5.0, R, 0.85, uLS.z / 0.27, uLI.z / 0.35);
+  col = layer(col, p, vec2(0.95 * asp, 0.75), am, 0.12, 6.0, R, 0.85, uLS.z / 0.27, uLI.z / 0.35);
+  col = layer(col, p, vec2(0.30 * asp, 0.55), am, 0.12, 7.0, R, 0.85, uLS.w / 0.27, uLI.w / 0.35);
+  col = layer(col, p, vec2(0.70 * asp, 0.55), am, 0.12, 8.0, R, 0.85, uLS.w / 0.27, uLI.w / 0.35);
 
   col += col * col * uBloom * 0.12;
   col *= 0.6 + uBright;
@@ -66,8 +75,8 @@ function hex(h: string): [number, number, number] {
   return [((n >> 16) & 255) / 255, ((n >> 8) & 255) / 255, (n & 255) / 255];
 }
 
-const DEFAULT_LS = [0.37, 0.15, 0.2, 0.3];
-const DEFAULT_LI = [0.5, 0.35, 0.3, 0.4];
+const DEFAULT_LS = [0.27, 0.27, 0.27, 0.27];
+const DEFAULT_LI = [0.35, 0.35, 0.35, 0.35];
 
 export default function AuroraBackground({
   speed = 1.0,
