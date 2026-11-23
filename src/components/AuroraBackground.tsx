@@ -46,9 +46,12 @@ void main(){
   float nf = uNoise / 0.5;
   p += 0.08 * vec2(sin(uv.y * 3.0 * nf + uTime * 0.14 * -uMove.y), cos(uv.x * 2.5 * nf - uTime * 0.14 * -uMove.x));
 
-  vec3 col = uBase;
+  // lapisan dasar: gradasi 4 warna menyeluruh (tidak ada area hitam)
+  float fp = uv.x * 2.2 + uv.y * 1.3 + uTime * 0.03 + h1(41.0) * 4.0;
+  vec3 fill = mix(pal(floor(fp)), pal(floor(fp) + 1.0), smoothstep(0.0, 1.0, fract(fp)));
+  vec3 col = mix(uBase, fill, 0.52);
   vec2 am = vec2(0.22 * asp, 0.22);
-  float R = 0.34;
+  float R = 0.46;
   col = layer(col, p, vec2(0.15 * asp, 0.75), am, 0.12, 1.0, R, 0.85, uLS.x / 0.27, uLI.x / 0.35);
   col = layer(col, p, vec2(0.85 * asp, 0.25), am, 0.12, 2.0, R, 0.85, uLS.x / 0.27, uLI.x / 0.35);
   col = layer(col, p, vec2(0.40 * asp, 0.30), am, 0.12, 3.0, R, 0.85, uLS.y / 0.27, uLI.y / 0.35);
@@ -62,11 +65,9 @@ void main(){
   col *= 0.6 + uBright;
   float lum = dot(col, vec3(0.299, 0.587, 0.114));
   col = mix(vec3(lum), col, uSat * 0.5);
-  float v = smoothstep(1.15, 0.25, length((uv - 0.5) * vec2(1.0, 1.15)));
-  col *= mix(0.55, 1.0, v);
   col *= 1.0 - uFade * (1.0 - uv.y);
   col = mix(uBase, col, uOpacity);
-  col += (hash(gl_FragCoord.xy + fract(uTime)) - 0.5) / 255.0 * 2.0;
+  col += (hash(gl_FragCoord.xy) - 0.5) / 255.0 * 1.5; // butiran statis (tidak berkedip)
   gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);
 }`;
 
@@ -91,7 +92,7 @@ export default function AuroraBackground({
   blend = 0.5,
   layerSpeed = DEFAULT_LS,
   layerIntensity = DEFAULT_LI,
-  base = '#030816',
+  base = '#071a33',
 }: {
   speed?: number;
   brightness?: number;
