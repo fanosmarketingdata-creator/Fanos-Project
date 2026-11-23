@@ -141,7 +141,12 @@ async function deleteAccountInner(id: string): Promise<{ error?: string; success
 
   const admin = createAdminClient();
   const { error } = await admin.auth.admin.deleteUser(id); // baris profiles ikut terhapus (cascade)
-  if (error) return { error: error.message };
+  if (error) {
+    if (/database error|foreign key|violates/i.test(error.message)) {
+      return { error: 'Akun ini sudah dipakai di data lain sehingga tidak bisa dihapus. Ubah statusnya menjadi Inactive.' };
+    }
+    return { error: error.message };
+  }
 
   revalidatePath('/dashboard/accounts');
   revalidatePath('/dashboard/team-members');

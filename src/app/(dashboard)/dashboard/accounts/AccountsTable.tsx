@@ -473,8 +473,9 @@ export default function AccountsTable({
           }
         >
           <p className="text-sm text-slate-600">
-            Apakah Anda yakin ingin menghapus akun <strong>{deleteTarget.full_name}</strong> ({deleteTarget.email})? Pengguna ini tidak
-            akan dapat masuk ke sistem lagi. Untuk menutup akses sementara, ubah statusnya menjadi Inactive.
+            <span>Apakah Anda yakin ingin menghapus akun ini?</span>{' '}
+            <strong>{deleteTarget.full_name}</strong> ({deleteTarget.email}){' '}
+            <span>Pengguna ini tidak akan dapat masuk ke sistem lagi. Untuk menutup akses sementara, ubah statusnya menjadi Inactive.</span>
           </p>
         </Modal>
       )}

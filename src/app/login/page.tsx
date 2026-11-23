@@ -58,7 +58,11 @@ export default function LoginPage() {
 
     const mail = email.trim();
     // 1) Email dulu
-    if (!mail) { setEmailSt('bad'); setEmailErr('Email wajib diisi.'); return; }
+    if (!mail) {
+      setEmailSt('bad'); setEmailErr('Email wajib diisi.');
+      if (!password) { setPassSt('bad'); setError('Password wajib diisi.'); } // keduanya kosong: tandai keduanya
+      return;
+    }
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(mail)) { setEmailSt('bad'); setEmailErr('Format email tidak valid.'); return; }
 
     setLoading(true);
