@@ -99,11 +99,27 @@ function Panel({ title, right, href, children, className = '' }: { title: string
   );
 }
 
+/* Lebar grafik mengikuti wadahnya (bukan diperbesar/diperkecil), jadi huruf & batang tetap proporsional di layar berapa pun. */
+function useBoxWidth(ref: React.RefObject<HTMLElement>, fallback: number) {
+  const [w, setW] = useState(fallback);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const upd = () => { const cw = Math.round(el.clientWidth); if (cw > 0) setW(Math.max(240, cw)); };
+    upd();
+    const ro = new ResizeObserver(upd);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [ref]);
+  return w;
+}
+
 /* ---------- Grafik batang berkelompok ---------- */
 function BarChart({ labels, a, b, nameA, nameB }: { labels: string[]; a: number[]; b: number[]; nameA: string; nameB: string }) {
   const [hi, setHi] = useState<number | null>(null);
   const [hide, setHide] = useState<{ a: boolean; b: boolean }>({ a: false, b: false });
-  const W = 640, H = 230, L = 46, B = 28, T = 10, R = 6;
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const W = useBoxWidth(wrapRef, 640), H = 230, L = 46, B = 28, T = 10, R = 6;
   const max = niceMax(Math.max(1, ...(hide.a ? [] : a), ...(hide.b ? [] : b)));
   const n = labels.length;
   const gw = (W - L - R) / n;
@@ -116,7 +132,7 @@ function BarChart({ labels, a, b, nameA, nameB }: { labels: string[]; a: number[
         <button type="button" className={hide.a ? 'off' : ''} onClick={() => setHide((h) => ({ ...h, a: !h.a }))}><i style={{ background: BLUE }} />{nameA}</button>
         <button type="button" className={hide.b ? 'off' : ''} onClick={() => setHide((h) => ({ ...h, b: !h.b }))}><i style={{ background: BLUE_SOFT }} />{nameB}</button>
       </div>
-      <div className="dx-svgwrap" onMouseLeave={() => setHi(null)}>
+      <div className="dx-svgwrap" ref={wrapRef} onMouseLeave={() => setHi(null)}>
         <svg viewBox={`0 0 ${W} ${H}`} role="img">
           {ticks.map((t) => (
             <g key={t}>
@@ -164,7 +180,7 @@ function smooth(pts: [number, number][]) {
 function LineChart({ labels, series, H = 180, axis = true, fill = false, tickEvery = 1 }: { labels: string[]; series: LS[]; H?: number; axis?: boolean; fill?: boolean; tickEvery?: number }) {
   const [hi, setHi] = useState<number | null>(null);
   const ref = useRef<HTMLDivElement>(null);
-  const W = 560, L = axis ? 44 : 6, B = axis ? 24 : 4, T = 8, R = 8;
+  const W = useBoxWidth(ref, 560), L = axis ? 44 : 6, B = axis ? 24 : 4, T = 8, R = 8;
   const max = niceMax(Math.max(1, ...series.flatMap((s) => s.values)));
   const n = labels.length;
   const x = (i: number) => L + ((W - L - R) * i) / Math.max(1, n - 1);

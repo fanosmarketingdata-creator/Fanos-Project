@@ -1,5 +1,5 @@
 /* Dashboard Overview (dx-*) */
-.dx { max-width: 1480px; }
+.dx { max-width: none; width: 100%; }
 .dx-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; flex-wrap: wrap; margin-bottom: 18px; }
 .dx-head h1 { font-size: 24px; font-weight: 800; color: #0f172a; line-height: 1.2; margin: 0; }
 .dx-head p { font-size: 13px; color: #64748b; margin: 4px 0 0; }
