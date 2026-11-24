@@ -983,3 +983,14 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
     radial-gradient(45% 40% at 90% 95%, rgba(196, 210, 240, .6) 0%, rgba(196, 210, 240, 0) 70%),
     linear-gradient(160deg, #eef1f8 0%, #e6eaf4 45%, #dfe5f1 100%);
 }
+
+/* Indikator loading global (garis biru bercahaya di tepi bawah) */
+.nav-progress { position: fixed; left: 0; right: 0; bottom: 0; height: 3px; z-index: 99999; pointer-events: none; opacity: 0; transition: opacity .3s ease; }
+.nav-progress.on { opacity: 1; }
+.nav-progress i {
+  display: block; height: 100%; border-radius: 0 3px 3px 0;
+  background: linear-gradient(90deg, rgba(47, 115, 255, 0) 0%, #2f73ff 55%, #8fd8ff 100%);
+  box-shadow: 0 0 14px 2px rgba(47, 115, 255, .75), 0 -6px 22px 2px rgba(80, 170, 255, .45);
+  transition: width .25s ease-out;
+}
+@media print { .nav-progress { display: none; } }
