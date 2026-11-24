@@ -3733,3 +3733,53 @@ html.dark body main .sort-header .sort-th:hover,
 html.dark body main .sort-header .sort-th.active { color: #7aa2ff !important; }
 html.dark body main .sort-header .sort-th:hover .sort-ind,
 html.dark body main .sort-header .sort-th.active .sort-ind { color: #7aa2ff !important; }
+
+/* Header kolom daftar: latar = gradien dasar dashboard (fixed) sehingga tampak menyatu, tetapi
+   menutup baris yang di-scroll — konten berhenti tepat di bawah header, tidak bertabrakan. */
+html body main .sort-header {
+  background-color: #f6f8fc !important;
+  background-image:
+    radial-gradient(60% 45% at 50% 0%, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(45% 40% at 8% 6%, rgba(203, 213, 245, .5) 0%, rgba(203, 213, 245, 0) 70%),
+    radial-gradient(45% 40% at 95% 98%, rgba(196, 210, 240, .55) 0%, rgba(196, 210, 240, 0) 70%) !important;
+  background-attachment: fixed !important;
+  margin-bottom: 0 !important; padding-bottom: 12px !important; box-shadow: none !important; border-radius: 0 !important;
+}
+html.dark body main .sort-header {
+  background-color: #090a10 !important;
+  background-image:
+    radial-gradient(55% 40% at 50% 0%, rgba(47, 107, 255, .16) 0%, rgba(47, 107, 255, 0) 70%),
+    radial-gradient(40% 35% at 6% 8%, rgba(47, 107, 255, .12) 0%, rgba(47, 107, 255, 0) 70%),
+    radial-gradient(40% 35% at 96% 98%, rgba(255, 77, 79, .08) 0%, rgba(255, 77, 79, 0) 70%) !important;
+  background-attachment: fixed !important;
+}
+
+/* Header aplikasi (menu atas) juga menutup konten yang di-scroll, dan header kolom menempel tepat di bawahnya */
+@media (min-width: 1024px) {
+  html body header[data-nav-pos='top'] {
+    background-color: #f6f8fc !important;
+    background-image:
+      radial-gradient(60% 45% at 50% 0%, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, 0) 70%),
+      radial-gradient(45% 40% at 8% 6%, rgba(203, 213, 245, .5) 0%, rgba(203, 213, 245, 0) 70%),
+      radial-gradient(45% 40% at 95% 98%, rgba(196, 210, 240, .55) 0%, rgba(196, 210, 240, 0) 70%) !important;
+    background-attachment: fixed !important;
+  }
+  html.dark body header[data-nav-pos='top'] {
+    background-color: #090a10 !important;
+    background-image:
+      radial-gradient(55% 40% at 50% 0%, rgba(47, 107, 255, .16) 0%, rgba(47, 107, 255, 0) 70%),
+      radial-gradient(40% 35% at 6% 8%, rgba(47, 107, 255, .12) 0%, rgba(47, 107, 255, 0) 70%),
+      radial-gradient(40% 35% at 96% 98%, rgba(255, 77, 79, .08) 0%, rgba(255, 77, 79, 0) 70%) !important;
+    background-attachment: fixed !important;
+  }
+  html:has(header[data-nav-pos='top']) body main .sort-header { top: 66px !important; }
+}
+
+/* Mode terang: header kolom daftar tanpa kotak/latar tersendiri (menyatu dengan latar), teks hitam */
+html:not(.dark) body main .sort-header { border-bottom-color: rgba(15, 23, 42, .1) !important; }
+html:not(.dark) body main .sort-header .sort-th { color: #0f172a; }
+html:not(.dark) body main .sort-header .sort-th .sort-ind { color: rgba(15, 23, 42, .55); opacity: 1; }
+html:not(.dark) body main .sort-header .sort-th:hover,
+html:not(.dark) body main .sort-header .sort-th.active { color: #2563eb; }
+html:not(.dark) body main .sort-header .sort-th:hover .sort-ind,
+html:not(.dark) body main .sort-header .sort-th.active .sort-ind { color: #2563eb; }
