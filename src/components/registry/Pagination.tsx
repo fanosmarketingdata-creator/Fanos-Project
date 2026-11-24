@@ -1,7 +1,7 @@
 'use client';
 
 import Select from '@/components/ui/Select';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 
 export const ROWS_OPTIONS = [5, 10, 25, 50, 100];
 
@@ -39,6 +39,32 @@ export default function Pagination({
   onPage: (p: number) => void;
   onRows: (n: number) => void;
 }) {
+  const rootRef = useRef<HTMLDivElement>(null);
+  const prevPage = useRef(page);
+
+  // Pindah halaman -> daftar kembali ke posisi paling atas.
+  useEffect(() => {
+    if (prevPage.current === page) return;
+    prevPage.current = page;
+    const root = rootRef.current;
+    if (!root) return;
+    const scrollable = (el: HTMLElement) => {
+      const oy = getComputedStyle(el).overflowY;
+      return (oy === 'auto' || oy === 'scroll') && el.scrollHeight > el.clientHeight;
+    };
+    const reset = (el: HTMLElement) => { if (scrollable(el)) el.scrollTo({ top: 0 }); };
+    let node: HTMLElement | null = root.parentElement;
+    while (node && node !== document.body) {
+      reset(node);
+      Array.from(node.children).forEach((c) => { if (c !== root && c instanceof HTMLElement) { reset(c); c.querySelectorAll<HTMLElement>('*').forEach((d) => { if (d.scrollTop > 0) reset(d); }); } });
+      node = node.parentElement;
+    }
+    if (window.scrollY > 0 && root.closest('main')) {
+      const top = root.closest('main')!.getBoundingClientRect().top + window.scrollY - 80;
+      window.scrollTo({ top: Math.max(0, top) });
+    }
+  }, [page]);
+
   const start = total === 0 ? 0 : (page - 1) * rowsPerPage + 1;
   const end = Math.min(page * rowsPerPage, total);
   const info = (
@@ -63,7 +89,7 @@ export default function Pagination({
   // (supaya user bisa kembali dari 100 ke jumlah yang lebih kecil).
   if (totalPages <= 1) {
     return (
-      <div className="pagination-container">
+      <div className="pagination-container" ref={rootRef}>
         {info}
         {total > Math.min(...rowOptions) && <div className="pagination-controls">{rowsSelect}</div>}
       </div>
@@ -78,7 +104,7 @@ export default function Pagination({
   for (let i = startPage; i <= endPage; i++) numbers.push(i);
 
   return (
-    <div className="pagination-container">
+    <div className="pagination-container" ref={rootRef}>
       {info}
       <div className="pagination-controls">
         <button type="button" disabled={page <= 1} onClick={() => onPage(page - 1)}>
