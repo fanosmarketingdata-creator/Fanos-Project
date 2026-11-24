@@ -3772,7 +3772,6 @@ html.dark body main .sort-header {
       radial-gradient(40% 35% at 96% 98%, rgba(255, 77, 79, .08) 0%, rgba(255, 77, 79, 0) 70%) !important;
     background-attachment: fixed !important;
   }
-  html:has(header[data-nav-pos='top']) body main .sort-header { top: calc(var(--app-hdr-h, 66px) - 1px) !important; }
 }
 
 /* Mode terang: header kolom daftar tanpa kotak/latar tersendiri (menyatu dengan latar), teks hitam */

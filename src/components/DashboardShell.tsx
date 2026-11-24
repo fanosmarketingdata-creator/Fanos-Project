@@ -392,18 +392,6 @@ export default function DashboardShell({
 
   const [loggingOut, setLoggingOut] = useState(false);
 
-  // Tinggi header aplikasi -> variabel CSS, supaya header kolom daftar menempel persis di bawahnya
-  useEffect(() => {
-    const h = document.querySelector('header[data-nav-pos]') as HTMLElement | null;
-    if (!h) return;
-    const set = () => document.documentElement.style.setProperty('--app-hdr-h', `${Math.round(h.getBoundingClientRect().height)}px`);
-    set();
-    const ro = new ResizeObserver(set);
-    ro.observe(h);
-    window.addEventListener('resize', set);
-    return () => { ro.disconnect(); window.removeEventListener('resize', set); };
-  }, [navPos]);
-
   async function handleLogout() {
     if (loggingOut) return;
     setLoggingOut(true);
