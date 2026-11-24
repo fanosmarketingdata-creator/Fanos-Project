@@ -3713,3 +3713,23 @@ html.dark main table thead th i:not(.paper *),
 html.dark main table thead th .sort-ico:not(.paper *) { color: rgba(255, 255, 255, .6); }
 html.dark main table thead th:hover:not(.paper *) { color: #7aa2ff !important; }
 }
+
+/* Header kolom daftar (mode gelap): tanpa latar hitam, teks putih */
+html.dark .sort-header { background: transparent !important; box-shadow: none !important; }
+html.dark .sort-th { color: #fff; }
+html.dark .sort-th .sort-ind { color: rgba(255, 255, 255, .6); opacity: 1; }
+html.dark .sort-th:hover, html.dark .sort-th.active { color: #7aa2ff; }
+html.dark .sort-th.active .sort-ind, html.dark .sort-th:hover .sort-ind { color: #7aa2ff; }
+
+/* Penegasan (spesifisitas lebih tinggi dari registry.css): header kolom daftar tanpa latar/bayangan hitam, teks putih */
+html.dark body main .sort-header,
+html.dark body .sort-header {
+  background: transparent !important; background-color: transparent !important;
+  box-shadow: none !important; border-bottom-color: rgba(255, 255, 255, .12) !important;
+}
+html.dark body main .sort-header .sort-th { color: #fff !important; }
+html.dark body main .sort-header .sort-th .sort-ind { color: rgba(255, 255, 255, .6) !important; opacity: 1; }
+html.dark body main .sort-header .sort-th:hover,
+html.dark body main .sort-header .sort-th.active { color: #7aa2ff !important; }
+html.dark body main .sort-header .sort-th:hover .sort-ind,
+html.dark body main .sort-header .sort-th.active .sort-ind { color: #7aa2ff !important; }
