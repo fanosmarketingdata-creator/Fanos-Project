@@ -4,7 +4,6 @@ import '@/styles/dark.css';
 import { cookies } from 'next/headers';
 import { ToastProvider } from '@/components/Toast';
 import I18nProvider from '@/components/I18nProvider';
-import NavProgress from '@/components/NavProgress';
 import { LANG_COOKIE, parseLang } from '@/lib/i18n/lang';
 
 export const metadata: Metadata = {
@@ -30,7 +29,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="bg-[#f4f7fb] text-slate-800 antialiased">
         <I18nProvider lang={lang}>
-          <NavProgress />
           <ToastProvider>{children}</ToastProvider>
         </I18nProvider>
       </body>
