@@ -406,7 +406,7 @@ export default function DashboardShell({
   }
 
   return (
-    <div className={`flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
+    <div className={`app-shell flex min-h-screen flex-col bg-[#f6f8fc] print:block print:bg-white ${navPos === 'left' ? 'lg:flex-row' : navPos === 'right' ? 'lg:flex-row-reverse' : ''}`}>
       {loggingOut && (
         <div className="login-overlay print:hidden" role="status" aria-live="polite">
           <div className="spinner" />

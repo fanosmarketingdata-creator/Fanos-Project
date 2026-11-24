@@ -215,3 +215,19 @@ html.dark .dx-hl { fill: rgba(91, 134, 255, .14) !important; }
   header[data-nav-pos='bottom'] .hdr-nav > a:not([class*='from-brand-500']):not(:hover), header[data-nav-pos='bottom'] .hdr-nav > div > button:not([class*='from-brand-500']):not(:hover):not([aria-expanded='true']) { background: transparent; }
   header[data-nav-pos='top'] .hdr-right button[aria-haspopup] > span:first-child > span:first-child { width: 36px; height: 36px; }
 }
+
+/* Latar dashboard: sorot cahaya lembut (terang & gelap) */
+.app-shell {
+  background-image:
+    radial-gradient(60% 45% at 50% 0%, rgba(255, 255, 255, .9) 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(45% 40% at 8% 6%, rgba(203, 213, 245, .5) 0%, rgba(203, 213, 245, 0) 70%),
+    radial-gradient(45% 40% at 95% 98%, rgba(196, 210, 240, .55) 0%, rgba(196, 210, 240, 0) 70%);
+  background-attachment: fixed;
+}
+html.dark .app-shell {
+  background-image:
+    radial-gradient(55% 40% at 50% 0%, rgba(47, 107, 255, .16) 0%, rgba(47, 107, 255, 0) 70%),
+    radial-gradient(40% 35% at 6% 8%, rgba(47, 107, 255, .12) 0%, rgba(47, 107, 255, 0) 70%),
+    radial-gradient(40% 35% at 96% 98%, rgba(255, 77, 79, .08) 0%, rgba(255, 77, 79, 0) 70%);
+}
+@media print { .app-shell { background-image: none !important; } }
