@@ -967,3 +967,19 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 .login-status { color: #334155; text-shadow: none; }
 .login-status-item i.ok { color: #16a34a; }
 .login-status-dots b { background: #2563eb; }
+
+/* Login: latar putih polos, tanpa kotak (kartu) */
+.login-page.login-split { background: #fff; }
+.login-card { background: transparent; border: 0; box-shadow: none; border-radius: 0; padding: 0; width: 100%; max-width: 380px; }
+.login-card .login-logo-top { margin-bottom: 22px; }
+.login-card .login-title { text-align: center; }
+.login-card .login-sub { text-align: center; }
+
+/* Latar login: putih keabu-abuan lembut dengan sorot cahaya (mengacu pada contoh) */
+.login-page.login-split {
+  background:
+    radial-gradient(60% 50% at 50% 38%, rgba(255, 255, 255, .95) 0%, rgba(255, 255, 255, 0) 70%),
+    radial-gradient(45% 40% at 12% 8%, rgba(203, 213, 245, .55) 0%, rgba(203, 213, 245, 0) 70%),
+    radial-gradient(45% 40% at 90% 95%, rgba(196, 210, 240, .6) 0%, rgba(196, 210, 240, 0) 70%),
+    linear-gradient(160deg, #eef1f8 0%, #e6eaf4 45%, #dfe5f1 100%);
+}

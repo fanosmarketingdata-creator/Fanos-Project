@@ -8,10 +8,6 @@ import { useLang } from '@/components/I18nProvider';
 import { setLang } from '@/lib/i18n/lang';
 import { createClient } from '@/lib/supabase/client';
 import { emailRegistered } from '@/lib/login-actions';
-import GrainientRaw from '@/components/Grainient';
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const Grainient = GrainientRaw as any;
 
 export default function LoginPage() {
   const lang = useLang();
@@ -117,10 +113,6 @@ export default function LoginPage() {
     <div className="login-page login-split">
       <FigmaCursor name="Tamu" />
       <UpdateAnnouncementModal />
-      <div className="login-right">
-        <Grainient colors={['#2f73ff', '#00d8e3']} angle={128} flow={1.1} silk={1} grainAmount={0} type="linear" bands={2} softness={1} scale={1} speed={3} grainSize={0.5} grainAnimated contrast={1} saturation={1.5} variation={20} interactive stir={1} clickSwirl={false} intro lightMode={false} />
-      </div>
-
       <div className="login-left">
         <div className="login-card">
         <div className="login-image login-logo-top">
