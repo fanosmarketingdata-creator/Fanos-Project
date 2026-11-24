@@ -3696,3 +3696,20 @@ html.dark .pm-tile span:not(.paper *) {
   color: #9ba1bc;
 }
 }
+
+/* Header tabel (mode gelap): tanpa latar, menyatu dengan latar dashboard; teks putih */
+@media screen {
+html.dark main table.dv2-table thead,
+html.dark main table.dv2-table thead tr,
+html.dark main table.dv2-table thead th:not(.paper *),
+html.dark main table thead tr:not(.paper *),
+html.dark main table thead th:not(.paper *),
+html.dark .list-page > .overflow-x-auto thead th:not(.paper *) {
+  background: transparent !important;
+  background-color: transparent !important;
+  color: #fff !important;
+}
+html.dark main table thead th i:not(.paper *),
+html.dark main table thead th .sort-ico:not(.paper *) { color: rgba(255, 255, 255, .6); }
+html.dark main table thead th:hover:not(.paper *) { color: #7aa2ff !important; }
+}

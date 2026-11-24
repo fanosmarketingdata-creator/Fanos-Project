@@ -231,3 +231,9 @@ html.dark .app-shell {
     radial-gradient(40% 35% at 96% 98%, rgba(255, 77, 79, .08) 0%, rgba(255, 77, 79, 0) 70%);
 }
 @media print { .app-shell { background-image: none !important; } }
+
+/* Mode gelap: pil menu & profil tanpa latar hitam, menyatu dengan latar dashboard */
+@media (min-width: 1024px) {
+  html.dark header[data-nav-pos='top'] .hdr-nav, html.dark header[data-nav-pos='top'] .hdr-right,
+  html.dark header[data-nav-pos='bottom'] .hdr-nav, html.dark header[data-nav-pos='bottom'] .hdr-right { background: transparent !important; box-shadow: none !important; border-color: transparent !important; }
+}
