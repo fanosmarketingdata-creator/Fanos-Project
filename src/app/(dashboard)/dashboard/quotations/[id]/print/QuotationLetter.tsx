@@ -449,7 +449,9 @@ export default function QuotationLetter(p: {
           onDoubleClick={() => applyZoom(1)}
         >
         <div className="ql-pages" style={{ zoom: scale * zoomMul }}>
-          {pages.map((idxs, pi) => {
+          {pages.map((rawIdxs, pi) => {
+            // Isi surat bisa menyusut (mis. menghapus teks) sebelum paginasi dihitung ulang -> abaikan indeks yang sudah tidak ada.
+            const idxs = rawIdxs.filter((bi) => bi < blocks.length);
             const groups: { row: boolean; items: number[] }[] = [];
             idxs.forEach((bi) => {
               const row = blocks[bi].kind === 'row';
