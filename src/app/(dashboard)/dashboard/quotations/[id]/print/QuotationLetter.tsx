@@ -272,6 +272,8 @@ export default function QuotationLetter(p: {
     const theadEl = root.querySelector<HTMLElement>('[data-thead]');
     if (!probe || !headEl || !theadEl) return;
     const pageH = probe.offsetHeight;
+    // Saat mencetak, elemen pengukur disembunyikan (tinggi 0) -> jangan hitung ulang, pertahankan paginasi dari layar.
+    if (!pageH || !theadEl.offsetHeight || window.matchMedia('print').matches) return;
     const mm = pageH / 297;
     const cap = pageH - mm * (12 + 20) - headEl.offsetHeight - 14 * 1.0; // 14px = jarak kop → isi
     const theadH = theadEl.offsetHeight;
