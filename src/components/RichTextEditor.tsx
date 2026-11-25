@@ -178,6 +178,10 @@ export default function RichTextEditor({
             e.preventDefault();
             if (!indentFirstLine(e.shiftKey)) document.execCommand(e.shiftKey ? 'outdent' : 'indent');
             emit();
+          } else if (e.key === 'Backspace' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+            // Backspace di awal paragraf menjorok: hilangkan jorokannya dulu (seperti Word), jangan langsung naik ke baris atas.
+            const sel = window.getSelection();
+            if (sel && sel.isCollapsed && indentFirstLine(true)) { e.preventDefault(); emit(); }
           }
         }}
         onPaste={(e) => {
