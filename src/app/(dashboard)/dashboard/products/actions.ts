@@ -69,7 +69,6 @@ export async function saveProduct(input: ProductInput) {
   }
   if (error) {
     if (error.code === '23505') return { error: 'SKU telah digunakan oleh produk lain.' };
-    console.error('saveProduct error:', error);
     return { error: friendlyError(error) };
   }
 
