@@ -1,11 +1,11 @@
-// Service worker Fanos ERP: menerima Web Push (pengumuman sistem) walau tab/browser tidak sedang dibuka.
+// Service worker Fouralist: menerima Web Push (pengumuman sistem) walau tab/browser tidak sedang dibuka.
 self.addEventListener('install', () => self.skipWaiting());
 self.addEventListener('activate', (e) => e.waitUntil(self.clients.claim()));
 
 self.addEventListener('push', (event) => {
   let data = {};
-  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: 'Fanos ERP', body: event.data ? event.data.text() : '' }; }
-  const title = data.title || 'Fanos ERP';
+  try { data = event.data ? event.data.json() : {}; } catch (e) { data = { title: 'Fouralist', body: event.data ? event.data.text() : '' }; }
+  const title = data.title || 'Fouralist';
   event.waitUntil(
     self.registration.showNotification(title, {
       body: data.body || '',

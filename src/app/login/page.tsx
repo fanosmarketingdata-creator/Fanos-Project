@@ -117,8 +117,8 @@ export default function LoginPage() {
         <div className="login-card">
         <div className="login-image login-logo-top">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-fanos-wordmark.png" alt="Fanos" className="logo-light" />
-          <img src="/logo-fanos-dark.png" alt="Fanos" className="logo-dark" />
+          <img src="/logo-fouralist.png" alt="Fouralist" className="logo-light" />
+          <img src="/logo-fouralist-dark.png" alt="Fouralist" className="logo-dark" />
         </div>
         <div className="login-container">
           <h1 className="login-title">Selamat Datang</h1>
