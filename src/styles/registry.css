@@ -1512,3 +1512,8 @@ html.dark .dp-row:hover:not(:disabled), html.dark .dp-row.on { background: rgba(
 html.dark .dp-row-main { color: var(--c-border-soft); }
 html.dark .dp-foot { border-color: var(--d-line); }
 @media (max-width: 600px) { .dp-overlay { padding: 10px; align-items: flex-end; } .dp-modal { max-height: 88vh; border-radius: 20px 20px 14px 14px; } }
+
+/* Header judul kolom diam di tempat: wrapper tidak boleh punya padding-atas, kalau tidak header
+   "naik" sebesar padding itu saat mulai di-scroll (posisi awal ≠ posisi menempel). */
+.product-grid-wrap:has(> .sort-header) { padding-top: 0; }
+.sort-header { margin-top: 0; }
