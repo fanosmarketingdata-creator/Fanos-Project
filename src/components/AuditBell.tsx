@@ -36,7 +36,7 @@ export default function AuditBell({ meId, isSuperuser = false, popClass }: { meI
   }, []);
 
   const load = useCallback(async () => {
-    const { data } = await supabase.from('activity_feed').select(FEED_COLUMNS).order('created_at', { ascending: false }).limit(15);
+    const { data } = await supabase.from('activity_feed').select(FEED_COLUMNS).not('user_id', 'is', null).order('created_at', { ascending: false }).limit(15);
     if (data) setLogs(data as Feed[]);
   }, [supabase]);
 
@@ -69,6 +69,7 @@ export default function AuditBell({ meId, isSuperuser = false, popClass }: { meI
       .channel('audit-feed')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'activity_feed' }, (payload) => {
         const l = payload.new as Feed;
+        if (!l.user_id) return; // aktivitas sistem (tanpa pengguna) tidak ditampilkan
         setLogs((prev) => [l, ...prev].slice(0, 15));
         if (l.user_id && l.user_id === meId) return; // aksi sendiri sudah punya toast konfirmasi
         queue.current.push(l);

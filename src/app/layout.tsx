@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import '@/styles/design-tokens.css';
 import './globals.css';
 import '@/styles/dark.css';
 import { cookies } from 'next/headers';

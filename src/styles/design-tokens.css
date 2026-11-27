@@ -1,0 +1,128 @@
+/* ============================================================================
+   DESIGN TOKENS — SATU-SATUNYA FILE UNTUK MENGATUR GAYA SISTEM
+   ----------------------------------------------------------------------------
+   Ubah nilai di sini, seluruh sistem ikut berubah:
+     1. TIPOGRAFI      font, ukuran, ketebalan, tinggi baris
+     2. PALET WARNA    primary, secondary, teks, border, background, status
+     3. GAYA ELEMEN    radius sudut, bayangan, tinggi kontrol
+     4. MODE GELAP     palet khusus dark mode (prefix --dk-)
+   Dipakai oleh: globals.css, dash.css, registry.css, theme.css, pm.css, dark.css
+   dan Tailwind (tailwind.config.ts: brand-*, text-fs-*, rounded-*, dll).
+   Aturan: JANGAN menulis kode warna/ukuran font langsung di CSS baru —
+   pakai var(--...) dari file ini.
+   Catatan: grafik (chart) & halaman cetak yang warnanya ditulis di file .tsx
+   belum otomatis mengikuti token ini.
+============================================================================ */
+
+:root {
+  /* ───────────── 1. TIPOGRAFI ───────────── */
+  --font-sans: 'Outfit', 'Segoe UI', Arial, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+
+  /* skala ukuran font */
+  --fs-2xs: 10px;
+  --fs-2xs-plus: 10.5px;
+  --fs-xs: 11px;
+  --fs-xs-plus: 11.5px;
+  --fs-sm: 12px;
+  --fs-sm-plus: 12.5px;
+  --fs-base: 13px;
+  --fs-base-plus: 13.5px;
+  --fs-md: 14px;
+  --fs-lg: 15px;
+  --fs-xl: 16px;
+  --fs-2xl: 18px;
+  --fs-3xl: 24px;
+  --fs-4xl: 32px;
+
+  --fw-regular: 400;
+  --fw-medium: 500;
+  --fw-semibold: 600;
+  --fw-bold: 700;
+  --lh-tight: 1.25;
+  --lh-normal: 1.5;
+
+  /* ───────────── 2. PALET WARNA ───────────── */
+  /* Primary (biru merek) */
+  --c-primary: #3563e9;          /* tombol utama, link, fokus */
+  --c-accent: #2563eb;           /* ikon & aksen biru */
+  --c-accent-strong: #1d4ed8;    /* hover / teks biru tegas */
+  --c-primary-50: #eff6ff;       /* latar biru sangat muda */
+  --c-primary-100: #dbeafe;
+
+  /* Secondary */
+  --c-secondary: #6366f1;        /* indigo: aksen pendamping */
+  --c-heading: #1a237e;          /* judul halaman (indigo tua) */
+
+  /* Teks */
+  --c-text-strong: #0f172a;      /* judul, angka penting */
+  --c-text: #334155;             /* teks isi */
+  --c-text-soft: #475569;
+  --c-text-muted: #64748b;       /* teks sekunder */
+  --c-text-faint: #94a3b8;       /* label halus, ikon pasif */
+  --c-placeholder: #9ca3af;
+  --c-gray-500: #6b7280;
+  --c-white: #fff;               /* teks di atas warna gelap, permukaan putih */
+
+  /* Border */
+  --c-border: #e2e8f0;
+  --c-border-soft: #e5e7eb;
+  --c-border-card: #e8ecf4;
+  --c-border-strong: #cbd5e1;
+
+  /* Background */
+  --c-page-bg: #f6f8fc;          /* latar halaman */
+  --c-surface-alt: #f8fafc;      /* header tabel, panel */
+  --c-surface-muted: #f1f5f9;
+
+  /* Status */
+  --c-success: #16a34a;
+  --c-danger: #dc2626;
+  --c-danger-light: #ef4444;
+  --c-danger-dark: #b91c1c;
+  --c-rose: #e11d48;
+
+  /* ───────────── 3. GAYA ELEMEN ───────────── */
+  --radius-xs: 6px;
+  --radius-sm: 8px;              /* input, tombol kecil */
+  --radius-md: 10px;             /* tombol, kartu kecil */
+  --radius-lg: 12px;
+  --radius-xl: 14px;             /* kartu/panel */
+  --radius-2xl: 16px;
+  --radius-3xl: 20px;
+  --radius-pill: 999px;
+
+  --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-md: 0 4px 14px rgba(15, 23, 42, 0.08);
+  --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.14);
+}
+
+/* ───────────── 4. MODE GELAP (html.dark) ─────────────
+   Palet yang dipakai dark.css. Ubah di sini untuk menyetel tampilan dark mode. */
+:root {
+  --dk-bg: #0f1117;              /* latar utama */
+  --dk-text: #ffffff;
+  --dk-text-soft: #bdc1d3;
+  --dk-text-soft-2: #b0b5ca;
+  --dk-text-muted: #9ba1bc;
+  --dk-text-muted-2: #9fa4ba;
+  --dk-accent: #6f8fec;          /* link / aksen biru */
+  --dk-accent-2: #6d95ee;
+  --dk-accent-3: #7aa2ff;
+  --dk-surface-1: #262938;
+  --dk-surface-2: #232634;
+  --dk-surface-3: #13161e;
+  --dk-panel-blue-1: #202c44;
+  --dk-panel-blue-2: #243246;
+  --dk-panel-blue-3: #243248;
+  --dk-panel-blue-4: #222d45;
+  --dk-panel-blue-5: #202b40;
+  --dk-panel-navy-1: #111c27;
+  --dk-panel-navy-2: #101829;
+  --dk-panel-navy-3: #101c2b;
+  --dk-panel-navy-4: #121f2b;
+  --dk-border-blue: #2e3e50;
+  --dk-danger: #e57575;
+  --dk-danger-2: #e9728c;
+  --dk-danger-3: #ef6c6c;
+}
