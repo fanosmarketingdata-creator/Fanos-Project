@@ -1603,12 +1603,12 @@ html.dark .modal:not(.modal-delete) .modal-footer:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .btn-primary:not(.paper *) {
-  background: linear-gradient(135deg, #293f6c, var(--f-primary-d));
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .btn-primary:hover:not(.paper *) {
-  background: linear-gradient(135deg, #273c67, #2a63e6);
+  background: linear-gradient(180deg, #4170f3, #2f5ad8);
 }
 }
 @media screen {
@@ -1836,12 +1836,12 @@ html.dark .modal:not(.modal-delete) .fv2-item-row:not(.paper *) {
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .btn-primary:not(.paper *) {
-  background: linear-gradient(180deg, #283969, #3563e9);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
 html.dark .modal:not(.modal-delete) .btn-primary:hover:not(.paper *) {
-  background: linear-gradient(180deg, #2a3c6e, #2f5ad8);
+  background: linear-gradient(180deg, #4170f3, #2f5ad8);
 }
 }
 @media screen {
@@ -1950,7 +1950,7 @@ html.dark .client-card-avatar:not(.paper *) {
 }
 @media screen {
 html.dark .btn-primary:not(.paper *) {
-  background: linear-gradient(180deg, #283969, #3563e9);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
@@ -2578,13 +2578,13 @@ html.dark .client-card-avatar:not(.paper *) {
 @media screen {
 html.dark main .btn-primary:not(.paper *),
 html.dark .card-header .btn-primary:not(.paper *) {
-  background: linear-gradient(135deg, #293f6c, #2459d6);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
 html.dark main .btn-primary:hover:not(.paper *),
 html.dark .card-header .btn-primary:hover:not(.paper *) {
-  background: linear-gradient(135deg, #273c67, #2a63e6);
+  background: linear-gradient(180deg, #4170f3, #2f5ad8);
 }
 }
 @media screen {
@@ -2604,13 +2604,13 @@ html.dark main .btn-secondary:hover:not(.paper *) {
 @media screen {
 html.dark main button.bg-brand-500:not(.paper *),
 html.dark main a.bg-brand-500:not(.paper *) {
-  background: linear-gradient(135deg, #293f6c, #2459d6);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
 html.dark main button.bg-brand-500:hover:not(:disabled):not(.paper *),
 html.dark main a.bg-brand-500:hover:not(.paper *) {
-  background: linear-gradient(135deg, #273c67, #2a63e6);
+  background: linear-gradient(180deg, #4170f3, #2f5ad8);
 }
 }
 @media screen {
@@ -2751,13 +2751,13 @@ html.dark main .btn-primary:not(.paper *),
 html.dark .card-header .btn-primary:not(.paper *),
 html.dark main button.bg-brand-500:not(.paper *),
 html.dark main a.bg-brand-500:not(.paper *) {
-  background: linear-gradient(180deg, #283969, #3563e9);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
 html.dark main .btn-primary:hover:not(.paper *),
 html.dark .card-header .btn-primary:hover:not(.paper *) {
-  background: linear-gradient(180deg, #2a3c6e, #2f5ad8);
+  background: linear-gradient(180deg, #4170f3, #2f5ad8);
 }
 }
 @media screen {
@@ -3513,7 +3513,7 @@ html.dark .pm-pill-btn:hover:not(.paper *) {
 }
 @media screen {
 html.dark .pm-primary:not(.paper *) {
-  background: linear-gradient(180deg, #283969, #3563e9);
+  background: linear-gradient(180deg, #4a76f7, var(--c-primary));
 }
 }
 @media screen {
