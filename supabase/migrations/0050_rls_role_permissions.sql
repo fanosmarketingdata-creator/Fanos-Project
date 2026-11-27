@@ -29,8 +29,8 @@ begin
   if not found then return true; end if;  -- sama dengan aplikasi: role tanpa data = akses penuh
   p := coalesce(p, '{}');
   -- menu turunan ikut hak menu induknya
-  if '/dashboard/clients' = any(p) then p := p || '/dashboard/client-categories'; end if;
-  if '/dashboard/products' = any(p) then p := p || '/dashboard/product-categories'; end if;
+  if '/dashboard/clients' = any(p) then p := array_append(p, '/dashboard/client-categories'); end if;
+  if '/dashboard/products' = any(p) then p := array_append(p, '/dashboard/product-categories'); end if;
 
   foreach m in array menus loop
     if m = any(p) then
