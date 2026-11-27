@@ -984,6 +984,12 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
     linear-gradient(160deg, #eef1f8 0%, #e6eaf4 45%, #dfe5f1 100%);
 }
 
-/* Logo Fouralist (wordmark lebar) di halaman login */
-.login-card .login-logo-top img, .login-split .login-image img { width: 120px; height: auto; }
-@media (max-width: 640px) { .login-card .login-logo-top img, .login-split .login-image img { width: 100px; } }
+/* Logo Fouralist di halaman login: menempel di pojok kiri-atas halaman (bukan di atas judul form) */
+.login-page > .login-logo-top { position: absolute; top: 28px; left: 40px; right: auto; margin: 0; display: block; z-index: 5; }
+.login-page > .login-logo-top img { width: 130px; height: auto; }
+@media (max-width: 640px) {
+  .login-page > .login-logo-top { top: 18px; left: 20px; }
+  .login-page > .login-logo-top img { width: 100px; }
+}
+html .login-page > .login-logo-top .logo-light { display: block !important; }
+html .login-page > .login-logo-top .logo-dark { display: none !important; }
