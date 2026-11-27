@@ -29,6 +29,8 @@ const VERB: Record<string, string> = { dihapus: 'deleted', diperbarui: 'updated'
 
 type Rule = [RegExp, (m: RegExpMatchArray) => string];
 const RULES: Rule[] = [
+  [/^Format isian tidak valid\. Periksa kembali isian Anda\. \(([\s\S]*)\)$/, (m) => `Invalid input format. Please check your input. (${m[1]})`],
+  [/^Angka terlalu besar atau di luar batas yang diizinkan\. \(([\s\S]*)\)$/, (m) => `Number is too large or out of the allowed range. (${m[1]})`],
   [/^Sudah dipakai (.+) · (.+)$/, (m) => `Already used by ${m[1]} · ${m[2]}`],
   [/^Notifikasi terkirim ke (\d+) perangkat$/, (m) => `Notification sent to ${m[1]} device${m[1] === '1' ? '' : 's'}`],
   [/^membuat project$/, () => 'created the project'],
