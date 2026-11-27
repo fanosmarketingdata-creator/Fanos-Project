@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -75,7 +76,7 @@ export async function createManualDelivery(input: { doc_no?: string; do_date: st
   );
   if (itemsErr) {
     await supabase.from('delivery_orders').delete().eq('id', d.id);
-    return { error: itemsErr.message };
+    return { error: friendlyError(itemsErr) };
   }
 
   revalidatePath('/dashboard/delivery-orders');

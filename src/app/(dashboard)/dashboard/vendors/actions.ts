@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -37,7 +38,7 @@ export async function saveVendor(input: VendorInput) {
     : supabase.from('vendors').insert(payload);
 
   const { error } = await query;
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/vendors');
   return { success: true };
@@ -47,7 +48,7 @@ export async function deleteVendor(id: string) {
   { const denied = await guard('/dashboard/vendors', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('vendors').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/vendors');
   return { success: true };

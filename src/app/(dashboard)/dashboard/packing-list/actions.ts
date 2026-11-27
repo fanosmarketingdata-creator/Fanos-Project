@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -108,7 +109,7 @@ export async function createPackingList(input: PackingInput) {
       remarks: i.remarks || null, sort_order: n,
     }))
   );
-  if (iErr) { await supabase.from('packing_lists').delete().eq('id', pl.id); return { error: iErr.message }; }
+  if (iErr) { await supabase.from('packing_lists').delete().eq('id', pl.id); return { error: friendlyError(iErr) }; }
   revalidatePath('/dashboard/packing-list');
   return { success: true, id: pl.id as string };
 }
@@ -117,7 +118,7 @@ export async function deletePackingList(id: string) {
   { const denied = await guard('/dashboard/packing-list', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('packing_lists').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/packing-list');
   return { success: true };
 }

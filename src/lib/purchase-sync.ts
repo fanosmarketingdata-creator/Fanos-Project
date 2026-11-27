@@ -1,3 +1,4 @@
+import { friendlyError } from '@/lib/db-error';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Hitung ulang total terbayar, sisa utang, dan status Purchase Invoice.
@@ -12,5 +13,5 @@ export async function syncPurchaseInvoice(supabase: SupabaseClient, invoiceId: s
   const remaining = Math.max(0, Number(inv.grand_total) - paid - disc);
   const status = remaining <= 0.005 ? 'PAID' : paid + disc > 0 ? 'PARTIAL' : 'UNPAID';
   const { error } = await supabase.from('purchase_invoices').update({ total_paid: paid, paid_discount: disc, remaining, status }).eq('id', invoiceId);
-  return error ? { error: error.message } : {};
+  return error ? { error: friendlyError(error) } : {};
 }

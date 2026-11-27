@@ -1,3 +1,4 @@
+import { friendlyError } from '@/lib/db-error';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const REF_LABEL: Record<string, string> = {
@@ -34,5 +35,5 @@ export async function postMovements(
   }));
   if (rows.length === 0) return {};
   const { error } = await supabase.from('stock_movements').insert(rows);
-  return error ? { error: error.message } : {};
+  return error ? { error: friendlyError(error) } : {};
 }

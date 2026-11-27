@@ -218,7 +218,12 @@ export function withInherited(allowed: string[] | null): string[] | null {
 // allowed === null: akses penuh (Superuser / role tanpa data).
 export function canDo(allowed: string[] | null, roleActions: RoleActions | null, href: string, action: CrudAction): boolean {
   if (allowed === null) return true;
-  if (!ALL_MENU_KEYS.includes(href)) return true;
+  if (!ALL_MENU_KEYS.includes(href)) {
+    // href induk (mis. /dashboard/returns): boleh bila salah satu menu turunannya boleh.
+    const kids = ALL_MENU_KEYS.filter((k) => k.startsWith(href + '/'));
+    if (kids.length === 0) return true;
+    return kids.some((k) => canDo(allowed, roleActions, k, action));
+  }
   if (!allowed.includes(href)) return false;
   const list = roleActions?.[href] ?? (INHERIT[href] ? roleActions?.[INHERIT[href]] : undefined);
   return list ? list.includes(action) : true;

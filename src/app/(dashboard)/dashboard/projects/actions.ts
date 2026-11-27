@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -59,10 +60,10 @@ export async function saveProject(input: ProjectInput) {
   let id = input.id;
   if (id) {
     const { error } = await supabase.from('projects').update(payload).eq('id', id);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   } else {
     const { data, error } = await supabase.from('projects').insert(payload).select('id').single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     id = data.id as string;
   }
 
@@ -74,7 +75,7 @@ export async function deleteProject(id: string) {
   { const denied = await guard('/dashboard/projects', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('projects').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/projects');
   return { success: true };

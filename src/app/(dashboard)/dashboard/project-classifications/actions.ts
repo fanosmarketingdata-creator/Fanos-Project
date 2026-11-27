@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -27,7 +28,7 @@ export async function deleteClassification(id: string) {
   { const denied = await guard('/dashboard/project-classifications', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('project_classifications').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/project-classifications');
   revalidatePath('/dashboard/projects');

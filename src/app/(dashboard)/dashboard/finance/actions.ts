@@ -1,7 +1,9 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { guard } from '@/lib/permissions';
 import { FINANCE_KINDS, rupiahLabel, type FinanceKind, type FinanceOption } from '@/lib/finance';
 
 const PATHS: Record<FinanceKind, string> = {
@@ -18,6 +20,7 @@ export async function listFinanceOptions(kinds: FinanceKind[]): Promise<FinanceO
 export async function saveFinanceOption(input: { id?: string; kind: FinanceKind; name: string; value?: number | null; bank_name?: string; account_no?: string; account_holder?: string; account_note?: string }) {
   const cfg = FINANCE_KINDS[input.kind];
   if (!cfg) return { error: 'Jenis data tidak dikenal.' };
+  { const denied = await guard(PATHS[input.kind], 'save', input); if (denied) return { error: denied }; }
   let name = (input.name ?? '').trim();
   let value: number | null = null;
   if (cfg.mode !== 'none') {
@@ -47,9 +50,11 @@ export async function saveFinanceOption(input: { id?: string; kind: FinanceKind;
 }
 
 export async function deleteFinanceOption(id: string, kind: FinanceKind) {
+  if (!PATHS[kind]) return { error: 'Jenis data tidak dikenal.' };
+  { const denied = await guard(PATHS[kind], 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('finance_options').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(PATHS[kind]);
   return { success: true };
 }

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -81,16 +82,16 @@ export async function saveSalesOrder(input: SalesOrderInput) {
   let soId = input.id;
   if (soId) {
     const { error } = await supabase.from('sales_orders').update(headerPayload).eq('id', soId);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     const { error: delErr } = await supabase.from('sales_order_items').delete().eq('sales_order_id', soId);
-    if (delErr) return { error: delErr.message };
+    if (delErr) return { error: friendlyError(delErr) };
   } else {
     const { data, error } = await supabase
       .from('sales_orders')
       .insert({ ...headerPayload, status: 'DRAFT' })
       .select('id')
       .single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     soId = data.id;
   }
 
@@ -105,7 +106,7 @@ export async function saveSalesOrder(input: SalesOrderInput) {
     sort_order: i,
   }));
   const { error: itemsErr } = await supabase.from('sales_order_items').insert(rows);
-  if (itemsErr) return { error: itemsErr.message };
+  if (itemsErr) return { error: friendlyError(itemsErr) };
 
   if (input.mode === 'quotation' && input.quotation_id) {
     await supabase.from('quotations').update({ status: 'ACCEPTED' }).eq('id', input.quotation_id).eq('status', 'DRAFT');
@@ -122,7 +123,7 @@ export async function deleteSalesOrder(id: string) {
   const { data: cur } = await supabase.from('sales_orders').select('status').eq('id', id).single();
   if (cur?.status === 'COMPLETED') return { error: 'Sales Order berstatus COMPLETED tidak dapat dihapus.' };
   const { error } = await supabase.from('sales_orders').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/sales-orders');
   return { success: true };
@@ -170,6 +171,7 @@ export async function getSOShippingStatus(soId: string) {
 }
 
 export async function shipItems(soId: string, doDate: string, shipItemsInput: ShipItemInput[], docNo?: string, doNotes?: string, warehouseId?: string) {
+  { const d1 = await guard('/dashboard/delivery-orders', 'create'); if (d1) { const d2 = await guard('/dashboard/sales-orders', 'edit'); if (d2) return { error: d2 }; } }
   const toShip = shipItemsInput.filter((it) => it.ship_qty > 0);
   if (toShip.length === 0) return { error: 'Mohon isi minimal satu Ship Qty.' };
 
@@ -212,7 +214,7 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
     notes: it.notes || null,
   }));
   const { error: doItemsErr } = await supabase.from('delivery_order_items').insert(doItemsRows);
-  if (doItemsErr) return { error: doItemsErr.message };
+  if (doItemsErr) return { error: friendlyError(doItemsErr) };
 
   // Update qty_shipped akumulatif di tiap sales_order_item
   for (const ship of toShip) {
@@ -223,7 +225,7 @@ export async function shipItems(soId: string, doDate: string, shipItemsInput: Sh
       .from('sales_order_items')
       .update({ qty_shipped: newShipped })
       .eq('id', ship.sales_order_item_id);
-    if (updErr) return { error: updErr.message };
+    if (updErr) return { error: friendlyError(updErr) };
   }
 
   revalidatePath('/dashboard/sales-orders');
@@ -242,7 +244,7 @@ export async function changeSalesOrderStatus(id: string, to: 'VERIFIED' | 'COMPL
     return { error: to === 'VERIFIED' ? 'Hanya Sales Order berstatus DRAFT yang dapat di-verify.' : 'Sales Order harus berstatus VERIFIED sebelum dapat di-complete.' };
   }
   const { error } = await supabase.from('sales_orders').update({ status: to }).eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/sales-orders');
   revalidatePath('/dashboard/delivery-orders');
   revalidatePath('/dashboard');
@@ -284,6 +286,7 @@ export async function getSalesOrderFull(soId: string): Promise<SOFull | null> {
 
 // Simpan perubahan dari form Invoice / Delivery Order ke Sales Order asalnya.
 export async function syncSalesOrder(soId: string, edits: SOEdits) {
+  { const denied = await guard('/dashboard/sales-orders', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: so } = await supabase.from('sales_orders').select('status').eq('id', soId).single();
   if (!so) return { error: 'Sales Order tidak ditemukan' };
@@ -307,7 +310,7 @@ export async function syncSalesOrder(soId: string, edits: SOEdits) {
   const removed = (existing ?? []).filter((ex) => !keep.has(ex.id)).map((ex) => ex.id);
   if (removed.length) {
     const { error } = await supabase.from('sales_order_items').delete().in('id', removed);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   }
   for (let i = 0; i < items.length; i++) {
     const it = items[i];
@@ -315,7 +318,7 @@ export async function syncSalesOrder(soId: string, edits: SOEdits) {
     const { error } = it.id
       ? await supabase.from('sales_order_items').update(row).eq('id', it.id)
       : await supabase.from('sales_order_items').insert({ ...row, sales_order_id: soId });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   }
 
   const subtotal = items.reduce((s, it) => s + it.qty * it.unit_price, 0);
@@ -325,7 +328,7 @@ export async function syncSalesOrder(soId: string, edits: SOEdits) {
     .from('sales_orders')
     .update({ discounts: edits.discounts, charges: edits.charges, discount_percent: discountPercent, total_amount: total })
     .eq('id', soId);
-  if (hErr) return { error: hErr.message };
+  if (hErr) return { error: friendlyError(hErr) };
 
   revalidatePath('/dashboard/sales-orders');
   return { success: true };
@@ -343,7 +346,7 @@ export async function getSalesOrdersForExport(ids: string[]) {
       .select('doc_no, so_date, status, total_amount, global_notes, project_name, source_type, discounts, charges, clients(client_no, company), quotations(doc_no), boq_projects(doc_no), sales_order_items(sku, qty, qty_shipped, unit_price, total, notes, sort_order, products(name, uom))')
       .in('id', ids.slice(i, i + 100))
       .order('so_date', { ascending: false });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     for (const so of data ?? []) {
       const c = first<{ client_no: string | null; company: string | null }>(so.clients);
       const quote = first<{ doc_no: string | null }>(so.quotations);

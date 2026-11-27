@@ -1,11 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import POForm from '../POForm';
 
 export default async function NewPOPage() {
   const supabase = createClient();
   const [{ data: vendors }, { data: products }, { data: sos }] = await Promise.all([
     supabase.from('vendors').select('id, company').order('company'),
-    supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku'),
+    fetchAll(() => supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku')),
     supabase.from('sales_orders').select('id, doc_no, status, clients(project_name)').in('status', ['VERIFIED', 'ONGOING']).order('so_date', { ascending: false }),
   ]);
   const salesOrders = (sos ?? []).map((o) => {

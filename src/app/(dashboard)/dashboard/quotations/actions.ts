@@ -1,4 +1,6 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
+import { todayWIB } from '@/lib/dates';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -66,16 +68,16 @@ export async function saveQuotation(input: QuotationInput) {
   let quoteId = input.id;
   if (quoteId) {
     const { error } = await supabase.from('quotations').update(headerPayload).eq('id', quoteId);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     const { error: delErr } = await supabase.from('quotation_items').delete().eq('quotation_id', quoteId);
-    if (delErr) return { error: delErr.message };
+    if (delErr) return { error: friendlyError(delErr) };
   } else {
     const { data, error } = await supabase
       .from('quotations')
       .insert({ ...headerPayload, status: 'DRAFT' })
       .select('id')
       .single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     quoteId = data.id;
   }
 
@@ -99,7 +101,7 @@ export async function saveQuotation(input: QuotationInput) {
     sort_order: i,
   }));
   const { error: itemsError } = await supabase.from('quotation_items').insert(rows);
-  if (itemsError) return { error: itemsError.message };
+  if (itemsError) return { error: friendlyError(itemsError) };
 
   revalidatePath('/dashboard/projects');
   revalidatePath('/dashboard/quotations');
@@ -137,7 +139,7 @@ export async function deleteQuotation(id: string) {
   { const denied = await guard('/dashboard/quotations', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('quotations').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/quotations');
   return { success: true };
@@ -153,18 +155,18 @@ export async function acceptQuotationAndCreateSO(quotationId: string) {
     .select('*, quotation_items(*)')
     .eq('id', quotationId)
     .single();
-  if (quoteError || !quote) return { error: quoteError?.message || 'Quotation tidak ditemukan' };
+  if (quoteError || !quote) return { error: (quoteError ? friendlyError(quoteError) : '') || 'Quotation tidak ditemukan' };
   if (quote.status !== 'DRAFT') return { error: 'Hanya quotation berstatus DRAFT yang dapat diterima.' };
 
   const { error: statusErr } = await supabase.from('quotations').update({ status: 'ACCEPTED' }).eq('id', quotationId);
-  if (statusErr) return { error: statusErr.message };
+  if (statusErr) return { error: friendlyError(statusErr) };
 
   const discountPercent = sumDiscountPercent(quote.discounts as DiscountLine[]);
 
   const { data: so, error: soError } = await supabase
     .from('sales_orders')
     .insert({
-      so_date: new Date().toISOString().split('T')[0],
+      so_date: todayWIB(),
       client_id: quote.client_id,
       quotation_id: quote.id,
       boq_project_id: quote.boq_project_id,
@@ -178,7 +180,7 @@ export async function acceptQuotationAndCreateSO(quotationId: string) {
     })
     .select('id')
     .single();
-  if (soError) return { error: soError.message };
+  if (soError) return { error: friendlyError(soError) };
 
   type QItem = { product_id: string | null; sku: string; qty: number; uom: string; unit_price: number };
   const items = (quote.quotation_items as QItem[]) ?? [];
@@ -192,7 +194,7 @@ export async function acceptQuotationAndCreateSO(quotationId: string) {
     sort_order: i,
   }));
   const { error: soItemsErr } = await supabase.from('sales_order_items').insert(soItems);
-  if (soItemsErr) return { error: soItemsErr.message };
+  if (soItemsErr) return { error: friendlyError(soItemsErr) };
 
   revalidatePath('/dashboard/quotations');
   revalidatePath('/dashboard/sales-orders');

@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -25,7 +26,7 @@ const rp = (n: number) => 'Rp ' + Math.round(n).toLocaleString('id-ID');
 export default function PaymentForm({ invoices, initial, presetInvoice }: { invoices: PayableInvoice[]; initial?: PaymentInitial; presetInvoice?: string }) {
   const router = useRouter();
   const toast = useToast();
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocal();
   const [invoiceId, setInvoiceId] = useState(initial?.invoice_id ?? (invoices.some((i) => i.id === presetInvoice) ? presetInvoice! : ''));
   const [docNo, setDocNo] = useState(initial?.doc_no ?? '');
   const [payDate, setPayDate] = useState(initial?.pay_date ?? today);

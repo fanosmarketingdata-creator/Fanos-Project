@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -66,10 +67,10 @@ export async function savePmProject(input: PmProjectInput) {
   let id = input.id;
   if (id) {
     const { error } = await supabase.from('pm_projects').update(payload).eq('id', id);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   } else {
     const { data, error } = await supabase.from('pm_projects').insert(payload).select('id').single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     id = data.id as string;
   }
   // Anggota: owner otomatis ikut.
@@ -87,7 +88,7 @@ export async function deletePmProject(id: string) {
   { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_projects').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/project-management');
   return { success: true };
 }
@@ -96,7 +97,7 @@ export async function addProjectMember(projectId: string, memberId: string) {
   { const denied = await guard('/dashboard/project-management', 'create'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_project_members').upsert({ project_id: projectId, team_member_id: memberId });
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   const { data: m } = await supabase.from('team_members').select('name').eq('id', memberId).single();
   await log(projectId, `menambahkan ${m?.name ?? 'anggota'} ke tim`);
   revalidatePath(`/dashboard/project-management/${projectId}`);
@@ -107,7 +108,7 @@ export async function removeProjectMember(projectId: string, memberId: string) {
   { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_project_members').delete().eq('project_id', projectId).eq('team_member_id', memberId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await supabase.from('pm_task_assignees').delete().eq('team_member_id', memberId).in('task_id', ((await supabase.from('pm_tasks').select('id').eq('project_id', projectId)).data ?? []).map((t) => t.id as string));
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
@@ -150,12 +151,12 @@ export async function saveTask(input: TaskInput) {
   if (id) {
     const { data: old } = await supabase.from('pm_tasks').select('column_id').eq('id', id).single();
     const { error } = await supabase.from('pm_tasks').update(payload).eq('id', id);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     if (old && old.column_id !== input.column_id) await log(input.project_id, `memindahkan "${payload.title}" ke ${col.name}`, id);
   } else {
     const { data: last } = await supabase.from('pm_tasks').select('sort_order').eq('project_id', input.project_id).eq('column_id', input.column_id).order('sort_order', { ascending: false }).limit(1);
     const { data, error } = await supabase.from('pm_tasks').insert({ ...payload, project_id: input.project_id, sort_order: ((last?.[0]?.sort_order as number) ?? -1) + 1 }).select('id').single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     id = data.id as string;
     await log(input.project_id, `membuat task "${payload.title}"`, id);
   }
@@ -176,7 +177,7 @@ export async function moveTask(projectId: string, taskId: string, columnId: stri
   ]);
   if (!col) return { error: 'Kolom board tidak ditemukan.' };
   const { error } = await supabase.from('pm_tasks').update({ column_id: columnId, status: col.name, updated_at: new Date().toISOString() }).eq('id', taskId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   if (old && old.column_id !== columnId) await log(projectId, `memindahkan "${old.title}" ke ${col.name}`, taskId);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
@@ -189,7 +190,7 @@ export async function addColumn(projectId: string, name: string, color: string, 
   const supabase = createClient();
   const { data: last } = await supabase.from('pm_columns').select('sort_order').eq('project_id', projectId).order('sort_order', { ascending: false }).limit(1);
   const { data, error } = await supabase.from('pm_columns').insert({ project_id: projectId, name: name.trim(), color, is_done: isDone, sort_order: ((last?.[0]?.sort_order as number) ?? -1) + 1 }).select('id').single();
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await log(projectId, `menambahkan board "${name.trim()}"`);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true, id: data.id as string };
@@ -204,7 +205,7 @@ export async function updateColumn(projectId: string, columnId: string, patch: {
   if (patch.color !== undefined) upd.color = patch.color;
   if (patch.is_done !== undefined) upd.is_done = patch.is_done;
   const { error } = await supabase.from('pm_columns').update(upd).eq('id', columnId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   if (patch.name !== undefined) await supabase.from('pm_tasks').update({ status: patch.name.trim() }).eq('column_id', columnId);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
@@ -222,7 +223,7 @@ export async function deleteColumn(projectId: string, columnId: string) {
   const target = rest[0];
   await supabase.from('pm_tasks').update({ column_id: target.id, status: target.name }).eq('column_id', columnId);
   const { error } = await supabase.from('pm_columns').delete().eq('id', columnId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await log(projectId, `menghapus board "${gone.name}"`);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
@@ -246,7 +247,7 @@ export async function deleteTask(projectId: string, taskId: string) {
   { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_tasks').delete().eq('id', taskId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await log(projectId, 'menghapus sebuah task');
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
@@ -258,7 +259,7 @@ export async function addSubtask(projectId: string, taskId: string, title: strin
   const supabase = createClient();
   const { data: last } = await supabase.from('pm_subtasks').select('sort_order').eq('task_id', taskId).order('sort_order', { ascending: false }).limit(1);
   const { data, error } = await supabase.from('pm_subtasks').insert({ task_id: taskId, title: title.trim(), sort_order: ((last?.[0]?.sort_order as number) ?? -1) + 1 }).select('id').single();
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true, id: data.id as string };
 }
@@ -267,7 +268,7 @@ export async function toggleSubtask(projectId: string, subtaskId: string, done: 
   { const denied = await guard('/dashboard/project-management', 'edit'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_subtasks').update({ done }).eq('id', subtaskId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
 }
@@ -276,7 +277,7 @@ export async function deleteSubtask(projectId: string, subtaskId: string) {
   { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_subtasks').delete().eq('id', subtaskId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
 }
@@ -287,7 +288,7 @@ export async function addComment(projectId: string, taskId: string | null, body:
   const supabase = createClient();
   const author = await actorName();
   const { data, error } = await supabase.from('pm_comments').insert({ project_id: projectId, task_id: taskId, author_name: author, body: body.trim() }).select('id, created_at').single();
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await log(projectId, taskId ? 'mengomentari sebuah task' : 'menulis di diskusi', taskId);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true, id: data.id as string, created_at: data.created_at as string, author };
@@ -299,7 +300,7 @@ export async function addFile(projectId: string, taskId: string | null, name: st
   if (!/^https?:\/\//i.test(url.trim())) return { error: 'Tautan harus diawali http:// atau https://' };
   const supabase = createClient();
   const { data, error } = await supabase.from('pm_files').insert({ project_id: projectId, task_id: taskId, name: name.trim(), url: url.trim(), created_by: await actorName() }).select('id').single();
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await log(projectId, `menambahkan file "${name.trim()}"`, taskId);
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true, id: data.id as string };
@@ -309,7 +310,7 @@ export async function deleteFile(projectId: string, fileId: string) {
   { const denied = await guard('/dashboard/project-management', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('pm_files').delete().eq('id', fileId);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(`/dashboard/project-management/${projectId}`);
   return { success: true };
 }

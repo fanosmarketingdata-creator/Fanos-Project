@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import BrandsTable, { type BrandRow } from './BrandsTable';
 import { orThrowAll } from '@/lib/query';
 
@@ -6,7 +7,7 @@ export default async function BrandsPage() {
   const supabase = createClient();
   const [{ data: brands }, { data: products }] = orThrowAll(await Promise.all([
     supabase.from('brands').select('id, name').order('name'),
-    supabase.from('products').select('brand'),
+    fetchAll(() => supabase.from('products').select('brand')),
   ]));
   const usage = new Map<string, number>();
   (products ?? []).forEach((p) => p.brand && usage.set(p.brand, (usage.get(p.brand) ?? 0) + 1));

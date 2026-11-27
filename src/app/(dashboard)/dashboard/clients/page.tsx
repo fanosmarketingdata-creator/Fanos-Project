@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import ClientsTable from './ClientsTable';
 
 export default async function ClientsPage() {
@@ -7,7 +8,7 @@ export default async function ClientsPage() {
   // Kolom contacts (0035) & category (0041) mungkin belum ada: coba dari yang terlengkap.
   let clients: unknown[] | null = null;
   for (const extra of [', contacts, category', ', contacts', '']) {
-    const r = await supabase.from('clients').select(cols + extra).order('created_at', { ascending: false });
+    const r = await fetchAll(() => supabase.from('clients').select(cols + extra).order('created_at', { ascending: false }));
     if (!r.error) { clients = r.data as unknown[] | null; break; }
   }
 

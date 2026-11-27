@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -27,7 +28,7 @@ export default function NewDeliveryForm({ salesOrders, clients, products }: { sa
   const toast = useToast();
   const [mode, setMode] = useState<'manual' | 'so'>('so');
   const [docNo, setDocNo] = useState('');
-  const [doDate, setDoDate] = useState(new Date().toISOString().split('T')[0]);
+  const [doDate, setDoDate] = useState(todayLocal());
   const [notes, setNotes] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [saving, setSaving] = useState(false);

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -67,7 +68,7 @@ export async function deleteCategory(id: string) {
   const { count } = await supabase.from('products').select('id', { count: 'exact', head: true }).eq('category', cat.name as string);
   if (count && count > 0) return { error: `Kategori "${cat.name}" masih dipakai ${count} produk. Pindahkan produknya ke kategori lain terlebih dahulu.` };
   const { error } = await supabase.from('product_categories').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   refresh();
   return { success: true };
 }

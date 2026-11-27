@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -30,20 +31,20 @@ export async function saveRole(input: RoleInput) {
       .eq('id', input.id);
     if (error) {
       if (error.code === '23505') return { error: 'Nama role telah digunakan.' };
-      return { error: error.message };
+      return { error: friendlyError(error) };
     }
 
     // profiles.role menyimpan NAMA role, jadi kalau role di-rename akun yang
     // memakainya ikut diperbarui.
     if (existing.name !== name) {
       const { error: cascadeErr } = await supabase.from('profiles').update({ role: name }).eq('role', existing.name);
-      if (cascadeErr) return { error: cascadeErr.message };
+      if (cascadeErr) return { error: friendlyError(cascadeErr) };
     }
   } else {
     const { error } = await supabase.from('roles').insert({ name, description: input.description || null });
     if (error) {
       if (error.code === '23505') return { error: 'Nama role telah digunakan.' };
-      return { error: error.message };
+      return { error: friendlyError(error) };
     }
   }
 
@@ -64,7 +65,7 @@ export async function deleteRole(id: string) {
   if ((count ?? 0) > 0) return { error: 'Role ini masih digunakan oleh akun sehingga tidak dapat dihapus.' };
 
   const { error } = await supabase.from('roles').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/roles');
   return { success: true };
@@ -92,7 +93,7 @@ export async function saveRolePermissions(roleId: string, permissions: string[],
   const { error } = await supabase.from('roles').update({ permissions: clean, role_actions: cleanActions }).eq('id', roleId);
   if (error) {
     if (/role_actions/.test(error.message)) return { error: 'Jalankan migrasi 0034_role_actions.sql di Supabase SQL Editor terlebih dahulu.' };
-    return { error: error.message };
+    return { error: friendlyError(error) };
   }
 
   revalidatePath('/dashboard', 'layout');

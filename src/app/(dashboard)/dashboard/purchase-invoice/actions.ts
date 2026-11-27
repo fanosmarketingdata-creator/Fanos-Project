@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -74,7 +75,7 @@ export async function createPurchaseInvoice(input: PurchaseInvoiceInput) {
   const { error: iErr } = await supabase.from('purchase_invoice_items').insert(
     lines.map((l, n) => ({ purchase_invoice_id: inv.id, product_id: idBy.get(l.sku) ?? null, sku: l.sku, description: l.description || null, qty: l.qty, uom: l.uom || null, unit_price: l.unit_price, total: l.qty * l.unit_price, sort_order: n }))
   );
-  if (iErr) { await supabase.from('purchase_invoices').delete().eq('id', inv.id); return { error: iErr.message }; }
+  if (iErr) { await supabase.from('purchase_invoices').delete().eq('id', inv.id); return { error: friendlyError(iErr) }; }
   refresh();
   return { success: true };
 }
@@ -85,7 +86,7 @@ export async function deletePurchaseInvoice(id: string) {
   const { count } = await supabase.from('purchase_payments').select('id', { count: 'exact', head: true }).eq('purchase_invoice_id', id);
   if ((count ?? 0) > 0) return { error: 'Invoice sudah memiliki pembayaran. Hapus pembayarannya terlebih dahulu.' };
   const { error } = await supabase.from('purchase_invoices').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   refresh();
   return { success: true };
 }

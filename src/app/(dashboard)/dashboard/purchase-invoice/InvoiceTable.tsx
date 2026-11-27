@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -27,7 +28,7 @@ export default function InvoiceTable({ rows }: { rows: PIRow[] }) {
   }, [rows, search, status]);
   const paged = usePaged(filtered, search + status);
   const totalDebt = rows.reduce((s, r) => s + r.remaining, 0);
-  const today = new Date().toISOString().split('T')[0];
+  const today = todayLocal();
 
   async function handleDelete() {
     if (!target) return;

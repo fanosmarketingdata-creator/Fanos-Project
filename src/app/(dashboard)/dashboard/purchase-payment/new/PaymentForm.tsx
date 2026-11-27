@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
@@ -20,7 +21,7 @@ export default function PaymentForm({ invoices, preset }: { invoices: Inv[]; pre
   const toast = useToast();
   const [invoiceId, setInvoiceId] = useState(invoices.some((i) => i.id === preset) ? preset : '');
   const [docNo, setDocNo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [amount, setAmount] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState('');

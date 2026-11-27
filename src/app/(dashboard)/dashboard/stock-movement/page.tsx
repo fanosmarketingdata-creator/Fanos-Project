@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import StockMovementTable from './StockMovementTable';
 import { orThrowAll } from '@/lib/query';
 
@@ -6,12 +7,11 @@ import { orThrowAll } from '@/lib/query';
 export default async function StockMovementPage() {
   const supabase = createClient();
   const [{ data }, { data: whs }] = orThrowAll(await Promise.all([
-    supabase
+    fetchAll(() => supabase
       .from('stock_movements')
       .select('id, move_date, sku, qty, ref_type, ref_no, reason, notes, warehouse_id, products(name)')
       .order('move_date', { ascending: false })
-      .order('created_at', { ascending: false })
-      .limit(3000),
+      .order('created_at', { ascending: false }), 1000, 10000),
     supabase.from('warehouses').select('id, name').order('created_at'),
   ]));
   const wname = new Map((whs ?? []).map((w) => [w.id as string, w.name as string]));

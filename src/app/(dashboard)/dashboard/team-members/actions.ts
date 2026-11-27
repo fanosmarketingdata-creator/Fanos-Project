@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -29,7 +30,7 @@ export async function saveTeamMember(input: TeamMemberInput) {
     : supabase.from('team_members').insert(payload);
 
   const { error } = await query;
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/team-members');
   revalidatePath('/dashboard/accounts');
@@ -43,7 +44,7 @@ export async function deleteTeamMember(id: string) {
   // Akun yang tertaut tidak ikut terhapus: kolom profiles.team_member_id
   // otomatis jadi kosong (on delete set null).
   const { error } = await supabase.from('team_members').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/team-members');
   revalidatePath('/dashboard/accounts');

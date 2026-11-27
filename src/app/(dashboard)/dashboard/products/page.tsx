@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import ProductsTable from './ProductsTable';
 import { SPEC_KEYS, PACK_NUM_KEYS } from './fields';
 import { orThrow } from '@/lib/query';
@@ -11,7 +12,7 @@ export default async function ProductsPage() {
     'category', 'subcategory', 'application', 'notes', 'package_type', ...PACK_NUM_KEYS, ...SPEC_KEYS,
   ].join(', ');
   const { data: brandRows } = orThrow(await supabase.from('brands').select('name').order('name'));
-  const { data: products } = orThrow(await supabase.from('products').select(cols).order('created_at', { ascending: false }));
+  const { data: products } = orThrow(await fetchAll(() => supabase.from('products').select(cols).order('created_at', { ascending: false })));
 
   const categories = await loadCategories(supabase);
 

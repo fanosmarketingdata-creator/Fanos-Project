@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import { useMemo, useState, useRef } from 'react';
@@ -32,7 +33,7 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
   const [invoices, setInvoices] = useState<{ id: string; doc_no: string | null; inv_date: string; remaining: number }[]>([]);
   const [invoiceId, setInvoiceId] = useState('');
   const [amount, setAmount] = useState(0);
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [method, setMethod] = useState('');
   const [reference, setReference] = useState('');
   const [saving, setSaving] = useState(false);
@@ -65,7 +66,7 @@ export default function CreditNoteTable({ initialRows }: { initialRows: CNRow[] 
     setMode({ type, row });
     setInvoiceId(''); setMethod(''); setReference('');
     setAmount(Math.round(row.amount - row.applied - row.refunded));
-    setDate(new Date().toISOString().split('T')[0]);
+    setDate(todayLocal());
     if (type === 'apply') {
       try { setInvoices(await getApplicableInvoices(row.id)); } catch { setInvoices([]); }
     }

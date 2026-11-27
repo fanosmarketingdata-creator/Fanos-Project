@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -103,7 +104,7 @@ export async function importClients(rows: ImportRow[], commit: boolean): Promise
       // Kolom contacts (0035) / category (0041) belum ada: simpan tanpa kolom tersebut.
       ({ error } = await supabase.from('clients').insert(adds.map(({ contacts: _c, category: _k, ...rest }) => rest)));
     }
-    if (error) return { ...result, error: error.message };
+    if (error) return { ...result, error: friendlyError(error) };
   }
   const updErr = await inChunks(upds, 20, async (u) => {
     let { error } = await supabase.from('clients').update(u.data).eq('id', u.id);

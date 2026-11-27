@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -19,7 +20,7 @@ export async function saveTermsTemplate(input: { id?: string; name: string; lang
   if (input.is_default) {
     const q = supabase.from('quotation_terms_templates').update({ is_default: false }).eq('is_default', true);
     const { error: e0 } = input.id ? await q.neq('id', input.id) : await q;
-    if (e0) return { error: e0.message };
+    if (e0) return { error: friendlyError(e0) };
   }
   const payload = { name, lang: input.lang === 'en' ? 'en' : 'id', content: input.content, is_default: !!input.is_default, updated_at: new Date().toISOString() };
   const { error } = input.id
@@ -35,7 +36,7 @@ export async function deleteTermsTemplate(id: string) {
   { const denied = await guard(HREF, 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('quotation_terms_templates').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(HREF);
   return { success: true };
 }

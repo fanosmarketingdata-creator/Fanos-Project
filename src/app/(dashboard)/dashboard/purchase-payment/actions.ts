@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -45,7 +46,7 @@ export async function deletePurchasePayment(id: string) {
   const supabase = createClient();
   const { data: p } = await supabase.from('purchase_payments').select('purchase_invoice_id').eq('id', id).single();
   const { error } = await supabase.from('purchase_payments').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   if (p?.purchase_invoice_id) {
     const synced = await syncPurchaseInvoice(supabase, p.purchase_invoice_id);
     if (synced.error) return { error: synced.error };

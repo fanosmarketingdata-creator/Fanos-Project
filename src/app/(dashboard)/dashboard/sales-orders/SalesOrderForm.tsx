@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import ProjectClientFields from '@/components/registry/ProjectClientFields';
 import DocPicker from '@/components/registry/DocPicker';
@@ -42,7 +43,7 @@ export default function SalesOrderForm({
   const [loadingQuote, setLoadingQuote] = useState(false);
 
   const [mode, setMode] = useState<'quotation' | 'manual'>(initial?.mode ?? 'quotation');
-  const [soDate, setSoDate] = useState(initial?.so_date ?? new Date().toISOString().split('T')[0]);
+  const [soDate, setSoDate] = useState(initial?.so_date ?? todayLocal());
   const [quotationId, setQuotationId] = useState(initial?.quotation_id ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
   const [projectName, setProjectName] = useState(initial?.project_name ?? '');

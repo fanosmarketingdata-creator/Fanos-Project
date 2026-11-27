@@ -1,4 +1,6 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
+import { todayWIB } from '@/lib/dates';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -46,8 +48,8 @@ export async function applyCreditNote(cnId: string, invoiceId: string, amount: n
   if (amount > balance + 0.005) return { error: `Jumlah melebihi saldo Credit Note (Rp ${Math.round(balance).toLocaleString('id-ID')}).` };
   if (amount > Number(inv.remaining) + 0.005) return { error: `Jumlah melebihi sisa tagihan invoice (Rp ${Math.round(Number(inv.remaining)).toLocaleString('id-ID')}).` };
 
-  const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cnId, invoice_id: invoiceId, kind: 'APPLY', amount, app_date: date || new Date().toISOString().split('T')[0] });
-  if (error) return { error: error.message };
+  const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cnId, invoice_id: invoiceId, kind: 'APPLY', amount, app_date: date || todayWIB() });
+  if (error) return { error: friendlyError(error) };
   await recalcCN(supabase, cnId);
   const s = await syncInvoicePayments(supabase, invoiceId);
   if (s.error) return { error: s.error };
@@ -63,8 +65,8 @@ export async function refundCreditNote(cnId: string, amount: number, date: strin
   if (!cn) return { error: 'Credit Note tidak ditemukan' };
   const balance = Number(cn.amount) - Number(cn.applied_amount) - Number(cn.refunded_amount);
   if (amount > balance + 0.005) return { error: `Jumlah melebihi saldo Credit Note (Rp ${Math.round(balance).toLocaleString('id-ID')}).` };
-  const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cnId, kind: 'REFUND', amount, app_date: date || new Date().toISOString().split('T')[0], method: method || null, reference_no: reference || null });
-  if (error) return { error: error.message };
+  const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cnId, kind: 'REFUND', amount, app_date: date || todayWIB(), method: method || null, reference_no: reference || null });
+  if (error) return { error: friendlyError(error) };
   await recalcCN(supabase, cnId);
   refresh();
   return { success: true };

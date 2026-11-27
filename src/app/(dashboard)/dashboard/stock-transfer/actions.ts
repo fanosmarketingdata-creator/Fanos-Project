@@ -1,4 +1,6 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
+import { todayWIB } from '@/lib/dates';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -34,7 +36,7 @@ export async function createTransfer(input: TransferInput) {
   const { error: iErr } = await supabase.from('stock_transfer_items').insert(
     items.map((i, n) => ({ transfer_id: t.id, product_id: idBy.get(i.sku) ?? null, sku: i.sku, qty: i.qty, sort_order: n }))
   );
-  if (iErr) { await supabase.from('stock_transfers').delete().eq('id', t.id); return { error: iErr.message }; }
+  if (iErr) { await supabase.from('stock_transfers').delete().eq('id', t.id); return { error: friendlyError(iErr) }; }
   refresh();
   return { success: true };
 }
@@ -58,7 +60,7 @@ export async function shipTransfer(id: string) {
   });
   if (post.error) return { error: post.error };
   const { error } = await supabase.from('stock_transfers').update({ status: 'SHIPPED' }).eq('id', id);
-  if (error) { await supabase.from('stock_movements').delete().eq('ref_type', 'TRANSFER_OUT').eq('ref_id', id); return { error: error.message }; }
+  if (error) { await supabase.from('stock_movements').delete().eq('ref_type', 'TRANSFER_OUT').eq('ref_id', id); return { error: friendlyError(error) }; }
   refresh();
   return { success: true };
 }
@@ -70,7 +72,7 @@ export async function receiveTransfer(id: string, receivedDate?: string) {
   const { data: t } = await supabase.from('stock_transfers').select('id, doc_no, status, to_warehouse_id').eq('id', id).single();
   if (!t) return { error: 'Dokumen tidak ditemukan' };
   if (t.status !== 'SHIPPED') return { error: 'Hanya transfer berstatus Shipped yang dapat diterima.' };
-  const date = receivedDate || new Date().toISOString().split('T')[0];
+  const date = receivedDate || todayWIB();
   const { data: items } = await supabase.from('stock_transfer_items').select('sku, qty, product_id').eq('transfer_id', id);
   const post = await postMovements(supabase, {
     warehouse_id: t.to_warehouse_id, date, ref_type: 'TRANSFER_IN', ref_id: id, ref_no: t.doc_no, reason: 'Transfer In', notes: null,
@@ -78,7 +80,7 @@ export async function receiveTransfer(id: string, receivedDate?: string) {
   });
   if (post.error) return { error: post.error };
   const { error } = await supabase.from('stock_transfers').update({ status: 'COMPLETED', received_date: date }).eq('id', id);
-  if (error) { await supabase.from('stock_movements').delete().eq('ref_type', 'TRANSFER_IN').eq('ref_id', id); return { error: error.message }; }
+  if (error) { await supabase.from('stock_movements').delete().eq('ref_type', 'TRANSFER_IN').eq('ref_id', id); return { error: friendlyError(error) }; }
   refresh();
   return { success: true };
 }
@@ -90,7 +92,7 @@ export async function deleteTransfer(id: string) {
   if (!t) return { error: 'Dokumen tidak ditemukan' };
   if (t.status !== 'DRAFT') return { error: 'Hanya transfer berstatus Draft yang dapat dihapus.' };
   const { error } = await supabase.from('stock_transfers').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   refresh();
   return { success: true };
 }

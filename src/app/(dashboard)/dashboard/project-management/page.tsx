@@ -1,12 +1,12 @@
 import { createClient } from '@/lib/supabase/server';
+import { todayWIB } from '@/lib/dates';
 import ProjectListClient, { type PmProjectRow } from './ProjectListClient';
 import type { Member } from './pm-ui';
 import { orThrowAll } from '@/lib/query';
 
 export default async function ProjectManagementPage() {
   const supabase = createClient();
-  const zn = new Date();
-  const today = new Date(zn.getTime() - zn.getTimezoneOffset() * 60000).toISOString().split('T')[0];
+  const today = todayWIB();
   const [{ data: projects }, { data: tasks }, { data: pmm }, { data: tm }, { data: prof }, { data: cols }] = orThrowAll(await Promise.all([
     supabase.from('pm_projects').select('id, name, description, status, priority, start_date, end_date, owner_id, created_at').order('created_at', { ascending: false }),
     supabase.from('pm_tasks').select('project_id, status, column_id, due_date'),

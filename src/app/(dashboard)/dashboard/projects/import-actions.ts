@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -90,7 +91,7 @@ export async function importProjects(rows: ImportRow[], commit: boolean): Promis
   if (upds.length) { const denied = await guard('/dashboard/projects', 'edit'); if (denied) return { ...result, error: denied }; }
   if (adds.length) {
     const { error } = await supabase.from('projects').insert(adds);
-    if (error) return { ...result, error: error.message };
+    if (error) return { ...result, error: friendlyError(error) };
   }
   const updErr = await inChunks(upds, 20, async (u) => {
     const { error } = await supabase.from('projects').update(u.data).eq('id', u.id);

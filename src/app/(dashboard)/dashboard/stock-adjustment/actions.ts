@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -49,7 +50,7 @@ export async function createAdjustment(input: AdjInput) {
   const { error: iErr } = await supabase.from('stock_adjustment_items').insert(
     calc.map((c, n) => ({ adjustment_id: adj.id, product_id: idBy.get(c.sku) ?? null, sku: c.sku, qty: c.qty, system_qty: input.adj_type === 'OPNAME' ? c.sys : null, diff: c.diff, notes: c.notes || null, sort_order: n }))
   );
-  if (iErr) { await supabase.from('stock_adjustments').delete().eq('id', adj.id); return { error: iErr.message }; }
+  if (iErr) { await supabase.from('stock_adjustments').delete().eq('id', adj.id); return { error: friendlyError(iErr) }; }
 
   const post = await postMovements(supabase, {
     warehouse_id: input.warehouse_id, date: input.adj_date, ref_type: 'ADJUSTMENT', ref_id: adj.id, ref_no: adj.doc_no, reason: input.reason.trim(), notes: input.notes?.trim() || null,
@@ -74,7 +75,7 @@ export async function deleteAdjustment(id: string) {
   }
   await supabase.from('stock_movements').delete().eq('ref_type', 'ADJUSTMENT').eq('ref_id', id);
   const { error } = await supabase.from('stock_adjustments').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   refresh();
   return { success: true };
 }

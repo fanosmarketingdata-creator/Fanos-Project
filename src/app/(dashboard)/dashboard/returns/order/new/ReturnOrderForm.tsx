@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
@@ -19,7 +20,7 @@ export default function ReturnOrderForm({ invoices }: { invoices: InvoiceOption[
   const toast = useToast();
   const [invoiceId, setInvoiceId] = useState('');
   const [docNo, setDocNo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [reason, setReason] = useState('');
   const [warehouseId, setWarehouseId] = useState('');
   const [items, setItems] = useState<ReturnableItem[]>([]);

@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { fetchAll } from '@/lib/fetch-all';
 import { createClient } from '@/lib/supabase/server';
 import BOQProjectForm from '../BOQProjectForm';
 import type { BOQAreaInput, BOQProjectInput } from '../actions';
@@ -13,8 +14,8 @@ export default async function EditBOQProjectPage({ params }: { params: { id: str
       .select('area_name, sub_area_name, product_id, sku, qty, uom, kode_gambar, sort_order')
       .eq('boq_project_id', params.id)
       .order('sort_order'),
-    supabase.from('clients').select('id, project_name').order('project_name'),
-    supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).order('sku'),
+    fetchAll(() => supabase.from('clients').select('id, project_name').order('project_name')),
+    fetchAll(() => supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).order('sku')),
   ]);
 
   if (!boq) notFound();

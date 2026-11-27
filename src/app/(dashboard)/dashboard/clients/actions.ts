@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -60,7 +61,7 @@ export async function saveClient(input: ClientInput) {
       body = dropMissing(body, error.message);
       ({ error } = await supabase.from('clients').update(body).eq('id', id));
     }
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   } else {
     let body = full;
     let r = await supabase.from('clients').insert(body).select('id').single();
@@ -68,7 +69,7 @@ export async function saveClient(input: ClientInput) {
       body = dropMissing(body, r.error.message);
       r = await supabase.from('clients').insert(body).select('id').single();
     }
-    if (r.error) return { error: r.error.message };
+    if (r.error) return { error: friendlyError(r.error) };
     id = r.data.id as string;
   }
 
@@ -80,7 +81,7 @@ export async function deleteClient(id: string) {
   { const denied = await guard('/dashboard/clients', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('clients').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/clients');
   return { success: true };

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -38,16 +39,16 @@ export async function savePurchaseOrder(input: PurchaseOrderInput) {
     if (existing && existing.status !== 'DRAFT') return { error: 'PO yang telah di-order tidak dapat diubah.' };
 
     const { error } = await supabase.from('purchase_orders').update(header).eq('id', poId);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     const { error: delErr } = await supabase.from('purchase_order_items').delete().eq('purchase_order_id', poId);
-    if (delErr) return { error: delErr.message };
+    if (delErr) return { error: friendlyError(delErr) };
   } else {
     const { data, error } = await supabase
       .from('purchase_orders')
       .insert({ ...header, status: 'DRAFT' })
       .select('id')
       .single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     poId = data.id;
   }
 
@@ -61,7 +62,7 @@ export async function savePurchaseOrder(input: PurchaseOrderInput) {
     subtotal: it.qty * it.unit_price,
   }));
   const { error: itemsErr } = await supabase.from('purchase_order_items').insert(rows);
-  if (itemsErr) return { error: itemsErr.message };
+  if (itemsErr) return { error: friendlyError(itemsErr) };
 
   if (input.sales_order_id) await supabase.from('purchase_orders').update({ sales_order_id: input.sales_order_id }).eq('id', poId); // abaikan bila migrasi 0029 belum dijalankan
   revalidatePath('/dashboard/purchase-orders');
@@ -75,7 +76,7 @@ export async function deletePurchaseOrder(id: string) {
   if (po && po.status === 'RECEIVED') return { error: 'PO yang telah diterima tidak dapat dihapus.' };
 
   const { error } = await supabase.from('purchase_orders').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/purchase-orders');
   return { success: true };
@@ -92,7 +93,7 @@ export async function advancePOStatus(id: string) {
   if (!next) return { error: 'Status PO telah final.' };
 
   const { error } = await supabase.from('purchase_orders').update({ status: next }).eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/purchase-orders');
   return { success: true, status: next };

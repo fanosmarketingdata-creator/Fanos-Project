@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -83,11 +84,11 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
       email_confirm: true,
       user_metadata: { full_name: input.full_name.trim() },
     });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     userId = data.user.id;
   } else if (input.password) {
     const { error } = await admin.auth.admin.updateUserById(userId!, { password: input.password });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   }
 
   // Akun Inactive diblokir di level Supabase Auth (tidak bisa login lagi).
@@ -96,7 +97,7 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
   });
   if (banError) {
     if (isNew) await admin.auth.admin.deleteUser(userId!);
-    return { error: banError.message };
+    return { error: friendlyError(banError) };
   }
 
   // Trigger handle_new_user sudah membuat baris profiles; lengkapi di sini.
@@ -117,7 +118,7 @@ async function saveAccountInner(input: AccountInput): Promise<{ error?: string; 
     // Akun baru yang gagal dilengkapi dibatalkan supaya tidak ada akun "setengah jadi".
     if (isNew) await admin.auth.admin.deleteUser(userId!);
     if (profileError.code === '23505') return { error: 'Team member ini telah memiliki akun login lain.' };
-    return { error: profileError.message };
+    return { error: friendlyError(profileError) };
   }
 
   revalidatePath('/dashboard/accounts');
@@ -145,7 +146,7 @@ async function deleteAccountInner(id: string): Promise<{ error?: string; success
     if (/database error|foreign key|violates/i.test(error.message)) {
       return { error: 'Akun ini sudah dipakai di data lain sehingga tidak bisa dihapus. Ubah statusnya menjadi Inactive.' };
     }
-    return { error: error.message };
+    return { error: friendlyError(error) };
   }
 
   revalidatePath('/dashboard/accounts');

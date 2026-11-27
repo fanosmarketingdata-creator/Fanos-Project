@@ -1,11 +1,14 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
+import { guard } from '@/lib/permissions';
 
 export async function saveBrand(input: { id?: string; name: string }) {
   const name = input.name?.trim();
   if (!name) return { error: 'Kolom Brand Name wajib diisi.' };
+  { const denied = await guard('/dashboard/brands', 'save', input); if (denied) return { error: denied }; }
 
   const supabase = createClient();
   if (input.id) {
@@ -27,6 +30,7 @@ export async function saveBrand(input: { id?: string; name: string }) {
 }
 
 export async function deleteBrand(id: string) {
+  { const denied = await guard('/dashboard/brands', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { data: b } = await supabase.from('brands').select('name').eq('id', id).single();
   if (!b) return { error: 'Brand tidak ditemukan' };
@@ -35,7 +39,7 @@ export async function deleteBrand(id: string) {
   if ((count ?? 0) > 0) return { error: 'Brand ini masih digunakan oleh produk sehingga tidak dapat dihapus.' };
 
   const { error } = await supabase.from('brands').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/brands');
   return { success: true };

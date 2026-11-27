@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import CategoriesTable, { type CategoryRow } from './CategoriesTable';
 import { orThrow } from '@/lib/query';
 
@@ -6,7 +7,7 @@ export default async function ProductCategoriesPage() {
   const supabase = createClient();
   const [cats, prods] = await Promise.all([
     supabase.from('product_categories').select('id, name, subcategories').order('sort').order('created_at'),
-    supabase.from('products').select('category'),
+    fetchAll(() => supabase.from('products').select('category')),
   ]);
   const { data } = orThrow(cats);
   const { data: products } = orThrow(prods);

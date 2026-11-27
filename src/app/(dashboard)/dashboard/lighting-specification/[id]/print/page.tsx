@@ -1,3 +1,4 @@
+import { todayWIB } from '@/lib/dates';
 import { notFound } from 'next/navigation';
 import { createClient } from '@/lib/supabase/server';
 import { productInfoBySku } from '@/lib/spec-info';
@@ -34,7 +35,7 @@ export default async function LightingSpecPrintPage({ params }: { params: { id: 
         attn={boq?.clients?.contact_name ?? ''}
         address={boq?.clients?.address ?? ''}
         notes={(spec.notes as string | null) ?? ''}
-        dateIso={new Date().toISOString().slice(0, 10)}
+        dateIso={todayWIB()}
         signerName={me?.full_name ?? ''}
         signerRole={me?.role ?? ''}
         rows={(items ?? []).map((i, n) => ({

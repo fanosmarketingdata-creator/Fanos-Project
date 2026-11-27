@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -53,13 +54,13 @@ export async function saveBOQProject(input: BOQProjectInput) {
 
   if (boqId) {
     const { error } = await supabase.from('boq_projects').update(headerPayload).eq('id', boqId);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     // Hapus item lama, tulis ulang dari form (lebih sederhana daripada diff)
     const { error: delErr } = await supabase.from('boq_project_items').delete().eq('boq_project_id', boqId);
-    if (delErr) return { error: delErr.message };
+    if (delErr) return { error: friendlyError(delErr) };
   } else {
     const { data, error } = await supabase.from('boq_projects').insert(headerPayload).select('id').single();
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     boqId = data.id;
   }
 
@@ -86,7 +87,7 @@ export async function saveBOQProject(input: BOQProjectInput) {
 
   if (rows.length > 0) {
     const { error: itemsError } = await supabase.from('boq_project_items').insert(rows);
-    if (itemsError) return { error: itemsError.message };
+    if (itemsError) return { error: friendlyError(itemsError) };
   }
 
   if (projectId && boqId) await supabase.from('boq_projects').update({ project_id: projectId }).eq('id', boqId); // abaikan bila migrasi 0029 belum dijalankan
@@ -99,7 +100,7 @@ export async function deleteBOQProject(id: string) {
   { const denied = await guard('/dashboard/boq-project', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('boq_projects').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/boq-project');
   return { success: true };
@@ -111,7 +112,7 @@ export async function updateBOQProgress(id: string, progress: 'Pending' | 'InPro
   if (!['Pending', 'InProgress', 'Completed'].includes(progress)) return { error: 'Progress tidak valid.' };
   const supabase = createClient();
   const { error } = await supabase.from('boq_projects').update({ progress }).eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/boq-project');
   return { success: true };
 }

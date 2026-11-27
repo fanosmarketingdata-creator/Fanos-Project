@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import Select from '@/components/ui/Select';
 import { useState } from 'react';
@@ -41,7 +42,7 @@ export default function BOQProjectForm({
 
   const [projectName, setProjectName] = useState(initial?.project_name ?? '');
   const [clientId, setClientId] = useState(initial?.client_id ?? '');
-  const [boqDate, setBoqDate] = useState(initial?.boq_date ?? new Date().toISOString().split('T')[0]);
+  const [boqDate, setBoqDate] = useState(initial?.boq_date ?? todayLocal());
   const [status, setStatus] = useState<'DRAFT' | 'APPROVED'>((initial?.status as 'DRAFT' | 'APPROVED') ?? 'DRAFT');
   const [progress, setProgress] = useState<BOQProjectInput['progress']>(initial?.progress ?? 'Pending');
   const [routeType, setRouteType] = useState(initial?.route_type ?? 'quotation');

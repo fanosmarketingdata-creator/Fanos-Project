@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import { useEffect, useState } from 'react';
@@ -18,7 +19,7 @@ export default function NewInvoiceForm({ pos, initialPo }: { pos: PO[]; initialP
   const [poId, setPoId] = useState('');
   const [docNo, setDocNo] = useState('');
   const [vendorInv, setVendorInv] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [due, setDue] = useState('');
   const [discount, setDiscount] = useState(0);
   const [tax, setTax] = useState(0);

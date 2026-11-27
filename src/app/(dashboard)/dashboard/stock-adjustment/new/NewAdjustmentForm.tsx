@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import { useMemo, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -26,7 +27,7 @@ export default function NewAdjustmentForm({ warehouses, products, stock, default
   const router = useRouter();
   const toast = useToast();
   const [docNo, setDocNo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [wh, setWh] = useState(defaultWarehouse);
   const [type, setType] = useState<Type>('OUT');
   const [reason, setReason] = useState('');

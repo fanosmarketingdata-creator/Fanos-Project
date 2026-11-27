@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import WarehouseTable, { type WarehouseRow } from './WarehouseTable';
 import { orThrowAll } from '@/lib/query';
 
@@ -6,7 +7,7 @@ export default async function WarehousePage() {
   const supabase = createClient();
   const [{ data: whs }, { data: stock }] = orThrowAll(await Promise.all([
     supabase.from('warehouses').select('id, code, name, address, is_default, is_active').order('created_at'),
-    supabase.from('v_current_stock').select('warehouse_id, qty'),
+    fetchAll(() => supabase.from('v_current_stock').select('warehouse_id, qty')),
   ]));
   const total = new Map<string, number>();
   (stock ?? []).forEach((s) => total.set(s.warehouse_id as string, (total.get(s.warehouse_id as string) ?? 0) + Number(s.qty)));

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { getDefaultWarehouseId } from '@/lib/stock';
@@ -122,7 +123,7 @@ async function addStock(supabase: Sb, retId: string, refNo: string | null, date:
   }));
   if (rows.length === 0) return {};
   const { error } = await supabase.from('stock_movements').insert(rows);
-  return error ? { error: error.message } : {};
+  return error ? { error: friendlyError(error) } : {};
 }
 
 async function loadInvoice(supabase: Sb, invoiceId: string) {
@@ -158,7 +159,7 @@ export async function createReturnOrder(input: { invoice_id: string; return_date
   const { error: iErr } = await supabase.from('sales_return_items').insert(
     items.map((it) => ({ sales_return_id: ret.id, sku: it.sku, qty_returned: it.qty_returned, unit_price: it.unit_price, subtotal: it.qty_returned * it.unit_price, condition: it.condition === 'Rusak' ? 'Rusak' : 'Baik' }))
   );
-  if (iErr) return { error: iErr.message };
+  if (iErr) return { error: friendlyError(iErr) };
 
   // Hanya barang berkondisi Baik yang masuk kembali ke stok.
   const good = items.filter((it) => it.condition !== 'Rusak');
@@ -212,7 +213,7 @@ export async function createReturnInvoice(input: ReturnInvoiceInput) {
   const { error: iErr } = await supabase.from('sales_return_items').insert(
     items.map((it) => ({ sales_return_id: ret.id, sku: it.sku, qty_returned: it.qty_returned, unit_price: it.unit_price, subtotal: it.qty_returned * it.unit_price, condition: 'Baik' }))
   );
-  if (iErr) return { error: iErr.message };
+  if (iErr) return { error: friendlyError(iErr) };
 
   // Credit Note
   const { data: cn, error: cnErr } = await supabase
@@ -229,14 +230,14 @@ export async function createReturnInvoice(input: ReturnInvoiceInput) {
   let refunded = 0;
   if (apply > 0) {
     const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cn.id, invoice_id: input.invoice_id, kind: 'APPLY', amount: apply, app_date: input.return_date });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     applied = apply;
   }
   // Invoice sudah lunas & dipilih refund: kembalikan uang langsung.
   const leftover = creditAmount - applied;
   if (input.settlement === 'REFUND' && leftover > 0) {
     const { error } = await supabase.from('credit_note_applications').insert({ credit_note_id: cn.id, kind: 'REFUND', amount: leftover, app_date: input.return_date, method: input.refund_method || null, reference_no: input.refund_reference || null });
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     refunded = leftover;
   }
   await supabase.from('credit_notes').update({ applied_amount: applied, refunded_amount: refunded, status: applied + refunded >= creditAmount ? 'CLOSED' : applied + refunded > 0 ? 'PARTIAL' : 'ISSUED' }).eq('id', cn.id);
@@ -275,7 +276,7 @@ export async function deleteReturn(id: string) {
     await supabase.from('credit_notes').delete().eq('id', r.credit_note_id); // application ikut terhapus (cascade)
   }
   const { error } = await supabase.from('sales_returns').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   if (r.invoice_id) await syncInvoicePayments(supabase, r.invoice_id);
   refresh();
   return { success: true };

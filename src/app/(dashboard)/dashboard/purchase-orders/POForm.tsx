@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import RichTextEditor from '@/components/RichTextEditor';
@@ -35,7 +36,7 @@ export default function POForm({
   const toast = useToast();
   const [saving, setSaving] = useState(false);
 
-  const [poDate, setPoDate] = useState(initial?.po_date ?? new Date().toISOString().split('T')[0]);
+  const [poDate, setPoDate] = useState(initial?.po_date ?? todayLocal());
   const [vendorId, setVendorId] = useState(initial?.vendor_id ?? '');
   const [soId, setSoId] = useState('');
   const [loadingSO, setLoadingSO] = useState(false);

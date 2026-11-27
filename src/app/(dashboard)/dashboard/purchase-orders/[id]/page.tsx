@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { fetchAll } from '@/lib/fetch-all';
 import { createClient } from '@/lib/supabase/server';
 import POForm from '../POForm';
 import type { PurchaseOrderInput } from '../actions';
@@ -13,7 +14,7 @@ export default async function EditPOPage({ params }: { params: { id: string } })
       .select('sku, description, qty, uom, unit_price')
       .eq('purchase_order_id', params.id),
     supabase.from('vendors').select('id, company').order('company'),
-    supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku'),
+    fetchAll(() => supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku')),
   ]);
 
   if (!po) notFound();

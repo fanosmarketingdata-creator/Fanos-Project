@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -76,7 +77,7 @@ export async function createPurchaseDelivery(input: ReceiptInput) {
   const { error: iErr } = await supabase.from('purchase_delivery_items').insert(
     items.map((i, n) => ({ purchase_delivery_id: gr.id, po_item_id: i.po_item_id, product_id: idBy.get(i.sku) ?? null, sku: i.sku, qty_received: i.qty, sort_order: n }))
   );
-  if (iErr) { await supabase.from('purchase_deliveries').delete().eq('id', gr.id); return { error: iErr.message }; }
+  if (iErr) { await supabase.from('purchase_deliveries').delete().eq('id', gr.id); return { error: friendlyError(iErr) }; }
 
   const post = await postMovements(supabase, {
     warehouse_id: input.warehouse_id, date: input.gr_date, ref_type: 'PURCHASE_RECEIPT', ref_id: gr.id, ref_no: gr.doc_no, reason: 'Penerimaan Barang (Goods Receipt)', notes: input.vendor_do_no ? `SJ Vendor: ${input.vendor_do_no}` : null,
@@ -105,7 +106,7 @@ export async function deletePurchaseDelivery(id: string) {
   }
   await supabase.from('stock_movements').delete().eq('ref_type', 'PURCHASE_RECEIPT').eq('ref_id', id);
   const { error } = await supabase.from('purchase_deliveries').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   await supabase.from('purchase_orders').update({ status: 'ORDERED' }).eq('id', gr.purchase_order_id).eq('status', 'RECEIVED');
   refresh();
   return { success: true };

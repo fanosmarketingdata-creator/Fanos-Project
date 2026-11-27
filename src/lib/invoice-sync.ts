@@ -1,3 +1,4 @@
+import { friendlyError } from '@/lib/db-error';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 // Hitung ulang total terbayar, diskon pembayaran, kredit (credit note), sisa dan status invoice.
@@ -18,5 +19,5 @@ export async function syncInvoicePayments(supabase: SupabaseClient, invoiceId: s
     .from('invoices')
     .update({ total_paid: paid, paid_discount: disc, credit_applied: credit, remaining, status })
     .eq('id', invoiceId);
-  return error ? { error: error.message } : {};
+  return error ? { error: friendlyError(error) } : {};
 }

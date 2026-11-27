@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
@@ -23,7 +24,7 @@ export default function NewPackingForm({ salesOrders }: { salesOrders: SOOption[
   const toast = useToast();
   const [soId, setSoId] = useState('');
   const [docNo, setDocNo] = useState('');
-  const [date, setDate] = useState(new Date().toISOString().split('T')[0]);
+  const [date, setDate] = useState(todayLocal());
   const [shipTo, setShipTo] = useState('');
   const [packedBy, setPackedBy] = useState('');
   const [notes, setNotes] = useState('');

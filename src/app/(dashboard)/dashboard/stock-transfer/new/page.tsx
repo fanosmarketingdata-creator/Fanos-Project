@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import { getDefaultWarehouseId } from '@/lib/stock';
 import NewTransferForm from './NewTransferForm';
 
@@ -6,8 +7,8 @@ export default async function NewTransferPage() {
   const supabase = createClient();
   const [{ data: whs }, { data: products }, { data: stock }, def] = await Promise.all([
     supabase.from('warehouses').select('id, name').eq('is_active', true).order('created_at'),
-    supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).order('sku'),
-    supabase.from('v_current_stock').select('warehouse_id, sku, qty'),
+    fetchAll(() => supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).order('sku')),
+    fetchAll(() => supabase.from('v_current_stock').select('warehouse_id, sku, qty')),
     getDefaultWarehouseId(supabase),
   ]);
   const stockRows = (stock ?? []).map((s) => ({ wh: s.warehouse_id as string, sku: s.sku as string, qty: Number(s.qty) }));

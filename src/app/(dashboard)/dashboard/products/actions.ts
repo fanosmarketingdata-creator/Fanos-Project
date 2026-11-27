@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -68,7 +69,7 @@ export async function saveProduct(input: ProductInput) {
   }
   if (error) {
     if (error.code === '23505') return { error: 'SKU telah digunakan oleh produk lain.' };
-    return { error: error.message };
+    return { error: friendlyError(error) };
   }
 
   revalidatePath('/dashboard/products');
@@ -81,7 +82,7 @@ export async function savePrices(id: string, cost_price: number, price: number) 
   if (!(cost_price >= 0) || !(price >= 0)) return { error: 'Harga tidak valid.' };
   const supabase = createClient();
   const { error } = await supabase.from('products').update({ cost_price, price, price_listed: true }).eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/products');
   revalidatePath('/dashboard/products/price-list');
   return { success: true };
@@ -92,7 +93,7 @@ export async function removeFromPriceList(id: string) {
   { const denied = await guard('/dashboard/products', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('products').update({ price_listed: false, cost_price: 0, price: 0 }).eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/products/price-list');
   return { success: true };
 }
@@ -101,7 +102,7 @@ export async function deleteProduct(id: string) {
   { const denied = await guard('/dashboard/products', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('products').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/products');
   return { success: true };

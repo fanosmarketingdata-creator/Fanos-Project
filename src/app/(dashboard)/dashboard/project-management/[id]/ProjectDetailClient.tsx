@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
@@ -147,7 +148,7 @@ export default function ProjectDetailClient({
 
   const visible = tasks.filter((t) => !q.trim() || t.title.toLowerCase().includes(q.trim().toLowerCase()) || t.description.toLowerCase().includes(q.trim().toLowerCase()));
   const open = tasks.find((t) => t.id === openId) ?? null;
-  const today = new Date().toISOString().slice(0, 10);
+  const today = todayLocal();
 
   function fail(r: { error?: string }) { if (r.error) { toast(r.error, 'error'); return true; } return false; }
 

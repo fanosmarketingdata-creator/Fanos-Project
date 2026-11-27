@@ -5,8 +5,7 @@ import DashboardClient, { type DashData } from '../DashboardClient';
 import { orThrowAll } from '@/lib/query';
 
 function iso(d: Date) {
-  const z = new Date(d.getTime() - d.getTimezoneOffset() * 60000);
-  return z.toISOString().split('T')[0];
+  return new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Jakarta', year: 'numeric', month: '2-digit', day: '2-digit' }).format(d);
 }
 const n = (v: unknown) => Number(v ?? 0) || 0;
 

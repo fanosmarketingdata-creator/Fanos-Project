@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server';
+import { fetchAll } from '@/lib/fetch-all';
 import CurrentStockTable from './CurrentStockTable';
 import { orThrowAll } from '@/lib/query';
 
@@ -7,8 +8,8 @@ export default async function CurrentStockPage() {
   const supabase = createClient();
   const [{ data: whs }, { data: prods }, { data: stock }, { data: transit }] = orThrowAll(await Promise.all([
     supabase.from('warehouses').select('id, name').eq('is_active', true).order('created_at'),
-    supabase.from('products').select('sku, name, brand, uom, category').eq('is_active', true).order('sku'),
-    supabase.from('v_current_stock').select('warehouse_id, sku, qty'),
+    fetchAll(() => supabase.from('products').select('sku, name, brand, uom, category').eq('is_active', true).order('sku')),
+    fetchAll(() => supabase.from('v_current_stock').select('warehouse_id, sku, qty')),
     supabase.from('stock_transfers').select('stock_transfer_items(sku, qty)').eq('status', 'SHIPPED'),
   ]));
   const onHand: Record<string, Record<string, number>> = {};

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { createClient } from '@/lib/supabase/server';
 
@@ -12,11 +13,11 @@ export async function savePushSubscription(sub: Sub) {
   let { error } = await supabase.from('push_subscriptions').upsert({ ...row, lang: sub.lang === 'id' ? 'id' : 'en' }, { onConflict: 'endpoint' });
   // Kolom lang (migrasi 0043) belum ada: simpan tanpa bahasa.
   if (error && /lang/i.test(error.message)) ({ error } = await supabase.from('push_subscriptions').upsert(row, { onConflict: 'endpoint' }));
-  return error ? { error: error.message } : { success: true };
+  return error ? { error: friendlyError(error) } : { success: true };
 }
 
 export async function removePushSubscription(endpoint: string) {
   const supabase = createClient();
   const { error } = await supabase.from('push_subscriptions').delete().eq('endpoint', endpoint);
-  return error ? { error: error.message } : { success: true };
+  return error ? { error: friendlyError(error) } : { success: true };
 }

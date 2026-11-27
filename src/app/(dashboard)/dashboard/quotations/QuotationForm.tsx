@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import RupiahInput from '@/components/ui/RupiahInput';
 import Select from '@/components/ui/Select';
@@ -41,7 +42,7 @@ export default function QuotationForm({
   const [unlisted, setUnlisted] = useState<{ sku: string; name: string }[]>([]);
 
   const [mode, setMode] = useState<'boq' | 'manual'>(initial?.mode ?? 'boq');
-  const [quoteDate, setQuoteDate] = useState(initial?.quote_date ?? new Date().toISOString().split('T')[0]);
+  const [quoteDate, setQuoteDate] = useState(initial?.quote_date ?? todayLocal());
   const [validityDate, setValidityDate] = useState(initial?.validity_date ?? '');
   const [boqProjectId, setBoqProjectId] = useState(initial?.boq_project_id ?? '');
   const [projectName, setProjectName] = useState(initial?.project_name ?? '');

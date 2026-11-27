@@ -1,4 +1,5 @@
 import { notFound } from 'next/navigation';
+import { fetchAll } from '@/lib/fetch-all';
 import { createClient } from '@/lib/supabase/server';
 import SalesOrderForm from '../SalesOrderForm';
 import { toQuoteOptions } from '@/lib/so-quotes';
@@ -15,8 +16,8 @@ export default async function EditSalesOrderPage({ params }: { params: { id: str
         .select('product_id, sku, qty, unit_price, notes')
         .eq('sales_order_id', params.id)
         .order('sort_order'),
-      supabase.from('clients').select('id, project_name').order('project_name'),
-      supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku'),
+      fetchAll(() => supabase.from('clients').select('id, project_name').order('project_name')),
+      fetchAll(() => supabase.from('products').select('id, sku, name, uom, image_url, brand, category, price, cost_price').eq('is_active', true).eq('price_listed', true).order('sku')),
       supabase
         .from('quotations')
         .select('id, doc_no, status, total_amount, client_id, clients(project_name)')

@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -55,7 +56,7 @@ export async function saveLightingSpec(input: SpecInput) {
   let id = input.id;
   if (id) {
     const { error } = await supabase.from('lighting_specifications').update({ notes: input.notes || null, updated_at: new Date().toISOString() }).eq('id', id);
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
     await supabase.from('lighting_specification_items').delete().eq('spec_id', id);
   } else {
     const { data, error } = await supabase.from('lighting_specifications').insert({ boq_project_id: input.boq_project_id, notes: input.notes || null }).select('id').single();
@@ -68,7 +69,7 @@ export async function saveLightingSpec(input: SpecInput) {
       drawing_code: it.drawing_code?.trim() || null, sort_order: i,
     })),
   );
-  if (ie) return { error: ie.message };
+  if (ie) return { error: friendlyError(ie) };
   revalidatePath(HREF);
   return { success: true, id };
 }
@@ -93,7 +94,7 @@ export async function syncLightingSpec(id: string, codes: Record<string, string>
         return { spec_id: id, product_id: it.product_id, sku: it.sku, uom: it.uom || null, qty: it.qty, drawing_code: code || null, sort_order: i };
       }),
     );
-    if (error) return { error: error.message };
+    if (error) return { error: friendlyError(error) };
   }
   await supabase.from('lighting_specifications').update({ updated_at: new Date().toISOString() }).eq('id', id);
   revalidatePath(HREF);
@@ -104,7 +105,7 @@ export async function deleteLightingSpec(id: string) {
   { const denied = await guard(HREF, 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('lighting_specifications').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath(HREF);
   return { success: true };
 }

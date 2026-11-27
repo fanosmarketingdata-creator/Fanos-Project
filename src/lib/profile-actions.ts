@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { revalidatePath } from 'next/cache';
 import { createClient } from '@/lib/supabase/server';
@@ -14,7 +15,7 @@ export async function updateMyProfile(input: { full_name: string; phone?: string
     .from('profiles')
     .update({ full_name: name, phone: input.phone?.trim() || null, photo_url: input.photo_url || null })
     .eq('id', user.id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard', 'layout');
   return { success: true };
 }

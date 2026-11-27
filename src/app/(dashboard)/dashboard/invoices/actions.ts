@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -94,7 +95,7 @@ export async function createInvoiceFromSO(input: InvoiceInput) {
     total: it.qty * it.unit_price,
   }));
   const { error: itemsErr } = await supabase.from('invoice_items').insert(rows);
-  if (itemsErr) return { error: itemsErr.message };
+  if (itemsErr) return { error: friendlyError(itemsErr) };
 
   revalidatePath('/dashboard/invoices');
   return { success: true, id: invoice.id };
@@ -104,7 +105,7 @@ export async function deleteInvoice(id: string) {
   { const denied = await guard('/dashboard/invoices', 'delete'); if (denied) return { error: denied }; }
   const supabase = createClient();
   const { error } = await supabase.from('invoices').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
 
   revalidatePath('/dashboard/invoices');
   return { success: true };

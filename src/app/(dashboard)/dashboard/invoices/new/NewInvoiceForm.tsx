@@ -1,4 +1,5 @@
 'use client';
+import { todayLocal } from '@/lib/dates';
 
 import DocPicker from '@/components/registry/DocPicker';
 import AutoInfo from '@/components/registry/AutoInfo';
@@ -19,7 +20,7 @@ export default function NewInvoiceForm({ salesOrders, products }: { salesOrders:
   const router = useRouter();
   const toast = useToast();
   const [soId, setSoId] = useState('');
-  const [invDate, setInvDate] = useState(new Date().toISOString().split('T')[0]);
+  const [invDate, setInvDate] = useState(todayLocal());
   const [docNo, setDocNo] = useState('');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(false);

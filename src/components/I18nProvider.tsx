@@ -66,7 +66,7 @@ export default function I18nProvider({ lang, children }: { lang: Lang; children:
     tx = lang === 'en' ? translateText : translateTextId;
     curLang = lang;
     try { debugOn = localStorage.getItem('fanos-i18n-debug') === '1'; } catch { debugOn = false; }
-    (window as unknown as { __i18nMissing?: () => string[] }).__i18nMissing = () => { const a = Array.from(missing).sort(); console.log(a.join('\n')); return a; };
+    (window as unknown as { __i18nMissing?: () => string[] }).__i18nMissing = () => { const a = Array.from(missing).sort(); return a; };
     translateNode(document.body);
     root.setAttribute('data-i18n', 'done');
 

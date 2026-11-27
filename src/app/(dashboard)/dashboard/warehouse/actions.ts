@@ -1,4 +1,5 @@
 'use server';
+import { friendlyError } from '@/lib/db-error';
 
 import { guard } from '@/lib/permissions';
 import { revalidatePath } from 'next/cache';
@@ -39,7 +40,7 @@ export async function deleteWarehouse(id: string) {
   const { data: w } = await supabase.from('warehouses').select('is_default').eq('id', id).single();
   if (w?.is_default) return { error: 'Gudang default tidak dapat dihapus. Jadikan gudang lain sebagai default terlebih dahulu.' };
   const { error } = await supabase.from('warehouses').delete().eq('id', id);
-  if (error) return { error: error.message };
+  if (error) return { error: friendlyError(error) };
   revalidatePath('/dashboard/warehouse');
   return { success: true };
 }
