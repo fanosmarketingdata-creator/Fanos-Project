@@ -987,4 +987,4 @@ html[data-dock='bottom'] .ai-card.ai-leave { animation-name: ai-fall-top; }
 /* Logo Fouralist di halaman login: di tengah atas judul, tinggi sama dengan logo header dashboard (32px) */
 .login-page .login-card .login-logo-top img { height: 32px; width: auto; }
 /* Logo dinaikkan sedikit dari judul */
-.login-page .login-card .login-logo-top { transform: translateY(-28px); }
+.login-page .login-card .login-logo-top { transform: translateY(-14px); }
