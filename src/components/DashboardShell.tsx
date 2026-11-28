@@ -446,8 +446,8 @@ export default function DashboardShell({
 
         <div className="hdr-logo flex shrink-0 items-center">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-fouralist.png" alt="Fouralist" className={`logo-light mr-1 h-[32px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[52px] lg:self-center' : ''}`} />
-        <img src="/logo-fouralist-dark.png" alt="Fouralist" className={`logo-dark mr-1 h-[32px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[52px] lg:self-center' : ''}`} />
+        <img src="/logo-fouralist.png" alt="Fouralist" className={`logo-light mr-1 h-[24px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[52px] lg:self-center' : ''}`} />
+        <img src="/logo-fouralist-dark.png" alt="Fouralist" className={`logo-dark mr-1 h-[24px] w-auto shrink-0 ${vertical ? 'lg:mr-0 lg:mb-1 lg:h-auto lg:w-[52px] lg:self-center' : ''}`} />
         </div>
 
         <nav className={`hdr-nav hidden min-w-0 flex-1 flex-nowrap items-center gap-0.5 lg:flex ${vertical ? 'lg:mt-2 lg:w-full lg:flex-col lg:items-stretch lg:gap-0.5' : 'lg:justify-center'}`}>
